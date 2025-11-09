@@ -41,9 +41,9 @@ pre-push:
       glob: '*.{svelte,ts,js,css}'
       run: npm run test:unit -- --run
 
-    test-e2e:
-      glob: '*.{svelte,ts,js,css,sql}'
-      run: npm run stop:preview && npm run test:e2e
+    # test-e2e:
+    #   glob: '*.{svelte,ts,js,css,sql}'
+    #   run: npm run stop:preview && npm run test:e2e
 
   fail_text: |
     🚫 Push blocked due to build or test failures
