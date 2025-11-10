@@ -241,6 +241,11 @@ function isNoChecksReportedMessage(output: string): boolean {
 	return output.toLowerCase().includes('no checks reported')
 }
 
+function hasPendingChecksMessage(output: string): boolean {
+	const normalized = output.toLowerCase()
+	return /\b(pending|in progress|queued)\b/u.test(normalized)
+}
+
 function ensureCommandExists(command: string): void {
 	const result = spawnSync(command, ['--version'], { stdio: 'ignore' })
 
@@ -513,14 +518,20 @@ async function watchPullRequestChecks(branch: string): Promise<void> {
 			console.log(output) // eslint-disable-line no-console
 		}
 
-		if (isNoChecksReportedMessage(output)) {
+		if (isNoChecksReportedMessage(output) || hasPendingChecksMessage(output)) {
 			if (attempt < maxAttempts) {
-				console.log('Status checks are not registered yet. Retrying in a few seconds.') // eslint-disable-line no-console
+				const reason = isNoChecksReportedMessage(output)
+					? 'Status checks are not registered yet.'
+					: 'Status checks are still pending.'
+				console.log(`${reason} Retrying in a few seconds.`) // eslint-disable-line no-console
 				await waitFor(retryDelayMs)
 				continue
 			}
 
-			console.log('Status checks were not registered by the final attempt, continuing anyway.') // eslint-disable-line no-console
+			const finalReason = isNoChecksReportedMessage(output)
+				? 'Status checks were not registered by the final attempt, continuing anyway.'
+				: 'Status checks remained pending by the final attempt, continuing anyway.'
+			console.log(finalReason) // eslint-disable-line no-console
 			console.log(`✓ ${attemptLabel} ... complete`) // eslint-disable-line no-console
 			return
 		}
@@ -564,14 +575,20 @@ async function evaluateSonarChecks(branch: string): Promise<{ url?: string; titl
 			break
 		}
 
-		if (isNoChecksReportedMessage(trimmedOutput)) {
+		if (isNoChecksReportedMessage(trimmedOutput) || hasPendingChecksMessage(trimmedOutput)) {
 			if (attempt < maxAttempts) {
-				console.log('Status check results are not available yet. Retrying in a few seconds.') // eslint-disable-line no-console
+				const reason = isNoChecksReportedMessage(trimmedOutput)
+					? 'Status check results are not available yet.'
+					: 'Status check results are still pending.'
+				console.log(`${reason} Retrying in a few seconds.`) // eslint-disable-line no-console
 				await waitFor(retryDelayMs)
 				continue
 			}
 
-			console.log('Status check results were not available by the final attempt, continuing anyway.') // eslint-disable-line no-console
+			const finalReason = isNoChecksReportedMessage(trimmedOutput)
+				? 'Status check results were not available by the final attempt, continuing anyway.'
+				: 'Status check results remained pending by the final attempt, continuing anyway.'
+			console.log(finalReason) // eslint-disable-line no-console
 			console.log(`✓ ${attemptLabel} ... complete`) // eslint-disable-line no-console
 			break
 		}
