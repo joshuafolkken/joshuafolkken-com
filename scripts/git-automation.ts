@@ -18,6 +18,7 @@ interface CommandOptions {
 	allowNonZeroExit?: boolean
 	description?: string
 	env?: NodeJS.ProcessEnv
+	leadingBlankLine?: boolean
 }
 
 interface CommandResult {
@@ -52,7 +53,7 @@ async function readPipedInput(): Promise<string | undefined> {
 
 function ensurePromptInterface(prompt: Interface | undefined): Interface {
 	if (prompt === undefined) {
-		throw new AutomationError('対話的入力が必要です。TTY環境で再実行してください。')
+		throw new AutomationError('Interactive input is required. Please rerun this script in a TTY environment.')
 	}
 	return prompt
 }
@@ -69,14 +70,14 @@ async function readIssueLine(prompt: Interface | undefined): Promise<string> {
 		const lines = rawLines[0]?.trim() === '@git-automation.md' ? rawLines.slice(1) : rawLines
 
 		if (lines.length < 1) {
-			throw new AutomationError('入力が不足しています。Issue情報を含む行を提供してください。')
+			throw new AutomationError('Input is missing. Please provide a line that includes issue information.')
 		}
 
 		return lines[0] ?? ''
 	}
 
 	const rl = ensurePromptInterface(prompt)
-	const issueLine = await rl.question('Issue情報 (<title> #<number>): ')
+	const issueLine = await rl.question('\nIssue info (<title> #<number>): ')
 
 	return issueLine.trim()
 }
@@ -86,7 +87,7 @@ function parseIssueLine(line: string): { issueTitle: string; issueNumber: string
 	const hashIndex = normalized.lastIndexOf('#')
 
 	if (hashIndex <= 0) {
-		throw new AutomationError('Issue情報の形式が不正です。`<title> #<number>` の形式で指定してください。')
+		throw new AutomationError('Issue information is malformed. Use the format `<title> #<number>`.')
 	}
 
 	const rawTitle = normalized.slice(0, hashIndex).trim()
@@ -94,7 +95,7 @@ function parseIssueLine(line: string): { issueTitle: string; issueNumber: string
 	const numberMatch = rawNumber.match(/\d+/u)
 
 	if (rawTitle.length === 0 || numberMatch === null) {
-		throw new AutomationError('Issue情報の形式が不正です。タイトルまたは番号を確認してください。')
+		throw new AutomationError('Issue information is malformed. Check the title and number.')
 	}
 
 	return {
@@ -136,10 +137,17 @@ function parseAutomationConfig(issueLine: string): AutomationConfig {
 }
 
 function runCommand(command: string, args: string[], options: CommandOptions = {}): CommandResult {
-	const { stdio = 'pipe', allowNonZeroExit = false, env, description } = options
-	const startMessage = description !== undefined ? `▶ ${description} 実行します...` : undefined
+	const { stdio = 'pipe', allowNonZeroExit = false, env, description, leadingBlankLine = false } = options
+	const startMessage = description !== undefined ? `▶ ${description} ...` : undefined
 	const inlineStatus = startMessage !== undefined && stdio === 'pipe'
 	if (startMessage !== undefined) {
+		if (leadingBlankLine) {
+			if (inlineStatus) {
+				process.stdout.write(EOL)
+			} else {
+				console.log('')
+			}
+		}
 		if (inlineStatus) {
 			process.stdout.write(startMessage)
 		} else {
@@ -157,7 +165,7 @@ function runCommand(command: string, args: string[], options: CommandOptions = {
 
 	if (result.error) {
 		throw new AutomationError(
-			description !== undefined ? `${description} に失敗しました: ${result.error.message}` : result.error.message,
+			description !== undefined ? `${description} failed: ${result.error.message}` : result.error.message,
 			{ cause: result.error }
 		)
 	}
@@ -169,14 +177,17 @@ function runCommand(command: string, args: string[], options: CommandOptions = {
 	if (!allowNonZeroExit && status !== 0) {
 		const message =
 			description !== undefined
-				? `${description} に失敗しました。${stderr.trim().length > 0 ? `\n${stderr.trim()}` : ''}`
-				: `コマンド実行に失敗しました: ${command} ${args.join(' ')}`
+				? `${description} failed.${stderr.trim().length > 0 ? `\n${stderr.trim()}` : ''}`
+				: `Command execution failed: ${command} ${args.join(' ')}`
 		if (description !== undefined) {
-			const failMessage = `✗ ${description} 実行します... 失敗`
+			const failMessage = `✗ ${description} ... failed`
 			if (inlineStatus) {
 				const padding = startMessage.length > failMessage.length ? ' '.repeat(startMessage.length - failMessage.length) : ''
 				process.stdout.write(`\r${failMessage}${padding}\n`)
 			} else {
+				if (leadingBlankLine) {
+					console.error('')
+				}
 				console.error(failMessage) // eslint-disable-line no-console
 			}
 		}
@@ -184,11 +195,14 @@ function runCommand(command: string, args: string[], options: CommandOptions = {
 	}
 
 	if (description !== undefined && (allowNonZeroExit || status === 0)) {
-		const successMessage = `✓ ${description} 実行します... 完了`
+		const successMessage = `✓ ${description} ... complete`
 		if (inlineStatus) {
 			const padding = startMessage.length > successMessage.length ? ' '.repeat(startMessage.length - successMessage.length) : ''
 			process.stdout.write(`\r${successMessage}${padding}\n`)
 		} else {
+			if (leadingBlankLine) {
+				console.log('')
+			}
 			console.log(successMessage) // eslint-disable-line no-console
 		}
 	}
@@ -232,13 +246,13 @@ function ensureCommandExists(command: string): void {
 
 	if (result.error !== undefined || result.status !== 0) {
 		throw new AutomationError(
-			`⚠️ ${command} がインストールされていません。必要に応じてインストールしてから再実行してください。`
+			`⚠️ ${command} is not installed. Install it if necessary and rerun this script.`
 		)
 	}
 }
 
 function ensureStagingState(): void {
-	const { stdout } = runCommand('git', ['status', '--porcelain'], { description: 'ステージング状態の確認' })
+	const { stdout } = runCommand('git', ['status', '--porcelain'], { description: 'Check staging status' })
 
 	const lines = stdout
 		.split(/\r?\n/u)
@@ -251,10 +265,10 @@ function ensureStagingState(): void {
 	if (hasUntracked || hasUnstaged) {
 		throw new AutomationError(
 			[
-				'🚫 すべての変更ファイルがステージングされていません。',
-				'以下のコマンドでステージングしてください：',
+				'🚫 Not all changes are staged.',
+				'Stage your changes with:',
 				'  git add .',
-				'ステージング後に再度実行してください。',
+				'Rerun this script after staging.',
 			].join(EOL)
 		)
 	}
@@ -262,7 +276,7 @@ function ensureStagingState(): void {
 
 function getCurrentBranch(): string {
 	const { stdout } = runCommand('git', ['branch', '--show-current'], {
-		description: '現在のブランチ取得',
+		description: 'Get current branch',
 	})
 	return stdout.trim()
 }
@@ -281,10 +295,10 @@ function ensureBranchMatchesIssue(branch: string, issueNumber: string): void {
 	if (branchIssue !== undefined && branchIssue !== issueNumber) {
 		throw new AutomationError(
 			[
-				'🚫 Issue番号とブランチ番号が一致しません。',
-				`  指定されたIssue番号: #${issueNumber}`,
-				`  現在のブランチ:       ${branch}`,
-				'正しいブランチに切り替えるか、新しいブランチを作成してから再実行してください。',
+				'🚫 The issue number does not match the branch number.',
+				`  Issue number: #${issueNumber}`,
+				`  Current branch: ${branch}`,
+				'Switch to the correct branch or create a new one, then rerun this script.',
 			].join(EOL)
 		)
 	}
@@ -294,21 +308,21 @@ function ensureMainIsUpdated(branch: string): void {
 	const target = branch === 'master' ? 'master' : 'main'
 	runCommand('git', ['pull', 'origin', target], {
 		stdio: 'inherit',
-		description: `${target} ブランチの最新取得`,
+		description: `Pull latest ${target} branch`,
 	})
 }
 
 function checkoutBranch(branch: string): void {
 	runCommand('git', ['checkout', branch], {
 		stdio: 'inherit',
-		description: `${branch} ブランチへの切り替え`,
+		description: `Switch to branch ${branch}`,
 	})
 }
 
 function createBranch(branch: string): void {
 	runCommand('git', ['checkout', '-b', branch], {
 		stdio: 'inherit',
-		description: `${branch} ブランチの作成`,
+		description: `Create branch ${branch}`,
 	})
 }
 
@@ -319,22 +333,22 @@ function ensureIssueMatches(config: AutomationConfig): void {
 		'gh',
 		['issue', 'view', config.issueNumber, '--json', 'title', '--jq', '.title'],
 		{
-			description: 'Issue情報の検証',
+			description: 'Validate issue information',
 		}
 	)
 
 	const githubTitle = stdout.trim()
 	if (githubTitle.length === 0) {
-		throw new AutomationError(`🚫 Issue #${config.issueNumber} が見つかりません。`)
+		throw new AutomationError(`🚫 Issue #${config.issueNumber} was not found.`)
 	}
 
 	if (githubTitle !== config.issueTitle) {
 		throw new AutomationError(
 			[
-				'🚫 Issueタイトルが一致しません。',
-				`  指定されたタイトル: ${config.issueTitle}`,
-				`  GitHubのタイトル:    ${githubTitle}`,
-				'Issue番号とタイトルを確認してください。',
+				'🚫 Issue title does not match.',
+				`  Provided title: ${config.issueTitle}`,
+				`  GitHub title:   ${githubTitle}`,
+				'Verify the issue number and title.',
 			].join(EOL)
 		)
 	}
@@ -342,7 +356,7 @@ function ensureIssueMatches(config: AutomationConfig): void {
 
 function getStagedFiles(): string[] {
 	const { stdout } = runCommand('git', ['diff', '--cached', '--name-only'], {
-		description: 'ステージ済みファイルの取得',
+		description: 'Get staged files',
 	})
 	return stdout
 		.split(/\r?\n/u)
@@ -359,16 +373,16 @@ async function ensurePackageJsonVersion(prompt: Interface | undefined): Promise<
 	if (!hasPackageJson) {
 		const shouldContinue = await askYesNoBinary(
 			rl,
-			'⚠️ package.json がステージング済みの変更に含まれていません。続行しますか？ (y/n): '
+			'⚠️ package.json is not included in the staged changes. Continue? (y/n): '
 		)
 		if (!shouldContinue) {
-			throw new AutomationError('ユーザーが続行をキャンセルしました。')
+			throw new AutomationError('Operation cancelled by user.')
 		}
 		return
 	}
 
 	const diff = runCommand('git', ['diff', '--cached', 'package.json'], {
-		description: 'package.json の差分確認',
+		description: 'Inspect package.json diff',
 	}).stdout
 
 	const versionChanged = /^[+-]\s*"version"\s*:/gmu.test(diff)
@@ -376,10 +390,10 @@ async function ensurePackageJsonVersion(prompt: Interface | undefined): Promise<
 	if (!versionChanged) {
 		const shouldContinue = await askYesNoBinary(
 			rl,
-			'⚠️ package.json の version が更新されていません。続行しますか？ (y/n): '
+			'⚠️ The package.json version has not been updated. Continue? (y/n): '
 		)
 		if (!shouldContinue) {
-			throw new AutomationError('ユーザーが続行をキャンセルしました。')
+			throw new AutomationError('Operation cancelled by user.')
 		}
 	}
 }
@@ -395,7 +409,7 @@ async function askYesNoBinary(prompt: Interface, question: string): Promise<bool
 		return false
 	}
 
-	console.log('y か n で回答してください。') // eslint-disable-line no-console
+	console.log('Please answer with y or n.') // eslint-disable-line no-console
 	return askYesNoBinary(prompt, question)
 }
 
@@ -403,21 +417,21 @@ async function configureOperations(prompt: Interface | undefined): Promise<Recor
 	const rl = ensurePromptInterface(prompt)
 
 	while (true) {
-		const commit = await askYesNoBinary(rl, 'コミットを実行しますか？ (y/n): ')
-		const push = await askYesNoBinary(rl, 'プッシュを実行しますか？ (y/n): ')
-		const pr = await askYesNoBinary(rl, 'PR作成を実行しますか？ (y/n): ')
+		const commit = await askYesNoBinary(rl, '\nRun commit? (y/n): ')
+		const push = await askYesNoBinary(rl, 'Push changes? (y/n): ')
+		const pr = await askYesNoBinary(rl, 'Create pull request? (y/n): ')
 
-		console.log('現在の設定:') // eslint-disable-line no-console
-		console.log(`- コミット: ${commit ? '実行する' : '実行しない'}`) // eslint-disable-line no-console
-		console.log(`- プッシュ: ${push ? '実行する' : '実行しない'}`) // eslint-disable-line no-console
-		console.log(`- PR作成: ${pr ? '実行する' : '実行しない'}`) // eslint-disable-line no-console
+		console.log('\nCurrent configuration:') // eslint-disable-line no-console
+		console.log(`- Commit: ${commit ? 'enabled' : 'skipped'}`) // eslint-disable-line no-console
+		console.log(`- Push: ${push ? 'enabled' : 'skipped'}`) // eslint-disable-line no-console
+		console.log(`- Create PR: ${pr ? 'enabled' : 'skipped'}`) // eslint-disable-line no-console
 
-		const confirm = await askYesNoBinary(rl, 'この設定で進めますか？ (y/n): ')
+		const confirm = await askYesNoBinary(rl, 'Proceed with this configuration? (y/n): ')
 		if (confirm) {
 			return { commit, push, pr }
 		}
 
-		console.log('設定を再入力します。') // eslint-disable-line no-console
+		console.log('Re-enter configuration.') // eslint-disable-line no-console
 	}
 }
 
@@ -425,23 +439,24 @@ function runCommit(config: AutomationConfig): void {
 	const commitMessage = `${config.issueTitle} #${config.issueNumber}`
 	runCommand('git', ['commit', '-m', commitMessage], {
 		stdio: 'inherit',
-		description: 'コミット',
+		description: 'Commit',
 	})
 }
 
 function runPush(branch: string): void {
 	runCommand('git', ['push', '-u', 'origin', branch], {
 		stdio: 'inherit',
-		description: 'プッシュ',
+		description: 'Push',
+		leadingBlankLine: true,
 	})
 }
 
 function createPullRequest(config: AutomationConfig): void {
 	const title = `${config.issueTitle} #${config.issueNumber}`
 	const body = `closes #${config.issueNumber}`
-	const description = 'PR作成'
+	const description = 'Create PR'
 
-	console.log(`▶ ${description} 実行します...`) // eslint-disable-line no-console
+	console.log(`\n▶ ${description} ...`) // eslint-disable-line no-console
 
 	const result = runCommand(
 		'gh',
@@ -458,29 +473,29 @@ function createPullRequest(config: AutomationConfig): void {
 		if (output.length > 0) {
 			console.log(output.trim()) // eslint-disable-line no-console
 		}
-		console.log(`✓ ${description} 実行します... 完了`) // eslint-disable-line no-console
+		console.log(`✓ ${description} ... complete`) // eslint-disable-line no-console
 		return
 	}
 
 	if (isExistingPullRequestMessage(output)) {
-		console.log('既存のPRが見つかりました。同じPRを利用して処理を継続します。') // eslint-disable-line no-console
-		console.log(`✓ ${description} 実行します... 完了`) // eslint-disable-line no-console
+		console.log('An existing PR was found. Continuing with the same PR.') // eslint-disable-line no-console
+		console.log(`✓ ${description} ... complete`) // eslint-disable-line no-console
 		return
 	}
 
-	console.log(`✗ ${description} 実行します... 失敗`) // eslint-disable-line no-console
+	console.log(`✗ ${description} ... failed`) // eslint-disable-line no-console
 
-	throw new AutomationError(`PR作成に失敗しました。${output.length > 0 ? `\n${output.trim()}` : ''}`)
+	throw new AutomationError(`Failed to create PR.${output.length > 0 ? `\n${output.trim()}` : ''}`)
 }
 
 async function watchPullRequestChecks(branch: string): Promise<void> {
-	const description = 'ステータスチェック待機'
+	const description = 'Wait for status checks'
 	const maxAttempts = 5
 	const retryDelayMs = 5_000
 
 	for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-		const attemptLabel = `${description} (試行${attempt}/${maxAttempts})`
-		console.log(`▶ ${attemptLabel} 実行します...`) // eslint-disable-line no-console
+		const attemptLabel = `${description} (attempt ${attempt}/${maxAttempts})`
+		console.log(`▶ ${attemptLabel} ...`) // eslint-disable-line no-console
 
 		const result = runCommand('gh', ['pr', 'checks', '--watch', branch], {
 			stdio: 'inherit',
@@ -488,7 +503,7 @@ async function watchPullRequestChecks(branch: string): Promise<void> {
 		})
 
 		if (result.status === 0) {
-			console.log(`✓ ${attemptLabel} 実行します... 完了`) // eslint-disable-line no-console
+			console.log(`✓ ${attemptLabel} ... complete`) // eslint-disable-line no-console
 			return
 		}
 
@@ -500,41 +515,42 @@ async function watchPullRequestChecks(branch: string): Promise<void> {
 
 		if (isNoChecksReportedMessage(output)) {
 			if (attempt < maxAttempts) {
-				console.log('ステータスチェックがまだ登録されていません。数秒後に再試行します。') // eslint-disable-line no-console
+				console.log('Status checks are not registered yet. Retrying in a few seconds.') // eslint-disable-line no-console
 				await waitFor(retryDelayMs)
 				continue
 			}
 
-			console.log('ステータスチェックが最終試行までに登録されませんでしたが、処理を継続します。') // eslint-disable-line no-console
-			console.log(`✓ ${attemptLabel} 実行します... 完了`) // eslint-disable-line no-console
+			console.log('Status checks were not registered by the final attempt, continuing anyway.') // eslint-disable-line no-console
+			console.log(`✓ ${attemptLabel} ... complete`) // eslint-disable-line no-console
 			return
 		}
 
-		console.log(`✗ ${attemptLabel} 実行します... 失敗`) // eslint-disable-line no-console
+		console.log(`✗ ${attemptLabel} ... failed`) // eslint-disable-line no-console
 
-		throw new AutomationError(`ステータスチェック待機に失敗しました。${output.length > 0 ? `\n${output}` : ''}`)
+		throw new AutomationError(`Waiting for status checks failed.${output.length > 0 ? `\n${output}` : ''}`)
 	}
 }
 
 async function evaluateSonarChecks(branch: string): Promise<{ url?: string; title?: string }> {
 	const { stdout } = runCommand('gh', ['pr', 'view', branch, '--json', 'url,title,number'], {
-		description: 'PR情報の取得',
+		description: 'Fetch PR details',
 	})
 
 	let prInfo: { url?: string; title?: string } = {}
 	try {
 		prInfo = JSON.parse(stdout) as { url?: string; title?: string }
 	} catch (error) {
-		throw new AutomationError('PR情報の取得に失敗しました。JSONの解析に失敗しました。', { cause: error })
+		throw new AutomationError('Failed to fetch PR details. Unable to parse JSON.', { cause: error })
 	}
 
 	const maxAttempts = 5
 	const retryDelayMs = 5_000
 	let trimmedOutput = ''
+	let hasLoggedOutput = false
 
 	for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-		const attemptLabel = `ステータスチェック結果の取得 (試行${attempt}/${maxAttempts})`
-		console.log(`▶ ${attemptLabel} 実行します...`) // eslint-disable-line no-console
+		const attemptLabel = `Fetch status check results (attempt ${attempt}/${maxAttempts})`
+		console.log(`▶ ${attemptLabel} ...`) // eslint-disable-line no-console
 
 		const { status, output } = fetchPrChecksOutput(branch)
 		trimmedOutput = output
@@ -542,26 +558,27 @@ async function evaluateSonarChecks(branch: string): Promise<{ url?: string; titl
 		if (status === 0) {
 			if (trimmedOutput.length > 0) {
 				console.log(trimmedOutput) // eslint-disable-line no-console
+				hasLoggedOutput = true
 			}
-			console.log(`✓ ${attemptLabel} 実行します... 完了`) // eslint-disable-line no-console
+			console.log(`✓ ${attemptLabel} ... complete`) // eslint-disable-line no-console
 			break
 		}
 
 		if (isNoChecksReportedMessage(trimmedOutput)) {
 			if (attempt < maxAttempts) {
-				console.log('ステータスチェック結果がまだ反映されていません。数秒後に再確認します。') // eslint-disable-line no-console
+				console.log('Status check results are not available yet. Retrying in a few seconds.') // eslint-disable-line no-console
 				await waitFor(retryDelayMs)
 				continue
 			}
 
-			console.log('ステータスチェック結果が最終試行までに取得できませんでしたが、処理を継続します。') // eslint-disable-line no-console
-			console.log(`✓ ${attemptLabel} 実行します... 完了`) // eslint-disable-line no-console
+			console.log('Status check results were not available by the final attempt, continuing anyway.') // eslint-disable-line no-console
+			console.log(`✓ ${attemptLabel} ... complete`) // eslint-disable-line no-console
 			break
 		}
 
-		console.log(`✗ ${attemptLabel} 実行します... 失敗`) // eslint-disable-line no-console
+		console.log(`✗ ${attemptLabel} ... failed`) // eslint-disable-line no-console
 		throw new AutomationError(
-			`ステータスチェック結果の取得に失敗しました。${trimmedOutput.length > 0 ? `\n${trimmedOutput}` : ''}`
+			`Failed to fetch status check results.${trimmedOutput.length > 0 ? `\n${trimmedOutput}` : ''}`
 		)
 	}
 
@@ -574,14 +591,14 @@ async function evaluateSonarChecks(branch: string): Promise<{ url?: string; titl
 		const sonarUrl = sonarUrlMatch?.[0] ?? prInfo.url ?? ''
 		throw new AutomationError(
 			[
-				'⚠️ SonarCloud で問題が検出されました。',
-				`詳細: ${sonarUrl}`,
-				'問題を修正した後、再度コミットおよびプッシュしてください。',
+				'⚠️ SonarCloud reported issues.',
+				`Details: ${sonarUrl}`,
+				'Resolve the issues, then commit and push again.',
 			].join(EOL)
 		)
 	}
 
-	if (trimmedOutput.length > 0 && !isNoChecksReportedMessage(trimmedOutput)) {
+	if (!hasLoggedOutput && trimmedOutput.length > 0 && !isNoChecksReportedMessage(trimmedOutput)) {
 		console.log(trimmedOutput) // eslint-disable-line no-console
 	}
 
@@ -592,7 +609,7 @@ function summarizeOperations(config: AutomationConfig): string {
 	const enabled = Object.entries(config.operations)
 		.filter(([, value]) => value)
 		.map(([key]) => key)
-	return enabled.length > 0 ? enabled.join(', ') : 'なし'
+	return enabled.length > 0 ? enabled.join(', ') : 'none'
 }
 
 async function main(): Promise<void> {
@@ -619,58 +636,58 @@ async function main(): Promise<void> {
 			}
 		} else if (currentBranch !== config.targetBranch) {
 			console.log(
-				`⚠️ 現在のブランチ (${currentBranch}) と推奨ブランチ名 (${config.targetBranch}) が異なります。既存ブランチで処理を続行します。`
+				`⚠️ The current branch (${currentBranch}) differs from the recommended branch name (${config.targetBranch}). Continuing on the existing branch.`
 			) // eslint-disable-line no-console
 		}
 
 		ensureIssueMatches(config)
-		console.log('✓ 事前チェック完了') // eslint-disable-line no-console
+		console.log('✓ Pre-flight checks complete') // eslint-disable-line no-console
 
 		config.operations = await configureOperations(prompt)
 
 		const summary = summarizeOperations(config)
-		console.log(`処理を開始します（Issue #${config.issueNumber}: ${config.issueTitle} → ${summary}）`) // eslint-disable-line no-console
+		console.log(`\nStarting execution (Issue #${config.issueNumber}: ${config.issueTitle} → ${summary})`) // eslint-disable-line no-console
 
 		if (config.operations.commit) {
 			runCommit(config)
-			console.log('✓ コミット完了') // eslint-disable-line no-console
+			console.log('✓ Commit complete') // eslint-disable-line no-console
 		}
 
 		if (config.operations.push) {
 			runPush(currentBranch)
-			console.log('✓ プッシュ完了') // eslint-disable-line no-console
+			console.log('✓ Push complete') // eslint-disable-line no-console
 		}
 
 		if (config.operations.pr) {
 			createPullRequest(config)
-			console.log('✓ PR作成完了') // eslint-disable-line no-console
+			console.log('✓ PR creation complete') // eslint-disable-line no-console
 
 			await watchPullRequestChecks(currentBranch)
-			console.log('✓ ステータスチェック完了') // eslint-disable-line no-console
+			console.log('✓ Status checks complete') // eslint-disable-line no-console
 
 			const prInfo = await evaluateSonarChecks(currentBranch)
-			console.log('✓ SonarCloud確認完了') // eslint-disable-line no-console
+			console.log('✓ SonarCloud verification complete') // eslint-disable-line no-console
 
 			console.log('---') // eslint-disable-line no-console
-			console.log('✅ すべての処理が正常に完了しました') // eslint-disable-line no-console
+			console.log('\n✅ All operations completed successfully') // eslint-disable-line no-console
 
 			if (prInfo.url !== undefined) {
-				console.log(`PR情報:`) // eslint-disable-line no-console
+				console.log(`\nPR details:`) // eslint-disable-line no-console
 				console.log(`- URL: ${prInfo.url}`) // eslint-disable-line no-console
 			}
 
 			if (prInfo.title !== undefined) {
-				console.log(`- タイトル: ${prInfo.title}`) // eslint-disable-line no-console
+				console.log(`- Title: ${prInfo.title}`) // eslint-disable-line no-console
 			}
 
-			console.log('- ステータス: ✓ All checks passed') // eslint-disable-line no-console
-			console.log('次のステップ: コードレビューを依頼してください。') // eslint-disable-line no-console
+			console.log('- Status: ✓ All checks passed') // eslint-disable-line no-console
+			console.log('\nNext step: request a code review.') // eslint-disable-line no-console
 
 			return
 		}
 
 		console.log('---') // eslint-disable-line no-console
-		console.log('✅ 指定された処理が完了しました') // eslint-disable-line no-console
+		console.log('✅ Requested operations completed') // eslint-disable-line no-console
 	} catch (error) {
 		if (error instanceof AutomationError) {
 			console.error(error.message) // eslint-disable-line no-console
@@ -678,11 +695,11 @@ async function main(): Promise<void> {
 		}
 
 		if (error instanceof Error) {
-			console.error(`予期しないエラーが発生しました: ${error.message}`) // eslint-disable-line no-console
+			console.error(`An unexpected error occurred: ${error.message}`) // eslint-disable-line no-console
 			exit(1)
 		}
 
-		console.error('予期しないエラーが発生しました。') // eslint-disable-line no-console
+		console.error('An unexpected error occurred.') // eslint-disable-line no-console
 		exit(1)
 	} finally {
 		await prompt?.close()
