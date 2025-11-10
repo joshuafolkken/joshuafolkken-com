@@ -196,6 +196,12 @@ function runCommand(command: string, args: string[], options: CommandOptions = {
 	return { stdout, stderr, status }
 }
 
+async function waitFor(milliseconds: number): Promise<void> {
+	await new Promise((resolve) => {
+		setTimeout(resolve, milliseconds)
+	})
+}
+
 function isExistingPullRequestMessage(output: string): boolean {
 	const normalized = output.toLowerCase()
 	return normalized.includes('pull request') && normalized.includes('already exists')
@@ -451,34 +457,52 @@ function createPullRequest(config: AutomationConfig): void {
 	throw new AutomationError(`PR作成に失敗しました。${output.length > 0 ? `\n${output.trim()}` : ''}`)
 }
 
-function watchPullRequestChecks(branch: string): void {
+async function watchPullRequestChecks(branch: string): Promise<void> {
 	const description = 'ステータスチェック待機'
-	console.log(`▶ ${description} 実行します...`) // eslint-disable-line no-console
+	const maxAttempts = 5
+	const retryDelayMs = 5_000
 
-	const result = runCommand('gh', ['pr', 'checks', '--watch', branch], {
-		stdio: 'pipe',
-		allowNonZeroExit: true,
-	})
+	for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+		const attemptLabel = `${description} (試行${attempt}/${maxAttempts})`
+		console.log(`▶ ${attemptLabel} 実行します...`) // eslint-disable-line no-console
 
-	const output = [result.stdout, result.stderr].filter((value) => value !== undefined && value.trim().length > 0).join('\n')
-	const trimmedOutput = output.trim()
+		const result = runCommand('gh', ['pr', 'checks', '--watch', branch], {
+			stdio: 'pipe',
+			allowNonZeroExit: true,
+		})
 
-	if (result.status === 0 || isNoChecksReportedMessage(trimmedOutput)) {
-		if (trimmedOutput.length > 0 && !isNoChecksReportedMessage(trimmedOutput)) {
-			console.log(trimmedOutput) // eslint-disable-line no-console
-		} else if (isNoChecksReportedMessage(trimmedOutput)) {
-			console.log('ステータスチェックがまだ登録されていませんが、処理を継続します。') // eslint-disable-line no-console
+		const output = [result.stdout, result.stderr]
+			.filter((value) => value !== undefined && value.trim().length > 0)
+			.join('\n')
+		const trimmedOutput = output.trim()
+
+		if (result.status === 0) {
+			if (trimmedOutput.length > 0) {
+				console.log(trimmedOutput) // eslint-disable-line no-console
+			}
+			console.log(`✓ ${attemptLabel} 実行します... 完了`) // eslint-disable-line no-console
+			return
 		}
-		console.log(`✓ ${description} 実行します... 完了`) // eslint-disable-line no-console
-		return
+
+		if (isNoChecksReportedMessage(trimmedOutput)) {
+			if (attempt < maxAttempts) {
+				console.log('ステータスチェックがまだ登録されていません。数秒後に再試行します。') // eslint-disable-line no-console
+				await waitFor(retryDelayMs)
+				continue
+			}
+
+			console.log('ステータスチェックが最終試行までに登録されませんでしたが、処理を継続します。') // eslint-disable-line no-console
+			console.log(`✓ ${attemptLabel} 実行します... 完了`) // eslint-disable-line no-console
+			return
+		}
+
+		console.log(`✗ ${attemptLabel} 実行します... 失敗`) // eslint-disable-line no-console
+
+		throw new AutomationError(`ステータスチェック待機に失敗しました。${trimmedOutput.length > 0 ? `\n${trimmedOutput}` : ''}`)
 	}
-
-	console.log(`✗ ${description} 実行します... 失敗`) // eslint-disable-line no-console
-
-	throw new AutomationError(`ステータスチェック待機に失敗しました。${trimmedOutput.length > 0 ? `\n${trimmedOutput}` : ''}`)
 }
 
-function evaluateSonarChecks(branch: string): { url?: string; title?: string } {
+async function evaluateSonarChecks(branch: string): Promise<{ url?: string; title?: string }> {
 	const { stdout } = runCommand('gh', ['pr', 'view', branch, '--json', 'url,title,number'], {
 		description: 'PR情報の取得',
 	})
@@ -490,20 +514,49 @@ function evaluateSonarChecks(branch: string): { url?: string; title?: string } {
 		throw new AutomationError('PR情報の取得に失敗しました。JSONの解析に失敗しました。', { cause: error })
 	}
 
-	const checksResult = runCommand('gh', ['pr', 'checks', branch], {
-		stdio: 'pipe',
-		allowNonZeroExit: true,
-		description: 'ステータスチェック結果の取得',
-	})
+	const maxAttempts = 5
+	const retryDelayMs = 5_000
+	let trimmedOutput = ''
 
-	const output = [checksResult.stdout, checksResult.stderr]
-		.filter((value) => value !== undefined && value.trim().length > 0)
-		.join('\n')
-	const trimmedOutput = output.trim()
+	for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+		const attemptLabel = `ステータスチェック結果の取得 (試行${attempt}/${maxAttempts})`
+		console.log(`▶ ${attemptLabel} 実行します...`) // eslint-disable-line no-console
 
-	if (checksResult.status !== 0 && trimmedOutput.length > 0 && !isNoChecksReportedMessage(trimmedOutput)) {
-		throw new AutomationError(`ステータスチェック結果の取得に失敗しました。\n${trimmedOutput}`)
-}
+		const result = runCommand('gh', ['pr', 'checks', branch], {
+			stdio: 'pipe',
+			allowNonZeroExit: true,
+		})
+
+		const output = [result.stdout, result.stderr]
+			.filter((value) => value !== undefined && value.trim().length > 0)
+			.join('\n')
+		trimmedOutput = output.trim()
+
+		if (result.status === 0) {
+			if (trimmedOutput.length > 0) {
+				console.log(trimmedOutput) // eslint-disable-line no-console
+			}
+			console.log(`✓ ${attemptLabel} 実行します... 完了`) // eslint-disable-line no-console
+			break
+		}
+
+		if (isNoChecksReportedMessage(trimmedOutput)) {
+			if (attempt < maxAttempts) {
+				console.log('ステータスチェック結果がまだ反映されていません。数秒後に再確認します。') // eslint-disable-line no-console
+				await waitFor(retryDelayMs)
+				continue
+			}
+
+			console.log('ステータスチェック結果が最終試行までに取得できませんでしたが、処理を継続します。') // eslint-disable-line no-console
+			console.log(`✓ ${attemptLabel} 実行します... 完了`) // eslint-disable-line no-console
+			break
+		}
+
+		console.log(`✗ ${attemptLabel} 実行します... 失敗`) // eslint-disable-line no-console
+		throw new AutomationError(
+			`ステータスチェック結果の取得に失敗しました。${trimmedOutput.length > 0 ? `\n${trimmedOutput}` : ''}`
+		)
+	}
 
 	const sonarLine = trimmedOutput
 		.split(/\r?\n/u)
@@ -521,7 +574,7 @@ function evaluateSonarChecks(branch: string): { url?: string; title?: string } {
 		)
 	}
 
-	if (trimmedOutput.length > 0) {
+	if (trimmedOutput.length > 0 && !isNoChecksReportedMessage(trimmedOutput)) {
 		console.log(trimmedOutput) // eslint-disable-line no-console
 	}
 
@@ -585,10 +638,10 @@ async function main(): Promise<void> {
 			createPullRequest(config)
 			console.log('✓ PR作成完了') // eslint-disable-line no-console
 
-			watchPullRequestChecks(currentBranch)
+			await watchPullRequestChecks(currentBranch)
 			console.log('✓ ステータスチェック完了') // eslint-disable-line no-console
 
-			const prInfo = evaluateSonarChecks(currentBranch)
+			const prInfo = await evaluateSonarChecks(currentBranch)
 			console.log('✓ SonarCloud確認完了') // eslint-disable-line no-console
 
 			console.log('---') // eslint-disable-line no-console
@@ -604,11 +657,7 @@ async function main(): Promise<void> {
 			}
 
 			console.log('- ステータス: ✓ All checks passed') // eslint-disable-line no-console
-			if (prInfo.url !== undefined) {
-				console.log(`次のステップ: コードレビューを依頼してください（PR: ${prInfo.url}）。`) // eslint-disable-line no-console
-			} else {
-				console.log('次のステップ: コードレビューを依頼してください。') // eslint-disable-line no-console
-			}
+			console.log('次のステップ: コードレビューを依頼してください。') // eslint-disable-line no-console
 
 			return
 		}
