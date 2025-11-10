@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import { spawnSync, type SpawnSyncOptions } from 'node:child_process'
-import { stdin as input, stdout as output, exit } from 'node:process'
-import { createInterface, Interface } from 'node:readline/promises'
 import { EOL } from 'node:os'
+import { exit, stdin as input, stdout as output } from 'node:process'
+import { createInterface, Interface } from 'node:readline/promises'
 
 type Operation = 'commit' | 'push' | 'pr'
 
@@ -59,7 +59,9 @@ async function readPipedInput(): Promise<string | undefined> {
 
 function ensurePromptInterface(prompt: Interface | undefined): Interface {
 	if (prompt === undefined) {
-		throw new AutomationError('Interactive input is required. Please rerun this script in a TTY environment.')
+		throw new AutomationError(
+			'Interactive input is required. Please rerun this script in a TTY environment.',
+		)
 	}
 	return prompt
 }
@@ -76,7 +78,9 @@ async function readIssueLine(prompt: Interface | undefined): Promise<string> {
 		const lines = rawLines[0]?.trim() === '@git-automation.md' ? rawLines.slice(1) : rawLines
 
 		if (lines.length < 1) {
-			throw new AutomationError('Input is missing. Please provide a line that includes issue information.')
+			throw new AutomationError(
+				'Input is missing. Please provide a line that includes issue information.',
+			)
 		}
 
 		return lines[0] ?? ''
@@ -143,7 +147,13 @@ function parseAutomationConfig(issueLine: string): AutomationConfig {
 }
 
 function runCommand(command: string, args: string[], options: CommandOptions = {}): CommandResult {
-	const { stdio = 'pipe', allowNonZeroExit = false, env, description, leadingBlankLine = false } = options
+	const {
+		stdio = 'pipe',
+		allowNonZeroExit = false,
+		env,
+		description,
+		leadingBlankLine = false,
+	} = options
 	const startMessage = description !== undefined ? `⏳ ${description}` : undefined
 	const inlineStatus = startMessage !== undefined && stdio === 'pipe'
 	if (startMessage !== undefined) {
@@ -171,8 +181,10 @@ function runCommand(command: string, args: string[], options: CommandOptions = {
 
 	if (result.error) {
 		throw new AutomationError(
-			description !== undefined ? `${description} failed: ${result.error.message}` : result.error.message,
-			{ cause: result.error }
+			description !== undefined
+				? `${description} failed: ${result.error.message}`
+				: result.error.message,
+			{ cause: result.error },
 		)
 	}
 
@@ -188,7 +200,10 @@ function runCommand(command: string, args: string[], options: CommandOptions = {
 		if (description !== undefined) {
 			const failMessage = `❌ ${description}`
 			if (inlineStatus) {
-				const padding = startMessage.length > failMessage.length ? ' '.repeat(startMessage.length - failMessage.length) : ''
+				const padding =
+					startMessage.length > failMessage.length
+						? ' '.repeat(startMessage.length - failMessage.length)
+						: ''
 				process.stdout.write(`\r${failMessage}${padding}\n`)
 			} else {
 				if (leadingBlankLine) {
@@ -203,7 +218,10 @@ function runCommand(command: string, args: string[], options: CommandOptions = {
 	if (description !== undefined && (allowNonZeroExit || status === 0)) {
 		const successMessage = `✅ ${description}`
 		if (inlineStatus) {
-			const padding = startMessage.length > successMessage.length ? ' '.repeat(startMessage.length - successMessage.length) : ''
+			const padding =
+				startMessage.length > successMessage.length
+					? ' '.repeat(startMessage.length - successMessage.length)
+					: ''
 			process.stdout.write(`\r${successMessage}${padding}\n`)
 		} else {
 			if (leadingBlankLine) {
@@ -257,13 +275,15 @@ function ensureCommandExists(command: string): void {
 
 	if (result.error !== undefined || result.status !== 0) {
 		throw new AutomationError(
-			`⚠️ ${command} is not installed. Install it if necessary and rerun this script.`
+			`⚠️ ${command} is not installed. Install it if necessary and rerun this script.`,
 		)
 	}
 }
 
 function ensureStagingState(): void {
-	const { stdout } = runCommand('git', ['status', '--porcelain'], { description: 'Check staging status' })
+	const { stdout } = runCommand('git', ['status', '--porcelain'], {
+		description: 'Check staging status',
+	})
 
 	const lines = stdout
 		.split(/\r?\n/u)
@@ -280,7 +300,7 @@ function ensureStagingState(): void {
 				'Stage your changes with:',
 				'  git add .',
 				'Rerun this script after staging.',
-			].join(EOL)
+			].join(EOL),
 		)
 	}
 }
@@ -310,7 +330,7 @@ function ensureBranchMatchesIssue(branch: string, issueNumber: string): void {
 				`  Issue number: #${issueNumber}`,
 				`  Current branch: ${branch}`,
 				'Switch to the correct branch or create a new one, then rerun this script.',
-			].join(EOL)
+			].join(EOL),
 		)
 	}
 }
@@ -345,7 +365,7 @@ function ensureIssueMatches(config: AutomationConfig): void {
 		['issue', 'view', config.issueNumber, '--json', 'title', '--jq', '.title'],
 		{
 			description: 'Validate issue information',
-		}
+		},
 	)
 
 	const githubTitle = stdout.trim()
@@ -360,7 +380,7 @@ function ensureIssueMatches(config: AutomationConfig): void {
 				`  Provided title: ${config.issueTitle}`,
 				`  GitHub title:   ${githubTitle}`,
 				'Verify the issue number and title.',
-			].join(EOL)
+			].join(EOL),
 		)
 	}
 }
@@ -384,7 +404,7 @@ async function ensurePackageJsonVersion(prompt: Interface | undefined): Promise<
 	if (!hasPackageJson) {
 		const shouldContinue = await askYesNoBinary(
 			rl,
-			'⚠️ package.json is not included in the staged changes. Continue? (y/n): '
+			'⚠️ package.json is not included in the staged changes. Continue? (y/n): ',
 		)
 		if (!shouldContinue) {
 			throw new AutomationError('Operation cancelled by user.')
@@ -401,7 +421,7 @@ async function ensurePackageJsonVersion(prompt: Interface | undefined): Promise<
 	if (!versionChanged) {
 		const shouldContinue = await askYesNoBinary(
 			rl,
-			'⚠️ The package.json version has not been updated. Continue? (y/n): '
+			'⚠️ The package.json version has not been updated. Continue? (y/n): ',
 		)
 		if (!shouldContinue) {
 			throw new AutomationError('Operation cancelled by user.')
@@ -424,7 +444,9 @@ async function askYesNoBinary(prompt: Interface, question: string): Promise<bool
 	return askYesNoBinary(prompt, question)
 }
 
-async function configureOperations(prompt: Interface | undefined): Promise<Record<Operation, boolean>> {
+async function configureOperations(
+	prompt: Interface | undefined,
+): Promise<Record<Operation, boolean>> {
 	const rl = ensurePromptInterface(prompt)
 
 	while (true) {
@@ -474,10 +496,12 @@ function createPullRequest(config: AutomationConfig): void {
 			stdio: 'pipe',
 			allowNonZeroExit: true,
 			description: 'gh pr create',
-		}
+		},
 	)
 
-	const output = [result.stdout, result.stderr].filter((value) => value !== undefined && value.trim().length > 0).join('\n')
+	const output = [result.stdout, result.stderr]
+		.filter((value) => value !== undefined && value.trim().length > 0)
+		.join('\n')
 
 	if (result.status === 0) {
 		if (output.length > 0) {
@@ -599,7 +623,7 @@ async function evaluateSonarChecks(branch: string): Promise<{ url?: string; titl
 
 		console.log(`❌ ${attemptLabel}`) // eslint-disable-line no-console
 		throw new AutomationError(
-			`CI report failed.${trimmedOutput.length > 0 ? `\n${trimmedOutput}` : ''}`
+			`CI report failed.${trimmedOutput.length > 0 ? `\n${trimmedOutput}` : ''}`,
 		)
 	}
 
@@ -607,10 +631,18 @@ async function evaluateSonarChecks(branch: string): Promise<{ url?: string; titl
 		.split(/\r?\n/u)
 		.find((line) => line.toLowerCase().includes('sonarcloud'))
 
-	if (sonarLine !== undefined && !sonarLine.toLowerCase().includes('pass') && !sonarLine.toLowerCase().includes('success')) {
+	if (
+		sonarLine !== undefined &&
+		!sonarLine.toLowerCase().includes('pass') &&
+		!sonarLine.toLowerCase().includes('success')
+	) {
 		const sonarUrlMatch = /https?:\/\/\S+/u.exec(sonarLine)
 		const sonarUrl = sonarUrlMatch?.[0] ?? prInfo.url ?? ''
-		throw new AutomationError(['⚠️ SonarCloud found issues.', `Details: ${sonarUrl}`, 'Fix, commit, push, rerun.'].join(EOL))
+		throw new AutomationError(
+			['⚠️ SonarCloud found issues.', `Details: ${sonarUrl}`, 'Fix, commit, push, rerun.'].join(
+				EOL,
+			),
+		)
 	}
 
 	if (!hasLoggedOutput && trimmedOutput.length > 0 && !isNoChecksReportedMessage(trimmedOutput)) {
@@ -651,7 +683,7 @@ async function main(): Promise<void> {
 			}
 		} else if (currentBranch !== config.targetBranch) {
 			console.log(
-				`⚠️ The current branch (${currentBranch}) differs from the recommended branch name (${config.targetBranch}). Continuing on the existing branch.`
+				`⚠️ The current branch (${currentBranch}) differs from the recommended branch name (${config.targetBranch}). Continuing on the existing branch.`,
 			) // eslint-disable-line no-console
 		}
 
@@ -720,4 +752,3 @@ async function main(): Promise<void> {
 }
 
 await main()
-

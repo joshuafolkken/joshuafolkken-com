@@ -1,7 +1,7 @@
 {
 	"name": "joshuafolkken-com",
 	"private": true,
-	"version": "0.7.0",
+	"version": "0.8.0",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
@@ -26,6 +26,7 @@
 	"devDependencies": {
 		"@eslint/compat": "^1.4.1",
 		"@eslint/js": "^9.39.1",
+		"@ianvs/prettier-plugin-sort-imports": "^4.7.0",
 		"@playwright/test": "^1.56.1",
 		"@sveltejs/adapter-static": "^3.0.10",
 		"@sveltejs/kit": "^2.48.4",
