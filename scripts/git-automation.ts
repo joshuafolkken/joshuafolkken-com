@@ -1,8 +1,9 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 import { spawnSync, type SpawnSyncOptions } from 'node:child_process'
 import { EOL } from 'node:os'
 import { exit, stdin as input, stdout as output } from 'node:process'
-import { createInterface, Interface } from 'node:readline/promises'
+import { createInterface, type Interface } from 'node:readline/promises'
 
 type Operation = 'commit' | 'push' | 'pr'
 
@@ -12,19 +13,26 @@ const OPERATION_LABELS: Record<Operation, string> = {
 	pr: '🔀 PR',
 }
 
+const PACKAGE_JSON_FILE = 'package.json'
+const STAGED_STATUS_INDEX = 1
+const REQUIRED_STATUS_LENGTH = 2
+const OPERATION_CANCELLED_MESSAGE = 'Operation cancelled by user.'
+
+type PendingCheckOutcome = 'retry' | 'complete' | 'unhandled'
+
 interface AutomationConfig {
-	issueTitle: string
-	issueNumber: string
-	targetBranch: string
+	issue_title: string
+	issue_number: string
+	target_branch: string
 	operations: Record<Operation, boolean>
 }
 
 interface CommandOptions {
 	stdio?: 'pipe' | 'inherit'
-	allowNonZeroExit?: boolean
+	should_allow_non_zero_exit?: boolean
 	description?: string
 	env?: NodeJS.ProcessEnv
-	leadingBlankLine?: boolean
+	should_lead_with_blank_line?: boolean
 }
 
 interface CommandResult {
@@ -40,12 +48,152 @@ class AutomationError extends Error {
 	}
 }
 
-async function readPipedInput(): Promise<string | undefined> {
+interface CommandContext {
+	description: string | undefined
+	start_message: string | undefined
+	is_inline_status: boolean
+	should_lead_with_blank_line: boolean
+}
+
+function create_command_context(
+	description: string | undefined,
+	stdio: 'pipe' | 'inherit',
+	should_lead_with_blank_line: boolean,
+): CommandContext {
+	return {
+		description,
+		start_message: description === undefined ? undefined : `⏳ ${description}`,
+		is_inline_status: description !== undefined && stdio === 'pipe',
+		should_lead_with_blank_line,
+	}
+}
+
+function write_log_line(is_inline_status: boolean): void {
+	if (is_inline_status) {
+		output.write(EOL)
+		return
+	}
+
+	console.log('')
+}
+
+function log_command_start(context: CommandContext): void {
+	if (context.start_message === undefined) return
+
+	if (context.should_lead_with_blank_line) {
+		write_log_line(context.is_inline_status)
+	}
+
+	if (context.is_inline_status) {
+		output.write(context.start_message)
+		return
+	}
+
+	console.log(context.start_message)
+}
+
+function create_spawn_options(
+	stdio: 'pipe' | 'inherit',
+	environment: NodeJS.ProcessEnv | undefined,
+): SpawnSyncOptions {
+	return {
+		stdio: stdio === 'pipe' ? ['ignore', 'pipe', 'pipe'] : 'inherit',
+		encoding: stdio === 'pipe' ? 'utf8' : undefined,
+		env: environment === undefined ? process.env : { ...process.env, ...environment },
+	}
+}
+
+function throw_on_spawn_error(result: ReturnType<typeof spawnSync>, context: CommandContext): void {
+	if (result.error === undefined) return
+
+	const message =
+		context.description === undefined
+			? result.error.message
+			: `${context.description} failed: ${result.error.message}`
+
+	throw new AutomationError(message, { cause: result.error })
+}
+
+function build_command_result(result: ReturnType<typeof spawnSync>): CommandResult {
+	return {
+		status: result.status ?? 0,
+		stdout: typeof result.stdout === 'string' ? result.stdout : '',
+		stderr: typeof result.stderr === 'string' ? result.stderr : '',
+	}
+}
+
+function report_failure_status(context: CommandContext): void {
+	if (context.description === undefined) return
+
+	const fail_message = `❌ ${context.description}`
+	const reference_length = context.start_message?.length ?? fail_message.length
+	const padding = Math.max(0, reference_length - fail_message.length)
+
+	if (context.is_inline_status) {
+		output.write(`\r${fail_message}${' '.repeat(padding)}\n`)
+		return
+	}
+
+	if (context.should_lead_with_blank_line) {
+		console.error('')
+	}
+
+	console.error(fail_message)
+}
+
+function ensure_success_status(
+	result: CommandResult,
+	context: CommandContext,
+	should_allow_non_zero_exit: boolean,
+	command: string,
+	arguments_list: Array<string>,
+): void {
+	if (should_allow_non_zero_exit || result.status === 0) return
+
+	report_failure_status(context)
+
+	const trimmed_stderr = result.stderr.trim()
+	let message = ''
+	if (context.description === undefined) {
+		message = `Command execution failed: ${command} ${arguments_list.join(' ')}`
+	} else {
+		const stderr_suffix = trimmed_stderr.length > 0 ? `\n${trimmed_stderr}` : ''
+		message = `${context.description} failed.${stderr_suffix}`
+	}
+
+	throw new AutomationError(message)
+}
+
+function report_success_status(
+	result: CommandResult,
+	context: CommandContext,
+	should_allow_non_zero_exit: boolean,
+): void {
+	if (context.description === undefined) return
+	if (!should_allow_non_zero_exit && result.status !== 0) return
+
+	const success_message = `✅ ${context.description}`
+	const reference_length = context.start_message?.length ?? success_message.length
+	const padding = Math.max(0, reference_length - success_message.length)
+
+	if (context.is_inline_status) {
+		output.write(`\r${success_message}${' '.repeat(padding)}\n`)
+		return
+	}
+
+	if (context.should_lead_with_blank_line) {
+		console.log('')
+	}
+
+	console.log(success_message)
+}
+
+async function read_piped_input(): Promise<string | undefined> {
 	if (input.isTTY) {
 		return undefined
 	}
 
-	return new Promise<string>((resolve) => {
+	return await new Promise<string>((resolve) => {
 		let data = ''
 		input.setEncoding('utf8')
 		input.on('data', (chunk: string) => {
@@ -57,7 +205,7 @@ async function readPipedInput(): Promise<string | undefined> {
 	})
 }
 
-function ensurePromptInterface(prompt: Interface | undefined): Interface {
+function ensure_prompt_interface(prompt: Interface | undefined): Interface {
 	if (prompt === undefined) {
 		throw new AutomationError(
 			'Interactive input is required. Please rerun this script in a TTY environment.',
@@ -66,18 +214,18 @@ function ensurePromptInterface(prompt: Interface | undefined): Interface {
 	return prompt
 }
 
-async function readIssueLine(prompt: Interface | undefined): Promise<string> {
-	const pipedInput = await readPipedInput()
+async function read_issue_line(prompt: Interface | undefined): Promise<string> {
+	const piped_input = await read_piped_input()
 
-	if (pipedInput !== undefined) {
-		const rawLines = pipedInput
+	if (piped_input !== undefined) {
+		const raw_lines = piped_input
 			.split(/\r?\n/u)
 			.map((line) => line.trim())
 			.filter((line) => line.length > 0)
 
-		const lines = rawLines[0]?.trim() === '@git-automation.md' ? rawLines.slice(1) : rawLines
+		const lines = raw_lines[0]?.trim() === '@git-automation.md' ? raw_lines.slice(1) : raw_lines
 
-		if (lines.length < 1) {
+		if (lines.length === 0) {
 			throw new AutomationError(
 				'Input is missing. Please provide a line that includes issue information.',
 			)
@@ -86,58 +234,58 @@ async function readIssueLine(prompt: Interface | undefined): Promise<string> {
 		return lines[0] ?? ''
 	}
 
-	const rl = ensurePromptInterface(prompt)
-	const issueLine = await rl.question('\nIssue info (<title> #<number>): ')
+	const rl = ensure_prompt_interface(prompt)
+	const issue_line = await rl.question('\nIssue info (<title> #<number>): ')
 
-	return issueLine.trim()
+	return issue_line.trim()
 }
 
-function parseIssueLine(line: string): { issueTitle: string; issueNumber: string } {
+function parse_issue_line(line: string): { issue_title: string; issue_number: string } {
 	const normalized = line.replace(/^issue:\s*/iu, '').trim()
-	const hashIndex = normalized.lastIndexOf('#')
+	const hash_index = normalized.lastIndexOf('#')
 
-	if (hashIndex <= 0) {
+	if (hash_index <= 0) {
 		throw new AutomationError('Issue information is malformed. Use the format `<title> #<number>`.')
 	}
 
-	const rawTitle = normalized.slice(0, hashIndex).trim()
-	const rawNumber = normalized.slice(hashIndex + 1).trim()
-	const numberMatch = rawNumber.match(/\d+/u)
+	const raw_title = normalized.slice(0, hash_index).trim()
+	const raw_number = normalized.slice(hash_index + 1).trim()
+	const number_match = /\d+/u.exec(raw_number)
 
-	if (rawTitle.length === 0 || numberMatch === null) {
+	if (raw_title.length === 0 || number_match === null) {
 		throw new AutomationError('Issue information is malformed. Check the title and number.')
 	}
 
 	return {
-		issueTitle: rawTitle,
-		issueNumber: numberMatch[0] ?? '',
+		issue_title: raw_title,
+		issue_number: number_match[0],
 	}
 }
 
-function sanitizeBranchSlug(title: string): string {
+function sanitize_branch_slug(title: string): string {
 	const replaced = title
 		.toLowerCase()
 		.normalize('NFKD')
-		.replace(/[^a-z0-9]+/gu, '-')
-		.replace(/-+/gu, '-')
-		.replace(/^-|-$/gu, '')
+		.replaceAll(/[^a-z0-9]+/gu, '-')
+		.replaceAll(/-+/gu, '-')
+		.replaceAll(/(^-)|(-$)/gu, '')
 
 	return replaced.length === 0 ? 'update' : replaced
 }
 
-function generateTargetBranch(issueTitle: string, issueNumber: string): string {
-	const slug = sanitizeBranchSlug(issueTitle)
-	return `${issueNumber}-${slug}`
+function generate_target_branch(issue_title: string, issue_number: string): string {
+	const slug = sanitize_branch_slug(issue_title)
+	return `${issue_number}-${slug}`
 }
 
-function parseAutomationConfig(issueLine: string): AutomationConfig {
-	const { issueTitle, issueNumber } = parseIssueLine(issueLine)
-	const targetBranch = generateTargetBranch(issueTitle, issueNumber)
+function parse_automation_config(issue_line: string): AutomationConfig {
+	const { issue_title, issue_number } = parse_issue_line(issue_line)
+	const target_branch = generate_target_branch(issue_title, issue_number)
 
 	return {
-		issueTitle,
-		issueNumber,
-		targetBranch,
+		issue_title,
+		issue_number,
+		target_branch,
 		operations: {
 			commit: false,
 			push: false,
@@ -146,131 +294,70 @@ function parseAutomationConfig(issueLine: string): AutomationConfig {
 	}
 }
 
-function runCommand(command: string, args: string[], options: CommandOptions = {}): CommandResult {
+function run_command(
+	command: string,
+	arguments_list: Array<string>,
+	options: CommandOptions = {},
+): CommandResult {
 	const {
 		stdio = 'pipe',
-		allowNonZeroExit = false,
+		should_allow_non_zero_exit = false,
 		env,
 		description,
-		leadingBlankLine = false,
+		should_lead_with_blank_line = false,
 	} = options
-	const startMessage = description !== undefined ? `⏳ ${description}` : undefined
-	const inlineStatus = startMessage !== undefined && stdio === 'pipe'
-	if (startMessage !== undefined) {
-		if (leadingBlankLine) {
-			if (inlineStatus) {
-				process.stdout.write(EOL)
-			} else {
-				console.log('')
-			}
-		}
-		if (inlineStatus) {
-			process.stdout.write(startMessage)
-		} else {
-			console.log(startMessage) // eslint-disable-line no-console
-		}
-	}
 
-	const spawnOptions: SpawnSyncOptions = {
-		stdio: stdio === 'pipe' ? ['ignore', 'pipe', 'pipe'] : 'inherit',
-		encoding: stdio === 'pipe' ? 'utf8' : undefined,
-		env: env === undefined ? process.env : { ...process.env, ...env },
-	}
+	const context = create_command_context(description, stdio, should_lead_with_blank_line)
+	log_command_start(context)
 
-	const result = spawnSync(command, args, spawnOptions)
+	const spawn_options = create_spawn_options(stdio, env)
+	const raw_result = spawnSync(command, arguments_list, spawn_options)
+	throw_on_spawn_error(raw_result, context)
 
-	if (result.error) {
-		throw new AutomationError(
-			description !== undefined
-				? `${description} failed: ${result.error.message}`
-				: result.error.message,
-			{ cause: result.error },
-		)
-	}
+	const result = build_command_result(raw_result)
+	ensure_success_status(result, context, should_allow_non_zero_exit, command, arguments_list)
+	report_success_status(result, context, should_allow_non_zero_exit)
 
-	const status = result.status ?? 0
-	const stdout = typeof result.stdout === 'string' ? result.stdout : ''
-	const stderr = typeof result.stderr === 'string' ? result.stderr : ''
-
-	if (!allowNonZeroExit && status !== 0) {
-		const message =
-			description !== undefined
-				? `${description} failed.${stderr.trim().length > 0 ? `\n${stderr.trim()}` : ''}`
-				: `Command execution failed: ${command} ${args.join(' ')}`
-		if (description !== undefined) {
-			const failMessage = `❌ ${description}`
-			if (inlineStatus) {
-				const padding =
-					startMessage.length > failMessage.length
-						? ' '.repeat(startMessage.length - failMessage.length)
-						: ''
-				process.stdout.write(`\r${failMessage}${padding}\n`)
-			} else {
-				if (leadingBlankLine) {
-					console.error('')
-				}
-				console.error(failMessage) // eslint-disable-line no-console
-			}
-		}
-		throw new AutomationError(message)
-	}
-
-	if (description !== undefined && (allowNonZeroExit || status === 0)) {
-		const successMessage = `✅ ${description}`
-		if (inlineStatus) {
-			const padding =
-				startMessage.length > successMessage.length
-					? ' '.repeat(startMessage.length - successMessage.length)
-					: ''
-			process.stdout.write(`\r${successMessage}${padding}\n`)
-		} else {
-			if (leadingBlankLine) {
-				console.log('')
-			}
-			console.log(successMessage) // eslint-disable-line no-console
-		}
-	}
-
-	return { stdout, stderr, status }
+	return result
 }
 
-async function waitFor(milliseconds: number): Promise<void> {
+async function wait_for(milliseconds: number): Promise<void> {
 	await new Promise((resolve) => {
 		setTimeout(resolve, milliseconds)
 	})
 }
 
-function fetchPrChecksOutput(branch: string): { status: number; output: string } {
-	const result = runCommand('gh', ['pr', 'checks', branch], {
+function fetch_pr_checks_output(branch: string): { status: number; output: string } {
+	const result = run_command('gh', ['pr', 'checks', branch], {
 		stdio: 'pipe',
-		allowNonZeroExit: true,
+		should_allow_non_zero_exit: true,
 	})
 
-	const output = [result.stdout, result.stderr]
-		.filter((value) => value !== undefined && value.trim().length > 0)
+	const combined_output = [result.stdout, result.stderr]
+		.filter((value) => value.trim().length > 0)
 		.join('\n')
 
 	return {
 		status: result.status,
-		output: output.trim(),
+		output: combined_output.trim(),
 	}
 }
 
-function isExistingPullRequestMessage(output: string): boolean {
-	const normalized = output.toLowerCase()
+function is_existing_pr_message(command_output: string): boolean {
+	const normalized = command_output.toLowerCase()
 	return normalized.includes('pull request') && normalized.includes('already exists')
 }
 
-function isNoChecksReportedMessage(output: string): boolean {
-	return output.toLowerCase().includes('no checks reported')
+function is_no_checks_reported_message(command_output: string): boolean {
+	return command_output.toLowerCase().includes('no checks reported')
 }
 
-function hasPendingChecksMessage(output: string): boolean {
-	const normalized = output.toLowerCase()
+function has_pending_checks_message(command_output: string): boolean {
+	const normalized = command_output.toLowerCase()
 	return /\b(pending|in progress|queued)\b/u.test(normalized)
 }
 
-function ensureCommandExists(command: string): void {
+function ensure_command_exists(command: string): void {
 	const result = spawnSync(command, ['--version'], { stdio: 'ignore' })
 
 	if (result.error !== undefined || result.status !== 0) {
@@ -280,20 +367,22 @@ function ensureCommandExists(command: string): void {
 	}
 }
 
-function ensureStagingState(): void {
-	const { stdout } = runCommand('git', ['status', '--porcelain'], {
+function ensure_staging_state(): void {
+	const { stdout } = run_command('git', ['status', '--porcelain'], {
 		description: 'Check staging status',
 	})
 
 	const lines = stdout
 		.split(/\r?\n/u)
-		.map((line) => line.replace(/\s+$/u, ''))
+		.map((line) => line.trimEnd())
 		.filter((line) => line.length > 0)
 
-	const hasUntracked = lines.some((line) => line.startsWith('??'))
-	const hasUnstaged = lines.some((line) => line.length >= 2 && line[1] !== ' ')
+	const has_untracked = lines.some((line) => line.startsWith('??'))
+	const has_unstaged = lines.some(
+		(line) => line.length >= REQUIRED_STATUS_LENGTH && line[STAGED_STATUS_INDEX] !== ' ',
+	)
 
-	if (hasUntracked || hasUnstaged) {
+	if (has_untracked || has_unstaged) {
 		throw new AutomationError(
 			[
 				'🚫 Not all changes are staged.',
@@ -305,29 +394,27 @@ function ensureStagingState(): void {
 	}
 }
 
-function getCurrentBranch(): string {
-	const { stdout } = runCommand('git', ['branch', '--show-current'], {
+function get_current_branch(): string {
+	const { stdout } = run_command('git', ['branch', '--show-current'], {
 		description: 'Get current branch',
 	})
 	return stdout.trim()
 }
 
-function extractIssueNumberFromBranch(branch: string): string | undefined {
+function extract_branch_issue_number(branch: string): string | undefined {
 	const match = /^(\d+)-/u.exec(branch)
 	return match?.[1]
 }
 
-function ensureBranchMatchesIssue(branch: string, issueNumber: string): void {
-	if (branch === 'main' || branch === 'master') {
-		return
-	}
+function ensure_branch_matches_issue(branch: string, issue_number: string): void {
+	if (branch === 'main' || branch === 'master') return
 
-	const branchIssue = extractIssueNumberFromBranch(branch)
-	if (branchIssue !== undefined && branchIssue !== issueNumber) {
+	const branch_issue = extract_branch_issue_number(branch)
+	if (branch_issue !== undefined && branch_issue !== issue_number) {
 		throw new AutomationError(
 			[
 				'🚫 The issue number does not match the branch number.',
-				`  Issue number: #${issueNumber}`,
+				`  Issue number: #${issue_number}`,
 				`  Current branch: ${branch}`,
 				'Switch to the correct branch or create a new one, then rerun this script.',
 			].join(EOL),
@@ -335,58 +422,51 @@ function ensureBranchMatchesIssue(branch: string, issueNumber: string): void {
 	}
 }
 
-function ensureMainIsUpdated(branch: string): void {
+function ensure_main_is_updated(branch: string): void {
 	const target = branch === 'master' ? 'master' : 'main'
-	runCommand('git', ['pull', 'origin', target], {
+	run_command('git', ['pull', 'origin', target], {
 		stdio: 'inherit',
 		description: `Pull latest ${target} branch`,
 	})
 }
 
-function checkoutBranch(branch: string): void {
-	runCommand('git', ['checkout', branch], {
-		stdio: 'inherit',
-		description: `Switch to branch ${branch}`,
-	})
-}
-
-function createBranch(branch: string): void {
-	runCommand('git', ['checkout', '-b', branch], {
+function create_branch(branch: string): void {
+	run_command('git', ['checkout', '-b', branch], {
 		stdio: 'inherit',
 		description: `Create branch ${branch}`,
 	})
 }
 
-function ensureIssueMatches(config: AutomationConfig): void {
-	ensureCommandExists('gh')
+function ensure_issue_matches(config: AutomationConfig): void {
+	ensure_command_exists('gh')
 
-	const { stdout } = runCommand(
+	const { stdout } = run_command(
 		'gh',
-		['issue', 'view', config.issueNumber, '--json', 'title', '--jq', '.title'],
+		['issue', 'view', config.issue_number, '--json', 'title', '--jq', '.title'],
 		{
 			description: 'Validate issue information',
 		},
 	)
 
-	const githubTitle = stdout.trim()
-	if (githubTitle.length === 0) {
-		throw new AutomationError(`🚫 Issue #${config.issueNumber} was not found.`)
+	const github_title = stdout.trim()
+	if (github_title.length === 0) {
+		throw new AutomationError(`🚫 Issue #${config.issue_number} was not found.`)
 	}
 
-	if (githubTitle !== config.issueTitle) {
+	if (github_title !== config.issue_title) {
 		throw new AutomationError(
 			[
 				'🚫 Issue title does not match.',
-				`  Provided title: ${config.issueTitle}`,
-				`  GitHub title:   ${githubTitle}`,
+				`  Provided title: ${config.issue_title}`,
+				`  GitHub title:   ${github_title}`,
 				'Verify the issue number and title.',
 			].join(EOL),
 		)
 	}
 }
 
-function getStagedFiles(): string[] {
-	const { stdout } = runCommand('git', ['diff', '--cached', '--name-only'], {
+function get_staged_files(): Array<string> {
+	const { stdout } = run_command('git', ['diff', '--cached', '--name-only'], {
 		description: 'Get staged files',
 	})
 	return stdout
@@ -395,359 +475,605 @@ function getStagedFiles(): string[] {
 		.filter((line) => line.length > 0)
 }
 
-async function ensurePackageJsonVersion(prompt: Interface | undefined): Promise<void> {
-	const stagedFiles = getStagedFiles()
-	const rl = ensurePromptInterface(prompt)
+async function ask_yes_no_binary(prompt: Interface, question: string): Promise<boolean> {
+	const raw_answer = await prompt.question(question)
+	const answer = raw_answer.trim().toLowerCase()
 
-	const hasPackageJson = stagedFiles.includes('package.json')
+	if (answer === 'y') return true
+	if (answer === 'n') return false
 
-	if (!hasPackageJson) {
-		const shouldContinue = await askYesNoBinary(
-			rl,
-			'⚠️ package.json is not included in the staged changes. Continue? (y/n): ',
-		)
-		if (!shouldContinue) {
-			throw new AutomationError('Operation cancelled by user.')
-		}
-		return
+	console.log('Reply y / n.')
+	return await ask_yes_no_binary(prompt, question)
+}
+
+async function confirm_package_json_presence(
+	staged_files: Array<string>,
+	rl: Interface,
+): Promise<boolean> {
+	if (staged_files.includes(PACKAGE_JSON_FILE)) return true
+
+	const should_continue = await ask_yes_no_binary(
+		rl,
+		'⚠️ package.json is not included in the staged changes. Continue? (y/n): ',
+	)
+
+	if (!should_continue) {
+		throw new AutomationError(OPERATION_CANCELLED_MESSAGE)
 	}
 
-	const diff = runCommand('git', ['diff', '--cached', 'package.json'], {
+	return false
+}
+
+function read_package_json_diff(): string {
+	return run_command('git', ['diff', '--cached', PACKAGE_JSON_FILE], {
 		description: 'Inspect package.json diff',
 	}).stdout
+}
 
-	const versionChanged = /^[+-]\s*"version"\s*:/gmu.test(diff)
+async function confirm_package_version_update(diff: string, rl: Interface): Promise<void> {
+	const has_version_change = /^[+-]\s*"version"\s*:/gmu.test(diff)
+	if (has_version_change) return
 
-	if (!versionChanged) {
-		const shouldContinue = await askYesNoBinary(
-			rl,
-			'⚠️ The package.json version has not been updated. Continue? (y/n): ',
-		)
-		if (!shouldContinue) {
-			throw new AutomationError('Operation cancelled by user.')
-		}
+	const should_continue = await ask_yes_no_binary(
+		rl,
+		'⚠️ The package.json version has not been updated. Continue? (y/n): ',
+	)
+
+	if (!should_continue) {
+		throw new AutomationError(OPERATION_CANCELLED_MESSAGE)
 	}
 }
 
-async function askYesNoBinary(prompt: Interface, question: string): Promise<boolean> {
-	const answer = (await prompt.question(question)).trim().toLowerCase()
+async function ensure_package_json_version(prompt: Interface | undefined): Promise<void> {
+	const rl = ensure_prompt_interface(prompt)
+	const staged_files = get_staged_files()
 
-	if (answer === 'y') {
-		return true
-	}
+	const has_package_json = await confirm_package_json_presence(staged_files, rl)
+	if (!has_package_json) return
 
-	if (answer === 'n') {
-		return false
-	}
-
-	console.log('Reply y / n.') // eslint-disable-line no-console
-	return askYesNoBinary(prompt, question)
+	const diff = read_package_json_diff()
+	await confirm_package_version_update(diff, rl)
 }
 
-async function configureOperations(
+async function configure_operations(
 	prompt: Interface | undefined,
 ): Promise<Record<Operation, boolean>> {
-	const rl = ensurePromptInterface(prompt)
+	const rl = ensure_prompt_interface(prompt)
 
-	while (true) {
-		const commit = await askYesNoBinary(rl, '\n🧱 Commit? (y/n): ')
-		const push = await askYesNoBinary(rl, '📤 Push? (y/n): ')
-		const pr = await askYesNoBinary(rl, '🔀 PR? (y/n): ')
+	for (;;) {
+		const should_commit = await ask_yes_no_binary(rl, '\n🧱 Commit? (y/n): ')
+		const should_push = await ask_yes_no_binary(rl, '📤 Push? (y/n): ')
+		const should_create_pr = await ask_yes_no_binary(rl, '🔀 PR? (y/n): ')
 
-		const status = (enabled: boolean): string => (enabled ? '✅' : '⛔️')
-		console.log('\n🧭 Config:') // eslint-disable-line no-console
-		console.log(`  ${OPERATION_LABELS.commit}: ${status(commit)}`) // eslint-disable-line no-console
-		console.log(`  ${OPERATION_LABELS.push}: ${status(push)}`) // eslint-disable-line no-console
-		console.log(`  ${OPERATION_LABELS.pr}: ${status(pr)}`) // eslint-disable-line no-console
+		const status = (is_enabled: boolean): string => (is_enabled ? '✅' : '⛔️')
+		console.log('\n🧭 Config:')
+		console.log(`  ${OPERATION_LABELS.commit}: ${status(should_commit)}`)
+		console.log(`  ${OPERATION_LABELS.push}: ${status(should_push)}`)
+		console.log(`  ${OPERATION_LABELS.pr}: ${status(should_create_pr)}`)
 
-		const confirm = await askYesNoBinary(rl, '➡️ Proceed? (y/n): ')
-		if (confirm) {
-			return { commit, push, pr }
+		const is_confirmed = await ask_yes_no_binary(rl, '➡️ Proceed? (y/n): ')
+		if (is_confirmed) {
+			return { commit: should_commit, push: should_push, pr: should_create_pr }
 		}
 
-		console.log('🔁 Reconfigure.') // eslint-disable-line no-console
+		console.log('🔁 Reconfigure.')
 	}
 }
 
-function runCommit(config: AutomationConfig): void {
-	const commitMessage = `${config.issueTitle} #${config.issueNumber}`
-	runCommand('git', ['commit', '-m', commitMessage], {
+function run_commit(config: AutomationConfig): void {
+	const commit_message = `${config.issue_title} #${config.issue_number}`
+	run_command('git', ['commit', '-m', commit_message], {
 		stdio: 'inherit',
 		description: 'git commit',
 	})
 }
 
-function runPush(branch: string): void {
-	runCommand('git', ['push', '-u', 'origin', branch], {
+function run_push(branch: string): void {
+	run_command('git', ['push', '-u', 'origin', branch], {
 		stdio: 'inherit',
 		description: 'git push',
 	})
 }
 
-function createPullRequest(config: AutomationConfig): void {
-	const title = `${config.issueTitle} #${config.issueNumber}`
-	const body = `closes #${config.issueNumber}`
-	console.log(`\n${OPERATION_LABELS.pr}`) // eslint-disable-line no-console
+function build_pr_arguments(config: AutomationConfig): Array<string> {
+	const title = `${config.issue_title} #${config.issue_number}`
+	const body = `closes #${config.issue_number}`
 
-	const result = runCommand(
-		'gh',
-		['pr', 'create', '--title', title, '--body', body, '--label', 'enhancement', '--base', 'main'],
-		{
-			stdio: 'pipe',
-			allowNonZeroExit: true,
-			description: 'gh pr create',
-		},
-	)
+	return [
+		'pr',
+		'create',
+		'--title',
+		title,
+		'--body',
+		body,
+		'--label',
+		'enhancement',
+		'--base',
+		'main',
+	]
+}
 
-	const output = [result.stdout, result.stderr]
-		.filter((value) => value !== undefined && value.trim().length > 0)
+function collect_command_output(result: CommandResult): string {
+	return [result.stdout, result.stderr]
+		.filter((value) => value.trim().length > 0)
 		.join('\n')
+		.trim()
+}
 
+function handle_pr_creation_result(result: CommandResult, command_output: string): void {
 	if (result.status === 0) {
-		if (output.length > 0) {
-			console.log(output.trim()) // eslint-disable-line no-console
+		if (command_output.length > 0) {
+			console.log(command_output)
 		}
-		console.log('✅ 🔀 PR') // eslint-disable-line no-console
+		console.log('✅ 🔀 PR')
 		return
 	}
 
-	if (isExistingPullRequestMessage(output)) {
-		console.log('ℹ️ Existing PR reused.') // eslint-disable-line no-console
-		console.log('✅ 🔀 PR') // eslint-disable-line no-console
+	if (is_existing_pr_message(command_output)) {
+		console.log('ℹ️ Existing PR reused.')
+		console.log('✅ 🔀 PR')
 		return
 	}
 
-	console.log('❌ 🔀 PR') // eslint-disable-line no-console
+	console.log('❌ 🔀 PR')
 
-	throw new AutomationError(`Failed to create PR.${output.length > 0 ? `\n${output.trim()}` : ''}`)
+	const command_output_suffix = command_output.length > 0 ? `\n${command_output}` : ''
+	throw new AutomationError(`Failed to create PR.${command_output_suffix}`)
 }
 
-async function watchPullRequestChecks(branch: string): Promise<void> {
-	const maxAttempts = 5
-	const retryDelayMs = 5_000
+function create_pull_request(config: AutomationConfig): void {
+	console.log(`\n${OPERATION_LABELS.pr}`)
 
-	for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-		const attemptLabel = `Checks ${attempt}/${maxAttempts}`
-		console.log(`⏳ ${attemptLabel}`) // eslint-disable-line no-console
-
-		const result = runCommand('gh', ['pr', 'checks', '--watch', branch], {
-			stdio: 'inherit',
-			allowNonZeroExit: true,
-		})
-
-		if (result.status === 0) {
-			console.log(`✅ ${attemptLabel}`) // eslint-disable-line no-console
-			return
-		}
-
-		const { output } = fetchPrChecksOutput(branch)
-
-		if (output.length > 0) {
-			console.log(output) // eslint-disable-line no-console
-		}
-
-		if (isNoChecksReportedMessage(output) || hasPendingChecksMessage(output)) {
-			if (attempt < maxAttempts) {
-				const reason = isNoChecksReportedMessage(output)
-					? 'CI not registered yet.'
-					: 'CI still pending.'
-				console.log(`${reason} Retry soon.`) // eslint-disable-line no-console
-				await waitFor(retryDelayMs)
-				continue
-			}
-
-			const finalReason = isNoChecksReportedMessage(output)
-				? 'CI never registered. Continuing.'
-				: 'CI still pending. Continuing.'
-			console.log(finalReason) // eslint-disable-line no-console
-			console.log(`✅ ${attemptLabel}`) // eslint-disable-line no-console
-			return
-		}
-
-		console.log(`❌ ${attemptLabel}`) // eslint-disable-line no-console
-
-		throw new AutomationError(`CI watch failed.${output.length > 0 ? `\n${output}` : ''}`)
-	}
-}
-
-async function evaluateSonarChecks(branch: string): Promise<{ url?: string; title?: string }> {
-	const { stdout } = runCommand('gh', ['pr', 'view', branch, '--json', 'url,title,number'], {
-		description: 'PR info',
+	const result = run_command('gh', build_pr_arguments(config), {
+		stdio: 'pipe',
+		should_allow_non_zero_exit: true,
+		description: 'gh pr create',
 	})
 
-	let prInfo: { url?: string; title?: string } = {}
+	const command_output = collect_command_output(result)
+	handle_pr_creation_result(result, command_output)
+}
+
+function format_attempt_label(prefix: string, attempt: number, max_attempts: number): string {
+	return `${prefix} ${String(attempt)}/${String(max_attempts)}`
+}
+
+function log_attempt_start(label: string): void {
+	console.log(`⏳ ${label}`)
+}
+
+function log_attempt_success(label: string): void {
+	console.log(`✅ ${label}`)
+}
+
+function log_attempt_failure(label: string): void {
+	console.log(`❌ ${label}`)
+}
+
+function log_if_output_present(command_output: string): void {
+	if (command_output.length > 0) {
+		console.log(command_output)
+	}
+}
+
+async function evaluate_pending_checks(
+	command_output: string,
+	attempt: number,
+	max_attempts: number,
+	retry_delay_ms: number,
+): Promise<PendingCheckOutcome> {
+	const is_pending =
+		is_no_checks_reported_message(command_output) || has_pending_checks_message(command_output)
+	if (!is_pending) return 'unhandled'
+
+	if (attempt < max_attempts) {
+		const reason = is_no_checks_reported_message(command_output)
+			? 'CI not registered yet.'
+			: 'CI still pending.'
+		console.log(`${reason} Retry soon.`)
+		await wait_for(retry_delay_ms)
+		return 'retry'
+	}
+
+	const final_reason = is_no_checks_reported_message(command_output)
+		? 'CI never registered. Continuing.'
+		: 'CI still pending. Continuing.'
+	console.log(final_reason)
+	return 'complete'
+}
+
+type CheckAttemptOutcome =
+	| { outcome: 'success' }
+	| { outcome: 'retry' }
+	| { outcome: 'failure'; command_output: string }
+
+function run_watch_command_once(branch: string): CommandResult {
+	return run_command('gh', ['pr', 'checks', '--watch', branch], {
+		stdio: 'inherit',
+		should_allow_non_zero_exit: true,
+	})
+}
+
+function log_success_and_result(label: string): CheckAttemptOutcome {
+	log_attempt_success(label)
+	return { outcome: 'success' }
+}
+
+function watch_command_success_outcome(
+	branch: string,
+	attempt_label: string,
+): CheckAttemptOutcome | undefined {
+	const result = run_watch_command_once(branch)
+	if (result.status !== 0) {
+		return undefined
+	}
+	return log_success_and_result(attempt_label)
+}
+
+function log_failure_and_result(label: string, command_output: string): CheckAttemptOutcome {
+	log_attempt_failure(label)
+	return { outcome: 'failure', command_output }
+}
+
+function fetch_and_log_check_output(branch: string): string {
+	const { output: check_output } = fetch_pr_checks_output(branch)
+	log_if_output_present(check_output)
+	return check_output
+}
+
+function resolve_pending_check_outcome(
+	pending_outcome: PendingCheckOutcome,
+	attempt_label: string,
+	command_output: string,
+): CheckAttemptOutcome {
+	const handlers: Record<PendingCheckOutcome, () => CheckAttemptOutcome> = {
+		retry: () => ({ outcome: 'retry' }),
+		complete: () => log_success_and_result(attempt_label),
+		unhandled: () => log_failure_and_result(attempt_label, command_output),
+	}
+	return handlers[pending_outcome]()
+}
+
+async function perform_check_attempt(
+	branch: string,
+	attempt: number,
+	max_attempts: number,
+	retry_delay_ms: number,
+): Promise<CheckAttemptOutcome> {
+	const attempt_label = format_attempt_label('Checks', attempt, max_attempts)
+	log_attempt_start(attempt_label)
+	const immediate_success = watch_command_success_outcome(branch, attempt_label)
+	if (immediate_success !== undefined) return immediate_success
+	const command_output = fetch_and_log_check_output(branch)
+	const pending_outcome = await evaluate_pending_checks(
+		command_output,
+		attempt,
+		max_attempts,
+		retry_delay_ms,
+	)
+	return resolve_pending_check_outcome(pending_outcome, attempt_label, command_output)
+}
+
+async function watch_pull_request_checks(branch: string): Promise<void> {
+	const max_attempts = 5
+	const retry_delay_ms = 5000
+
+	for (let attempt = 1; attempt <= max_attempts; attempt += 1) {
+		const result = await perform_check_attempt(branch, attempt, max_attempts, retry_delay_ms)
+		if (result.outcome === 'success') {
+			return
+		}
+		if (result.outcome === 'failure') {
+			const suffix = result.command_output.length > 0 ? `\n${result.command_output}` : ''
+			throw new AutomationError(`CI watch failed.${suffix}`)
+		}
+	}
+}
+
+function parse_pr_info(stdout: string): { url?: string; title?: string } {
 	try {
-		prInfo = JSON.parse(stdout) as { url?: string; title?: string }
+		return JSON.parse(stdout) as { url?: string; title?: string }
 	} catch (error) {
 		throw new AutomationError('PR info failed. JSON parse error.', { cause: error })
 	}
-
-	const maxAttempts = 5
-	const retryDelayMs = 5_000
-	let trimmedOutput = ''
-	let hasLoggedOutput = false
-
-	for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-		const attemptLabel = `Report ${attempt}/${maxAttempts}`
-		console.log(`⏳ ${attemptLabel}`) // eslint-disable-line no-console
-
-		const { status, output } = fetchPrChecksOutput(branch)
-		trimmedOutput = output
-
-		if (status === 0) {
-			if (trimmedOutput.length > 0) {
-				console.log(trimmedOutput) // eslint-disable-line no-console
-				hasLoggedOutput = true
-			}
-			console.log(`✅ ${attemptLabel}`) // eslint-disable-line no-console
-			break
-		}
-
-		if (isNoChecksReportedMessage(trimmedOutput) || hasPendingChecksMessage(trimmedOutput)) {
-			if (attempt < maxAttempts) {
-				const reason = isNoChecksReportedMessage(trimmedOutput)
-					? 'CI report not ready.'
-					: 'CI report pending.'
-				console.log(`${reason} Retry soon.`) // eslint-disable-line no-console
-				await waitFor(retryDelayMs)
-				continue
-			}
-
-			const finalReason = isNoChecksReportedMessage(trimmedOutput)
-				? 'CI report never arrived. Continuing.'
-				: 'CI report still pending. Continuing.'
-			console.log(finalReason) // eslint-disable-line no-console
-			console.log(`✅ ${attemptLabel}`) // eslint-disable-line no-console
-			break
-		}
-
-		console.log(`❌ ${attemptLabel}`) // eslint-disable-line no-console
-		throw new AutomationError(
-			`CI report failed.${trimmedOutput.length > 0 ? `\n${trimmedOutput}` : ''}`,
-		)
-	}
-
-	const sonarLine = trimmedOutput
-		.split(/\r?\n/u)
-		.find((line) => line.toLowerCase().includes('sonarcloud'))
-
-	if (
-		sonarLine !== undefined &&
-		!sonarLine.toLowerCase().includes('pass') &&
-		!sonarLine.toLowerCase().includes('success')
-	) {
-		const sonarUrlMatch = /https?:\/\/\S+/u.exec(sonarLine)
-		const sonarUrl = sonarUrlMatch?.[0] ?? prInfo.url ?? ''
-		throw new AutomationError(
-			['⚠️ SonarCloud found issues.', `Details: ${sonarUrl}`, 'Fix, commit, push, rerun.'].join(
-				EOL,
-			),
-		)
-	}
-
-	if (!hasLoggedOutput && trimmedOutput.length > 0 && !isNoChecksReportedMessage(trimmedOutput)) {
-		console.log(trimmedOutput) // eslint-disable-line no-console
-	}
-
-	return prInfo
 }
 
-function summarizeOperations(config: AutomationConfig): string {
+function fetch_pr_info(branch: string): { url?: string; title?: string } {
+	const { stdout } = run_command('gh', ['pr', 'view', branch, '--json', 'url,title,number'], {
+		description: 'PR info',
+	})
+	return parse_pr_info(stdout)
+}
+
+async function evaluate_report_status(
+	command_output: string,
+	attempt: number,
+	max_attempts: number,
+	retry_delay_ms: number,
+): Promise<PendingCheckOutcome> {
+	const is_pending =
+		is_no_checks_reported_message(command_output) || has_pending_checks_message(command_output)
+	if (!is_pending) return 'unhandled'
+
+	if (attempt < max_attempts) {
+		const reason = is_no_checks_reported_message(command_output)
+			? 'CI report not ready.'
+			: 'CI report pending.'
+		console.log(`${reason} Retry soon.`)
+		await wait_for(retry_delay_ms)
+		return 'retry'
+	}
+
+	const final_reason = is_no_checks_reported_message(command_output)
+		? 'CI report never arrived. Continuing.'
+		: 'CI report still pending. Continuing.'
+	console.log(final_reason)
+	return 'complete'
+}
+
+function log_report_output(command_output: string): boolean {
+	if (command_output.length === 0) {
+		return false
+	}
+
+	console.log(command_output)
+	return true
+}
+
+function extract_sonar_line(command_output: string): string | undefined {
+	return command_output.split(/\r?\n/u).find((line) => line.toLowerCase().includes('sonarcloud'))
+}
+
+function sonar_checks_failed(line: string | undefined): boolean {
+	if (line === undefined) {
+		return false
+	}
+
+	const normalized = line.toLowerCase()
+	return !normalized.includes('pass') && !normalized.includes('success')
+}
+
+function resolve_sonar_url(line: string | undefined, pr_info: { url?: string }): string {
+	if (line === undefined) {
+		return pr_info.url ?? ''
+	}
+
+	const match = /https?:\/\/\S+/u.exec(line)
+	return match?.[0] ?? pr_info.url ?? ''
+}
+
+function enforce_sonar_success(
+	command_output: string,
+	pr_info: { url?: string; title?: string },
+): void {
+	const sonar_line = extract_sonar_line(command_output)
+	if (!sonar_checks_failed(sonar_line)) return
+
+	const sonar_url = resolve_sonar_url(sonar_line, pr_info)
+	throw new AutomationError(
+		['⚠️ SonarCloud found issues.', `Details: ${sonar_url}`, 'Fix, commit, push, rerun.'].join(EOL),
+	)
+}
+
+function should_log_final_output(command_output: string): boolean {
+	return command_output.length > 0 && !is_no_checks_reported_message(command_output)
+}
+
+function update_report_logging(command_output: string, has_logged_output: boolean): boolean {
+	if (command_output.length === 0) {
+		return has_logged_output
+	}
+
+	return log_report_output(command_output) || has_logged_output
+}
+
+function build_ci_report_message(command_output: string): string {
+	const suffix = command_output.length > 0 ? `\n${command_output}` : ''
+	return `CI report failed.${suffix}`
+}
+
+function log_final_report_output(command_output: string, has_logged_output: boolean): void {
+	if (has_logged_output || !should_log_final_output(command_output)) return
+
+	console.log(command_output)
+}
+
+async function evaluate_sonar_checks(branch: string): Promise<{ url?: string; title?: string }> {
+	const pr_info = fetch_pr_info(branch)
+	const max_attempts = 5
+	const retry_delay_ms = 5000
+	let trimmed_output = ''
+	let has_logged_output = false
+
+	for (let attempt = 1; attempt <= max_attempts; attempt += 1) {
+		const attempt_label = format_attempt_label('Report', attempt, max_attempts)
+		log_attempt_start(attempt_label)
+
+		const { status, output: command_output } = fetch_pr_checks_output(branch)
+		trimmed_output = command_output
+
+		if (status === 0) {
+			has_logged_output = update_report_logging(trimmed_output, has_logged_output)
+			log_attempt_success(attempt_label)
+			break
+		}
+
+		const outcome = await evaluate_report_status(
+			trimmed_output,
+			attempt,
+			max_attempts,
+			retry_delay_ms,
+		)
+
+		if (outcome === 'complete') {
+			log_attempt_success(attempt_label)
+			break
+		}
+
+		if (outcome !== 'retry') {
+			log_attempt_failure(attempt_label)
+			throw new AutomationError(build_ci_report_message(trimmed_output))
+		}
+	}
+
+	enforce_sonar_success(trimmed_output, pr_info)
+
+	log_final_report_output(trimmed_output, has_logged_output)
+
+	return pr_info
+}
+
+function summarize_operations(config: AutomationConfig): string {
 	const enabled = Object.entries(config.operations)
 		.filter(([, value]) => value)
 		.map(([key]) => OPERATION_LABELS[key as Operation])
 	return enabled.length > 0 ? enabled.join(' · ') : 'none'
 }
 
+async function prepare_config(prompt: Interface | undefined): Promise<AutomationConfig> {
+	const issue_line = await read_issue_line(prompt)
+	return parse_automation_config(issue_line)
+}
+
+function align_working_branch(config: AutomationConfig): string {
+	let current_branch = get_current_branch()
+	const is_on_main = current_branch === 'main' || current_branch === 'master'
+
+	ensure_branch_matches_issue(current_branch, config.issue_number)
+
+	if (is_on_main) {
+		ensure_main_is_updated(current_branch)
+
+		if (current_branch !== config.target_branch) {
+			create_branch(config.target_branch)
+			current_branch = config.target_branch
+		}
+
+		return current_branch
+	}
+
+	if (current_branch !== config.target_branch) {
+		console.log(
+			`⚠️ The current branch (${current_branch}) differs from the recommended branch name (${config.target_branch}). Continuing on the existing branch.`,
+		)
+	}
+
+	return current_branch
+}
+
+async function execute_setup(
+	prompt: Interface | undefined,
+): Promise<{ config: AutomationConfig; current_branch: string }> {
+	ensure_staging_state()
+	await ensure_package_json_version(prompt)
+
+	const config = await prepare_config(prompt)
+	const current_branch = align_working_branch(config)
+
+	ensure_issue_matches(config)
+	console.log('✅ Pre-flight checks')
+
+	return { config, current_branch }
+}
+
+async function select_operations(
+	prompt: Interface | undefined,
+	config: AutomationConfig,
+): Promise<void> {
+	config.operations = await configure_operations(prompt)
+
+	const summary = summarize_operations(config)
+	console.log(`\n🚀 Run → #${config.issue_number} ${config.issue_title} · ${summary}`)
+}
+
+function run_commit_if_requested(config: AutomationConfig): void {
+	if (!config.operations.commit) return
+
+	console.log(`\n${OPERATION_LABELS.commit}`)
+	run_commit(config)
+}
+
+function run_push_if_requested(config: AutomationConfig, current_branch: string): void {
+	if (!config.operations.push) return
+
+	console.log(`\n${OPERATION_LABELS.push}`)
+	run_push(current_branch)
+}
+
+function log_pr_completion(pr_info: { url?: string; title?: string }): void {
+	console.log('\n────────')
+	console.log('\n🏁 All operations complete')
+
+	if (pr_info.url !== undefined) {
+		console.log('\n📦 PR:')
+		console.log(`  • URL: ${pr_info.url}`)
+	}
+
+	if (pr_info.title !== undefined) {
+		console.log(`  • Title: ${pr_info.title}`)
+	}
+
+	console.log('  • Status: ✅ All checks passed')
+	console.log('\n👉 Request code review.')
+}
+
+async function run_pr_flow_if_requested(
+	config: AutomationConfig,
+	current_branch: string,
+): Promise<boolean> {
+	if (!config.operations.pr) return false
+
+	create_pull_request(config)
+
+	console.log('\n🧪 CI')
+	await watch_pull_request_checks(current_branch)
+
+	console.log('\n🧾 Report')
+	const pr_info = await evaluate_sonar_checks(current_branch)
+	log_pr_completion(pr_info)
+
+	return true
+}
+
+function log_partial_completion(): void {
+	console.log('\n────────')
+	console.log('🏁 Selected steps done')
+}
+
+async function execute_workflow(config: AutomationConfig, current_branch: string): Promise<void> {
+	run_commit_if_requested(config)
+	run_push_if_requested(config, current_branch)
+
+	const did_execute_pr = await run_pr_flow_if_requested(config, current_branch)
+	if (!did_execute_pr) log_partial_completion()
+}
+
+function handle_automation_error(error: unknown): never {
+	if (error instanceof AutomationError) {
+		console.error(error.message)
+		exit(1)
+	}
+
+	if (error instanceof Error) {
+		console.error(`An unexpected error occurred: ${error.message}`)
+		exit(1)
+	}
+
+	console.error('An unexpected error occurred.')
+	exit(1)
+}
+
 async function main(): Promise<void> {
 	const prompt = process.stdin.isTTY ? createInterface({ input, output }) : undefined
 
 	try {
-		ensureStagingState()
-		await ensurePackageJsonVersion(prompt)
-
-		const issueLine = await readIssueLine(prompt)
-		const config = parseAutomationConfig(issueLine)
-
-		let currentBranch = getCurrentBranch()
-		const isOnMain = currentBranch === 'main' || currentBranch === 'master'
-
-		ensureBranchMatchesIssue(currentBranch, config.issueNumber)
-
-		if (isOnMain) {
-			ensureMainIsUpdated(currentBranch)
-
-			if (currentBranch !== config.targetBranch) {
-				createBranch(config.targetBranch)
-				currentBranch = config.targetBranch
-			}
-		} else if (currentBranch !== config.targetBranch) {
-			console.log(
-				`⚠️ The current branch (${currentBranch}) differs from the recommended branch name (${config.targetBranch}). Continuing on the existing branch.`,
-			) // eslint-disable-line no-console
-		}
-
-		ensureIssueMatches(config)
-		console.log('✅ Pre-flight checks') // eslint-disable-line no-console
-
-		config.operations = await configureOperations(prompt)
-
-		const summary = summarizeOperations(config)
-		console.log(`\n🚀 Run → #${config.issueNumber} ${config.issueTitle} · ${summary}`) // eslint-disable-line no-console
-
-		if (config.operations.commit) {
-			console.log(`\n${OPERATION_LABELS.commit}`) // eslint-disable-line no-console
-			runCommit(config)
-		}
-
-		if (config.operations.push) {
-			console.log(`\n${OPERATION_LABELS.push}`) // eslint-disable-line no-console
-			runPush(currentBranch)
-		}
-
-		if (config.operations.pr) {
-			createPullRequest(config)
-
-			console.log('\n🧪 CI') // eslint-disable-line no-console
-			await watchPullRequestChecks(currentBranch)
-
-			console.log('\n🧾 Report') // eslint-disable-line no-console
-			const prInfo = await evaluateSonarChecks(currentBranch)
-			console.log('\n────────') // eslint-disable-line no-console
-			console.log('\n🏁 All operations complete') // eslint-disable-line no-console
-
-			if (prInfo.url !== undefined) {
-				console.log('\n📦 PR:') // eslint-disable-line no-console
-				console.log(`  • URL: ${prInfo.url}`) // eslint-disable-line no-console
-			}
-
-			if (prInfo.title !== undefined) {
-				console.log(`  • Title: ${prInfo.title}`) // eslint-disable-line no-console
-			}
-
-			console.log('  • Status: ✅ All checks passed') // eslint-disable-line no-console
-			console.log('\n👉 Request code review.') // eslint-disable-line no-console
-
-			return
-		}
-
-		console.log('\n────────') // eslint-disable-line no-console
-		console.log('🏁 Selected steps done') // eslint-disable-line no-console
+		const { config, current_branch } = await execute_setup(prompt)
+		await select_operations(prompt, config)
+		await execute_workflow(config, current_branch)
 	} catch (error) {
-		if (error instanceof AutomationError) {
-			console.error(error.message) // eslint-disable-line no-console
-			exit(1)
-		}
-
-		if (error instanceof Error) {
-			console.error(`An unexpected error occurred: ${error.message}`) // eslint-disable-line no-console
-			exit(1)
-		}
-
-		console.error('An unexpected error occurred.') // eslint-disable-line no-console
-		exit(1)
+		handle_automation_error(error)
 	} finally {
-		await prompt?.close()
+		prompt?.close()
 	}
 }
 
