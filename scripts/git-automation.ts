@@ -201,6 +201,10 @@ function isExistingPullRequestMessage(output: string): boolean {
 	return normalized.includes('pull request') && normalized.includes('already exists')
 }
 
+function isNoChecksReportedMessage(output: string): boolean {
+	return output.toLowerCase().includes('no checks reported')
+}
+
 function ensureCommandExists(command: string): void {
 	const result = spawnSync(command, ['--version'], { stdio: 'ignore' })
 
@@ -448,10 +452,34 @@ function createPullRequest(config: AutomationConfig): void {
 }
 
 function watchPullRequestChecks(): void {
-	runCommand('gh', ['pr', 'checks', '--watch'], {
-		stdio: 'inherit',
-		description: 'ステータスチェック待機',
+	const description = 'ステータスチェック待機'
+	console.log(`▶ ${description} 実行します...`) // eslint-disable-line no-console
+
+	const result = runCommand('gh', ['pr', 'checks', '--watch'], {
+		stdio: 'pipe',
+		allowNonZeroExit: true,
 	})
+
+	const output = [result.stdout, result.stderr].filter((value) => value !== undefined && value.trim().length > 0).join('\n')
+	const trimmedOutput = output.trim()
+
+	if (result.status === 0) {
+		if (trimmedOutput.length > 0) {
+			console.log(trimmedOutput) // eslint-disable-line no-console
+		}
+		console.log(`✓ ${description} 実行します... 完了`) // eslint-disable-line no-console
+		return
+	}
+
+	if (isNoChecksReportedMessage(trimmedOutput)) {
+		console.log('ステータスチェックがまだ登録されていませんが、処理を継続します。') // eslint-disable-line no-console
+		console.log(`✓ ${description} 実行します... 完了`) // eslint-disable-line no-console
+		return
+	}
+
+	console.log(`✗ ${description} 実行します... 失敗`) // eslint-disable-line no-console
+
+	throw new AutomationError(`ステータスチェック待機に失敗しました。${trimmedOutput.length > 0 ? `\n${trimmedOutput}` : ''}`)
 }
 
 function evaluateSonarChecks(branch: string): { url?: string; title?: string } {
@@ -569,7 +597,11 @@ async function main(): Promise<void> {
 			}
 
 			console.log('- ステータス: ✓ All checks passed') // eslint-disable-line no-console
-			console.log('次のステップ: コードレビューを依頼してください。') // eslint-disable-line no-console
+			if (prInfo.url !== undefined) {
+				console.log(`次のステップ: コードレビューを依頼してください（PR: ${prInfo.url}）。`) // eslint-disable-line no-console
+			} else {
+				console.log('次のステップ: コードレビューを依頼してください。') // eslint-disable-line no-console
+			}
 
 			return
 		}
