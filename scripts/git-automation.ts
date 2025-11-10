@@ -6,6 +6,12 @@ import { EOL } from 'node:os'
 
 type Operation = 'commit' | 'push' | 'pr'
 
+const OPERATION_LABELS: Record<Operation, string> = {
+	commit: '🧱 Commit',
+	push: '📤 Push',
+	pr: '🔀 PR',
+}
+
 interface AutomationConfig {
 	issueTitle: string
 	issueNumber: string
@@ -138,7 +144,7 @@ function parseAutomationConfig(issueLine: string): AutomationConfig {
 
 function runCommand(command: string, args: string[], options: CommandOptions = {}): CommandResult {
 	const { stdio = 'pipe', allowNonZeroExit = false, env, description, leadingBlankLine = false } = options
-	const startMessage = description !== undefined ? `▶ ${description} ...` : undefined
+	const startMessage = description !== undefined ? `⏳ ${description}` : undefined
 	const inlineStatus = startMessage !== undefined && stdio === 'pipe'
 	if (startMessage !== undefined) {
 		if (leadingBlankLine) {
@@ -180,7 +186,7 @@ function runCommand(command: string, args: string[], options: CommandOptions = {
 				? `${description} failed.${stderr.trim().length > 0 ? `\n${stderr.trim()}` : ''}`
 				: `Command execution failed: ${command} ${args.join(' ')}`
 		if (description !== undefined) {
-			const failMessage = `✗ ${description} ... failed`
+			const failMessage = `❌ ${description}`
 			if (inlineStatus) {
 				const padding = startMessage.length > failMessage.length ? ' '.repeat(startMessage.length - failMessage.length) : ''
 				process.stdout.write(`\r${failMessage}${padding}\n`)
@@ -195,7 +201,7 @@ function runCommand(command: string, args: string[], options: CommandOptions = {
 	}
 
 	if (description !== undefined && (allowNonZeroExit || status === 0)) {
-		const successMessage = `✓ ${description} ... complete`
+		const successMessage = `✅ ${description}`
 		if (inlineStatus) {
 			const padding = startMessage.length > successMessage.length ? ' '.repeat(startMessage.length - successMessage.length) : ''
 			process.stdout.write(`\r${successMessage}${padding}\n`)
@@ -414,7 +420,7 @@ async function askYesNoBinary(prompt: Interface, question: string): Promise<bool
 		return false
 	}
 
-	console.log('Please answer with y or n.') // eslint-disable-line no-console
+	console.log('Reply y / n.') // eslint-disable-line no-console
 	return askYesNoBinary(prompt, question)
 }
 
@@ -422,21 +428,22 @@ async function configureOperations(prompt: Interface | undefined): Promise<Recor
 	const rl = ensurePromptInterface(prompt)
 
 	while (true) {
-		const commit = await askYesNoBinary(rl, '\nRun commit? (y/n): ')
-		const push = await askYesNoBinary(rl, 'Push changes? (y/n): ')
-		const pr = await askYesNoBinary(rl, 'Create pull request? (y/n): ')
+		const commit = await askYesNoBinary(rl, '\n🧱 Commit? (y/n): ')
+		const push = await askYesNoBinary(rl, '📤 Push? (y/n): ')
+		const pr = await askYesNoBinary(rl, '🔀 PR? (y/n): ')
 
-		console.log('\nCurrent configuration:') // eslint-disable-line no-console
-		console.log(`- Commit: ${commit ? 'enabled' : 'skipped'}`) // eslint-disable-line no-console
-		console.log(`- Push: ${push ? 'enabled' : 'skipped'}`) // eslint-disable-line no-console
-		console.log(`- Create PR: ${pr ? 'enabled' : 'skipped'}`) // eslint-disable-line no-console
+		const status = (enabled: boolean): string => (enabled ? '✅' : '⛔️')
+		console.log('\n🧭 Config:') // eslint-disable-line no-console
+		console.log(`  ${OPERATION_LABELS.commit}: ${status(commit)}`) // eslint-disable-line no-console
+		console.log(`  ${OPERATION_LABELS.push}: ${status(push)}`) // eslint-disable-line no-console
+		console.log(`  ${OPERATION_LABELS.pr}: ${status(pr)}`) // eslint-disable-line no-console
 
-		const confirm = await askYesNoBinary(rl, 'Proceed with this configuration? (y/n): ')
+		const confirm = await askYesNoBinary(rl, '➡️ Proceed? (y/n): ')
 		if (confirm) {
 			return { commit, push, pr }
 		}
 
-		console.log('Re-enter configuration.') // eslint-disable-line no-console
+		console.log('🔁 Reconfigure.') // eslint-disable-line no-console
 	}
 }
 
@@ -452,16 +459,14 @@ function runPush(branch: string): void {
 	runCommand('git', ['push', '-u', 'origin', branch], {
 		stdio: 'inherit',
 		description: 'Push',
-		leadingBlankLine: true,
 	})
 }
 
 function createPullRequest(config: AutomationConfig): void {
 	const title = `${config.issueTitle} #${config.issueNumber}`
 	const body = `closes #${config.issueNumber}`
-	const description = 'Create PR'
-
-	console.log(`\n▶ ${description} ...`) // eslint-disable-line no-console
+	console.log(`\n${OPERATION_LABELS.pr}`) // eslint-disable-line no-console
+	console.log('⏳ PR') // eslint-disable-line no-console
 
 	const result = runCommand(
 		'gh',
@@ -478,29 +483,28 @@ function createPullRequest(config: AutomationConfig): void {
 		if (output.length > 0) {
 			console.log(output.trim()) // eslint-disable-line no-console
 		}
-		console.log(`✓ ${description} ... complete`) // eslint-disable-line no-console
+		console.log('✅ PR') // eslint-disable-line no-console
 		return
 	}
 
 	if (isExistingPullRequestMessage(output)) {
-		console.log('An existing PR was found. Continuing with the same PR.') // eslint-disable-line no-console
-		console.log(`✓ ${description} ... complete`) // eslint-disable-line no-console
+		console.log('ℹ️ Existing PR reused.') // eslint-disable-line no-console
+		console.log('✅ PR') // eslint-disable-line no-console
 		return
 	}
 
-	console.log(`✗ ${description} ... failed`) // eslint-disable-line no-console
+	console.log('❌ PR') // eslint-disable-line no-console
 
 	throw new AutomationError(`Failed to create PR.${output.length > 0 ? `\n${output.trim()}` : ''}`)
 }
 
 async function watchPullRequestChecks(branch: string): Promise<void> {
-	const description = 'Wait for status checks'
 	const maxAttempts = 5
 	const retryDelayMs = 5_000
 
 	for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-		const attemptLabel = `${description} (attempt ${attempt}/${maxAttempts})`
-		console.log(`▶ ${attemptLabel} ...`) // eslint-disable-line no-console
+		const attemptLabel = `Checks ${attempt}/${maxAttempts}`
+		console.log(`⏳ ${attemptLabel}`) // eslint-disable-line no-console
 
 		const result = runCommand('gh', ['pr', 'checks', '--watch', branch], {
 			stdio: 'inherit',
@@ -508,7 +512,7 @@ async function watchPullRequestChecks(branch: string): Promise<void> {
 		})
 
 		if (result.status === 0) {
-			console.log(`✓ ${attemptLabel} ... complete`) // eslint-disable-line no-console
+			console.log(`✅ ${attemptLabel}`) // eslint-disable-line no-console
 			return
 		}
 
@@ -521,37 +525,37 @@ async function watchPullRequestChecks(branch: string): Promise<void> {
 		if (isNoChecksReportedMessage(output) || hasPendingChecksMessage(output)) {
 			if (attempt < maxAttempts) {
 				const reason = isNoChecksReportedMessage(output)
-					? 'Status checks are not registered yet.'
-					: 'Status checks are still pending.'
-				console.log(`${reason} Retrying in a few seconds.`) // eslint-disable-line no-console
+					? 'CI not registered yet.'
+					: 'CI still pending.'
+				console.log(`${reason} Retry soon.`) // eslint-disable-line no-console
 				await waitFor(retryDelayMs)
 				continue
 			}
 
 			const finalReason = isNoChecksReportedMessage(output)
-				? 'Status checks were not registered by the final attempt, continuing anyway.'
-				: 'Status checks remained pending by the final attempt, continuing anyway.'
+				? 'CI never registered. Continuing.'
+				: 'CI still pending. Continuing.'
 			console.log(finalReason) // eslint-disable-line no-console
-			console.log(`✓ ${attemptLabel} ... complete`) // eslint-disable-line no-console
+			console.log(`✅ ${attemptLabel}`) // eslint-disable-line no-console
 			return
 		}
 
-		console.log(`✗ ${attemptLabel} ... failed`) // eslint-disable-line no-console
+		console.log(`❌ ${attemptLabel}`) // eslint-disable-line no-console
 
-		throw new AutomationError(`Waiting for status checks failed.${output.length > 0 ? `\n${output}` : ''}`)
+		throw new AutomationError(`CI watch failed.${output.length > 0 ? `\n${output}` : ''}`)
 	}
 }
 
 async function evaluateSonarChecks(branch: string): Promise<{ url?: string; title?: string }> {
 	const { stdout } = runCommand('gh', ['pr', 'view', branch, '--json', 'url,title,number'], {
-		description: 'Fetch PR details',
+		description: 'PR info',
 	})
 
 	let prInfo: { url?: string; title?: string } = {}
 	try {
 		prInfo = JSON.parse(stdout) as { url?: string; title?: string }
 	} catch (error) {
-		throw new AutomationError('Failed to fetch PR details. Unable to parse JSON.', { cause: error })
+		throw new AutomationError('PR info failed. JSON parse error.', { cause: error })
 	}
 
 	const maxAttempts = 5
@@ -560,8 +564,8 @@ async function evaluateSonarChecks(branch: string): Promise<{ url?: string; titl
 	let hasLoggedOutput = false
 
 	for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-		const attemptLabel = `Fetch status check results (attempt ${attempt}/${maxAttempts})`
-		console.log(`▶ ${attemptLabel} ...`) // eslint-disable-line no-console
+		const attemptLabel = `Report ${attempt}/${maxAttempts}`
+		console.log(`⏳ ${attemptLabel}`) // eslint-disable-line no-console
 
 		const { status, output } = fetchPrChecksOutput(branch)
 		trimmedOutput = output
@@ -571,31 +575,31 @@ async function evaluateSonarChecks(branch: string): Promise<{ url?: string; titl
 				console.log(trimmedOutput) // eslint-disable-line no-console
 				hasLoggedOutput = true
 			}
-			console.log(`✓ ${attemptLabel} ... complete`) // eslint-disable-line no-console
+			console.log(`✅ ${attemptLabel}`) // eslint-disable-line no-console
 			break
 		}
 
 		if (isNoChecksReportedMessage(trimmedOutput) || hasPendingChecksMessage(trimmedOutput)) {
 			if (attempt < maxAttempts) {
 				const reason = isNoChecksReportedMessage(trimmedOutput)
-					? 'Status check results are not available yet.'
-					: 'Status check results are still pending.'
-				console.log(`${reason} Retrying in a few seconds.`) // eslint-disable-line no-console
+					? 'CI report not ready.'
+					: 'CI report pending.'
+				console.log(`${reason} Retry soon.`) // eslint-disable-line no-console
 				await waitFor(retryDelayMs)
 				continue
 			}
 
 			const finalReason = isNoChecksReportedMessage(trimmedOutput)
-				? 'Status check results were not available by the final attempt, continuing anyway.'
-				: 'Status check results remained pending by the final attempt, continuing anyway.'
+				? 'CI report never arrived. Continuing.'
+				: 'CI report still pending. Continuing.'
 			console.log(finalReason) // eslint-disable-line no-console
-			console.log(`✓ ${attemptLabel} ... complete`) // eslint-disable-line no-console
+			console.log(`✅ ${attemptLabel}`) // eslint-disable-line no-console
 			break
 		}
 
-		console.log(`✗ ${attemptLabel} ... failed`) // eslint-disable-line no-console
+		console.log(`❌ ${attemptLabel}`) // eslint-disable-line no-console
 		throw new AutomationError(
-			`Failed to fetch status check results.${trimmedOutput.length > 0 ? `\n${trimmedOutput}` : ''}`
+			`CI report failed.${trimmedOutput.length > 0 ? `\n${trimmedOutput}` : ''}`
 		)
 	}
 
@@ -606,13 +610,7 @@ async function evaluateSonarChecks(branch: string): Promise<{ url?: string; titl
 	if (sonarLine !== undefined && !sonarLine.toLowerCase().includes('pass') && !sonarLine.toLowerCase().includes('success')) {
 		const sonarUrlMatch = /https?:\/\/\S+/u.exec(sonarLine)
 		const sonarUrl = sonarUrlMatch?.[0] ?? prInfo.url ?? ''
-		throw new AutomationError(
-			[
-				'⚠️ SonarCloud reported issues.',
-				`Details: ${sonarUrl}`,
-				'Resolve the issues, then commit and push again.',
-			].join(EOL)
-		)
+		throw new AutomationError(['⚠️ SonarCloud found issues.', `Details: ${sonarUrl}`, 'Fix, commit, push, rerun.'].join(EOL))
 	}
 
 	if (!hasLoggedOutput && trimmedOutput.length > 0 && !isNoChecksReportedMessage(trimmedOutput)) {
@@ -625,8 +623,8 @@ async function evaluateSonarChecks(branch: string): Promise<{ url?: string; titl
 function summarizeOperations(config: AutomationConfig): string {
 	const enabled = Object.entries(config.operations)
 		.filter(([, value]) => value)
-		.map(([key]) => key)
-	return enabled.length > 0 ? enabled.join(', ') : 'none'
+		.map(([key]) => OPERATION_LABELS[key as Operation])
+	return enabled.length > 0 ? enabled.join(' · ') : 'none'
 }
 
 async function main(): Promise<void> {
@@ -658,53 +656,51 @@ async function main(): Promise<void> {
 		}
 
 		ensureIssueMatches(config)
-		console.log('✓ Pre-flight checks complete') // eslint-disable-line no-console
+		console.log('✅ Pre-flight checks') // eslint-disable-line no-console
 
 		config.operations = await configureOperations(prompt)
 
 		const summary = summarizeOperations(config)
-		console.log(`\nStarting execution (Issue #${config.issueNumber}: ${config.issueTitle} → ${summary})`) // eslint-disable-line no-console
+		console.log(`\n🚀 Run → #${config.issueNumber} ${config.issueTitle} · ${summary}`) // eslint-disable-line no-console
 
 		if (config.operations.commit) {
+			console.log(`\n${OPERATION_LABELS.commit}`) // eslint-disable-line no-console
 			runCommit(config)
-			console.log('✓ Commit complete') // eslint-disable-line no-console
 		}
 
 		if (config.operations.push) {
+			console.log(`\n${OPERATION_LABELS.push}`) // eslint-disable-line no-console
 			runPush(currentBranch)
-			console.log('✓ Push complete') // eslint-disable-line no-console
 		}
 
 		if (config.operations.pr) {
 			createPullRequest(config)
-			console.log('✓ PR creation complete') // eslint-disable-line no-console
 
+			console.log('\n🧪 CI') // eslint-disable-line no-console
 			await watchPullRequestChecks(currentBranch)
-			console.log('✓ Status checks complete') // eslint-disable-line no-console
 
+			console.log('\n🧾 Report') // eslint-disable-line no-console
 			const prInfo = await evaluateSonarChecks(currentBranch)
-			console.log('✓ SonarCloud verification complete') // eslint-disable-line no-console
-
-			console.log('---') // eslint-disable-line no-console
-			console.log('\n✅ All operations completed successfully') // eslint-disable-line no-console
+			console.log('\n────────') // eslint-disable-line no-console
+			console.log('\n🏁 All operations complete') // eslint-disable-line no-console
 
 			if (prInfo.url !== undefined) {
-				console.log(`\nPR details:`) // eslint-disable-line no-console
-				console.log(`- URL: ${prInfo.url}`) // eslint-disable-line no-console
+				console.log('\n📦 PR:') // eslint-disable-line no-console
+				console.log(`  • URL: ${prInfo.url}`) // eslint-disable-line no-console
 			}
 
 			if (prInfo.title !== undefined) {
-				console.log(`- Title: ${prInfo.title}`) // eslint-disable-line no-console
+				console.log(`  • Title: ${prInfo.title}`) // eslint-disable-line no-console
 			}
 
-			console.log('- Status: ✓ All checks passed') // eslint-disable-line no-console
-			console.log('\nNext step: request a code review.') // eslint-disable-line no-console
+			console.log('  • Status: ✅ All checks passed') // eslint-disable-line no-console
+			console.log('\n👉 Request code review.') // eslint-disable-line no-console
 
 			return
 		}
 
-		console.log('---') // eslint-disable-line no-console
-		console.log('✅ Requested operations completed') // eslint-disable-line no-console
+		console.log('\n────────') // eslint-disable-line no-console
+		console.log('🏁 Selected steps done') // eslint-disable-line no-console
 	} catch (error) {
 		if (error instanceof AutomationError) {
 			console.error(error.message) // eslint-disable-line no-console
