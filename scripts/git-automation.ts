@@ -407,14 +407,22 @@ function createPullRequest(config: AutomationConfig): void {
 	const title = `${config.issueTitle} #${config.issueNumber}`
 	const body = `closes #${config.issueNumber}`
 
-	runCommand(
-		'gh',
-		['pr', 'create', '--title', title, '--body', body, '--label', 'enhancement', '--base', 'main'],
-		{
-			stdio: 'inherit',
-			description: 'PR作成',
+	try {
+		runCommand(
+			'gh',
+			['pr', 'create', '--title', title, '--body', body, '--label', 'enhancement', '--base', 'main'],
+			{
+				stdio: 'inherit',
+				description: 'PR作成',
+			}
+		)
+	} catch (error) {
+		if (error instanceof AutomationError && isExistingPullRequestError(error)) {
+			console.log('既存のPRが見つかりました。同じPRを利用して処理を継続します。') // eslint-disable-line no-console
+		} else {
+			throw error
 		}
-	)
+	}
 }
 
 function watchPullRequestChecks(): void {
