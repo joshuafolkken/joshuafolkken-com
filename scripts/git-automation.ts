@@ -425,7 +425,7 @@ function watchPullRequestChecks(): void {
 }
 
 function evaluateSonarChecks(branch: string): { url?: string; title?: string } {
-	const { stdout } = runCommand('gh', ['pr', 'view', '--json', 'url,title,number', '--head', branch], {
+	const { stdout } = runCommand('gh', ['pr', 'view', branch, '--json', 'url,title,number'], {
 		description: 'PR情報の取得',
 	})
 
