@@ -451,14 +451,14 @@ function runCommit(config: AutomationConfig): void {
 	const commitMessage = `${config.issueTitle} #${config.issueNumber}`
 	runCommand('git', ['commit', '-m', commitMessage], {
 		stdio: 'inherit',
-		description: 'Commit',
+		description: 'git commit',
 	})
 }
 
 function runPush(branch: string): void {
 	runCommand('git', ['push', '-u', 'origin', branch], {
 		stdio: 'inherit',
-		description: 'Push',
+		description: 'git push',
 	})
 }
 
@@ -466,7 +466,6 @@ function createPullRequest(config: AutomationConfig): void {
 	const title = `${config.issueTitle} #${config.issueNumber}`
 	const body = `closes #${config.issueNumber}`
 	console.log(`\n${OPERATION_LABELS.pr}`) // eslint-disable-line no-console
-	console.log('⏳ PR') // eslint-disable-line no-console
 
 	const result = runCommand(
 		'gh',
@@ -474,6 +473,7 @@ function createPullRequest(config: AutomationConfig): void {
 		{
 			stdio: 'pipe',
 			allowNonZeroExit: true,
+			description: 'gh pr create',
 		}
 	)
 
@@ -483,17 +483,17 @@ function createPullRequest(config: AutomationConfig): void {
 		if (output.length > 0) {
 			console.log(output.trim()) // eslint-disable-line no-console
 		}
-		console.log('✅ PR') // eslint-disable-line no-console
+		console.log('✅ 🔀 PR') // eslint-disable-line no-console
 		return
 	}
 
 	if (isExistingPullRequestMessage(output)) {
 		console.log('ℹ️ Existing PR reused.') // eslint-disable-line no-console
-		console.log('✅ PR') // eslint-disable-line no-console
+		console.log('✅ 🔀 PR') // eslint-disable-line no-console
 		return
 	}
 
-	console.log('❌ PR') // eslint-disable-line no-console
+	console.log('❌ 🔀 PR') // eslint-disable-line no-console
 
 	throw new AutomationError(`Failed to create PR.${output.length > 0 ? `\n${output.trim()}` : ''}`)
 }
