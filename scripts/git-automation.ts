@@ -216,6 +216,10 @@ function runCommand(command: string, args: string[], options: CommandOptions = {
 	return { stdout, stderr, status }
 }
 
+function isExistingPullRequestMessage(output: string): boolean {
+	return /pull request already exists/iu.test(output)
+}
+
 function ensureCommandExists(command: string): void {
 	const result = spawnSync(command, ['--version'], { stdio: 'ignore' })
 
@@ -406,23 +410,38 @@ function runPush(branch: string): void {
 function createPullRequest(config: AutomationConfig): void {
 	const title = `${config.issueTitle} #${config.issueNumber}`
 	const body = `closes #${config.issueNumber}`
+	const description = 'PR作成'
 
-	try {
-		runCommand(
-			'gh',
-			['pr', 'create', '--title', title, '--body', body, '--label', 'enhancement', '--base', 'main'],
-			{
-				stdio: 'inherit',
-				description: 'PR作成',
-			}
-		)
-	} catch (error) {
-		if (error instanceof AutomationError && isExistingPullRequestError(error)) {
-			console.log('既存のPRが見つかりました。同じPRを利用して処理を継続します。') // eslint-disable-line no-console
-		} else {
-			throw error
+	console.log(`▶ ${description} 実行します...`) // eslint-disable-line no-console
+
+	const result = runCommand(
+		'gh',
+		['pr', 'create', '--title', title, '--body', body, '--label', 'enhancement', '--base', 'main'],
+		{
+			stdio: 'pipe',
+			allowNonZeroExit: true,
 		}
+	)
+
+	const output = [result.stdout, result.stderr].filter((value) => value !== undefined && value.trim().length > 0).join('\n')
+
+	if (result.status === 0) {
+		if (output.length > 0) {
+			console.log(output.trim()) // eslint-disable-line no-console
+		}
+		console.log(`✓ ${description} 実行します... 完了`) // eslint-disable-line no-console
+		return
 	}
+
+	if (isExistingPullRequestMessage(output)) {
+		console.log('既存のPRが見つかりました。同じPRを利用して処理を継続します。') // eslint-disable-line no-console
+		console.log(`✓ ${description} 実行します... 完了`) // eslint-disable-line no-console
+		return
+	}
+
+	console.log(`✗ ${description} 実行します... 失敗`) // eslint-disable-line no-console
+
+	throw new AutomationError(`PR作成に失敗しました。${output.length > 0 ? `\n${output.trim()}` : ''}`)
 }
 
 function watchPullRequestChecks(): void {
