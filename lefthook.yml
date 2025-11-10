@@ -12,9 +12,9 @@ pre-commit:
       glob: '*.{js,jsx,ts,tsx,mjs,cjs,svelte,html,css,scss,md,mdx,json,jsonc,yaml,yml}'
       run: npx prettier --check --ignore-unknown {staged_files}
 
-    # eslint:
-    #   glob: '*.{js,jsx,ts,tsx,mjs,cjs,svelte}'
-    #   run: npx eslint --quiet {staged_files}
+    eslint:
+      glob: '*.{js,jsx,ts,tsx,mjs,cjs,svelte}'
+      run: npx eslint --quiet {staged_files}
 
   fail_text: |
     🚫 Commit blocked due to quality checks failure
