@@ -57,7 +57,7 @@ function ensurePromptInterface(prompt: Interface | undefined): Interface {
 	return prompt
 }
 
-async function readPromptLines(prompt: Interface | undefined): Promise<{ issueLine: string; operationsLine: string }> {
+async function readIssueLine(prompt: Interface | undefined): Promise<string> {
 	const pipedInput = await readPipedInput()
 
 	if (pipedInput !== undefined) {
@@ -66,21 +66,19 @@ async function readPromptLines(prompt: Interface | undefined): Promise<{ issueLi
 			.map((line) => line.trim())
 			.filter((line) => line.length > 0)
 
-		const lines =
-			rawLines[0]?.trim() === '@git-automation.md' ? rawLines.slice(1) : rawLines
+		const lines = rawLines[0]?.trim() === '@git-automation.md' ? rawLines.slice(1) : rawLines
 
-		if (lines.length < 2) {
-			throw new AutomationError('入力が不足しています。2行以上の入力を提供してください。')
+		if (lines.length < 1) {
+			throw new AutomationError('入力が不足しています。Issue情報を含む行を提供してください。')
 		}
 
-		return { issueLine: lines[0] ?? '', operationsLine: lines[1] ?? '' }
+		return lines[0] ?? ''
 	}
 
 	const rl = ensurePromptInterface(prompt)
-	const secondLine = await rl.question('Issue情報 (<title> #<number>): ')
-	const thirdLine = await rl.question('実行操作 (例: commit push pr): ')
+	const issueLine = await rl.question('Issue情報 (<title> #<number>): ')
 
-	return { issueLine: secondLine.trim(), operationsLine: thirdLine.trim() }
+	return issueLine.trim()
 }
 
 function parseIssueLine(line: string): { issueTitle: string; issueNumber: string } {
@@ -105,27 +103,6 @@ function parseIssueLine(line: string): { issueTitle: string; issueNumber: string
 	}
 }
 
-function parseOperationsLine(line: string): Record<Operation, boolean> {
-	const normalized = line.replace(/^exec:\s*/iu, '').trim().toLowerCase()
-	if (normalized.length === 0) {
-		throw new AutomationError('実行操作が指定されていません。`commit push pr` のように指定してください。')
-	}
-
-	const tokens = normalized.split(/\s+/u)
-	const allowed: Operation[] = ['commit', 'push', 'pr']
-
-	const operations = Object.fromEntries(allowed.map((op) => [op, false])) as Record<Operation, boolean>
-
-	for (const token of tokens) {
-		if (!allowed.includes(token as Operation)) {
-			throw new AutomationError(`未対応の操作 '${token}' が指定されました。使用可能な操作: commit, push, pr`)
-		}
-		operations[token as Operation] = true
-	}
-
-	return operations
-}
-
 function sanitizeBranchSlug(title: string): string {
 	const replaced = title
 		.toLowerCase()
@@ -142,16 +119,19 @@ function generateTargetBranch(issueTitle: string, issueNumber: string): string {
 	return `${issueNumber}-${slug}`
 }
 
-function parseAutomationConfig(input: { issueLine: string; operationsLine: string }): AutomationConfig {
-	const { issueTitle, issueNumber } = parseIssueLine(input.issueLine ?? '')
-	const operations = parseOperationsLine(input.operationsLine ?? '')
+function parseAutomationConfig(issueLine: string): AutomationConfig {
+	const { issueTitle, issueNumber } = parseIssueLine(issueLine)
 	const targetBranch = generateTargetBranch(issueTitle, issueNumber)
 
 	return {
 		issueTitle,
 		issueNumber,
 		targetBranch,
-		operations,
+		operations: {
+			commit: false,
+			push: false,
+			pr: false,
+		},
 	}
 }
 
@@ -217,7 +197,8 @@ function runCommand(command: string, args: string[], options: CommandOptions = {
 }
 
 function isExistingPullRequestMessage(output: string): boolean {
-	return /pull request already exists/iu.test(output)
+	const normalized = output.toLowerCase()
+	return normalized.includes('pull request') && normalized.includes('already exists')
 }
 
 function ensureCommandExists(command: string): void {
@@ -235,7 +216,7 @@ function ensureStagingState(): void {
 
 	const lines = stdout
 		.split(/\r?\n/u)
-		.map((line) => line.trim())
+		.map((line) => line.replace(/\s+$/u, ''))
 		.filter((line) => line.length > 0)
 
 	const hasUntracked = lines.some((line) => line.startsWith('??'))
@@ -350,9 +331,9 @@ async function ensurePackageJsonVersion(prompt: Interface | undefined): Promise<
 	const hasPackageJson = stagedFiles.includes('package.json')
 
 	if (!hasPackageJson) {
-		const shouldContinue = await askYesNo(
+		const shouldContinue = await askYesNoBinary(
 			rl,
-			'⚠️ package.json がステージング済みの変更に含まれていません。続行しますか？ (yes/no): '
+			'⚠️ package.json がステージング済みの変更に含まれていません。続行しますか？ (y/n): '
 		)
 		if (!shouldContinue) {
 			throw new AutomationError('ユーザーが続行をキャンセルしました。')
@@ -367,9 +348,9 @@ async function ensurePackageJsonVersion(prompt: Interface | undefined): Promise<
 	const versionChanged = /^[+-]\s*"version"\s*:/gmu.test(diff)
 
 	if (!versionChanged) {
-		const shouldContinue = await askYesNo(
+		const shouldContinue = await askYesNoBinary(
 			rl,
-			'⚠️ package.json の version が更新されていません。続行しますか？ (yes/no): '
+			'⚠️ package.json の version が更新されていません。続行しますか？ (y/n): '
 		)
 		if (!shouldContinue) {
 			throw new AutomationError('ユーザーが続行をキャンセルしました。')
@@ -377,19 +358,41 @@ async function ensurePackageJsonVersion(prompt: Interface | undefined): Promise<
 	}
 }
 
-async function askYesNo(prompt: Interface, question: string): Promise<boolean> {
+async function askYesNoBinary(prompt: Interface, question: string): Promise<boolean> {
 	const answer = (await prompt.question(question)).trim().toLowerCase()
 
-	if (answer === 'yes' || answer === 'y') {
+	if (answer === 'y') {
 		return true
 	}
 
-	if (answer === 'no' || answer === 'n') {
+	if (answer === 'n') {
 		return false
 	}
 
-	console.log('yes か no で回答してください。') // eslint-disable-line no-console
-	return askYesNo(prompt, question)
+	console.log('y か n で回答してください。') // eslint-disable-line no-console
+	return askYesNoBinary(prompt, question)
+}
+
+async function configureOperations(prompt: Interface | undefined): Promise<Record<Operation, boolean>> {
+	const rl = ensurePromptInterface(prompt)
+
+	while (true) {
+		const commit = await askYesNoBinary(rl, 'コミットを実行しますか？ (y/n): ')
+		const push = await askYesNoBinary(rl, 'プッシュを実行しますか？ (y/n): ')
+		const pr = await askYesNoBinary(rl, 'PR作成を実行しますか？ (y/n): ')
+
+		console.log('現在の設定:') // eslint-disable-line no-console
+		console.log(`- コミット: ${commit ? '実行する' : '実行しない'}`) // eslint-disable-line no-console
+		console.log(`- プッシュ: ${push ? '実行する' : '実行しない'}`) // eslint-disable-line no-console
+		console.log(`- PR作成: ${pr ? '実行する' : '実行しない'}`) // eslint-disable-line no-console
+
+		const confirm = await askYesNoBinary(rl, 'この設定で進めますか？ (y/n): ')
+		if (confirm) {
+			return { commit, push, pr }
+		}
+
+		console.log('設定を再入力します。') // eslint-disable-line no-console
+	}
 }
 
 function runCommit(config: AutomationConfig): void {
@@ -494,7 +497,7 @@ function summarizeOperations(config: AutomationConfig): string {
 	const enabled = Object.entries(config.operations)
 		.filter(([, value]) => value)
 		.map(([key]) => key)
-	return enabled.join(', ')
+	return enabled.length > 0 ? enabled.join(', ') : 'なし'
 }
 
 async function main(): Promise<void> {
@@ -504,11 +507,8 @@ async function main(): Promise<void> {
 		ensureStagingState()
 		await ensurePackageJsonVersion(prompt)
 
-		const lines = await readPromptLines(prompt)
-		const config = parseAutomationConfig(lines)
-
-		const summary = summarizeOperations(config)
-		console.log(`処理を開始します（Issue #${config.issueNumber}: ${config.issueTitle} → ${summary}）`) // eslint-disable-line no-console
+		const issueLine = await readIssueLine(prompt)
+		const config = parseAutomationConfig(issueLine)
 
 		let currentBranch = getCurrentBranch()
 		const isOnMain = currentBranch === 'main' || currentBranch === 'master'
@@ -530,6 +530,11 @@ async function main(): Promise<void> {
 
 		ensureIssueMatches(config)
 		console.log('✓ 事前チェック完了') // eslint-disable-line no-console
+
+		config.operations = await configureOperations(prompt)
+
+		const summary = summarizeOperations(config)
+		console.log(`処理を開始します（Issue #${config.issueNumber}: ${config.issueTitle} → ${summary}）`) // eslint-disable-line no-console
 
 		if (config.operations.commit) {
 			runCommit(config)
