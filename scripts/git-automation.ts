@@ -202,6 +202,22 @@ async function waitFor(milliseconds: number): Promise<void> {
 	})
 }
 
+function fetchPrChecksOutput(branch: string): { status: number; output: string } {
+	const result = runCommand('gh', ['pr', 'checks', branch], {
+		stdio: 'pipe',
+		allowNonZeroExit: true,
+	})
+
+	const output = [result.stdout, result.stderr]
+		.filter((value) => value !== undefined && value.trim().length > 0)
+		.join('\n')
+
+	return {
+		status: result.status,
+		output: output.trim(),
+	}
+}
+
 function isExistingPullRequestMessage(output: string): boolean {
 	const normalized = output.toLowerCase()
 	return normalized.includes('pull request') && normalized.includes('already exists')
@@ -467,24 +483,22 @@ async function watchPullRequestChecks(branch: string): Promise<void> {
 		console.log(`▶ ${attemptLabel} 実行します...`) // eslint-disable-line no-console
 
 		const result = runCommand('gh', ['pr', 'checks', '--watch', branch], {
-			stdio: 'pipe',
+			stdio: 'inherit',
 			allowNonZeroExit: true,
 		})
 
-		const output = [result.stdout, result.stderr]
-			.filter((value) => value !== undefined && value.trim().length > 0)
-			.join('\n')
-		const trimmedOutput = output.trim()
-
 		if (result.status === 0) {
-			if (trimmedOutput.length > 0) {
-				console.log(trimmedOutput) // eslint-disable-line no-console
-			}
 			console.log(`✓ ${attemptLabel} 実行します... 完了`) // eslint-disable-line no-console
 			return
 		}
 
-		if (isNoChecksReportedMessage(trimmedOutput)) {
+		const { output } = fetchPrChecksOutput(branch)
+
+		if (output.length > 0) {
+			console.log(output) // eslint-disable-line no-console
+		}
+
+		if (isNoChecksReportedMessage(output)) {
 			if (attempt < maxAttempts) {
 				console.log('ステータスチェックがまだ登録されていません。数秒後に再試行します。') // eslint-disable-line no-console
 				await waitFor(retryDelayMs)
@@ -498,7 +512,7 @@ async function watchPullRequestChecks(branch: string): Promise<void> {
 
 		console.log(`✗ ${attemptLabel} 実行します... 失敗`) // eslint-disable-line no-console
 
-		throw new AutomationError(`ステータスチェック待機に失敗しました。${trimmedOutput.length > 0 ? `\n${trimmedOutput}` : ''}`)
+		throw new AutomationError(`ステータスチェック待機に失敗しました。${output.length > 0 ? `\n${output}` : ''}`)
 	}
 }
 
@@ -522,17 +536,10 @@ async function evaluateSonarChecks(branch: string): Promise<{ url?: string; titl
 		const attemptLabel = `ステータスチェック結果の取得 (試行${attempt}/${maxAttempts})`
 		console.log(`▶ ${attemptLabel} 実行します...`) // eslint-disable-line no-console
 
-		const result = runCommand('gh', ['pr', 'checks', branch], {
-			stdio: 'pipe',
-			allowNonZeroExit: true,
-		})
+		const { status, output } = fetchPrChecksOutput(branch)
+		trimmedOutput = output
 
-		const output = [result.stdout, result.stderr]
-			.filter((value) => value !== undefined && value.trim().length > 0)
-			.join('\n')
-		trimmedOutput = output.trim()
-
-		if (result.status === 0) {
+		if (status === 0) {
 			if (trimmedOutput.length > 0) {
 				console.log(trimmedOutput) // eslint-disable-line no-console
 			}
