@@ -5,8 +5,8 @@ pre-commit:
       skip: git diff --cached --quiet
       run: npm run prevent-main-commit
 
-    # cspell:
-    #   run: npx cspell {staged_files}
+    cspell:
+      run: npx cspell {staged_files}
 
     # prettier:
     #   glob: '*.{js,jsx,ts,tsx,mjs,cjs,svelte,html,css,scss,md,mdx,json,jsonc,yaml,yml}'
