@@ -451,11 +451,11 @@ function createPullRequest(config: AutomationConfig): void {
 	throw new AutomationError(`PR作成に失敗しました。${output.length > 0 ? `\n${output.trim()}` : ''}`)
 }
 
-function watchPullRequestChecks(): void {
+function watchPullRequestChecks(branch: string): void {
 	const description = 'ステータスチェック待機'
 	console.log(`▶ ${description} 実行します...`) // eslint-disable-line no-console
 
-	const result = runCommand('gh', ['pr', 'checks', '--watch'], {
+	const result = runCommand('gh', ['pr', 'checks', '--watch', branch], {
 		stdio: 'pipe',
 		allowNonZeroExit: true,
 	})
@@ -463,16 +463,12 @@ function watchPullRequestChecks(): void {
 	const output = [result.stdout, result.stderr].filter((value) => value !== undefined && value.trim().length > 0).join('\n')
 	const trimmedOutput = output.trim()
 
-	if (result.status === 0) {
-		if (trimmedOutput.length > 0) {
+	if (result.status === 0 || isNoChecksReportedMessage(trimmedOutput)) {
+		if (trimmedOutput.length > 0 && !isNoChecksReportedMessage(trimmedOutput)) {
 			console.log(trimmedOutput) // eslint-disable-line no-console
+		} else if (isNoChecksReportedMessage(trimmedOutput)) {
+			console.log('ステータスチェックがまだ登録されていませんが、処理を継続します。') // eslint-disable-line no-console
 		}
-		console.log(`✓ ${description} 実行します... 完了`) // eslint-disable-line no-console
-		return
-	}
-
-	if (isNoChecksReportedMessage(trimmedOutput)) {
-		console.log('ステータスチェックがまだ登録されていませんが、処理を継続します。') // eslint-disable-line no-console
 		console.log(`✓ ${description} 実行します... 完了`) // eslint-disable-line no-console
 		return
 	}
@@ -494,28 +490,39 @@ function evaluateSonarChecks(branch: string): { url?: string; title?: string } {
 		throw new AutomationError('PR情報の取得に失敗しました。JSONの解析に失敗しました。', { cause: error })
 	}
 
-	const checksResult = runCommand('gh', ['pr', 'checks', '--json', 'name,conclusion,detailsUrl'], {
+	const checksResult = runCommand('gh', ['pr', 'checks', branch], {
+		stdio: 'pipe',
+		allowNonZeroExit: true,
 		description: 'ステータスチェック結果の取得',
-	}).stdout
+	})
 
-	let checks: Array<{ name: string; conclusion?: string; detailsUrl?: string }> = []
-	try {
-		checks = JSON.parse(checksResult) as Array<{ name: string; conclusion?: string; detailsUrl?: string }>
-	} catch (error) {
-		throw new AutomationError('チェック結果のJSON解析に失敗しました。', { cause: error })
-	}
+	const output = [checksResult.stdout, checksResult.stderr]
+		.filter((value) => value !== undefined && value.trim().length > 0)
+		.join('\n')
+	const trimmedOutput = output.trim()
 
-	const sonarCheck = checks.find((check) => check.name.toLowerCase().includes('sonarcloud'))
+	if (checksResult.status !== 0 && trimmedOutput.length > 0 && !isNoChecksReportedMessage(trimmedOutput)) {
+		throw new AutomationError(`ステータスチェック結果の取得に失敗しました。\n${trimmedOutput}`)
+}
 
-	if (sonarCheck !== undefined && sonarCheck.conclusion !== 'success') {
-		const url = sonarCheck.detailsUrl ?? prInfo.url ?? ''
+	const sonarLine = trimmedOutput
+		.split(/\r?\n/u)
+		.find((line) => line.toLowerCase().includes('sonarcloud'))
+
+	if (sonarLine !== undefined && !sonarLine.toLowerCase().includes('pass') && !sonarLine.toLowerCase().includes('success')) {
+		const sonarUrlMatch = /https?:\/\/\S+/u.exec(sonarLine)
+		const sonarUrl = sonarUrlMatch?.[0] ?? prInfo.url ?? ''
 		throw new AutomationError(
 			[
 				'⚠️ SonarCloud で問題が検出されました。',
-				`詳細: ${url}`,
+				`詳細: ${sonarUrl}`,
 				'問題を修正した後、再度コミットおよびプッシュしてください。',
 			].join(EOL)
 		)
+	}
+
+	if (trimmedOutput.length > 0) {
+		console.log(trimmedOutput) // eslint-disable-line no-console
 	}
 
 	return prInfo
@@ -578,7 +585,7 @@ async function main(): Promise<void> {
 			createPullRequest(config)
 			console.log('✓ PR作成完了') // eslint-disable-line no-console
 
-			watchPullRequestChecks()
+			watchPullRequestChecks(currentBranch)
 			console.log('✓ ステータスチェック完了') // eslint-disable-line no-console
 
 			const prInfo = evaluateSonarChecks(currentBranch)
