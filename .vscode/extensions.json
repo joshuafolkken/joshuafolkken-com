@@ -10,7 +10,6 @@
 		"github.vscode-pull-request-github",
 		"streetsidesoftware.code-spell-checker",
 		"github.vscode-github-actions",
-		"sonarsource.sonarlint-vscode",
 		"pkief.material-icon-theme",
 		"mhutchie.git-graph",
 		"formulahendry.auto-rename-tag",
@@ -21,8 +20,6 @@
 		"pranaygp.vscode-css-peek",
 		"yoavbls.pretty-ts-errors",
 		"matthewpi.caddyfile-support",
-		"kisstkondoros.vscode-codemetrics",
-		"equinusocio.vsc-community-material-theme",
 		"vincaslt.highlight-matching-tag",
 		"wix.vscode-import-cost"
 	]
