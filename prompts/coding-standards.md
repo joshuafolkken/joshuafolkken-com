@@ -50,6 +50,17 @@ const process_data = (data: Array<{ value: string }>): Array<string> => {
 - 浮動Promiseは禁止
 - 型アサーションは制限あり
 
+### 早期returnの書き方
+
+- 条件の本体が単一の `return` だけで、かつ行長が100文字未満のときは1行で書く
+  `if (value === undefined) return default_value`
+- 100文字以上になる、または複数ステートメントがある場合はブロック構文を使う
+
+### マジックナンバーと定数化
+
+- `0`, `1`, `-1` 以外の数値リテラルは原則として定数へ抽出する
+- 繰り返し使用する文字列や識別子は定数化し、意味の分かる名前を付ける
+
 ## 📁 新規作成時の手順
 
 ### 1. 既存ファイルを必ず参照
@@ -64,6 +75,8 @@ find src -name "*.ts" -o -name "*.svelte" | grep -i [関連キーワード]
 - **Svelteファイル**: `PascalCase.svelte`（例: `UserProfile.svelte`）
 - **TypeScriptファイル**: `kebab-case.ts`（例: `user-service.ts`）
 - **ルートファイル**: `+page.svelte`, `+layout.svelte` などは例外
+- **関数定義**: `function` で表現できる処理はアロー関数ではなく通常の `function` 構文で記述する
+- **複数関数のエクスポート**: 複数の関数を公開する場合は名前空間オブジェクト（namespace object）にまとめてエクスポートする
 
 ### 3. インポート/エクスポート規則
 

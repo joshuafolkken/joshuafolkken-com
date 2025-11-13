@@ -29,6 +29,12 @@
 
 ---
 
+## コーディング規約の参照
+
+- 命名規則やスタイルなどの共通ルールは `prompts/coding-standards.md` に集約されています。
+- 本書では重複説明を避けるため、対象箇所では同ドキュメントを参照してください。
+- 提案に含めるサンプルコードも、必ず `prompts/coding-standards.md` の規約に準拠させてください。
+
 ## 1. 基本方針
 
 ### 提案の優先順位
@@ -69,11 +75,8 @@
 
 ```typescript
 // 分析すべき項目
-- ファイルの行数（300行制限の確認）
-- 関数の複雑度（最大4の確認）
-- ネストレベル（最大1の確認）
-- 関数の行数（最大25行の確認）
-- パラメータ数（最大3個の確認）
+- ファイルや関数の行数・複雑度（閾値は coding-standards.md を参照）
+- ネストレベルやパラメータ数（閾値は coding-standards.md を参照）
 - 複数の責任を持つファイルかどうか
 - 密結合な部分の特定
 - プロジェクト全体の場合は、最も問題のあるファイルを特定
@@ -102,8 +105,7 @@
 #### 高優先度の候補
 
 1. **関数の分割**
-   - 25行を超える関数
-   - 複雑度が4を超える関数
+   - 行数・複雑度が `coding-standards.md` の基準を超える関数
    - 複数の責任を持つ関数
 
 2. **ファイルの分割**
@@ -119,21 +121,18 @@
 #### 中優先度の候補
 
 4. **定数の抽出**
-   - マジックナンバー（0, 1, -1以外）
-   - ハードコードされた文字列
-   - 繰り返し使用される値
+   - `coding-standards.md` で定められたマジックナンバーや繰り返し値の定数化
+   - ハードコードされた文字列の再利用整理
 
 5. **変数名の改善**
-   - 意味が不明確な変数名
-   - 命名規則に従っていない変数名
-   - 長すぎる変数名
+   - `coding-standards.md` の命名規則に合致しない名前の見直し
+   - 意味が不明確・長すぎる名前の再検討
 
 #### 低優先度の候補
 
 6. **コードの整理**
-   - 未使用の変数・関数
-   - 重複コード
-   - 不要なコメント
+   - `coding-standards.md` で禁止されている未使用の変数・関数の削除
+   - 重複コードや不要なコメントの削除
 
 ---
 
@@ -169,19 +168,7 @@
 
 ### 命名規則の遵守
 
-**重要**: 提案時のコード例は必ずsnake_caseの命名規則に従うこと：
-
-```typescript
-// 正しい例
-const handle_audio_play = (): void => { ... }
-const use_audio_controller = () => { ... }
-const audio_state_manager = { ... }
-
-// 間違った例
-const handleAudioPlay = (): void => { ... }
-const useAudioController = () => { ... }
-const audioStateManager = { ... }
-```
+**重要**: 命名規則やコーディングルールの詳細は `prompts/coding-standards.md` を参照してください。提案時のサンプルコードも同ドキュメントの規約に従うこと。
 
 ### 具体例
 
@@ -279,20 +266,7 @@ const process_user_data = async (user_data: UserData): Promise<void> => {
 
 ### 主要なESLintルール（参考）
 
-```typescript
-// 命名規則
-- 変数・関数: snake_case
-- 定数: UPPER_CASE または snake_case
-- 型・クラス: PascalCase
-- boolean: is_, has_, should_ プレフィックス
-
-// 複雑度制限
-- 関数の複雑度: 最大4
-- ネストレベル: 最大1
-- 関数の行数: 最大25行
-- ファイルの行数: 最大300行
-- パラメータ数: 最大3個
-```
+- 具体的なルールや閾値は `prompts/coding-standards.md` に集約されています。提案・サンプルコードの作成前に必ず確認してください。
 
 ---
 
@@ -316,11 +290,7 @@ const process_user_data = async (user_data: UserData): Promise<void> => {
    - ユーザーの判断を尊重
 
 4. **命名規則の遵守**
-   - 提案時のコード例は必ずsnake_caseを使用
-   - 変数・関数: snake_case
-   - 定数: UPPER_CASE または snake_case
-   - 型・クラス: PascalCase
-   - boolean: is*, has*, should\_ プレフィックス
+   - サンプルコードは `prompts/coding-standards.md` の規約に従う
 
 ### 技術的な配慮
 
