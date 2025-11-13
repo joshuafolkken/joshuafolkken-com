@@ -4,19 +4,21 @@ import { spawnSync, type SpawnSyncOptions } from 'node:child_process'
 import { EOL } from 'node:os'
 import { exit, stdin as input, stdout as output } from 'node:process'
 import { createInterface, type Interface } from 'node:readline/promises'
-
-type Operation = 'commit' | 'push' | 'pr'
-
-const OPERATION_LABELS: Record<Operation, string> = {
-	commit: '🧱 Commit',
-	push: '📤 Push',
-	pr: '🔀 PR',
-}
+import type { CommandOptions, CommandResult } from './git-ops/command-types.js'
+import { AutomationError, error_utilities } from './git-ops/error-utilities.js'
+import { create_git_helpers } from './git-ops/git-helpers.js'
+import { prompt_utilities, type Operation } from './git-ops/prompt-utilities.js'
+import { retry_helpers, type RetryConfig, type RetryStepResult } from './git-ops/retry-helpers.js'
 
 const PACKAGE_JSON_FILE = 'package.json'
-const STAGED_STATUS_INDEX = 1
-const REQUIRED_STATUS_LENGTH = 2
 const OPERATION_CANCELLED_MESSAGE = 'Operation cancelled by user.'
+const CHECK_LABEL = 'Checks'
+const REPORT_LABEL = 'Report'
+const RETRY_FAILURE_LABELS = {
+	checks: 'CI watch failed.',
+	report: 'CI report failed.',
+} as const
+type RetryFailureLabelKey = keyof typeof RETRY_FAILURE_LABELS
 
 type PendingCheckOutcome = 'retry' | 'complete' | 'unhandled'
 
@@ -27,25 +29,12 @@ interface AutomationConfig {
 	operations: Record<Operation, boolean>
 }
 
-interface CommandOptions {
-	stdio?: 'pipe' | 'inherit'
-	should_allow_non_zero_exit?: boolean
-	description?: string
-	env?: NodeJS.ProcessEnv
-	should_lead_with_blank_line?: boolean
-}
-
-interface CommandResult {
-	stdout: string
-	stderr: string
-	status: number
-}
-
-class AutomationError extends Error {
-	constructor(message: string, options?: { cause?: unknown }) {
-		super(message, options)
-		this.name = 'AutomationError'
-	}
+interface ResolvedCommandOptions {
+	stdio: 'pipe' | 'inherit'
+	should_allow_non_zero_exit: boolean
+	description: string | undefined
+	env: NodeJS.ProcessEnv | undefined
+	should_lead_with_blank_line: boolean
 }
 
 interface CommandContext {
@@ -53,6 +42,20 @@ interface CommandContext {
 	start_message: string | undefined
 	is_inline_status: boolean
 	should_lead_with_blank_line: boolean
+}
+
+function resolve_command_options(options: CommandOptions = {}): ResolvedCommandOptions {
+	return {
+		stdio: options.stdio ?? 'pipe',
+		should_allow_non_zero_exit: options.should_allow_non_zero_exit ?? false,
+		description: options.description,
+		env: options.env,
+		should_lead_with_blank_line: options.should_lead_with_blank_line ?? false,
+	}
+}
+
+function build_retry_error_by_key(key: RetryFailureLabelKey, details?: string): AutomationError {
+	return error_utilities.build_retry_failure_error(RETRY_FAILURE_LABELS[key], details)
 }
 
 function create_command_context(
@@ -106,10 +109,10 @@ function create_spawn_options(
 function throw_on_spawn_error(result: ReturnType<typeof spawnSync>, context: CommandContext): void {
 	if (result.error === undefined) return
 
-	const message =
-		context.description === undefined
-			? result.error.message
-			: `${context.description} failed: ${result.error.message}`
+	const summary =
+		context.description === undefined ? result.error.message : `${context.description} failed`
+	const details = context.description === undefined ? undefined : result.error.message
+	const message = error_utilities.format_failure_message(summary, details)
 
 	throw new AutomationError(message, { cause: result.error })
 }
@@ -153,13 +156,11 @@ function ensure_success_status(
 	report_failure_status(context)
 
 	const trimmed_stderr = result.stderr.trim()
-	let message = ''
-	if (context.description === undefined) {
-		message = `Command execution failed: ${command} ${arguments_list.join(' ')}`
-	} else {
-		const stderr_suffix = trimmed_stderr.length > 0 ? `\n${trimmed_stderr}` : ''
-		message = `${context.description} failed.${stderr_suffix}`
-	}
+	const summary =
+		context.description === undefined
+			? `Command execution failed: ${command} ${arguments_list.join(' ')}`
+			: `${context.description} failed.`
+	const message = error_utilities.format_failure_message(summary, trimmed_stderr)
 
 	throw new AutomationError(message)
 }
@@ -299,13 +300,9 @@ function run_command(
 	arguments_list: Array<string>,
 	options: CommandOptions = {},
 ): CommandResult {
-	const {
-		stdio = 'pipe',
-		should_allow_non_zero_exit = false,
-		env,
-		description,
-		should_lead_with_blank_line = false,
-	} = options
+	const resolved_options = resolve_command_options(options)
+	const { stdio, should_allow_non_zero_exit, env, description, should_lead_with_blank_line } =
+		resolved_options
 
 	const context = create_command_context(description, stdio, should_lead_with_blank_line)
 	log_command_start(context)
@@ -321,11 +318,13 @@ function run_command(
 	return result
 }
 
-async function wait_for(milliseconds: number): Promise<void> {
-	await new Promise((resolve) => {
-		setTimeout(resolve, milliseconds)
-	})
-}
+const {
+	ensure_staging_state,
+	get_staged_files,
+	ensure_main_is_updated,
+	create_branch,
+	get_current_branch,
+} = create_git_helpers(run_command)
 
 function fetch_pr_checks_output(branch: string): { status: number; output: string } {
 	const result = run_command('gh', ['pr', 'checks', branch], {
@@ -367,40 +366,6 @@ function ensure_command_exists(command: string): void {
 	}
 }
 
-function ensure_staging_state(): void {
-	const { stdout } = run_command('git', ['status', '--porcelain'], {
-		description: 'Check staging status',
-	})
-
-	const lines = stdout
-		.split(/\r?\n/u)
-		.map((line) => line.trimEnd())
-		.filter((line) => line.length > 0)
-
-	const has_untracked = lines.some((line) => line.startsWith('??'))
-	const has_unstaged = lines.some(
-		(line) => line.length >= REQUIRED_STATUS_LENGTH && line[STAGED_STATUS_INDEX] !== ' ',
-	)
-
-	if (has_untracked || has_unstaged) {
-		throw new AutomationError(
-			[
-				'🚫 Not all changes are staged.',
-				'Stage your changes with:',
-				'  git add .',
-				'Rerun this script after staging.',
-			].join(EOL),
-		)
-	}
-}
-
-function get_current_branch(): string {
-	const { stdout } = run_command('git', ['branch', '--show-current'], {
-		description: 'Get current branch',
-	})
-	return stdout.trim()
-}
-
 function extract_branch_issue_number(branch: string): string | undefined {
 	const match = /^(\d+)-/u.exec(branch)
 	return match?.[1]
@@ -420,21 +385,6 @@ function ensure_branch_matches_issue(branch: string, issue_number: string): void
 			].join(EOL),
 		)
 	}
-}
-
-function ensure_main_is_updated(branch: string): void {
-	const target = branch === 'master' ? 'master' : 'main'
-	run_command('git', ['pull', 'origin', target], {
-		stdio: 'inherit',
-		description: `Pull latest ${target} branch`,
-	})
-}
-
-function create_branch(branch: string): void {
-	run_command('git', ['checkout', '-b', branch], {
-		stdio: 'inherit',
-		description: `Create branch ${branch}`,
-	})
 }
 
 function ensure_issue_matches(config: AutomationConfig): void {
@@ -465,34 +415,13 @@ function ensure_issue_matches(config: AutomationConfig): void {
 	}
 }
 
-function get_staged_files(): Array<string> {
-	const { stdout } = run_command('git', ['diff', '--cached', '--name-only'], {
-		description: 'Get staged files',
-	})
-	return stdout
-		.split(/\r?\n/u)
-		.map((line) => line.trim())
-		.filter((line) => line.length > 0)
-}
-
-async function ask_yes_no_binary(prompt: Interface, question: string): Promise<boolean> {
-	const raw_answer = await prompt.question(question)
-	const answer = raw_answer.trim().toLowerCase()
-
-	if (answer === 'y') return true
-	if (answer === 'n') return false
-
-	console.log('Reply y / n.')
-	return await ask_yes_no_binary(prompt, question)
-}
-
 async function confirm_package_json_presence(
 	staged_files: Array<string>,
 	rl: Interface,
 ): Promise<boolean> {
 	if (staged_files.includes(PACKAGE_JSON_FILE)) return true
 
-	const should_continue = await ask_yes_no_binary(
+	const should_continue = await prompt_utilities.ask_yes_no_binary(
 		rl,
 		'⚠️ package.json is not included in the staged changes. Continue? (y/n): ',
 	)
@@ -514,7 +443,7 @@ async function confirm_package_version_update(diff: string, rl: Interface): Prom
 	const has_version_change = /^[+-]\s*"version"\s*:/gmu.test(diff)
 	if (has_version_change) return
 
-	const should_continue = await ask_yes_no_binary(
+	const should_continue = await prompt_utilities.ask_yes_no_binary(
 		rl,
 		'⚠️ The package.json version has not been updated. Continue? (y/n): ',
 	)
@@ -541,19 +470,11 @@ async function configure_operations(
 	const rl = ensure_prompt_interface(prompt)
 
 	for (;;) {
-		const should_commit = await ask_yes_no_binary(rl, '\n🧱 Commit? (y/n): ')
-		const should_push = await ask_yes_no_binary(rl, '📤 Push? (y/n): ')
-		const should_create_pr = await ask_yes_no_binary(rl, '🔀 PR? (y/n): ')
-
-		const status = (is_enabled: boolean): string => (is_enabled ? '✅' : '⛔️')
-		console.log('\n🧭 Config:')
-		console.log(`  ${OPERATION_LABELS.commit}: ${status(should_commit)}`)
-		console.log(`  ${OPERATION_LABELS.push}: ${status(should_push)}`)
-		console.log(`  ${OPERATION_LABELS.pr}: ${status(should_create_pr)}`)
-
-		const is_confirmed = await ask_yes_no_binary(rl, '➡️ Proceed? (y/n): ')
+		const operations = await prompt_utilities.prompt_operations_once(rl)
+		prompt_utilities.log_operation_summary(operations)
+		const is_confirmed = await prompt_utilities.ask_yes_no_binary(rl, '➡️ Proceed? (y/n): ')
 		if (is_confirmed) {
-			return { commit: should_commit, push: should_push, pr: should_create_pr }
+			return operations
 		}
 
 		console.log('🔁 Reconfigure.')
@@ -622,7 +543,7 @@ function handle_pr_creation_result(result: CommandResult, command_output: string
 }
 
 function create_pull_request(config: AutomationConfig): void {
-	console.log(`\n${OPERATION_LABELS.pr}`)
+	console.log(`\n${prompt_utilities.OPERATION_LABELS.pr}`)
 
 	const result = run_command('gh', build_pr_arguments(config), {
 		stdio: 'pipe',
@@ -634,58 +555,50 @@ function create_pull_request(config: AutomationConfig): void {
 	handle_pr_creation_result(result, command_output)
 }
 
-function format_attempt_label(prefix: string, attempt: number, max_attempts: number): string {
-	return `${prefix} ${String(attempt)}/${String(max_attempts)}`
+interface CheckPhaseMessages {
+	pending_not_ready: string
+	pending_in_progress: string
+	final_not_ready: string
+	final_in_progress: string
 }
 
-function log_attempt_start(label: string): void {
-	console.log(`⏳ ${label}`)
-}
-
-function log_attempt_success(label: string): void {
-	console.log(`✅ ${label}`)
-}
-
-function log_attempt_failure(label: string): void {
-	console.log(`❌ ${label}`)
-}
-
-function log_if_output_present(command_output: string): void {
-	if (command_output.length > 0) {
-		console.log(command_output)
-	}
-}
-
-async function evaluate_pending_checks(
+function evaluate_check_phase(
 	command_output: string,
 	attempt: number,
 	max_attempts: number,
-	retry_delay_ms: number,
-): Promise<PendingCheckOutcome> {
+	messages: CheckPhaseMessages,
+): PendingCheckOutcome {
 	const is_pending =
 		is_no_checks_reported_message(command_output) || has_pending_checks_message(command_output)
-	if (!is_pending) return 'unhandled'
+	if (!is_pending) {
+		return 'unhandled'
+	}
+
+	const is_no_checks = is_no_checks_reported_message(command_output)
 
 	if (attempt < max_attempts) {
-		const reason = is_no_checks_reported_message(command_output)
-			? 'CI not registered yet.'
-			: 'CI still pending.'
+		const reason = is_no_checks ? messages.pending_not_ready : messages.pending_in_progress
 		console.log(`${reason} Retry soon.`)
-		await wait_for(retry_delay_ms)
 		return 'retry'
 	}
 
-	const final_reason = is_no_checks_reported_message(command_output)
-		? 'CI never registered. Continuing.'
-		: 'CI still pending. Continuing.'
+	const final_reason = is_no_checks ? messages.final_not_ready : messages.final_in_progress
 	console.log(final_reason)
 	return 'complete'
 }
 
-type CheckAttemptOutcome =
-	| { outcome: 'success' }
-	| { outcome: 'retry' }
-	| { outcome: 'failure'; command_output: string }
+function evaluate_pending_checks(
+	command_output: string,
+	attempt: number,
+	max_attempts: number,
+): PendingCheckOutcome {
+	return evaluate_check_phase(command_output, attempt, max_attempts, {
+		pending_not_ready: 'CI not registered yet.',
+		pending_in_progress: 'CI still pending.',
+		final_not_ready: 'CI never registered. Continuing.',
+		final_in_progress: 'CI still pending. Continuing.',
+	})
+}
 
 function run_watch_command_once(branch: string): CommandResult {
 	return run_command('gh', ['pr', 'checks', '--watch', branch], {
@@ -694,80 +607,59 @@ function run_watch_command_once(branch: string): CommandResult {
 	})
 }
 
-function log_success_and_result(label: string): CheckAttemptOutcome {
-	log_attempt_success(label)
-	return { outcome: 'success' }
-}
-
-function watch_command_success_outcome(
-	branch: string,
-	attempt_label: string,
-): CheckAttemptOutcome | undefined {
-	const result = run_watch_command_once(branch)
-	if (result.status !== 0) {
-		return undefined
-	}
-	return log_success_and_result(attempt_label)
-}
-
-function log_failure_and_result(label: string, command_output: string): CheckAttemptOutcome {
-	log_attempt_failure(label)
-	return { outcome: 'failure', command_output }
-}
-
-function fetch_and_log_check_output(branch: string): string {
+function fetch_check_output(branch: string): string {
 	const { output: check_output } = fetch_pr_checks_output(branch)
-	log_if_output_present(check_output)
 	return check_output
 }
 
-function resolve_pending_check_outcome(
-	pending_outcome: PendingCheckOutcome,
-	attempt_label: string,
-	command_output: string,
-): CheckAttemptOutcome {
-	const handlers: Record<PendingCheckOutcome, () => CheckAttemptOutcome> = {
-		retry: () => ({ outcome: 'retry' }),
-		complete: () => log_success_and_result(attempt_label),
-		unhandled: () => log_failure_and_result(attempt_label, command_output),
-	}
-	return handlers[pending_outcome]()
-}
-
-async function perform_check_attempt(
+function evaluate_watch_retry(
 	branch: string,
 	attempt: number,
 	max_attempts: number,
-	retry_delay_ms: number,
-): Promise<CheckAttemptOutcome> {
-	const attempt_label = format_attempt_label('Checks', attempt, max_attempts)
-	log_attempt_start(attempt_label)
-	const immediate_success = watch_command_success_outcome(branch, attempt_label)
-	if (immediate_success !== undefined) return immediate_success
-	const command_output = fetch_and_log_check_output(branch)
-	const pending_outcome = await evaluate_pending_checks(
-		command_output,
-		attempt,
-		max_attempts,
-		retry_delay_ms,
-	)
-	return resolve_pending_check_outcome(pending_outcome, attempt_label, command_output)
+): RetryStepResult<undefined> {
+	const command_output = fetch_check_output(branch)
+	const pending_outcome = evaluate_pending_checks(command_output, attempt, max_attempts)
+
+	if (pending_outcome === 'retry') {
+		return {
+			status: 'retry',
+			details: { message: command_output, raw_output: command_output },
+		}
+	}
+
+	if (pending_outcome === 'complete') {
+		return {
+			status: 'success',
+			value: undefined,
+			details: { message: command_output, raw_output: command_output },
+		}
+	}
+
+	throw build_retry_error_by_key('checks', command_output)
+}
+
+function create_watch_retry_config(branch: string): RetryConfig<undefined> {
+	return {
+		label: CHECK_LABEL,
+		execute({ attempt, max_attempts }) {
+			const result = run_watch_command_once(branch)
+			if (result.status === 0) {
+				return {
+					status: 'success',
+					value: undefined,
+					details: { message: result.stdout, raw_output: result.stdout },
+				}
+			}
+
+			return evaluate_watch_retry(branch, attempt, max_attempts)
+		},
+		retry_delay_ms: retry_helpers.DEFAULT_RETRY_DELAY_MS,
+	}
 }
 
 async function watch_pull_request_checks(branch: string): Promise<void> {
-	const max_attempts = 5
-	const retry_delay_ms = 5000
-
-	for (let attempt = 1; attempt <= max_attempts; attempt += 1) {
-		const result = await perform_check_attempt(branch, attempt, max_attempts, retry_delay_ms)
-		if (result.outcome === 'success') {
-			return
-		}
-		if (result.outcome === 'failure') {
-			const suffix = result.command_output.length > 0 ? `\n${result.command_output}` : ''
-			throw new AutomationError(`CI watch failed.${suffix}`)
-		}
-	}
+	await retry_helpers.wait_for(retry_helpers.DEFAULT_RETRY_DELAY_MS)
+	await retry_helpers.retry_with_status(create_watch_retry_config(branch))
 }
 
 function parse_pr_info(stdout: string): { url?: string; title?: string } {
@@ -785,39 +677,17 @@ function fetch_pr_info(branch: string): { url?: string; title?: string } {
 	return parse_pr_info(stdout)
 }
 
-async function evaluate_report_status(
+function evaluate_report_status(
 	command_output: string,
 	attempt: number,
 	max_attempts: number,
-	retry_delay_ms: number,
-): Promise<PendingCheckOutcome> {
-	const is_pending =
-		is_no_checks_reported_message(command_output) || has_pending_checks_message(command_output)
-	if (!is_pending) return 'unhandled'
-
-	if (attempt < max_attempts) {
-		const reason = is_no_checks_reported_message(command_output)
-			? 'CI report not ready.'
-			: 'CI report pending.'
-		console.log(`${reason} Retry soon.`)
-		await wait_for(retry_delay_ms)
-		return 'retry'
-	}
-
-	const final_reason = is_no_checks_reported_message(command_output)
-		? 'CI report never arrived. Continuing.'
-		: 'CI report still pending. Continuing.'
-	console.log(final_reason)
-	return 'complete'
-}
-
-function log_report_output(command_output: string): boolean {
-	if (command_output.length === 0) {
-		return false
-	}
-
-	console.log(command_output)
-	return true
+): PendingCheckOutcome {
+	return evaluate_check_phase(command_output, attempt, max_attempts, {
+		pending_not_ready: 'CI report not ready.',
+		pending_in_progress: 'CI report pending.',
+		final_not_ready: 'CI report never arrived. Continuing.',
+		final_in_progress: 'CI report still pending. Continuing.',
+	})
 }
 
 function extract_sonar_line(command_output: string): string | undefined {
@@ -825,18 +695,14 @@ function extract_sonar_line(command_output: string): string | undefined {
 }
 
 function sonar_checks_failed(line: string | undefined): boolean {
-	if (line === undefined) {
-		return false
-	}
+	if (line === undefined) return false
 
 	const normalized = line.toLowerCase()
 	return !normalized.includes('pass') && !normalized.includes('success')
 }
 
 function resolve_sonar_url(line: string | undefined, pr_info: { url?: string }): string {
-	if (line === undefined) {
-		return pr_info.url ?? ''
-	}
+	if (line === undefined) return pr_info.url ?? ''
 
 	const match = /https?:\/\/\S+/u.exec(line)
 	return match?.[0] ?? pr_info.url ?? ''
@@ -855,78 +721,65 @@ function enforce_sonar_success(
 	)
 }
 
-function should_log_final_output(command_output: string): boolean {
-	return command_output.length > 0 && !is_no_checks_reported_message(command_output)
-}
+function evaluate_report_retry(
+	command_output: string,
+	attempt: number,
+	max_attempts: number,
+): RetryStepResult<string> {
+	const outcome = evaluate_report_status(command_output, attempt, max_attempts)
 
-function update_report_logging(command_output: string, has_logged_output: boolean): boolean {
-	if (command_output.length === 0) {
-		return has_logged_output
+	if (outcome === 'retry') {
+		return {
+			status: 'retry',
+			details: { message: command_output, raw_output: command_output },
+		}
 	}
 
-	return log_report_output(command_output) || has_logged_output
+	if (outcome === 'complete') {
+		return {
+			status: 'success',
+			value: command_output,
+			details: { message: command_output, raw_output: command_output },
+		}
+	}
+
+	throw build_retry_error_by_key('report', command_output)
 }
 
-function build_ci_report_message(command_output: string): string {
-	const suffix = command_output.length > 0 ? `\n${command_output}` : ''
-	return `CI report failed.${suffix}`
+function build_report_retry_config(branch: string): RetryConfig<string> {
+	return {
+		label: REPORT_LABEL,
+		execute({ attempt, max_attempts }) {
+			const { status, output: command_output } = fetch_pr_checks_output(branch)
+
+			if (status === 0) {
+				return {
+					status: 'success',
+					value: command_output,
+					details: { message: command_output, raw_output: command_output },
+				}
+			}
+
+			return evaluate_report_retry(command_output, attempt, max_attempts)
+		},
+	}
 }
 
-function log_final_report_output(command_output: string, has_logged_output: boolean): void {
-	if (has_logged_output || !should_log_final_output(command_output)) return
-
-	console.log(command_output)
+async function collect_report_output(branch: string): Promise<string> {
+	return await retry_helpers.retry_with_status(build_report_retry_config(branch))
 }
 
 async function evaluate_sonar_checks(branch: string): Promise<{ url?: string; title?: string }> {
 	const pr_info = fetch_pr_info(branch)
-	const max_attempts = 5
-	const retry_delay_ms = 5000
-	let trimmed_output = ''
-	let has_logged_output = false
-
-	for (let attempt = 1; attempt <= max_attempts; attempt += 1) {
-		const attempt_label = format_attempt_label('Report', attempt, max_attempts)
-		log_attempt_start(attempt_label)
-
-		const { status, output: command_output } = fetch_pr_checks_output(branch)
-		trimmed_output = command_output
-
-		if (status === 0) {
-			has_logged_output = update_report_logging(trimmed_output, has_logged_output)
-			log_attempt_success(attempt_label)
-			break
-		}
-
-		const outcome = await evaluate_report_status(
-			trimmed_output,
-			attempt,
-			max_attempts,
-			retry_delay_ms,
-		)
-
-		if (outcome === 'complete') {
-			log_attempt_success(attempt_label)
-			break
-		}
-
-		if (outcome !== 'retry') {
-			log_attempt_failure(attempt_label)
-			throw new AutomationError(build_ci_report_message(trimmed_output))
-		}
-	}
-
-	enforce_sonar_success(trimmed_output, pr_info)
-
-	log_final_report_output(trimmed_output, has_logged_output)
-
+	const report_output = await collect_report_output(branch)
+	enforce_sonar_success(report_output, pr_info)
 	return pr_info
 }
 
 function summarize_operations(config: AutomationConfig): string {
 	const enabled = Object.entries(config.operations)
 		.filter(([, value]) => value)
-		.map(([key]) => OPERATION_LABELS[key as Operation])
+		.map(([key]) => prompt_utilities.OPERATION_LABELS[key as Operation])
 	return enabled.length > 0 ? enabled.join(' · ') : 'none'
 }
 
@@ -935,30 +788,60 @@ async function prepare_config(prompt: Interface | undefined): Promise<Automation
 	return parse_automation_config(issue_line)
 }
 
+interface BranchAlignmentResult {
+	target_branch_name: string
+	should_pull_main: boolean
+	should_create_branch: boolean
+	should_warn_about_name: boolean
+}
+
+const resolve_branch_alignment = (
+	config: AutomationConfig,
+	current_branch: string,
+): BranchAlignmentResult => {
+	const is_on_main = current_branch === 'main' || current_branch === 'master'
+
+	if (is_on_main) {
+		const should_create_branch = current_branch !== config.target_branch
+		return {
+			target_branch_name: should_create_branch ? config.target_branch : current_branch,
+			should_pull_main: true,
+			should_create_branch,
+			should_warn_about_name: false,
+		}
+	}
+
+	return {
+		target_branch_name: current_branch,
+		should_pull_main: false,
+		should_create_branch: false,
+		should_warn_about_name: current_branch !== config.target_branch,
+	}
+}
+
 function align_working_branch(config: AutomationConfig): string {
 	let current_branch = get_current_branch()
-	const is_on_main = current_branch === 'main' || current_branch === 'master'
 
 	ensure_branch_matches_issue(current_branch, config.issue_number)
 
-	if (is_on_main) {
+	const alignment = resolve_branch_alignment(config, current_branch)
+
+	if (alignment.should_pull_main) {
 		ensure_main_is_updated(current_branch)
-
-		if (current_branch !== config.target_branch) {
-			create_branch(config.target_branch)
-			current_branch = config.target_branch
-		}
-
-		return current_branch
 	}
 
-	if (current_branch !== config.target_branch) {
+	if (alignment.should_create_branch) {
+		create_branch(alignment.target_branch_name)
+		current_branch = alignment.target_branch_name
+	}
+
+	if (alignment.should_warn_about_name) {
 		console.log(
 			`⚠️ The current branch (${current_branch}) differs from the recommended branch name (${config.target_branch}). Continuing on the existing branch.`,
 		)
 	}
 
-	return current_branch
+	return alignment.target_branch_name
 }
 
 async function execute_setup(
@@ -989,14 +872,14 @@ async function select_operations(
 function run_commit_if_requested(config: AutomationConfig): void {
 	if (!config.operations.commit) return
 
-	console.log(`\n${OPERATION_LABELS.commit}`)
+	console.log(`\n${prompt_utilities.OPERATION_LABELS.commit}`)
 	run_commit(config)
 }
 
 function run_push_if_requested(config: AutomationConfig, current_branch: string): void {
 	if (!config.operations.push) return
 
-	console.log(`\n${OPERATION_LABELS.push}`)
+	console.log(`\n${prompt_utilities.OPERATION_LABELS.push}`)
 	run_push(current_branch)
 }
 

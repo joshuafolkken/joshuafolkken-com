@@ -955,15 +955,15 @@ export default defineConfig(
 		},
 	},
 	{
-		files: ['scripts/git-automation.ts'],
+		files: ['scripts/git-ops.ts', 'scripts/git-ops/**/*.ts'],
 		rules: {
 			'max-depth': ['error', 2],
 			'max-lines': ['error', { max: 1000, skipBlankLines: true, skipComments: true }],
 			'max-params': ['error', 5],
-			'max-statements': ['error', 25],
-			'max-lines-per-function': ['error', 45],
+			'max-statements': ['error', 15],
+			'max-lines-per-function': ['error', 30],
 			complexity: ['error', 8],
-			'sonarjs/cognitive-complexity': ['error', 8],
+			'sonarjs/cognitive-complexity': ['error', 5],
 		},
 	},
 	// {
