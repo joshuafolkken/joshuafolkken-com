@@ -16,16 +16,17 @@ ignorePaths:
   - .git/**/*
   - .gitignore
 words:
-  - ianvs
-  - Stylesheet
-  - sonarjs
-  - mischeck
-  - joshuafolkken
   - bttf
-  - elif
   - darkmode
-  - Hotspots
   - EDITMSG
-  - sonarcloud
+  - elif
+  - Folkken
+  - Hotspots
+  - ianvs
+  - joshuafolkken
+  - mischeck
   - Qube
+  - sonarcloud
+  - sonarjs
   - sonarqube
+  - Stylesheet
