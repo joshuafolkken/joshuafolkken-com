@@ -1,9 +1,15 @@
+import { readFileSync } from 'node:fs'
 import { sveltekit } from '@sveltejs/kit/vite'
 import tailwindcss from '@tailwindcss/vite'
 // import { playwright } from '@vitest/browser-playwright'
 import { defineConfig } from 'vitest/config'
 
+const package_json = JSON.parse(readFileSync('./package.json', 'utf-8'))
+
 export default defineConfig({
+	define: {
+		'import.meta.env.APP_VERSION': JSON.stringify(package_json.version),
+	},
 	plugins: [tailwindcss(), sveltekit()],
 	test: {
 		expect: { requireAssertions: true },

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { URLS } from '$lib/app'
 	import GitHubIcon from '$lib/icons/GitHubIcon.svelte'
 	import MailIcon from '$lib/icons/MailIcon.svelte'
 	import OpenCollectiveIcon from '$lib/icons/OpenCollectiveIcon.svelte'
@@ -16,35 +17,35 @@
 
 	const social_links: Array<SocialLink> = [
 		{
-			href: 'https://github.com/joshuafolkken',
+			href: URLS.GITHUB,
 			label: 'Code & Projects',
 			aria_label: 'GitHub - Code & Projects',
 			icon: GitHubIcon,
 			is_external: true,
 		},
 		{
-			href: 'https://x.com/joshuafolkken',
+			href: URLS.X,
 			label: 'Latest Updates',
 			aria_label: 'X - Latest Updates',
 			icon: XIcon,
 			is_external: true,
 		},
 		{
-			href: 'https://www.youtube.com/@Joshuafolkken-studio',
+			href: URLS.YOUTUBE,
 			label: 'Video Content',
 			aria_label: 'YouTube - Video Content',
 			icon: YouTubeIcon,
 			is_external: true,
 		},
 		{
-			href: 'https://opencollective.com/joshua-studio',
+			href: URLS.OPEN_COLLECTIVE,
 			label: 'Support & Donations',
 			aria_label: 'OpenCollective - Support & Donations',
 			icon: OpenCollectiveIcon,
 			is_external: true,
 		},
 		{
-			href: 'mailto:joshuafolkken@gmail.com',
+			href: URLS.EMAIL,
 			label: 'Contact',
 			aria_label: 'Mail - Contact',
 			icon: MailIcon,
