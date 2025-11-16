@@ -1,19 +1,19 @@
 <script lang="ts">
 	import { APP, URLS } from '$lib/app'
 	import Footer from '$lib/components/Footer.svelte'
+	import LogoProposals from '$lib/components/LogoProposals.svelte'
 	import SocialLinks from '$lib/components/SocialLinks.svelte'
-	import LogoIcon from '$lib/icons/LogoIcon.svelte'
 </script>
 
 <div class="flex justify-center">
-	<div class="flex w-full max-w-md flex-col px-4 py-8">
-		<div class="flex flex-col items-center justify-center">
-			<div class="my-3">
-				<LogoIcon />
-			</div>
-			<h1 class="text-3xl font-light tracking-tight">{APP.NAME}</h1>
-			<p class="text-right text-white/80 italic">{APP.DESCRIPTION}</p>
-		</div>
+	<div class="flex w-full max-w-md flex-col px-4">
+		<h1 class="mt-20 text-4xl font-light tracking-tight">{APP.NAME}</h1>
+
+		<p class="mt-6 text-right text-xl text-white/80 italic">{APP.DESCRIPTION}</p>
+
+		<div class="my-6 h-px bg-white/30"></div>
+
+		<LogoProposals />
 
 		<div class="my-6 h-px bg-white/30"></div>
 
