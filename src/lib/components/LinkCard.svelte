@@ -1,33 +1,43 @@
 <script lang="ts">
 	import { resolve } from '$app/paths'
 	import { LINK_REL, LINK_TARGET } from '$lib/app'
-	import type { Component } from 'svelte'
+	import type { Page } from '$lib/types/page'
 	import ContentCard from './ContentCard.svelte'
 
-	const {
-		href,
-		is_external = false,
-		icon,
-		title,
-		subtitle,
-		description,
-	} = $props<{
-		href: string
-		is_external?: boolean
-		icon: Component
-		title: string
-		subtitle?: string | undefined
-		description?: string | undefined
-	}>()
+	interface Props {
+		page: Page
+	}
+
+	const { page }: Props = $props()
+	const { icon, title, description } = page
+
+	const link = page.link ?? ''
+	const is_external = link.startsWith('http')
+
+	function get_href(): string | undefined {
+		if (link === '') {
+			return undefined
+		}
+		if (is_external) {
+			return link
+		}
+		return resolve(link as '/projects' | '/profile' | '/privacy-policy')
+	}
+
+	const href = get_href()
 </script>
 
 <!-- eslint-disable svelte/no-navigation-without-resolve -->
-<a
-	href={is_external ? href : resolve(href)}
-	target={is_external ? LINK_TARGET : undefined}
-	rel={is_external ? LINK_REL : undefined}
-	class="link-base block"
->
-	<ContentCard {icon} {title} {subtitle} {description} />
-</a>
+{#if href}
+	<a
+		{href}
+		target={is_external ? LINK_TARGET : undefined}
+		rel={is_external ? LINK_REL : undefined}
+		class="link-base block"
+	>
+		<ContentCard {icon} {title} {description} />
+	</a>
+{:else}
+	<ContentCard {icon} {title} {description} />
+{/if}
 <!-- eslint-enable svelte/no-navigation-without-resolve -->

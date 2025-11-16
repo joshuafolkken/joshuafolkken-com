@@ -1,45 +1,28 @@
 <script lang="ts">
-	import { APP, URLS } from '$lib/app'
-	import ContentCard from '$lib/components/ContentCard.svelte'
 	import Divider from '$lib/components/Divider.svelte'
 	import LinkCard from '$lib/components/LinkCard.svelte'
 	import PageFooter from '$lib/components/PageFooter.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import SocialLinks from '$lib/components/SocialLinks.svelte'
-	import LinkIcon from '$lib/icons/LinkIcon.svelte'
-	import OpenCollectiveIcon from '$lib/icons/OpenCollectiveIcon.svelte'
-	import ProjectsIcon from '$lib/icons/ProjectsIcon.svelte'
-	import UserIcon from '$lib/icons/UserIcon.svelte'
+	import { PAGES } from '$lib/types/page'
 </script>
 
 <PageLayout max_width="sm" padding="default">
-	<PageHeader title={APP.NAME} subtitle={APP.DESCRIPTION} />
+	<PageHeader page={PAGES.TOP} />
 
 	<Divider />
-	<LinkCard
-		href="/projects"
-		icon={ProjectsIcon}
-		title="Projects"
-		description="Building Games That Matter"
-	/>
+	<LinkCard page={PAGES.PROJECTS} />
 
 	<Divider />
-	<LinkCard href="/profile" icon={UserIcon} title="Profile" description="About Joshua Folkken" />
+	<LinkCard page={PAGES.PROFILE} />
 
 	<Divider />
-	<ContentCard icon={LinkIcon} title="Social Links" description="Connect with me" />
+	<LinkCard page={PAGES.SOCIAL_LINKS} />
 	<SocialLinks icon_size="1.5rem" justify_content="start" class="mt-4" />
 
 	<Divider />
-
-	<LinkCard
-		href={URLS.OPEN_COLLECTIVE}
-		is_external={true}
-		icon={OpenCollectiveIcon}
-		title="Support & Donations"
-		description="Support our mission"
-	/>
+	<LinkCard page={PAGES.DONATIONS} />
 
 	<Divider />
 	<PageFooter />

@@ -8,10 +8,10 @@
 	import ChatIcon from '$lib/icons/ChatIcon.svelte'
 	import FilmIcon from '$lib/icons/FilmIcon.svelte'
 	import GlobeIcon from '$lib/icons/GlobeIcon.svelte'
-	import ProjectsIcon from '$lib/icons/ProjectsIcon.svelte'
 	import RunningIcon from '$lib/icons/RunningIcon.svelte'
 	import TennisIcon from '$lib/icons/TennisIcon.svelte'
 	import ToolIcon from '$lib/icons/ToolIcon.svelte'
+	import { PAGES } from '$lib/types/page'
 	import type { Project } from '$lib/types/project'
 
 	const projects: Array<Project> = [
@@ -82,7 +82,7 @@
 </script>
 
 <PageLayout max_width="2xl" padding="compact">
-	<PageHeader icon={ProjectsIcon} title="Projects" subtitle="Building Games That Matter" />
+	<PageHeader page={PAGES.PROJECTS} />
 
 	<Divider />
 	<ProjectList {projects} />
