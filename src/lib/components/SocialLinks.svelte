@@ -2,7 +2,6 @@
 	import { URLS } from '$lib/app'
 	import GitHubIcon from '$lib/icons/GitHubIcon.svelte'
 	import MailIcon from '$lib/icons/MailIcon.svelte'
-	import OpenCollectiveIcon from '$lib/icons/OpenCollectiveIcon.svelte'
 	import XIcon from '$lib/icons/XIcon.svelte'
 	import YouTubeIcon from '$lib/icons/YouTubeIcon.svelte'
 	import type { Component } from 'svelte'
@@ -18,30 +17,23 @@
 	const social_links: Array<SocialLink> = [
 		{
 			href: URLS.GITHUB,
-			label: 'Code & Projects',
+			label: 'Code',
 			aria_label: 'GitHub - Code & Projects',
 			icon: GitHubIcon,
 			is_external: true,
 		},
 		{
 			href: URLS.X,
-			label: 'Latest Updates',
+			label: 'Updates',
 			aria_label: 'X - Latest Updates',
 			icon: XIcon,
 			is_external: true,
 		},
 		{
 			href: URLS.YOUTUBE,
-			label: 'Video Content',
+			label: 'Videos',
 			aria_label: 'YouTube - Video Content',
 			icon: YouTubeIcon,
-			is_external: true,
-		},
-		{
-			href: URLS.OPEN_COLLECTIVE,
-			label: 'Support & Donations',
-			aria_label: 'OpenCollective - Support & Donations',
-			icon: OpenCollectiveIcon,
 			is_external: true,
 		},
 		{
@@ -69,7 +61,7 @@
 	const classes = ['social-links', class_name].filter(Boolean).join(' ')
 </script>
 
-<div
+<nav
 	class={classes}
 	style:--icon-size={icon_size}
 	style:--justify-content={justify_content}
@@ -91,12 +83,12 @@
 		</a>
 		<!-- eslint-enable svelte/no-navigation-without-resolve -->
 	{/each}
-</div>
+</nav>
 
 <style>
 	.social-links {
 		display: grid;
-		grid-template-columns: 1fr;
+		grid-template-columns: repeat(2, 1fr);
 		gap: 1rem;
 		justify-items: var(--justify-content, start);
 		margin-left: auto;
@@ -110,7 +102,7 @@
 		gap: 0.75rem;
 		width: 100%;
 		min-width: 0;
-		color: white;
+		color: rgb(255 255 255 / 0.9);
 		text-decoration: none;
 		transition: opacity 300ms ease-in-out;
 		opacity: 0.6;
