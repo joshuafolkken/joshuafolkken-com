@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { URLS } from '$lib/app'
+	import { AUTHOR, URLS } from '$lib/app'
 	import GitHubIcon from '$lib/icons/GitHubIcon.svelte'
 	import MailIcon from '$lib/icons/MailIcon.svelte'
 	import XIcon from '$lib/icons/XIcon.svelte'
@@ -37,7 +37,7 @@
 			is_external: true,
 		},
 		{
-			href: URLS.EMAIL,
+			href: `mailto:${AUTHOR.EMAIL}`,
 			label: 'Contact',
 			aria_label: 'Mail - Contact',
 			icon: MailIcon,

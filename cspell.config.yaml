@@ -16,7 +16,9 @@ ignorePaths:
   - .git/**/*
   - .gitignore
 words:
+  - aboutads
   - bttf
+  - CCPA
   - darkmode
   - EDITMSG
   - elif

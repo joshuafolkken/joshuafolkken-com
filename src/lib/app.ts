@@ -1,13 +1,18 @@
 const APP = {
 	NAME: 'joshuafolkken.com',
 	DESCRIPTION: 'Creating a Brighter Future',
-	AUTHOR: 'Joshua Folkken',
+	URL: 'https://joshuafolkken.com',
 	VERSION: import.meta.env['APP_VERSION'] as string,
+} as const
+
+const AUTHOR = {
+	NAME: 'Joshua Folkken',
+	EMAIL: 'joshuafolkken@gmail.com',
 	YEAR: new Date().getFullYear(),
 	get COPYRIGHT(): string {
-		return `© ${String(this.YEAR)} ${this.AUTHOR}`
+		return `© ${String(this.YEAR)} ${this.NAME}`
 	},
-} as const
+}
 
 const URLS = {
 	TALK: 'https://talk.joshuafolkken.com',
@@ -16,7 +21,6 @@ const URLS = {
 	X: 'https://x.com/joshuafolkken',
 	YOUTUBE: 'https://www.youtube.com/@Joshuafolkken-studio',
 	OPEN_COLLECTIVE: 'https://opencollective.com/joshua-studio',
-	EMAIL: 'mailto:joshuafolkken@gmail.com',
 } as const
 
 const LINK_TARGET = '_blank'
@@ -33,4 +37,13 @@ function get_link_label(type: 'github' | 'demo'): string {
 	return LINK_LABELS[type]
 }
 
-export { APP, get_link_label, LINK_LABELS, LINK_REL, LINK_TARGET, SUBTITLE_DEVELOPMENT_TOOL, URLS }
+export {
+	APP,
+	AUTHOR,
+	get_link_label,
+	LINK_LABELS,
+	LINK_REL,
+	LINK_TARGET,
+	SUBTITLE_DEVELOPMENT_TOOL,
+	URLS,
+}
