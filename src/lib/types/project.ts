@@ -11,4 +11,5 @@ export interface Project {
 	subtitle?: string
 	description: string
 	links: Array<ProjectLink>
+	image?: string
 }
