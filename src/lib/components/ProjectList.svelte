@@ -17,6 +17,9 @@
 		description={project.description}
 	/>
 	<ProjectLinks links={project.links} />
+	{#if project.image}
+		<img src={project.image} alt={project.title} class="mt-3 h-auto w-full rounded-xl" />
+	{/if}
 	{#if project !== projects.at(-1)}
 		<Divider />
 	{/if}

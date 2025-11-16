@@ -24,6 +24,7 @@
 				{ href: URLS.TALK, type: 'demo' },
 				{ href: `${URLS.GITHUB}/talk-svelte`, type: 'github' },
 			],
+			image: '/images/talk.png',
 		},
 		{
 			icon: RunningIcon,
@@ -34,6 +35,8 @@
 				{ href: `${URLS.GITHUB_PAGE}/godot-2d-platformer`, type: 'demo' },
 				{ href: `${URLS.GITHUB}/godot-2d-platformer`, type: 'github' },
 			],
+			image:
+				'https://raw.githubusercontent.com/joshuafolkken/godot-2d-platformer/main/docs/screenshot.png',
 		},
 		{
 			icon: FilmIcon,
@@ -44,6 +47,7 @@
 				{ href: `${URLS.GITHUB_PAGE}/tic-tac-toe`, type: 'demo' },
 				{ href: `${URLS.GITHUB}/tic-tac-toe`, type: 'github' },
 			],
+			image: 'https://github.com/joshuafolkken/joshuafolkken/raw/main/images/tic-tac-toe.png',
 		},
 		{
 			icon: TennisIcon,
@@ -54,6 +58,7 @@
 				{ href: `${URLS.GITHUB_PAGE}/pong`, type: 'demo' },
 				{ href: `${URLS.GITHUB}/pong`, type: 'github' },
 			],
+			image: 'https://github.com/joshuafolkken/joshuafolkken/raw/main/images/pong.png',
 		},
 		{
 			icon: ToolIcon,
@@ -64,6 +69,7 @@
 				{ href: `${URLS.GITHUB}/godot-project-template`, type: 'github' },
 				{ href: `${URLS.GITHUB_PAGE}/godot-project-template`, type: 'demo' },
 			],
+			image: '/images/godot-project-template.png',
 		},
 		{
 			icon: GlobeIcon,
