@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { APP, LINK_REL, LINK_TARGET, URLS } from '$lib/app'
+	import { APP, AUTHOR, LINK_REL, LINK_TARGET, URLS } from '$lib/app'
 	import Divider from '$lib/components/Divider.svelte'
 	import PageFooter from '$lib/components/PageFooter.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
@@ -13,7 +13,7 @@
 	<PageHeader icon={UserIcon} title="Profile" subtitle="About Joshua Folkken" />
 
 	<Divider />
-	<PageSection title="Hi there! 👋 I'm {APP.AUTHOR}">
+	<PageSection title="Hi there! 👋 I'm {AUTHOR.NAME}">
 		<p class="mt-4 text-lg text-white/80">
 			<strong>Indie Game Developer & Educator</strong> | Japan 🇯🇵
 		</p>
