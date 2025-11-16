@@ -1,9 +1,19 @@
 @import 'tailwindcss';
 
 html {
-	@apply min-h-screen bg-slate-900 text-white/90;
+	@apply min-h-screen bg-slate-900 text-white/70;
+}
+
+h1,
+h2,
+h3 {
+	@apply text-white/90;
 }
 
 a:focus-visible {
 	@apply rounded outline-2 outline-offset-2 outline-white/50;
+}
+
+a.link-base {
+	@apply underline-offset-4 transition duration-300 hover:text-white;
 }

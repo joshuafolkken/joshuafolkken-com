@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { APP, URLS } from '$lib/app'
-	import Footer from '$lib/components/Footer.svelte'
+	import Divider from '$lib/components/Divider.svelte'
 	import LogoProposals from '$lib/components/LogoProposals.svelte'
+	import PageFooter from '$lib/components/PageFooter.svelte'
 	import SocialLinks from '$lib/components/SocialLinks.svelte'
 </script>
 
@@ -11,11 +12,11 @@
 
 		<p class="mt-6 text-right text-xl text-white/80 italic">{APP.DESCRIPTION}</p>
 
-		<div class="my-6 h-px bg-white/30"></div>
+		<Divider />
 
 		<LogoProposals />
 
-		<div class="my-6 h-px bg-white/30"></div>
+		<Divider />
 
 		<div>
 			<!-- eslint-disable svelte/no-navigation-without-resolve -->
@@ -30,7 +31,7 @@
 			<!-- eslint-enable svelte/no-navigation-without-resolve -->
 		</div>
 
-		<div class="my-6 h-px bg-white/30"></div>
+		<Divider />
 
 		<div>
 			<!-- eslint-disable svelte/no-navigation-without-resolve -->
@@ -44,12 +45,12 @@
 			<!-- eslint-enable svelte/no-navigation-without-resolve -->
 		</div>
 
-		<div class="my-6 h-px bg-white/30"></div>
+		<Divider />
 
 		<SocialLinks icon_size="2rem" justify_content="start" />
 
-		<div class="my-6 h-px bg-white/30"></div>
+		<Divider />
 
-		<Footer />
+		<PageFooter />
 	</div>
 </div>

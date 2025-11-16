@@ -1,55 +1,46 @@
 <script lang="ts">
 	import { APP, URLS } from '$lib/app'
-	import Footer from '$lib/components/Footer.svelte'
+	import ContentCard from '$lib/components/ContentCard.svelte'
+	import Divider from '$lib/components/Divider.svelte'
+	import LinkCard from '$lib/components/LinkCard.svelte'
+	import PageFooter from '$lib/components/PageFooter.svelte'
+	import PageHeader from '$lib/components/PageHeader.svelte'
+	import PageLayout from '$lib/components/PageLayout.svelte'
 	import SocialLinks from '$lib/components/SocialLinks.svelte'
-	import LogoIcon from '$lib/icons/LogoIcon.svelte'
+	import LinkIcon from '$lib/icons/LinkIcon.svelte'
+	import OpenCollectiveIcon from '$lib/icons/OpenCollectiveIcon.svelte'
+	import ProjectsIcon from '$lib/icons/ProjectsIcon.svelte'
+	import UserIcon from '$lib/icons/UserIcon.svelte'
 </script>
 
-<div class="flex justify-center">
-	<div class="flex w-full max-w-md flex-col px-4 py-8">
-		<div class="flex flex-col items-center justify-center">
-			<div class="my-3">
-				<LogoIcon />
-			</div>
-			<h1 class="text-3xl font-light tracking-tight">{APP.NAME}</h1>
-			<p class="text-right text-white/80 italic">{APP.DESCRIPTION}</p>
-		</div>
+<PageLayout max_width="sm" padding="default">
+	<PageHeader title={APP.NAME} subtitle={APP.DESCRIPTION} />
 
-		<div class="my-6 h-px bg-white/30"></div>
+	<Divider />
+	<LinkCard
+		href="/projects"
+		icon={ProjectsIcon}
+		title="Projects"
+		description="Building Games That Matter"
+	/>
 
-		<div>
-			<!-- eslint-disable svelte/no-navigation-without-resolve -->
-			<a
-				href={URLS.TALK}
-				target="_blank"
-				class="text-white/70 underline-offset-4 transition duration-300 hover:text-white"
-			>
-				<h2 class="mb-1 text-xl">Talk</h2>
-				<p>Language Learning Game - Listen and Repeat</p>
-			</a>
-			<!-- eslint-enable svelte/no-navigation-without-resolve -->
-		</div>
+	<Divider />
+	<LinkCard href="/profile" icon={UserIcon} title="Profile" description="About Joshua Folkken" />
 
-		<div class="my-6 h-px bg-white/30"></div>
+	<Divider />
+	<ContentCard icon={LinkIcon} title="Social Links" description="Connect with me" />
+	<SocialLinks icon_size="1.5rem" justify_content="start" class="mt-4" />
 
-		<div>
-			<!-- eslint-disable svelte/no-navigation-without-resolve -->
-			<a
-				href="/profile"
-				class="text-white/70 underline-offset-4 transition duration-300 hover:text-white"
-			>
-				<h2 class="mb-1 text-xl">Profile</h2>
-				<p>About Joshua Folkken</p>
-			</a>
-			<!-- eslint-enable svelte/no-navigation-without-resolve -->
-		</div>
+	<Divider />
 
-		<div class="my-6 h-px bg-white/30"></div>
+	<LinkCard
+		href={URLS.OPEN_COLLECTIVE}
+		is_external={true}
+		icon={OpenCollectiveIcon}
+		title="Support & Donations"
+		description="Support our mission"
+	/>
 
-		<SocialLinks icon_size="2rem" justify_content="start" />
-
-		<div class="my-6 h-px bg-white/30"></div>
-
-		<Footer />
-	</div>
-</div>
+	<Divider />
+	<PageFooter />
+</PageLayout>

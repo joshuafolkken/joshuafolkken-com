@@ -1,11 +1,16 @@
 <script lang="ts">
-	const { title = 'Mail', aria_label } = $props<{
+	const {
+		size = '1.5rem',
+		title = 'Mail',
+		aria_label,
+	} = $props<{
+		size?: string
 		title?: string
 		aria_label?: string
 	}>()
 </script>
 
-<svg viewBox="0 0 24 24" width="100%" height="100%" role="img" aria-label={aria_label}>
+<svg viewBox="0 0 24 24" width={size} height={size} role="img" aria-label={aria_label}>
 	<title>{title}</title>
 	<path
 		fill="currentColor"
