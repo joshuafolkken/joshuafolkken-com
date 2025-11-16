@@ -1,17 +1,23 @@
 <script lang="ts">
 	import type { Component } from 'svelte'
 
-	const { icon, title, subtitle, description } = $props<{
-		icon: Component
+	interface Props {
+		icon?: Component | undefined
 		title: string
 		subtitle?: string | undefined
 		description?: string | undefined
-	}>()
+	}
+
+	const { icon, title, subtitle, description }: Props = $props()
 </script>
 
 <section>
 	<h2 class="mb-2 flex items-center gap-2 text-xl font-medium">
-		{@render icon({ size: '1.5rem' })}
+		{#if icon}
+			<!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
+			{@const Icon = icon}
+			<Icon size="1.5rem" />
+		{/if}
 		<strong>{title}</strong>
 		{#if subtitle}
 			- <em>{subtitle}</em>

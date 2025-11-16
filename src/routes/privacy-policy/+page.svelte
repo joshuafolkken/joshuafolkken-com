@@ -6,12 +6,13 @@
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import PageSection from '$lib/components/PageSection.svelte'
+	import { PAGES } from '$lib/types/page'
 
 	const last_updated = 'November 2025'
 </script>
 
 <PageLayout max_width="2xl" padding="compact">
-	<PageHeader title="Privacy Policy" subtitle="Your privacy matters to us" />
+	<PageHeader page={PAGES.PRIVACY_POLICY} />
 
 	<Divider />
 

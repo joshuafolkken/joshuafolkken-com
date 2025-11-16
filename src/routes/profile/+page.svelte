@@ -6,11 +6,11 @@
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import PageSection from '$lib/components/PageSection.svelte'
 	import TechStack from '$lib/components/TechStack.svelte'
-	import UserIcon from '$lib/icons/UserIcon.svelte'
+	import { PAGES } from '$lib/types/page'
 </script>
 
 <PageLayout max_width="2xl" padding="compact">
-	<PageHeader icon={UserIcon} title="Profile" subtitle="About Joshua Folkken" />
+	<PageHeader page={PAGES.PROFILE} />
 
 	<Divider />
 	<PageSection title="Hi there! 👋 I'm {AUTHOR.NAME}">
