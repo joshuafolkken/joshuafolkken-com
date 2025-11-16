@@ -9,7 +9,7 @@
 	}
 
 	const { page }: Props = $props()
-	const { icon, title, description } = page
+	const { title, description, icon } = page
 
 	const link = page.link ?? ''
 	const is_external = link.startsWith('http')
