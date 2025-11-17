@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 import { git_branch } from './git/git-branch.js'
+import { git_command } from './git/git-command.js'
 import { git_error } from './git/git-error.js'
-import { git_issue } from './git/git-issue.js'
+import { git_issue, type IssueInfo } from './git/git-issue.js'
 import { git_prompt } from './git/git-prompt.js'
 import { git_status } from './git/git-status.js'
 
@@ -38,10 +39,21 @@ async function check_and_create_branch(
 	}
 }
 
+async function commit_changes(commit_message: string): Promise<void> {
+	const should_commit = await git_prompt.confirm_commit()
+	if (!should_commit) {
+		console.info('💡 Commit skipped.')
+		console.info('')
+		return
+	}
+	await git_command.commit(commit_message)
+}
+
 async function execute_workflow_steps(): Promise<void> {
-	const current_branch = await git_branch.current()
-	const issue_info = await git_issue.get_and_display()
+	const current_branch: string = await git_branch.current()
+	const issue_info: IssueInfo = await git_issue.get_and_display()
 	await check_and_create_branch(current_branch, issue_info.branch_name)
+	await commit_changes(issue_info.commit_message)
 }
 
 async function confirm_package_json_staged(): Promise<boolean> {

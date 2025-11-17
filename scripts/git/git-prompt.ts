@@ -125,6 +125,13 @@ async function confirm_without_version_update(): Promise<void> {
 	}
 }
 
+async function confirm_commit(): Promise<boolean> {
+	return await with_prompt(
+		async (prompt) => await ask_yes_no(prompt, '💬 Commit staged changes now? (y/n): '),
+		false,
+	)
+}
+
 async function ask_issue_info(prompt: Interface, question: string): Promise<string> {
 	display_start_separator()
 	const raw_answer: unknown = await prompt.question(question)
@@ -150,6 +157,7 @@ const git_prompt = {
 	confirm_missing_package_json,
 	confirm_version_not_updated,
 	confirm_without_version_update,
+	confirm_commit,
 	get_issue_info,
 }
 

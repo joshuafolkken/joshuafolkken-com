@@ -37,6 +37,11 @@ async function checkout(branch_name: string): Promise<string> {
 	return await exec_git_command(`checkout ${branch_name}`)
 }
 
+async function commit(message: string): Promise<string> {
+	const safe_message = JSON.stringify(message)
+	return await exec_git_command(`commit -m ${safe_message}`)
+}
+
 async function branch_exists(branch_name: string): Promise<boolean> {
 	try {
 		const output: string = await exec_git_command(`branch --list ${branch_name}`)
@@ -52,6 +57,7 @@ const git_command = {
 	diff_cached,
 	checkout_b,
 	checkout,
+	commit,
 	branch_exists,
 }
 
