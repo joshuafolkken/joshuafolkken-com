@@ -75,6 +75,29 @@ async function pr_checks(branch_name: string): Promise<string> {
 	return await exec_gh_command(`pr checks ${branch_name}`)
 }
 
+async function pr_checks_watch(branch_name: string): Promise<string> {
+	return await exec_gh_command(`pr checks ${branch_name} --watch`)
+}
+
+async function pr_exists(branch_name: string): Promise<boolean> {
+	try {
+		await exec_gh_command(`pr view ${branch_name}`)
+		return true
+	} catch {
+		return false
+	}
+}
+
+async function pr_view(branch_name: string): Promise<string> {
+	try {
+		return await exec_gh_command(
+			`pr view ${branch_name} --json mergeable,mergeStateStatus,state --jq .`,
+		)
+	} catch {
+		return ''
+	}
+}
+
 const git_command = {
 	branch,
 	status,
@@ -86,6 +109,9 @@ const git_command = {
 	branch_exists,
 	pr_create,
 	pr_checks,
+	pr_checks_watch,
+	pr_exists,
+	pr_view,
 }
 
 export { git_command }
