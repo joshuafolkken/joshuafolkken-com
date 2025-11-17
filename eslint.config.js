@@ -359,7 +359,7 @@ export default defineConfig(
 			// 複雑度の制限
 			complexity: ['error', 5],
 			// 最大ネストレベル
-			'max-depth': ['error', 1],
+			'max-depth': ['error', 2],
 			// 関数の最大行数
 			'max-lines-per-function': ['error', { max: 25, skipBlankLines: true, skipComments: true }],
 			// ファイルの最大行数

@@ -1,22 +1,15 @@
 #!/usr/bin/env node
 import { execSync } from 'node:child_process'
-import { platform } from 'node:os'
+import { git_utilities } from './git/constants.js'
 
 interface CheckResult {
 	success: boolean
 	message: string
 }
 
-function get_git_command(): string {
-	if (platform() === 'win32') {
-		return String.raw`"C:\Program Files\Git\bin\git.exe"`
-	}
-	return '/usr/bin/git'
-}
-
 function get_current_branch(): string {
 	try {
-		const git_command = get_git_command()
+		const git_command = git_utilities.get_git_command()
 		return execSync(`${git_command} rev-parse --abbrev-ref HEAD`, { encoding: 'utf8' }).trim() // eslint-disable-line sonarjs/os-command
 	} catch (error) {
 		throw new Error('Failed to get current branch', { cause: error })

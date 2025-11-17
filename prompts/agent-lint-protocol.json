@@ -1,0 +1,9 @@
+{
+	"require_lint_zero": true,
+	"fail_on_warnings": true,
+	"final_report_check_paths": ["src"],
+	"changed_files_only_first": true,
+	"max_batch_size": 6,
+	"auto_fix_rounds": 3,
+	"report_template": "Lint: 0 errors (checked: ${paths})"
+}
