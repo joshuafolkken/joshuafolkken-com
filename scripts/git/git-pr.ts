@@ -77,19 +77,36 @@ async function wait_for_status_available(branch_name: string): Promise<void> {
 	}
 }
 
+function is_pr_already_exists_error(error: unknown): boolean {
+	if (error instanceof Error) {
+		return error.message === 'PR_ALREADY_EXISTS'
+	}
+	return false
+}
+
 async function create_pr(title: string, body: string): Promise<void> {
-	await animation_helpers.execute_with_animation(
-		'Creating pull request...',
-		async () => {
-			await git_command.pr_create(title, body)
-			return 'PR created.'
-		},
-		{
-			icon_selector: () => '✅',
-			error_message: 'Failed to create PR',
-			result_formatter: (message) => message,
-		},
-	)
+	try {
+		await animation_helpers.execute_with_animation(
+			'Creating pull request...',
+			async () => {
+				await git_command.pr_create(title, body)
+				return 'PR created.'
+			},
+			{
+				icon_selector: () => '✅',
+				error_message: 'Failed to create PR',
+				result_formatter: (message) => message,
+			},
+		)
+	} catch (error) {
+		if (is_pr_already_exists_error(error)) {
+			console.info('')
+			console.info('ℹ️  Pull request already exists.')
+			console.info('')
+			return
+		}
+		throw error
+	}
 }
 
 const MERGE_STATE_DIRTY = 'dirty'

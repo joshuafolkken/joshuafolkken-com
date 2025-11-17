@@ -63,12 +63,39 @@ async function exec_gh_command(command: string): Promise<string> {
 	return stdout.trimEnd()
 }
 
+function is_pr_already_exists_message(error_message: string): boolean {
+	return error_message.toLowerCase().includes('already exists')
+}
+
+function get_error_message_with_stderr(error: unknown): string {
+	if (error instanceof Error) {
+		const exec_error = error as { stderr?: string }
+		if (exec_error.stderr !== undefined && exec_error.stderr.length > 0) {
+			return `${error.message}\n${exec_error.stderr}`
+		}
+		return error.message
+	}
+	return String(error)
+}
+
+function handle_pr_create_error(error: unknown): never {
+	const error_message = get_error_message_with_stderr(error)
+	if (is_pr_already_exists_message(error_message)) {
+		throw new Error('PR_ALREADY_EXISTS')
+	}
+	throw error
+}
+
 async function pr_create(title: string, body: string): Promise<string> {
 	const safe_title = JSON.stringify(title)
 	const safe_body = JSON.stringify(body)
-	return await exec_gh_command(
-		`pr create --title ${safe_title} --body ${safe_body} --label enhancement --base main`,
-	)
+	try {
+		return await exec_gh_command(
+			`pr create --title ${safe_title} --body ${safe_body} --label enhancement --base main`,
+		)
+	} catch (error) {
+		return handle_pr_create_error(error)
+	}
 }
 
 async function pr_checks(branch_name: string): Promise<string> {
