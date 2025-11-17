@@ -1,4 +1,4 @@
-import { exec } from 'node:child_process'
+import { exec, spawn } from 'node:child_process'
 import { promisify } from 'node:util'
 import { git_utilities } from './constants.js'
 
@@ -118,8 +118,27 @@ async function pr_checks(branch_name: string): Promise<string> {
 	}
 }
 
-async function pr_checks_watch(branch_name: string): Promise<string> {
-	return await exec_gh_command(`pr checks ${branch_name} --watch`)
+async function pr_checks_watch(branch_name: string): Promise<void> {
+	await new Promise<void>((resolve, reject) => {
+		// eslint-disable-next-line sonarjs/no-os-command-from-path -- gh is a well-known CLI tool and safe to execute
+		const child = spawn('gh', ['pr', 'checks', branch_name, '--watch'], {
+			stdio: 'inherit',
+			shell: false,
+		})
+
+		child.on('error', (error) => {
+			reject(error)
+		})
+
+		child.on('close', (code) => {
+			if (code === 0) {
+				resolve()
+			} else {
+				const exit_code = code === null ? 'unknown' : String(code)
+				reject(new Error(`gh pr checks --watch exited with code ${exit_code}`))
+			}
+		})
+	})
 }
 
 async function pr_exists(branch_name: string): Promise<boolean> {
