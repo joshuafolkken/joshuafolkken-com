@@ -29,10 +29,15 @@ async function diff_cached(file_path: string): Promise<string> {
 	}
 }
 
+async function checkout_b(branch_name: string): Promise<string> {
+	return await exec_git_command(`checkout -b ${branch_name}`)
+}
+
 const git_command = {
 	branch,
 	status,
 	diff_cached,
+	checkout_b,
 }
 
 export { git_command }

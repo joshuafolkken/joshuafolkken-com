@@ -5,9 +5,36 @@ import { git_issue } from './git/git-issue.js'
 import { git_prompt } from './git/git-prompt.js'
 import { git_status } from './git/git-status.js'
 
+function display_branch_mismatch_error(current_branch: string, target_branch_name: string): void {
+	console.error('')
+	console.error('❌ Branch mismatch detected')
+	console.error('')
+	console.error(`Current branch: ${current_branch}`)
+	console.error(`Expected branch: ${target_branch_name}`)
+	console.error('')
+	console.error('💡 Please update main branch to the latest and try again.')
+	console.error('')
+	process.exit(1)
+}
+
+async function check_and_create_branch(
+	current_branch: string,
+	target_branch_name: string,
+): Promise<void> {
+	if (current_branch === 'main') {
+		await git_branch.create(target_branch_name)
+		return
+	}
+
+	if (current_branch !== target_branch_name) {
+		display_branch_mismatch_error(current_branch, target_branch_name)
+	}
+}
+
 async function execute_workflow_steps(): Promise<void> {
-	await git_branch.current()
-	await git_issue.get_and_display()
+	const current_branch = await git_branch.current()
+	const issue_info = await git_issue.get_and_display()
+	await check_and_create_branch(current_branch, issue_info.branch_name)
 }
 
 async function confirm_package_json_staged(): Promise<boolean> {
