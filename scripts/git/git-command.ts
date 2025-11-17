@@ -55,6 +55,26 @@ async function branch_exists(branch_name: string): Promise<boolean> {
 	}
 }
 
+async function exec_gh_command(command: string): Promise<string> {
+	const { stdout } = (await exec_async(`gh ${command}`)) as {
+		stdout: string
+		stderr: string
+	}
+	return stdout.trimEnd()
+}
+
+async function pr_create(title: string, body: string): Promise<string> {
+	const safe_title = JSON.stringify(title)
+	const safe_body = JSON.stringify(body)
+	return await exec_gh_command(
+		`pr create --title ${safe_title} --body ${safe_body} --label enhancement --base main`,
+	)
+}
+
+async function pr_checks(branch_name: string): Promise<string> {
+	return await exec_gh_command(`pr checks ${branch_name}`)
+}
+
 const git_command = {
 	branch,
 	status,
@@ -64,6 +84,8 @@ const git_command = {
 	commit,
 	push,
 	branch_exists,
+	pr_create,
+	pr_checks,
 }
 
 export { git_command }

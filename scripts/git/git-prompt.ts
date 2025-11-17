@@ -138,6 +138,13 @@ async function confirm_push(): Promise<boolean> {
 	)
 }
 
+async function confirm_pr(): Promise<boolean> {
+	return await with_prompt(
+		async (prompt) => await ask_yes_no(prompt, '💬 Create pull request? (y/n): '),
+		false,
+	)
+}
+
 async function ask_issue_info(prompt: Interface, question: string): Promise<string> {
 	display_start_separator()
 	const raw_answer: unknown = await prompt.question(question)
@@ -165,6 +172,7 @@ const git_prompt = {
 	confirm_without_version_update,
 	confirm_commit,
 	confirm_push,
+	confirm_pr,
 	get_issue_info,
 }
 
