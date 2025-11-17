@@ -1,9 +1,15 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
+/* @refactor-ignore */
 import { spawnSync, type SpawnSyncOptions } from 'node:child_process'
 import { EOL } from 'node:os'
 import { exit, stdin as input, stdout as output } from 'node:process'
 import { createInterface, type Interface } from 'node:readline/promises'
+import {
+	REQUIRED_STATUS_LENGTH,
+	STAGED_STATUS_INDEX,
+	UNTRACKED_FILE_PREFIX,
+} from './git/constants.js'
 
 type Operation = 'commit' | 'push' | 'pr'
 
@@ -14,8 +20,6 @@ const OPERATION_LABELS: Record<Operation, string> = {
 }
 
 const PACKAGE_JSON_FILE = 'package.json'
-const STAGED_STATUS_INDEX = 1
-const REQUIRED_STATUS_LENGTH = 2
 const OPERATION_CANCELLED_MESSAGE = 'Operation cancelled by user.'
 
 type PendingCheckOutcome = 'retry' | 'complete' | 'unhandled'
@@ -377,7 +381,7 @@ function ensure_staging_state(): void {
 		.map((line) => line.trimEnd())
 		.filter((line) => line.length > 0)
 
-	const has_untracked = lines.some((line) => line.startsWith('??'))
+	const has_untracked = lines.some((line) => line.startsWith(UNTRACKED_FILE_PREFIX))
 	const has_unstaged = lines.some(
 		(line) => line.length >= REQUIRED_STATUS_LENGTH && line[STAGED_STATUS_INDEX] !== ' ',
 	)
