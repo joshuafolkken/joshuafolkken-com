@@ -39,6 +39,7 @@ function create_animation(message: string): AnimationController {
 
 	let frame_index = 0
 	const first_frame = SPINNER_FRAMES[0] ?? ''
+	console.info('')
 	process.stdout.write(`\r${first_frame} ${message}`)
 
 	const interval_id = setInterval(() => {

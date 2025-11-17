@@ -3,7 +3,7 @@ import { platform } from 'node:os'
 const REQUIRED_STATUS_LENGTH = 2
 const STAGED_STATUS_INDEX = 1
 const UNTRACKED_FILE_PREFIX = '??'
-const SEPARATOR_LINE = '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
+const SEPARATOR_LINE = '────────────────────────────────────────'
 
 function get_git_command(): string {
 	if (platform() === 'win32') {

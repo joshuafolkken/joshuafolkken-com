@@ -15,7 +15,6 @@ async function execute_with_confirmation(
 	const should_execute = await confirm_action()
 	if (!should_execute) {
 		console.info(skip_message)
-		console.info('')
 		return
 	}
 	await action()
@@ -47,7 +46,6 @@ async function main(): Promise<void> {
 }
 
 try {
-	console.info('')
 	await main()
 	console.info('')
 } catch (error) {

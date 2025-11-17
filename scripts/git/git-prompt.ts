@@ -11,7 +11,6 @@ function display_start_separator(): void {
 
 function display_end_separator(): void {
 	console.info(SEPARATOR_LINE)
-	console.info('')
 }
 
 function display_invalid_answer_message(): void {

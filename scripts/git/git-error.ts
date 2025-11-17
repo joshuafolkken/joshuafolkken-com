@@ -58,7 +58,6 @@ function display_branch_mismatch_error(current_branch: string, target_branch_nam
 	console.error(`Expected branch: ${target_branch_name}`)
 	console.error('')
 	console.error('💡 Please update main branch to the latest and try again.')
-	console.error('')
 	process.exit(1)
 }
 

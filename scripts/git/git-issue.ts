@@ -55,7 +55,6 @@ function display_issue_info(issue_info: IssueInfo): void {
 	console.info(`  Branch Name: ${issue_info.branch_name}`)
 	console.info(`  Commit Message: ${issue_info.commit_message}`)
 	console.info(SEPARATOR_LINE)
-	console.info('')
 }
 
 async function get_and_display(): Promise<IssueInfo> {
