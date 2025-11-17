@@ -1,12 +1,19 @@
-<script>
+<script lang="ts">
 	import { resolve } from '$app/paths'
+
+	interface Props {
+		size?: number
+	}
+
+	const DEFAULT_SIZE = 80
+	const { size = DEFAULT_SIZE }: Props = $props()
 </script>
 
 <a href={resolve('/')}>
 	<svg
 		viewBox="20 20 45 55"
-		width="80"
-		height="80"
+		width={size}
+		height={size}
 		class=" text-white"
 		aria-label="Geometric JF Fusion Logo"
 	>
