@@ -132,6 +132,13 @@ async function confirm_commit(): Promise<boolean> {
 	)
 }
 
+async function confirm_push(): Promise<boolean> {
+	return await with_prompt(
+		async (prompt) => await ask_yes_no(prompt, '💬 Push changes to remote? (y/n): '),
+		false,
+	)
+}
+
 async function ask_issue_info(prompt: Interface, question: string): Promise<string> {
 	display_start_separator()
 	const raw_answer: unknown = await prompt.question(question)
@@ -158,6 +165,7 @@ const git_prompt = {
 	confirm_version_not_updated,
 	confirm_without_version_update,
 	confirm_commit,
+	confirm_push,
 	get_issue_info,
 }
 
