@@ -17,12 +17,19 @@ function display_branch_mismatch_error(current_branch: string, target_branch_nam
 	process.exit(1)
 }
 
+async function handle_main_branch(target_branch_name: string): Promise<void> {
+	const is_branch_exists: boolean = await git_branch.exists(target_branch_name)
+	await (is_branch_exists
+		? git_branch.switch_to(target_branch_name)
+		: git_branch.create(target_branch_name))
+}
+
 async function check_and_create_branch(
 	current_branch: string,
 	target_branch_name: string,
 ): Promise<void> {
 	if (current_branch === 'main') {
-		await git_branch.create(target_branch_name)
+		await handle_main_branch(target_branch_name)
 		return
 	}
 
