@@ -2,6 +2,8 @@ import { stdin as input, stdout as output } from 'node:process'
 import { createInterface, type Interface } from 'node:readline/promises'
 import { SEPARATOR_LINE } from './constants.js'
 
+const OPERATION_CANCELLED_MESSAGE = '💡 Operation cancelled.'
+
 function display_start_separator(): void {
 	console.info('')
 	console.info(SEPARATOR_LINE)
@@ -83,7 +85,41 @@ async function confirm_continue(): Promise<boolean> {
 async function confirm_unstaged_files(): Promise<void> {
 	const should_continue = await confirm_continue()
 	if (!should_continue) {
-		console.info('💡 Operation cancelled.')
+		console.info(OPERATION_CANCELLED_MESSAGE)
+		console.info('')
+		process.exit(1)
+	}
+}
+
+async function confirm_without_package_json(): Promise<boolean> {
+	return await with_prompt(
+		async (prompt) =>
+			await ask_yes_no(prompt, '💬 package.json is not staged. Continue anyway? (y/n): '),
+		false,
+	)
+}
+
+async function confirm_missing_package_json(): Promise<void> {
+	const should_continue = await confirm_without_package_json()
+	if (!should_continue) {
+		console.info(OPERATION_CANCELLED_MESSAGE)
+		console.info('')
+		process.exit(1)
+	}
+}
+
+async function confirm_version_not_updated(): Promise<boolean> {
+	return await with_prompt(
+		async (prompt) =>
+			await ask_yes_no(prompt, '💬 package.json version is not updated. Continue anyway? (y/n): '),
+		false,
+	)
+}
+
+async function confirm_without_version_update(): Promise<void> {
+	const should_continue = await confirm_version_not_updated()
+	if (!should_continue) {
+		console.info(OPERATION_CANCELLED_MESSAGE)
 		console.info('')
 		process.exit(1)
 	}
@@ -110,6 +146,10 @@ async function get_issue_info(): Promise<string> {
 const git_prompt = {
 	confirm_continue,
 	confirm_unstaged_files,
+	confirm_without_package_json,
+	confirm_missing_package_json,
+	confirm_version_not_updated,
+	confirm_without_version_update,
 	get_issue_info,
 }
 

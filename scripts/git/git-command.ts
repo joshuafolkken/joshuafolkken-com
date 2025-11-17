@@ -10,7 +10,7 @@ async function exec_git_command(command: string): Promise<string> {
 		stdout: string
 		stderr: string
 	}
-	return stdout.trim()
+	return stdout.trimEnd()
 }
 
 async function branch(): Promise<string> {
@@ -21,9 +21,18 @@ async function status(): Promise<string> {
 	return await exec_git_command('status --porcelain')
 }
 
+async function diff_cached(file_path: string): Promise<string> {
+	try {
+		return await exec_git_command(`diff --cached ${file_path}`)
+	} catch {
+		return ''
+	}
+}
+
 const git_command = {
 	branch,
 	status,
+	diff_cached,
 }
 
 export { git_command }
