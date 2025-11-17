@@ -18,7 +18,7 @@
 		{
 			icon: ChatIcon,
 			title: 'Talk',
-			subtitle: 'Language Learning Game 🔥ONGOING🔥',
+			subtitle: 'Language Learning Game',
 			description: "World's first fun language learning game for listening and speaking",
 			links: [
 				{ href: URLS.TALK, type: 'demo' },

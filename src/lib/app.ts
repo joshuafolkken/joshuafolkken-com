@@ -26,7 +26,7 @@ const URLS = {
 const LINK_TARGET = '_blank'
 const LINK_REL = 'noopener noreferrer'
 
-const SUBTITLE_DEVELOPMENT_TOOL = 'Development Tool'
+const SUBTITLE_DEVELOPMENT_TOOL = 'Dev Tool'
 
 const LINK_LABELS = {
 	github: 'GitHub',

@@ -99,7 +99,7 @@
 		display: flex;
 		flex-direction: row;
 		align-items: center;
-		gap: 0.75rem;
+		gap: 0.6rem;
 		width: 100%;
 		min-width: 0;
 		color: rgb(255 255 255 / 0.9);
