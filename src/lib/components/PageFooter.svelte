@@ -11,7 +11,7 @@
 		</a>
 	{/if}
 	<div class="mt-4">
-		<a href={resolve('/')} class="link-base">
+		<a href={resolve('/')} class="link-base inline-block">
 			<p>{APP.NAME} v{APP.VERSION}</p>
 			<p>{AUTHOR.COPYRIGHT}</p>
 		</a>

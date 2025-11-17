@@ -6,13 +6,17 @@
 		title: string
 		subtitle?: string | undefined
 		description?: string | undefined
+		class?: string | undefined
 	}
 
-	const { icon, title, subtitle, description }: Props = $props()
+	const { icon, title, subtitle, description, class: class_name }: Props = $props()
+
+	const is_centered = class_name?.includes('text-center') ?? false
+	const justify_class = is_centered ? 'justify-center' : ''
 </script>
 
-<section>
-	<h2 class="mb-2 flex items-center gap-2 text-xl font-medium">
+<section class={class_name}>
+	<h2 class="mb-2 flex items-center {justify_class} gap-2 text-xl font-medium">
 		{#if icon}
 			<!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
 			{@const Icon = icon}

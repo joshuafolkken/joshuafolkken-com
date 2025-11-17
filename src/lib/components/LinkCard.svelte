@@ -28,16 +28,18 @@
 </script>
 
 <!-- eslint-disable svelte/no-navigation-without-resolve -->
-{#if href}
-	<a
-		{href}
-		target={is_external ? LINK_TARGET : undefined}
-		rel={is_external ? LINK_REL : undefined}
-		class="link-base block"
-	>
-		<ContentCard {icon} {title} {description} />
-	</a>
-{:else}
-	<ContentCard {icon} {title} {description} />
-{/if}
+<div class=" w-full">
+	{#if href}
+		<a
+			{href}
+			target={is_external ? LINK_TARGET : undefined}
+			rel={is_external ? LINK_REL : undefined}
+			class="link-base -my-4 block w-full rounded-lg p-4 hover:bg-slate-800/60"
+		>
+			<ContentCard {icon} {title} {description} class="text-center" />
+		</a>
+	{:else}
+		<ContentCard {icon} {title} {description} class="text-center" />
+	{/if}
+</div>
 <!-- eslint-enable svelte/no-navigation-without-resolve -->
