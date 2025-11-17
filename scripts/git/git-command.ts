@@ -56,11 +56,19 @@ async function branch_exists(branch_name: string): Promise<boolean> {
 }
 
 async function exec_gh_command(command: string): Promise<string> {
-	const { stdout } = (await exec_async(`gh ${command}`)) as {
-		stdout: string
-		stderr: string
+	try {
+		const { stdout } = (await exec_async(`gh ${command}`)) as {
+			stdout: string
+			stderr: string
+		}
+		return stdout.trimEnd()
+	} catch (error) {
+		const exec_error = error as { stderr?: string; stdout?: string; message?: string }
+		const error_message = exec_error.message ?? String(error)
+		const stderr = exec_error.stderr ?? ''
+		const combined_message = stderr.length > 0 ? `${error_message}\n${stderr}` : error_message
+		throw new Error(combined_message)
 	}
-	return stdout.trimEnd()
 }
 
 function is_pr_already_exists_message(error_message: string): boolean {
@@ -99,7 +107,15 @@ async function pr_create(title: string, body: string): Promise<string> {
 }
 
 async function pr_checks(branch_name: string): Promise<string> {
-	return await exec_gh_command(`pr checks ${branch_name}`)
+	try {
+		return await exec_gh_command(`pr checks ${branch_name}`)
+	} catch (error) {
+		const exec_error = error as { stderr?: string; stdout?: string }
+		if (exec_error.stderr !== undefined && exec_error.stderr.length > 0) {
+			throw new Error(exec_error.stderr)
+		}
+		throw error
+	}
 }
 
 async function pr_checks_watch(branch_name: string): Promise<string> {

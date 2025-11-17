@@ -10,6 +10,8 @@ const WAIT_BEFORE_RETRY_SECONDS = 5
 const SECONDS_TO_MILLISECONDS = 1000
 const COUNTDOWN_INTERVAL_MS = 1000
 const COUNTDOWN_PADDING = 20
+const NO_CHECKS_REPORTED_MESSAGE = 'no checks reported'
+const MAX_STATUS_CHECK_RETRIES = 12
 
 function clear_countdown_line(message_length: number): void {
 	const clear_length = message_length + COUNTDOWN_PADDING
@@ -53,27 +55,63 @@ async function wait_for_seconds(seconds: number, countdown_message?: string): Pr
 }
 
 function is_no_checks_reported(output: string): boolean {
-	return output.toLowerCase().includes('no checks reported')
+	return output.toLowerCase().includes(NO_CHECKS_REPORTED_MESSAGE)
+}
+
+function extract_error_message(error: unknown): string {
+	return error instanceof Error ? error.message : String(error)
+}
+
+function is_no_checks_reported_in_error(error_message: string): boolean {
+	return error_message.toLowerCase().includes(NO_CHECKS_REPORTED_MESSAGE)
 }
 
 async function check_pr_status(branch_name: string): Promise<string> {
 	try {
 		return await git_command.pr_checks(branch_name)
-	} catch {
+	} catch (error) {
+		const error_message = extract_error_message(error)
+		if (is_no_checks_reported_in_error(error_message)) {
+			return NO_CHECKS_REPORTED_MESSAGE
+		}
 		return ''
 	}
 }
 
-async function wait_for_status_available(branch_name: string): Promise<void> {
-	for (;;) {
-		const output = await check_pr_status(branch_name)
-		if (output.length > 0 && !is_no_checks_reported(output)) {
-			return
-		}
+function has_valid_checks_output(output: string): boolean {
+	if (output.length === 0) {
+		return false
+	}
+	if (is_no_checks_reported(output)) {
+		return false
+	}
+	return true
+}
+
+function should_retry_status_check(attempt: number): boolean {
+	return attempt < MAX_STATUS_CHECK_RETRIES
+}
+
+async function check_and_wait_for_status(branch_name: string, attempt: number): Promise<boolean> {
+	const output = await check_pr_status(branch_name)
+	if (has_valid_checks_output(output)) {
+		return true
+	}
+	if (should_retry_status_check(attempt)) {
 		await wait_for_seconds(
 			WAIT_BEFORE_RETRY_SECONDS,
 			'⏳ Waiting for status checks to become available',
 		)
+	}
+	return false
+}
+
+async function wait_for_status_available(branch_name: string): Promise<void> {
+	for (let attempt = 1; attempt <= MAX_STATUS_CHECK_RETRIES; attempt += 1) {
+		const is_available = await check_and_wait_for_status(branch_name, attempt)
+		if (is_available) {
+			return
+		}
 	}
 }
 
