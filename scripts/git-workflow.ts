@@ -10,7 +10,7 @@ async function execute_workflow_steps(): Promise<void> {
 	await git_issue.get_and_display()
 }
 
-async function check_package_json_staged(): Promise<boolean> {
+async function confirm_package_json_staged(): Promise<boolean> {
 	const is_package_json_staged: boolean = await git_status.check_package_json_staged()
 	if (!is_package_json_staged) {
 		await git_prompt.confirm_missing_package_json()
@@ -19,17 +19,17 @@ async function check_package_json_staged(): Promise<boolean> {
 	return true
 }
 
-async function check_package_json_version(): Promise<void> {
+async function confirm_package_json_version(): Promise<void> {
 	const is_version_updated: boolean = await git_status.check_package_json_version()
 	if (!is_version_updated) {
 		await git_prompt.confirm_without_version_update()
 	}
 }
 
-async function check_package_json_staging(): Promise<void> {
-	const is_staged = await check_package_json_staged()
+async function check_and_confirm_package_json(): Promise<void> {
+	const is_staged = await confirm_package_json_staged()
 	if (is_staged) {
-		await check_package_json_version()
+		await confirm_package_json_version()
 	}
 }
 
@@ -38,7 +38,7 @@ async function check_and_confirm_staging(): Promise<void> {
 	if (has_unstaged) {
 		await git_prompt.confirm_unstaged_files()
 	}
-	await check_package_json_staging()
+	await check_and_confirm_package_json()
 }
 
 async function main(): Promise<void> {
