@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { animation_helpers } from './git/animation-helpers.js'
 import { git_branch } from './git/git-branch.js'
 import { git_command } from './git/git-command.js'
 import { git_error } from './git/git-error.js'
@@ -46,7 +47,18 @@ async function commit_changes(commit_message: string): Promise<void> {
 		console.info('')
 		return
 	}
-	await git_command.commit(commit_message)
+	await animation_helpers.execute_with_animation(
+		'Committing staged changes...',
+		async () => {
+			await git_command.commit(commit_message)
+			return 'Commit completed.'
+		},
+		{
+			icon_selector: () => '✅',
+			error_message: 'Failed to commit changes',
+			result_formatter: (message) => message,
+		},
+	)
 }
 
 async function execute_workflow_steps(): Promise<void> {
