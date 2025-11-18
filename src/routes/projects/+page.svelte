@@ -5,10 +5,10 @@
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import ProjectList from '$lib/components/ProjectList.svelte'
-	import ChatIcon from '$lib/icons/ChatIcon.svelte'
 	import FilmIcon from '$lib/icons/FilmIcon.svelte'
 	import GlobeIcon from '$lib/icons/GlobeIcon.svelte'
 	import RunningIcon from '$lib/icons/RunningIcon.svelte'
+	import TalkIcon from '$lib/icons/TalkIcon.svelte'
 	import TennisIcon from '$lib/icons/TennisIcon.svelte'
 	import ToolIcon from '$lib/icons/ToolIcon.svelte'
 	import { PAGES } from '$lib/types/page'
@@ -16,7 +16,7 @@
 
 	const projects: Array<Project> = [
 		{
-			icon: ChatIcon,
+			icon: TalkIcon,
 			title: 'Talk',
 			subtitle: 'Language Learning Game',
 			description: "World's first fun language learning game for listening and speaking",
