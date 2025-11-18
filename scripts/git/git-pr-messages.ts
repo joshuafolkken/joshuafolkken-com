@@ -8,6 +8,12 @@ function display_success_message(): void {
 	console.info('')
 }
 
+function display_pr_url(pr_url: string): void {
+	console.info('')
+	console.info(`🔗 PR: ${pr_url}`)
+	console.info('')
+}
+
 function display_error_message(): void {
 	console.info('')
 	console.info('⚠️  PR has conflicts or merge issues.')
@@ -31,6 +37,7 @@ const git_pr_messages = {
 	display_error_message,
 	display_merged_pr_message,
 	display_pr_exists_message,
+	display_pr_url,
 }
 
 export { git_pr_messages }

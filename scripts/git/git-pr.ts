@@ -57,6 +57,11 @@ async function wait_and_check_status(branch_name: string): Promise<void> {
 	} else {
 		git_pr_messages.display_success_message()
 	}
+
+	const pr_url = await git_gh_command.pr_get_url(branch_name)
+	if (pr_url !== undefined) {
+		git_pr_messages.display_pr_url(pr_url)
+	}
 }
 
 const PR_STATE_MERGED = 'MERGED'
