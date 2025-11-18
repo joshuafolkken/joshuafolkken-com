@@ -39,14 +39,18 @@ function handle_animation_error(
 	throw new Error(get_error_message(error_message), { cause: error })
 }
 
+type CommandExecutor<T> = (pause_animation?: () => void) => Promise<T>
+
 async function execute_with_animation<T>(
 	message: string,
-	command_executor: () => Promise<T>,
+	command_executor: CommandExecutor<T>,
 	options?: AnimationOptions<T>,
 ): Promise<T> {
 	const animation = git_animation.create_animation(message)
 	try {
-		const result = await command_executor()
+		const result = await command_executor(() => {
+			animation.pause()
+		})
 		handle_animation_success(animation, result, options)
 		return result
 	} catch (error) {
