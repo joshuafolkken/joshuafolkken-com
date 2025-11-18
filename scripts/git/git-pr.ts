@@ -46,10 +46,19 @@ async function watch_pr_checks(branch_name: string): Promise<void> {
 	await git_gh_command.pr_checks_watch(branch_name)
 }
 
-async function wait_and_check_status(branch_name: string): Promise<void> {
-	await wait_before_check()
-	await watch_pr_checks(branch_name)
+async function display_pr_url_if_available(branch_name: string): Promise<void> {
+	const pr_url = await git_gh_command.pr_get_url(branch_name)
+	if (pr_url !== undefined) {
+		git_pr_messages.display_pr_url(pr_url)
+	}
+}
 
+async function handle_watch_error(branch_name: string, error: unknown): Promise<never> {
+	await display_pr_url_if_available(branch_name)
+	throw error
+}
+
+async function check_and_display_status(branch_name: string): Promise<void> {
 	const has_errors = await git_conflict.check_pr_status_for_errors(branch_name)
 
 	if (has_errors) {
@@ -58,10 +67,18 @@ async function wait_and_check_status(branch_name: string): Promise<void> {
 		git_pr_messages.display_success_message()
 	}
 
-	const pr_url = await git_gh_command.pr_get_url(branch_name)
-	if (pr_url !== undefined) {
-		git_pr_messages.display_pr_url(pr_url)
+	await display_pr_url_if_available(branch_name)
+}
+
+async function wait_and_check_status(branch_name: string): Promise<void> {
+	await wait_before_check()
+	try {
+		await watch_pr_checks(branch_name)
+	} catch (error) {
+		await handle_watch_error(branch_name, error)
 	}
+
+	await check_and_display_status(branch_name)
 }
 
 const PR_STATE_MERGED = 'MERGED'

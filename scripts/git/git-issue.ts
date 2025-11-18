@@ -27,7 +27,14 @@ function extract_issue_title(input: string): string {
 }
 
 function normalize_title_for_branch(title: string): string {
-	return title.toLowerCase().replaceAll(/\s+/gu, '-')
+	const replaced = title
+		.toLowerCase()
+		.normalize('NFKD')
+		.replaceAll(/[^a-z0-9]+/gu, '-')
+		.replaceAll(/-+/gu, '-')
+		.replaceAll(/(^-)|(-$)/gu, '')
+
+	return replaced.length === 0 ? 'update' : replaced
 }
 
 function create_branch_name(issue_number: string, title: string): string {
