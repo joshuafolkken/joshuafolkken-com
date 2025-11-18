@@ -2,6 +2,14 @@ import { animation_helpers, type AnimationOptions } from './animation-helpers.js
 import { git_command } from './git-command.js'
 import { git_error } from './git-error.js'
 
+function create_branch_operation_config(error_message: string): AnimationOptions<string> {
+	return {
+		error_message,
+		icon_selector: () => '✅',
+		result_formatter: (message) => message,
+	}
+}
+
 async function current(): Promise<string> {
 	const config: AnimationOptions<string> = {
 		error_message: 'Failed to get current branch',
@@ -14,11 +22,7 @@ async function current(): Promise<string> {
 }
 
 async function create(branch_name: string): Promise<void> {
-	const config: AnimationOptions<string> = {
-		error_message: 'Failed to create branch',
-		icon_selector: () => '✅',
-		result_formatter: (message) => message,
-	}
+	const config = create_branch_operation_config('Failed to create branch')
 	await animation_helpers.execute_with_animation(
 		`Creating branch: ${branch_name}...`,
 		async () => {
@@ -30,11 +34,7 @@ async function create(branch_name: string): Promise<void> {
 }
 
 async function switch_to(branch_name: string): Promise<void> {
-	const config: AnimationOptions<string> = {
-		error_message: 'Failed to switch branch',
-		icon_selector: () => '✅',
-		result_formatter: (message) => message,
-	}
+	const config = create_branch_operation_config('Failed to switch branch')
 	await animation_helpers.execute_with_animation(
 		`Switching to branch: ${branch_name}...`,
 		async () => {

@@ -8,9 +8,11 @@ import { git_prompt } from './git/git-prompt.js'
 import { git_push } from './git/git-push.js'
 import { git_staging } from './git/git-staging.js'
 
-const SKIP_MESSAGE_COMMIT = '💡 Commit skipped.'
-const SKIP_MESSAGE_PUSH = '💡 Push skipped.'
-const SKIP_MESSAGE_PR = '💡 PR skipped.'
+const SKIP_MESSAGES = {
+	commit: '💡 Commit skipped.',
+	push: '💡 Push skipped.',
+	pr: '💡 PR skipped.',
+} as const
 
 type ConfirmAction = () => Promise<boolean>
 type WorkflowAction = () => Promise<void>
@@ -28,31 +30,21 @@ async function execute_with_confirmation(
 	await action()
 }
 
-function build_pr_title(issue_info: IssueInfo): string {
-	return `${issue_info.title} #${issue_info.number}`
-}
-
-function build_pr_body(issue_info: IssueInfo): string {
-	return `closes #${issue_info.number}`
-}
-
 async function commit_changes(commit_message: string): Promise<void> {
-	await execute_with_confirmation(git_prompt.confirm_commit, SKIP_MESSAGE_COMMIT, async () => {
+	await execute_with_confirmation(git_prompt.confirm_commit, SKIP_MESSAGES.commit, async () => {
 		await git_commit.commit(commit_message)
 	})
 }
 
 async function push_changes(): Promise<void> {
-	await execute_with_confirmation(git_prompt.confirm_push, SKIP_MESSAGE_PUSH, async () => {
+	await execute_with_confirmation(git_prompt.confirm_push, SKIP_MESSAGES.push, async () => {
 		await git_push.push()
 	})
 }
 
 async function create_pr(issue_info: IssueInfo): Promise<void> {
-	const title = build_pr_title(issue_info)
-	const body = build_pr_body(issue_info)
-	await execute_with_confirmation(git_prompt.confirm_pr, SKIP_MESSAGE_PR, async () => {
-		await git_pr.create(title, body, issue_info.branch_name)
+	await execute_with_confirmation(git_prompt.confirm_pr, SKIP_MESSAGES.pr, async () => {
+		await git_pr.create_with_issue_info(issue_info)
 	})
 }
 

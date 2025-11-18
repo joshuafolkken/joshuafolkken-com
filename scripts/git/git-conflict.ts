@@ -71,20 +71,25 @@ function display_conflict_warning(): void {
 	process.exit(1)
 }
 
-async function check_pr_status_for_errors(branch_name: string): Promise<boolean> {
+async function get_pr_info_safe(branch_name: string): Promise<string | undefined> {
 	try {
 		const pr_info_json = await git_gh_command.pr_view(branch_name)
-		if (pr_info_json.length === 0) {
-			return false
-		}
-		if (has_conflicts(pr_info_json)) {
-			display_conflict_warning()
-			return true
-		}
-		return false
+		return pr_info_json.length > 0 ? pr_info_json : undefined
 	} catch {
+		return undefined
+	}
+}
+
+async function check_pr_status_for_errors(branch_name: string): Promise<boolean> {
+	const pr_info_json = await get_pr_info_safe(branch_name)
+	if (pr_info_json === undefined) {
 		return false
 	}
+	if (has_conflicts(pr_info_json)) {
+		display_conflict_warning()
+		return true
+	}
+	return false
 }
 
 const git_conflict = {

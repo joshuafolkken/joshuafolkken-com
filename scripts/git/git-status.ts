@@ -71,12 +71,29 @@ function is_package_json_staged(status_output: string): boolean {
 	})
 }
 
-async function check_unstaged(): Promise<boolean> {
-	const config: AnimationOptions<boolean> = {
-		icon_selector: (has_unstaged) => (has_unstaged ? WARNING_ICON : undefined),
-		error_message: 'Failed to check unstaged files',
-		result_formatter: (has_unstaged) => (has_unstaged ? 'Found' : 'None'),
+function create_status_check_config(
+	has_warning: (result: boolean) => boolean,
+	error_message: string,
+	result_formatter: (result: boolean) => string,
+): AnimationOptions<boolean> {
+	return {
+		icon_selector: (result) => (has_warning(result) ? WARNING_ICON : undefined),
+		error_message,
+		result_formatter,
 	}
+}
+
+function is_version_updated_in_diff(diff_output: string): boolean {
+	const version_pattern = /^[+-].*"version"\s*:/u
+	return diff_output.split(/\r?\n/u).some((line) => version_pattern.test(line))
+}
+
+async function check_unstaged(): Promise<boolean> {
+	const config = create_status_check_config(
+		(has_unstaged) => has_unstaged,
+		'Failed to check unstaged files',
+		(has_unstaged) => (has_unstaged ? 'Found' : 'None'),
+	)
 	return await animation_helpers.execute_with_animation(
 		'Checking unstaged files...',
 		async () => {
@@ -88,11 +105,11 @@ async function check_unstaged(): Promise<boolean> {
 }
 
 async function check_all_staged(): Promise<boolean> {
-	const config: AnimationOptions<boolean> = {
-		icon_selector: (all_staged) => (all_staged ? undefined : WARNING_ICON),
-		error_message: 'Failed to check staged files',
-		result_formatter: (all_staged) => (all_staged ? 'All staged' : 'Not all staged'),
-	}
+	const config = create_status_check_config(
+		(all_staged) => !all_staged,
+		'Failed to check staged files',
+		(all_staged) => (all_staged ? 'All staged' : 'Not all staged'),
+	)
 	return await animation_helpers.execute_with_animation(
 		'Checking if all files are staged...',
 		async () => {
@@ -104,11 +121,11 @@ async function check_all_staged(): Promise<boolean> {
 }
 
 async function check_package_json_staged(): Promise<boolean> {
-	const config: AnimationOptions<boolean> = {
-		icon_selector: (is_staged) => (is_staged ? undefined : WARNING_ICON),
-		error_message: 'Failed to check package.json staging status',
-		result_formatter: (is_staged) => (is_staged ? 'Staged' : 'Not staged'),
-	}
+	const config = create_status_check_config(
+		(is_staged) => !is_staged,
+		'Failed to check package.json staging status',
+		(is_staged) => (is_staged ? 'Staged' : 'Not staged'),
+	)
 	return await animation_helpers.execute_with_animation(
 		'Checking if package.json is staged...',
 		async () => {
@@ -119,17 +136,12 @@ async function check_package_json_staged(): Promise<boolean> {
 	)
 }
 
-function is_version_updated_in_diff(diff_output: string): boolean {
-	const version_pattern = /^[+-].*"version"\s*:/u
-	return diff_output.split(/\r?\n/u).some((line) => version_pattern.test(line))
-}
-
 async function check_package_json_version(): Promise<boolean> {
-	const config: AnimationOptions<boolean> = {
-		icon_selector: (is_updated) => (is_updated ? undefined : WARNING_ICON),
-		error_message: 'Failed to check package.json version update',
-		result_formatter: (is_updated) => (is_updated ? 'Updated' : 'Not updated'),
-	}
+	const config = create_status_check_config(
+		(is_updated) => !is_updated,
+		'Failed to check package.json version update',
+		(is_updated) => (is_updated ? 'Updated' : 'Not updated'),
+	)
 	return await animation_helpers.execute_with_animation(
 		'Checking if package.json version is updated...',
 		async () => {

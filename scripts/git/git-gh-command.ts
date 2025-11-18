@@ -3,6 +3,13 @@ import { promisify } from 'node:util'
 
 const exec_async = promisify(exec)
 
+function build_error_message(error: unknown): string {
+	const exec_error = error as { stderr?: string; stdout?: string; message?: string }
+	const error_message = exec_error.message ?? String(error)
+	const stderr = exec_error.stderr ?? ''
+	return stderr.length > 0 ? `${error_message}\n${stderr}` : error_message
+}
+
 async function exec_gh_command(command: string): Promise<string> {
 	try {
 		const { stdout } = (await exec_async(`gh ${command}`)) as {
@@ -11,11 +18,7 @@ async function exec_gh_command(command: string): Promise<string> {
 		}
 		return stdout.trimEnd()
 	} catch (error) {
-		const exec_error = error as { stderr?: string; stdout?: string; message?: string }
-		const error_message = exec_error.message ?? String(error)
-		const stderr = exec_error.stderr ?? ''
-		const combined_message = stderr.length > 0 ? `${error_message}\n${stderr}` : error_message
-		throw new Error(combined_message)
+		throw new Error(build_error_message(error))
 	}
 }
 
@@ -108,12 +111,31 @@ async function pr_view(branch_name: string): Promise<string> {
 	}
 }
 
+function parse_pr_state_string(result: string): string | undefined {
+	const trimmed = result.trim()
+	if (trimmed.length === 0) {
+		return undefined
+	}
+	const without_quotes = trimmed.replaceAll(/(?:^")|(?:"$)/gu, '')
+	return without_quotes.length > 0 ? without_quotes : undefined
+}
+
+async function pr_get_state(branch_name: string): Promise<string | undefined> {
+	try {
+		const result: string = await exec_gh_command(`pr view ${branch_name} --json state --jq .state`)
+		return parse_pr_state_string(result)
+	} catch {
+		return undefined
+	}
+}
+
 const git_gh_command = {
 	pr_create,
 	pr_checks,
 	pr_checks_watch,
 	pr_exists,
 	pr_view,
+	pr_get_state,
 }
 
 export { git_gh_command }
