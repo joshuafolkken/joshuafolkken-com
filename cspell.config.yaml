@@ -39,3 +39,7 @@ words:
   - Stylesheet
   - appleboy
   - autorestart
+  - Caddyfile
+  - zstd
+  - redir
+  - fastcgi

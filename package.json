@@ -1,7 +1,7 @@
 {
 	"name": "joshuafolkken-com",
 	"private": true,
-	"version": "0.30.1",
+	"version": "0.31.0",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
@@ -22,7 +22,7 @@
 		"lefthook:push": "lefthook run pre-push",
 		"check-commit-message": "tsx scripts/check-commit-message.ts",
 		"prevent-main-commit": "tsx scripts/prevent-main-commit.ts",
-		"git-workflow": "tsx scripts/git-workflow.ts"
+		"git": "tsx scripts/git-workflow.ts"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^2.0.0",
