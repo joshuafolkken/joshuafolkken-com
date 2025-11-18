@@ -13,11 +13,20 @@ async function exec_git_command(command: string): Promise<string> {
 	return stdout.trimEnd()
 }
 
+function create_spawn_error(command: string, exit_code: number | null): Error {
+	const exit_code_string = exit_code === null ? 'unknown' : String(exit_code)
+	const error_message = `git ${command} exited with code ${exit_code_string}`
+	const error = new Error(error_message)
+	error.cause = { exit_code: exit_code_string }
+	return error
+}
+
 async function exec_git_command_with_output(
 	command: string,
 	arguments_list: Array<string>,
 ): Promise<void> {
 	const git_command: string = git_utilities.get_git_command()
+	console.info('')
 	await new Promise<void>((resolve, reject) => {
 		const child = spawn(git_command, [command, ...arguments_list], {
 			stdio: 'inherit',
@@ -32,8 +41,7 @@ async function exec_git_command_with_output(
 			if (code === 0) {
 				resolve()
 			} else {
-				const exit_code = code === null ? 'unknown' : String(code)
-				reject(new Error(`git ${command} exited with code ${exit_code}`))
+				reject(create_spawn_error(command, code))
 			}
 		})
 	})
