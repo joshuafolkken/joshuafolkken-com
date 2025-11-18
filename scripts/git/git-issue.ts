@@ -26,8 +26,12 @@ function extract_issue_title(input: string): string {
 	return title
 }
 
+function normalize_title_for_branch(title: string): string {
+	return title.toLowerCase().replaceAll(/\s+/gu, '-')
+}
+
 function create_branch_name(issue_number: string, title: string): string {
-	const kebab_title = title.toLowerCase().replaceAll(/\s+/gu, '-')
+	const kebab_title = normalize_title_for_branch(title)
 	return `${issue_number}-${kebab_title}`
 }
 

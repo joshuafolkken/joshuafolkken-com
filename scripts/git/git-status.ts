@@ -1,4 +1,4 @@
-import { animation_helpers } from './animation-helpers.js'
+import { animation_helpers, type AnimationOptions } from './animation-helpers.js'
 import { REQUIRED_STATUS_LENGTH, STAGED_STATUS_INDEX, UNTRACKED_FILE_PREFIX } from './constants.js'
 import { git_command } from './git-command.js'
 
@@ -71,49 +71,16 @@ function is_package_json_staged(status_output: string): boolean {
 	})
 }
 
-async function check_unstaged(): Promise<boolean> {
-	return await animation_helpers.execute_with_animation(
-		'Checking unstaged files...',
-		async () => {
-			const status_output = await git_command.status()
-			return has_unstaged_files(status_output)
-		},
-		{
-			icon_selector: (has_unstaged) => (has_unstaged ? WARNING_ICON : undefined),
-			error_message: 'Failed to check unstaged files',
-			result_formatter: (has_unstaged) => (has_unstaged ? 'Found' : 'None'),
-		},
-	)
-}
-
-async function check_all_staged(): Promise<boolean> {
-	return await animation_helpers.execute_with_animation(
-		'Checking if all files are staged...',
-		async () => {
-			const status_output = await git_command.status()
-			return has_all_files_staged(status_output)
-		},
-		{
-			icon_selector: (all_staged) => (all_staged ? undefined : WARNING_ICON),
-			error_message: 'Failed to check staged files',
-			result_formatter: (all_staged) => (all_staged ? 'All staged' : 'Not all staged'),
-		},
-	)
-}
-
-async function check_package_json_staged(): Promise<boolean> {
-	return await animation_helpers.execute_with_animation(
-		'Checking if package.json is staged...',
-		async () => {
-			const status_output = await git_command.status()
-			return is_package_json_staged(status_output)
-		},
-		{
-			icon_selector: (is_staged) => (is_staged ? undefined : WARNING_ICON),
-			error_message: 'Failed to check package.json staging status',
-			result_formatter: (is_staged) => (is_staged ? 'Staged' : 'Not staged'),
-		},
-	)
+function create_status_check_config(
+	has_warning: (result: boolean) => boolean,
+	error_message: string,
+	result_formatter: (result: boolean) => string,
+): AnimationOptions<boolean> {
+	return {
+		icon_selector: (result) => (has_warning(result) ? WARNING_ICON : undefined),
+		error_message,
+		result_formatter,
+	}
 }
 
 function is_version_updated_in_diff(diff_output: string): boolean {
@@ -121,18 +88,67 @@ function is_version_updated_in_diff(diff_output: string): boolean {
 	return diff_output.split(/\r?\n/u).some((line) => version_pattern.test(line))
 }
 
+async function check_unstaged(): Promise<boolean> {
+	const config = create_status_check_config(
+		(has_unstaged) => has_unstaged,
+		'Failed to check unstaged files',
+		(has_unstaged) => (has_unstaged ? 'Found' : 'None'),
+	)
+	return await animation_helpers.execute_with_animation(
+		'Checking unstaged files...',
+		async () => {
+			const status_output = await git_command.status()
+			return has_unstaged_files(status_output)
+		},
+		config,
+	)
+}
+
+async function check_all_staged(): Promise<boolean> {
+	const config = create_status_check_config(
+		(all_staged) => !all_staged,
+		'Failed to check staged files',
+		(all_staged) => (all_staged ? 'All staged' : 'Not all staged'),
+	)
+	return await animation_helpers.execute_with_animation(
+		'Checking if all files are staged...',
+		async () => {
+			const status_output = await git_command.status()
+			return has_all_files_staged(status_output)
+		},
+		config,
+	)
+}
+
+async function check_package_json_staged(): Promise<boolean> {
+	const config = create_status_check_config(
+		(is_staged) => !is_staged,
+		'Failed to check package.json staging status',
+		(is_staged) => (is_staged ? 'Staged' : 'Not staged'),
+	)
+	return await animation_helpers.execute_with_animation(
+		'Checking if package.json is staged...',
+		async () => {
+			const status_output = await git_command.status()
+			return is_package_json_staged(status_output)
+		},
+		config,
+	)
+}
+
 async function check_package_json_version(): Promise<boolean> {
+	const config = create_status_check_config(
+		(is_updated) => !is_updated,
+		'Failed to check package.json version update',
+		(is_updated) => (is_updated ? 'Updated' : 'Not updated'),
+	)
 	return await animation_helpers.execute_with_animation(
 		'Checking if package.json version is updated...',
 		async () => {
 			const diff_output: string = await git_command.diff_cached(PACKAGE_JSON_FILE)
 			return is_version_updated_in_diff(diff_output)
 		},
-		{
-			icon_selector: (is_updated) => (is_updated ? undefined : WARNING_ICON),
-			error_message: 'Failed to check package.json version update',
-			result_formatter: (is_updated) => (is_updated ? 'Updated' : 'Not updated'),
-		},
+		config,
 	)
 }
 

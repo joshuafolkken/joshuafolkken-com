@@ -1,21 +1,19 @@
 import { stdin as input, stdout as output } from 'node:process'
 import { createInterface, type Interface } from 'node:readline/promises'
-import { SEPARATOR_LINE } from './constants.js'
+import { git_prompt_display } from './git-prompt-display.js'
 
 const OPERATION_CANCELLED_MESSAGE = '💡 Operation cancelled.'
 
-function display_start_separator(): void {
-	console.info('')
-	console.info(SEPARATOR_LINE)
-}
+const PROMPT_MESSAGES = {
+	unstaged_files: '💬 Unstaged files found. Continue anyway? (y/n): ',
+	package_json_not_staged: '💬 package.json is not staged. Continue anyway? (y/n): ',
+	version_not_updated: '💬 package.json version is not updated. Continue anyway? (y/n): ',
+	commit: '💬 Commit staged changes now? (y/n): ',
+	push: '💬 Push changes to remote? (y/n): ',
+	pr: '💬 Create pull request? (y/n): ',
+} as const
 
-function display_end_separator(): void {
-	console.info(SEPARATOR_LINE)
-}
-
-function display_invalid_answer_message(): void {
-	console.info('💡 Reply y / n.')
-}
+type PromptCallback<T> = (prompt: Interface) => Promise<T>
 
 function is_valid_yes_no_answer(answer: string): boolean {
 	return answer === 'y' || answer === 'n'
@@ -27,17 +25,17 @@ async function ask_yes_no_internal(
 	is_first_call: boolean,
 ): Promise<boolean> {
 	if (is_first_call) {
-		display_start_separator()
+		git_prompt_display.display_start_separator()
 	}
 	const raw_answer: unknown = await prompt.question(question)
 	const answer = String(raw_answer).trim().toLowerCase()
 
 	if (!is_valid_yes_no_answer(answer)) {
-		display_invalid_answer_message()
+		git_prompt_display.display_invalid_answer_message()
 		return await ask_yes_no_internal(prompt, question, false)
 	}
 
-	display_end_separator()
+	git_prompt_display.display_end_separator()
 	return answer === 'y'
 }
 
@@ -56,10 +54,7 @@ function handle_prompt_fallback<T>(fallback_value?: T): T {
 	throw new Error('TTY not available')
 }
 
-async function with_prompt<T>(
-	callback: (prompt: Interface) => Promise<T>,
-	fallback_value?: T,
-): Promise<T> {
+async function with_prompt<T>(callback: PromptCallback<T>, fallback_value?: T): Promise<T> {
 	const prompt = create_prompt()
 
 	if (prompt === undefined) {
@@ -74,82 +69,62 @@ async function with_prompt<T>(
 	}
 }
 
-async function confirm_continue(): Promise<boolean> {
-	return await with_prompt(
-		async (prompt) => await ask_yes_no(prompt, '💬 Unstaged files found. Continue anyway? (y/n): '),
-		false,
-	)
-}
-
-async function confirm_unstaged_files(): Promise<void> {
-	const should_continue = await confirm_continue()
+async function confirm_with_exit_on_cancel(confirm_action: () => Promise<boolean>): Promise<void> {
+	const should_continue = await confirm_action()
 	if (!should_continue) {
 		console.info(OPERATION_CANCELLED_MESSAGE)
 		console.info('')
 		process.exit(1)
 	}
+}
+
+function create_confirm_function(message: string): () => Promise<boolean> {
+	return async (): Promise<boolean> => {
+		return await with_prompt(async (prompt) => await ask_yes_no(prompt, message), false)
+	}
+}
+
+async function confirm_continue(): Promise<boolean> {
+	return await create_confirm_function(PROMPT_MESSAGES.unstaged_files)()
 }
 
 async function confirm_without_package_json(): Promise<boolean> {
-	return await with_prompt(
-		async (prompt) =>
-			await ask_yes_no(prompt, '💬 package.json is not staged. Continue anyway? (y/n): '),
-		false,
-	)
+	return await create_confirm_function(PROMPT_MESSAGES.package_json_not_staged)()
+}
+
+async function confirm_unstaged_files(): Promise<void> {
+	await confirm_with_exit_on_cancel(confirm_continue)
 }
 
 async function confirm_missing_package_json(): Promise<void> {
-	const should_continue = await confirm_without_package_json()
-	if (!should_continue) {
-		console.info(OPERATION_CANCELLED_MESSAGE)
-		console.info('')
-		process.exit(1)
-	}
+	await confirm_with_exit_on_cancel(confirm_without_package_json)
 }
 
 async function confirm_version_not_updated(): Promise<boolean> {
-	return await with_prompt(
-		async (prompt) =>
-			await ask_yes_no(prompt, '💬 package.json version is not updated. Continue anyway? (y/n): '),
-		false,
-	)
+	return await create_confirm_function(PROMPT_MESSAGES.version_not_updated)()
 }
 
 async function confirm_without_version_update(): Promise<void> {
-	const should_continue = await confirm_version_not_updated()
-	if (!should_continue) {
-		console.info(OPERATION_CANCELLED_MESSAGE)
-		console.info('')
-		process.exit(1)
-	}
+	await confirm_with_exit_on_cancel(confirm_version_not_updated)
 }
 
 async function confirm_commit(): Promise<boolean> {
-	return await with_prompt(
-		async (prompt) => await ask_yes_no(prompt, '💬 Commit staged changes now? (y/n): '),
-		false,
-	)
+	return await create_confirm_function(PROMPT_MESSAGES.commit)()
 }
 
 async function confirm_push(): Promise<boolean> {
-	return await with_prompt(
-		async (prompt) => await ask_yes_no(prompt, '💬 Push changes to remote? (y/n): '),
-		false,
-	)
+	return await create_confirm_function(PROMPT_MESSAGES.push)()
 }
 
 async function confirm_pr(): Promise<boolean> {
-	return await with_prompt(
-		async (prompt) => await ask_yes_no(prompt, '💬 Create pull request? (y/n): '),
-		false,
-	)
+	return await create_confirm_function(PROMPT_MESSAGES.pr)()
 }
 
 async function ask_issue_info(prompt: Interface, question: string): Promise<string> {
-	display_start_separator()
+	git_prompt_display.display_start_separator()
 	const raw_answer: unknown = await prompt.question(question)
 	const answer = String(raw_answer)
-	display_end_separator()
+	git_prompt_display.display_end_separator()
 	return answer.trim()
 }
 

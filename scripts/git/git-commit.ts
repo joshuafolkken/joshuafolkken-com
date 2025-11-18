@@ -1,18 +1,23 @@
-import { animation_helpers } from './animation-helpers.js'
+import { animation_helpers, type AnimationOptions } from './animation-helpers.js'
 import { git_command } from './git-command.js'
 
+function create_git_operation_config(error_message: string): AnimationOptions<string> {
+	return {
+		error_message,
+		icon_selector: () => '✅',
+		result_formatter: (message) => message,
+	}
+}
+
 async function commit(commit_message: string): Promise<void> {
+	const config = create_git_operation_config('Failed to commit changes')
 	await animation_helpers.execute_with_animation(
 		'Committing staged changes...',
 		async () => {
 			await git_command.commit(commit_message)
 			return 'Commit completed.'
 		},
-		{
-			icon_selector: () => '✅',
-			error_message: 'Failed to commit changes',
-			result_formatter: (message) => message,
-		},
+		config,
 	)
 }
 

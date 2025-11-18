@@ -1,57 +1,61 @@
-import { animation_helpers } from './animation-helpers.js'
+import { animation_helpers, type AnimationOptions } from './animation-helpers.js'
 import { git_command } from './git-command.js'
 import { git_error } from './git-error.js'
 
+function create_branch_operation_config(error_message: string): AnimationOptions<string> {
+	return {
+		error_message,
+		icon_selector: () => '✅',
+		result_formatter: (message) => message,
+	}
+}
+
 async function current(): Promise<string> {
+	const config: AnimationOptions<string> = {
+		error_message: 'Failed to get current branch',
+	}
 	return await animation_helpers.execute_with_animation(
 		'Getting current branch...',
 		git_command.branch,
-		{
-			error_message: 'Failed to get current branch',
-		},
+		config,
 	)
 }
 
 async function create(branch_name: string): Promise<void> {
+	const config = create_branch_operation_config('Failed to create branch')
 	await animation_helpers.execute_with_animation(
 		`Creating branch: ${branch_name}...`,
 		async () => {
 			await git_command.checkout_b(branch_name)
 			return `Branch created: ${branch_name}`
 		},
-		{
-			error_message: 'Failed to create branch',
-			icon_selector: () => '✅',
-			result_formatter: (message) => message,
-		},
+		config,
 	)
 }
 
 async function switch_to(branch_name: string): Promise<void> {
+	const config = create_branch_operation_config('Failed to switch branch')
 	await animation_helpers.execute_with_animation(
 		`Switching to branch: ${branch_name}...`,
 		async () => {
 			await git_command.checkout(branch_name)
 			return `Switched to branch: ${branch_name}`
 		},
-		{
-			error_message: 'Failed to switch branch',
-			icon_selector: () => '✅',
-			result_formatter: (message) => message,
-		},
+		config,
 	)
 }
 
 async function exists(branch_name: string): Promise<boolean> {
+	const config: AnimationOptions<boolean> = {
+		error_message: 'Failed to check branch existence',
+		result_formatter: (is_exists: boolean) => (is_exists ? 'Exists' : 'Not found'),
+	}
 	return await animation_helpers.execute_with_animation(
 		'Checking if branch exists...',
 		async () => {
 			return await git_command.branch_exists(branch_name)
 		},
-		{
-			error_message: 'Failed to check branch existence',
-			result_formatter: (is_exists: boolean) => (is_exists ? 'Exists' : 'Not found'),
-		},
+		config,
 	)
 }
 
