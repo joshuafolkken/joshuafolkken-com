@@ -10,7 +10,6 @@ function display_success_message(): void {
 function display_pr_url(pr_url: string): void {
 	console.info('')
 	console.info(`🔗 PR: ${pr_url}`)
-	console.info('')
 }
 
 function display_error_message(): void {
