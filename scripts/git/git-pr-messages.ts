@@ -5,6 +5,11 @@ function display_success_message(): void {
 	console.info('✅ All checks passed successfully.')
 	console.info('')
 	console.info('PR is ready for review.')
+}
+
+function display_pr_url(pr_url: string): void {
+	console.info('')
+	console.info(`🔗 PR: ${pr_url}`)
 	console.info('')
 }
 
@@ -31,6 +36,7 @@ const git_pr_messages = {
 	display_error_message,
 	display_merged_pr_message,
 	display_pr_exists_message,
+	display_pr_url,
 }
 
 export { git_pr_messages }

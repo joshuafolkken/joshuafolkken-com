@@ -43,6 +43,18 @@ async function ask_yes_no(prompt: Interface, question: string): Promise<boolean>
 	return await ask_yes_no_internal(prompt, question, true)
 }
 
+async function ask_yes_no_simple(prompt: Interface, question: string): Promise<boolean> {
+	const raw_answer: unknown = await prompt.question(question)
+	const answer = String(raw_answer).trim().toLowerCase()
+
+	if (!is_valid_yes_no_answer(answer)) {
+		git_prompt_display.display_invalid_answer_message()
+		return await ask_yes_no_simple(prompt, question)
+	}
+
+	return answer === 'y'
+}
+
 function create_prompt(): Interface | undefined {
 	return process.stdin.isTTY ? createInterface({ input, output }) : undefined
 }
@@ -138,6 +150,33 @@ async function get_issue_info(): Promise<string> {
 	})
 }
 
+interface WorkflowConfirmations {
+	commit: boolean
+	push: boolean
+	pr: boolean
+}
+
+async function confirm_workflow_steps(): Promise<WorkflowConfirmations> {
+	const fallback: WorkflowConfirmations = { commit: false, push: false, pr: false }
+	return await with_prompt(async (prompt) => {
+		git_prompt_display.display_start_separator()
+		console.info('💬 Confirm workflow steps:')
+		console.info('')
+
+		const should_commit = await ask_yes_no_simple(prompt, PROMPT_MESSAGES.commit)
+		const should_push = await ask_yes_no_simple(prompt, PROMPT_MESSAGES.push)
+		const should_create_pr = await ask_yes_no_simple(prompt, PROMPT_MESSAGES.pr)
+
+		git_prompt_display.display_end_separator()
+
+		return {
+			commit: should_commit,
+			push: should_push,
+			pr: should_create_pr,
+		}
+	}, fallback)
+}
+
 const git_prompt = {
 	confirm_continue,
 	confirm_unstaged_files,
@@ -149,6 +188,8 @@ const git_prompt = {
 	confirm_push,
 	confirm_pr,
 	get_issue_info,
+	confirm_workflow_steps,
 }
 
+export type { WorkflowConfirmations }
 export { git_prompt }

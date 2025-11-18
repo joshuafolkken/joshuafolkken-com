@@ -8,6 +8,16 @@ type AnimationStopFunction = (result?: string, icon?: string) => void
 
 interface AnimationController {
 	stop: AnimationStopFunction
+	pause: () => void
+}
+
+function create_pause_function(interval_id: NodeJS.Timeout, message: string): () => void {
+	return () => {
+		clearInterval(interval_id)
+		const clear_length = message.length + CLEAR_PADDING
+		process.stdout.write(`\r${' '.repeat(clear_length)}\r`)
+		process.stdout.write('\n')
+	}
 }
 
 function create_stop_function(interval_id: NodeJS.Timeout, message: string): AnimationStopFunction {
@@ -34,6 +44,9 @@ function create_animation(message: string): AnimationController {
 			stop: () => {
 				// No-op when not in TTY
 			},
+			pause: () => {
+				// No-op when not in TTY
+			},
 		}
 	}
 
@@ -51,6 +64,7 @@ function create_animation(message: string): AnimationController {
 
 	return {
 		stop: create_stop_function(interval_id, message),
+		pause: create_pause_function(interval_id, message),
 	}
 }
 

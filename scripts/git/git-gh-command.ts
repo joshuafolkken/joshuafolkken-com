@@ -111,6 +111,20 @@ async function pr_view(branch_name: string): Promise<string> {
 	}
 }
 
+async function pr_get_url(branch_name: string): Promise<string | undefined> {
+	try {
+		const result: string = await exec_gh_command(`pr view ${branch_name} --json url --jq .url`)
+		const trimmed = result.trim()
+		if (trimmed.length === 0) {
+			return undefined
+		}
+		const without_quotes = trimmed.replaceAll(/(?:^")|(?:"$)/gu, '')
+		return without_quotes.length > 0 ? without_quotes : undefined
+	} catch {
+		return undefined
+	}
+}
+
 function parse_pr_state_string(result: string): string | undefined {
 	const trimmed = result.trim()
 	if (trimmed.length === 0) {
@@ -136,6 +150,7 @@ const git_gh_command = {
 	pr_exists,
 	pr_view,
 	pr_get_state,
+	pr_get_url,
 }
 
 export { git_gh_command }
