@@ -12,6 +12,9 @@
 	<PageHeader page={PAGES.TOP} />
 
 	<Divider />
+	<LinkCard page={PAGES.TALK} />
+
+	<Divider />
 	<LinkCard page={PAGES.PROJECTS} />
 
 	<Divider />

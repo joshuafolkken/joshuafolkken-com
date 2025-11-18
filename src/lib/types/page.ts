@@ -3,6 +3,7 @@ import LinkIcon from '$lib/icons/LinkIcon.svelte'
 import OpenCollectiveIcon from '$lib/icons/OpenCollectiveIcon.svelte'
 import PrivacyPolicyIcon from '$lib/icons/PrivacyPolicyIcon.svelte'
 import ProjectsIcon from '$lib/icons/ProjectsIcon.svelte'
+import TalkIcon from '$lib/icons/TalkIcon.svelte'
 import UserIcon from '$lib/icons/UserIcon.svelte'
 import type { Component } from 'svelte'
 
@@ -16,6 +17,13 @@ interface Page {
 const TOP: Page = {
 	title: APP.NAME,
 	description: APP.DESCRIPTION,
+}
+
+const TALK: Page = {
+	icon: TalkIcon,
+	title: 'Talk',
+	description: 'Listen and Speak!',
+	link: URLS.TALK,
 }
 
 const PROJECTS: Page = {
@@ -54,6 +62,7 @@ const DONATIONS: Page = {
 
 export const PAGES = {
 	TOP,
+	TALK,
 	PROJECTS,
 	PROFILE,
 	SOCIAL_LINKS,
