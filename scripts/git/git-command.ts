@@ -76,8 +76,29 @@ async function commit(message: string): Promise<void> {
 	await exec_git_command_with_output('commit', ['-m', safe_message])
 }
 
+function is_upstream_not_set_error(error: unknown): boolean {
+	if (!(error instanceof Error) || error.cause === undefined) {
+		return false
+	}
+	const cause = error.cause as { exit_code?: string }
+	return cause.exit_code === '128'
+}
+
+async function push_with_upstream(branch_name: string): Promise<void> {
+	await exec_git_command_with_output('push', ['--set-upstream', 'origin', branch_name])
+}
+
 async function push(): Promise<void> {
-	await exec_git_command_with_output('push', [])
+	try {
+		await exec_git_command_with_output('push', [])
+	} catch (error) {
+		if (is_upstream_not_set_error(error)) {
+			const current_branch = await branch()
+			await push_with_upstream(current_branch)
+			return
+		}
+		throw error
+	}
 }
 
 async function branch_exists(branch_name: string): Promise<boolean> {
