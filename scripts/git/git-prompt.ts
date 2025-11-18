@@ -4,6 +4,8 @@ import { SEPARATOR_LINE } from './constants.js'
 
 const OPERATION_CANCELLED_MESSAGE = '💡 Operation cancelled.'
 
+type PromptCallback<T> = (prompt: Interface) => Promise<T>
+
 function display_start_separator(): void {
 	console.info('')
 	console.info(SEPARATOR_LINE)
@@ -56,10 +58,7 @@ function handle_prompt_fallback<T>(fallback_value?: T): T {
 	throw new Error('TTY not available')
 }
 
-async function with_prompt<T>(
-	callback: (prompt: Interface) => Promise<T>,
-	fallback_value?: T,
-): Promise<T> {
+async function with_prompt<T>(callback: PromptCallback<T>, fallback_value?: T): Promise<T> {
 	const prompt = create_prompt()
 
 	if (prompt === undefined) {
@@ -74,20 +73,20 @@ async function with_prompt<T>(
 	}
 }
 
-async function confirm_continue(): Promise<boolean> {
-	return await with_prompt(
-		async (prompt) => await ask_yes_no(prompt, '💬 Unstaged files found. Continue anyway? (y/n): '),
-		false,
-	)
-}
-
-async function confirm_unstaged_files(): Promise<void> {
-	const should_continue = await confirm_continue()
+async function confirm_with_exit_on_cancel(confirm_action: () => Promise<boolean>): Promise<void> {
+	const should_continue = await confirm_action()
 	if (!should_continue) {
 		console.info(OPERATION_CANCELLED_MESSAGE)
 		console.info('')
 		process.exit(1)
 	}
+}
+
+async function confirm_continue(): Promise<boolean> {
+	return await with_prompt(
+		async (prompt) => await ask_yes_no(prompt, '💬 Unstaged files found. Continue anyway? (y/n): '),
+		false,
+	)
 }
 
 async function confirm_without_package_json(): Promise<boolean> {
@@ -98,13 +97,12 @@ async function confirm_without_package_json(): Promise<boolean> {
 	)
 }
 
+async function confirm_unstaged_files(): Promise<void> {
+	await confirm_with_exit_on_cancel(confirm_continue)
+}
+
 async function confirm_missing_package_json(): Promise<void> {
-	const should_continue = await confirm_without_package_json()
-	if (!should_continue) {
-		console.info(OPERATION_CANCELLED_MESSAGE)
-		console.info('')
-		process.exit(1)
-	}
+	await confirm_with_exit_on_cancel(confirm_without_package_json)
 }
 
 async function confirm_version_not_updated(): Promise<boolean> {
@@ -116,12 +114,7 @@ async function confirm_version_not_updated(): Promise<boolean> {
 }
 
 async function confirm_without_version_update(): Promise<void> {
-	const should_continue = await confirm_version_not_updated()
-	if (!should_continue) {
-		console.info(OPERATION_CANCELLED_MESSAGE)
-		console.info('')
-		process.exit(1)
-	}
+	await confirm_with_exit_on_cancel(confirm_version_not_updated)
 }
 
 async function confirm_commit(): Promise<boolean> {

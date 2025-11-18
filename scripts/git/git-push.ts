@@ -1,18 +1,19 @@
-import { animation_helpers } from './animation-helpers.js'
+import { animation_helpers, type AnimationOptions } from './animation-helpers.js'
 import { git_command } from './git-command.js'
 
 async function push(): Promise<void> {
+	const config: AnimationOptions<string> = {
+		icon_selector: () => '✅',
+		error_message: 'Failed to push changes',
+		result_formatter: (message) => message,
+	}
 	await animation_helpers.execute_with_animation(
 		'Pushing changes to remote...',
 		async () => {
 			await git_command.push()
 			return 'Push completed.'
 		},
-		{
-			icon_selector: () => '✅',
-			error_message: 'Failed to push changes',
-			result_formatter: (message) => message,
-		},
+		config,
 	)
 }
 
