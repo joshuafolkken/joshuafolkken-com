@@ -1,0 +1,74 @@
+name: Deploy on VPS
+
+on:
+  repository_dispatch:
+    types: [new-tag-created]
+  # push:
+  #   branches: [main]
+  # workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: 'vps-deploy'
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      HOST: ${{ secrets.VPS_HOST }}
+      USERNAME: ${{ secrets.VPS_USER }}
+      PORT: ${{ secrets.VPS_SSH_PORT }}
+      KEY: ${{ secrets.VPS_SSH_KEY }}
+      APP_DIR: /var/www/joshuafolkken-com
+    steps:
+      - name: Pull & Build on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.HOST }}
+          username: ${{ env.USERNAME }}
+          port: ${{ env.PORT }}
+          key: ${{ env.KEY }}
+          envs: APP_DIR
+          script: |
+            set -e # Exit on error
+
+            cd $APP_DIR
+
+            # リモートからタグを取得
+            git fetch origin --tags
+
+            # ローカルの変更を破棄（デプロイ時はリモートの状態を優先）
+            git reset --hard HEAD
+            git clean -fd
+
+            # ローカルのタグリストから最新を取得（バージョン番号順でソート）
+            LATEST_TAG=$(git tag -l | sort -V | tail -1)
+
+            if [ -z "$LATEST_TAG" ]; then
+              echo "❌ Error: No tags found"
+              exit 1
+            fi
+
+            echo "Deploying tag: $LATEST_TAG"
+            git checkout tags/$LATEST_TAG
+
+            npm ci
+            NODE_ENV=production npm run build
+
+            mkdir -p logs
+
+            if [ ! -f "ecosystem.config.cjs" ]; then
+              echo "❌ Error: ecosystem.config.cjs not found"
+              echo "Current directory: $(pwd)"
+              echo "Files in directory:"
+              ls -la
+              exit 1
+            fi
+
+            APP_NAME=$(node -p "require('./package.json').name")
+            pm2 restart $APP_NAME || pm2 start ecosystem.config.cjs
+
+            echo "✅ Deployment completed successfully"
