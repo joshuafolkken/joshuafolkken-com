@@ -14,8 +14,10 @@ async function push(): Promise<void> {
 	console.info('')
 	await animation_helpers.execute_with_animation(
 		'Pushing changes to remote...',
-		async (pause_animation) => {
-			pause_animation()
+		async (pause_animation: (() => void) | undefined) => {
+			if (pause_animation !== undefined) {
+				pause_animation()
+			}
 			await git_command.push()
 			return 'Push completed.'
 		},

@@ -14,8 +14,10 @@ async function commit(commit_message: string): Promise<void> {
 	console.info('')
 	await animation_helpers.execute_with_animation(
 		'Committing staged changes...',
-		async (pause_animation) => {
-			pause_animation()
+		async (pause_animation: (() => void) | undefined) => {
+			if (pause_animation !== undefined) {
+				pause_animation()
+			}
 			await git_command.commit(commit_message)
 			return 'Commit completed.'
 		},
