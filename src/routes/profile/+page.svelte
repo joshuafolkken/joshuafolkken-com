@@ -9,6 +9,11 @@
 	import { PAGES } from '$lib/types/page'
 </script>
 
+<svelte:head>
+	<title>{PAGES.PROFILE.title} - {AUTHOR.NAME}</title>
+	<meta name="description" content={PAGES.PROFILE.description} />
+</svelte:head>
+
 <PageLayout max_width="2xl" padding="compact">
 	<PageHeader page={PAGES.PROFILE} />
 
