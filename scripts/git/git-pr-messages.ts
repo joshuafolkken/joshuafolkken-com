@@ -5,7 +5,6 @@ function display_success_message(): void {
 	console.info('✅ All checks passed successfully.')
 	console.info('')
 	console.info('PR is ready for review.')
-	console.info('')
 }
 
 function display_pr_url(pr_url: string): void {
