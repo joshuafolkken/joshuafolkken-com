@@ -1,0 +1,59 @@
+# The Caddyfile is an easy way to configure your Caddy web server.
+#
+# Unless the file starts with a global options block, the first
+# uncommented line is always the address of your site.
+#
+# To use your own domain name (with automatic HTTPS), first make
+# sure your domain's A/AAAA DNS records are properly pointed to
+# this machine's public IP, then replace ":80" below with your
+# domain name.
+
+talk.joshuafolkken.com, joshuafolkken.com {
+        log {
+                output file /var/log/caddy/access.log {
+                        roll_size 100mb
+                        roll_keep 10
+                }
+                format json
+        }
+
+        encode zstd gzip
+
+        header /_app/* Cache-Control "public, max-age=31536000, immutable"
+        header /.html Cache-Control "no-cache"
+        header / Cache-Control "no-cache"
+
+        @talk {
+                host talk.joshuafolkken.com
+        }
+        @main {
+                host joshuafolkken.com
+        }
+
+        reverse_proxy @talk localhost:3000
+        reverse_proxy @main localhost:3001
+}
+
+# リダイレクト設定: IPアドレス → joshuafolkken.com
+:443 :80 {
+        redir https://joshuafolkken.com{uri} permanent
+}
+
+# :80 {
+#         reverse_proxy localhost:3000
+
+#         Set this path to your site's directory.
+#         root * /usr/share/caddy
+
+#         Enable the static file server.
+#         file_server
+
+#         Another common task is to set up a reverse proxy:
+#         reverse_proxy localhost:8080
+
+#         Or serve a PHP site through php-fpm:
+#         php_fastcgi localhost:9000
+# }
+
+# Refer to the Caddy docs for more information:
+# https://caddyserver.com/docs/caddyfile
