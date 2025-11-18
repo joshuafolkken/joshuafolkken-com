@@ -15,7 +15,7 @@ interface Page {
 }
 
 const TOP: Page = {
-	title: APP.NAME,
+	title: AUTHOR.NAME,
 	description: APP.DESCRIPTION,
 }
 
@@ -36,7 +36,7 @@ const PROJECTS: Page = {
 const PROFILE: Page = {
 	icon: UserIcon,
 	title: 'Profile',
-	description: `About ${AUTHOR.NAME}`,
+	description: `About me`,
 	link: '/profile',
 }
 

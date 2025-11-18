@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { SUBTITLE_DEVELOPMENT_TOOL, URLS } from '$lib/app'
+	import { AUTHOR, SUBTITLE_DEVELOPMENT_TOOL, URLS } from '$lib/app'
 	import Divider from '$lib/components/Divider.svelte'
 	import PageFooter from '$lib/components/PageFooter.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
@@ -80,6 +80,11 @@
 		},
 	]
 </script>
+
+<svelte:head>
+	<title>{PAGES.PROJECTS.title} - {AUTHOR.NAME}</title>
+	<meta name="description" content={PAGES.PROJECTS.description} />
+</svelte:head>
 
 <PageLayout max_width="2xl" padding="compact">
 	<PageHeader page={PAGES.PROJECTS} />
