@@ -1,4 +1,4 @@
-import { exec } from 'node:child_process'
+import { exec, spawn } from 'node:child_process'
 import { promisify } from 'node:util'
 import { git_utilities } from './constants.js'
 
@@ -11,6 +11,32 @@ async function exec_git_command(command: string): Promise<string> {
 		stderr: string
 	}
 	return stdout.trimEnd()
+}
+
+async function exec_git_command_with_output(
+	command: string,
+	arguments_list: Array<string>,
+): Promise<void> {
+	const git_command: string = git_utilities.get_git_command()
+	await new Promise<void>((resolve, reject) => {
+		const child = spawn(git_command, [command, ...arguments_list], {
+			stdio: 'inherit',
+			shell: false,
+		})
+
+		child.on('error', (error) => {
+			reject(error)
+		})
+
+		child.on('close', (code) => {
+			if (code === 0) {
+				resolve()
+			} else {
+				const exit_code = code === null ? 'unknown' : String(code)
+				reject(new Error(`git ${command} exited with code ${exit_code}`))
+			}
+		})
+	})
 }
 
 async function branch(): Promise<string> {
@@ -37,13 +63,13 @@ async function checkout(branch_name: string): Promise<string> {
 	return await exec_git_command(`checkout ${branch_name}`)
 }
 
-async function commit(message: string): Promise<string> {
+async function commit(message: string): Promise<void> {
 	const safe_message = JSON.stringify(message)
-	return await exec_git_command(`commit -m ${safe_message}`)
+	await exec_git_command_with_output('commit', ['-m', safe_message])
 }
 
-async function push(): Promise<string> {
-	return await exec_git_command('push')
+async function push(): Promise<void> {
+	await exec_git_command_with_output('push', [])
 }
 
 async function branch_exists(branch_name: string): Promise<boolean> {

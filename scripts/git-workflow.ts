@@ -4,7 +4,7 @@ import { git_commit } from './git/git-commit.js'
 import { git_error } from './git/git-error.js'
 import { git_issue, type IssueInfo } from './git/git-issue.js'
 import { git_pr } from './git/git-pr.js'
-import { git_prompt } from './git/git-prompt.js'
+import { git_prompt, type WorkflowConfirmations } from './git/git-prompt.js'
 import { git_push } from './git/git-push.js'
 import { git_staging } from './git/git-staging.js'
 
@@ -14,47 +14,46 @@ const SKIP_MESSAGES = {
 	pr: '💡 PR skipped.',
 } as const
 
-type ConfirmAction = () => Promise<boolean>
-type WorkflowAction = () => Promise<void>
-
-async function execute_with_confirmation(
-	confirm_action: ConfirmAction,
-	skip_message: string,
-	action: WorkflowAction,
+async function execute_commit_step(
+	commit_message: string,
+	confirmations: WorkflowConfirmations,
 ): Promise<void> {
-	const should_execute = await confirm_action()
-	if (!should_execute) {
-		console.info(skip_message)
-		return
-	}
-	await action()
-}
-
-async function commit_changes(commit_message: string): Promise<void> {
-	await execute_with_confirmation(git_prompt.confirm_commit, SKIP_MESSAGES.commit, async () => {
+	if (confirmations.commit) {
 		await git_commit.commit(commit_message)
-	})
+	} else {
+		console.info(SKIP_MESSAGES.commit)
+	}
 }
 
-async function push_changes(): Promise<void> {
-	await execute_with_confirmation(git_prompt.confirm_push, SKIP_MESSAGES.push, async () => {
+async function execute_push_step(confirmations: WorkflowConfirmations): Promise<void> {
+	if (confirmations.push) {
 		await git_push.push()
-	})
+	} else {
+		console.info(SKIP_MESSAGES.push)
+	}
 }
 
-async function create_pr(issue_info: IssueInfo): Promise<void> {
-	await execute_with_confirmation(git_prompt.confirm_pr, SKIP_MESSAGES.pr, async () => {
+async function execute_pr_step(
+	issue_info: IssueInfo,
+	confirmations: WorkflowConfirmations,
+): Promise<void> {
+	if (confirmations.pr) {
 		await git_pr.create_with_issue_info(issue_info)
-	})
+	} else {
+		console.info(SKIP_MESSAGES.pr)
+	}
 }
 
 async function execute_workflow_steps(): Promise<void> {
 	const current_branch: string = await git_branch.current()
 	const issue_info: IssueInfo = await git_issue.get_and_display()
 	await git_branch.check_and_create_branch(current_branch, issue_info.branch_name)
-	await commit_changes(issue_info.commit_message)
-	await push_changes()
-	await create_pr(issue_info)
+
+	const confirmations: WorkflowConfirmations = await git_prompt.confirm_workflow_steps()
+
+	await execute_commit_step(issue_info.commit_message, confirmations)
+	await execute_push_step(confirmations)
+	await execute_pr_step(issue_info, confirmations)
 }
 
 async function main(): Promise<void> {
