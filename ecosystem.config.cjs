@@ -12,7 +12,6 @@ module.exports = {
 			exec_mode: 'cluster',
 			env: {
 				PORT: 3001,
-				DATABASE_URL: database_url,
 			},
 			error_file: './logs/err.log',
 			out_file: './logs/out.log',
