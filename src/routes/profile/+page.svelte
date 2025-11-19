@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { APP, AUTHOR, LINK_REL, LINK_TARGET, URLS } from '$lib/app'
+	import AdSenseScript from '$lib/components/AdSenseScript.svelte'
 	import Divider from '$lib/components/Divider.svelte'
 	import PageFooter from '$lib/components/PageFooter.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
@@ -13,6 +14,8 @@
 	<title>{PAGES.PROFILE.title} - {AUTHOR.NAME}</title>
 	<meta name="description" content={PAGES.PROFILE.description} />
 </svelte:head>
+
+<AdSenseScript />
 
 <PageLayout max_width="2xl" padding="compact">
 	<PageHeader page={PAGES.PROFILE} />
