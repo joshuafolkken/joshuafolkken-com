@@ -25,8 +25,5 @@
 	<SocialLinks icon_size="1.5rem" justify_content="start" class="mt-4" />
 
 	<Divider />
-	<LinkCard page={PAGES.DONATIONS} />
-
-	<Divider />
 	<PageFooter />
 </PageLayout>
