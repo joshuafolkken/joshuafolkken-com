@@ -19,7 +19,6 @@ export default defineConfig(
 	{
 		// tsconfig に含まれないファイルを明示的に除外
 		ignores: [
-			'.storybook/**',
 			'*.config.js',
 			'*.config.cjs',
 			'*.config.ts',
@@ -952,18 +951,6 @@ export default defineConfig(
 		rules: {
 			'unicorn/filename-case': 'off',
 			'no-restricted-syntax': 'off',
-		},
-	},
-	{
-		files: ['scripts/git-automation.ts'],
-		rules: {
-			'max-depth': ['error', 2],
-			'max-lines': ['error', { max: 1000, skipBlankLines: true, skipComments: true }],
-			'max-params': ['error', 5],
-			'max-statements': ['error', 25],
-			'max-lines-per-function': ['error', 45],
-			complexity: ['error', 8],
-			'sonarjs/cognitive-complexity': ['error', 8],
 		},
 	},
 	// {

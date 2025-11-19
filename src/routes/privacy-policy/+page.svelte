@@ -11,6 +11,11 @@
 	const last_updated = 'November 2025'
 </script>
 
+<svelte:head>
+	<title>{PAGES.PRIVACY_POLICY.title} - {AUTHOR.NAME}</title>
+	<meta name="description" content={PAGES.PRIVACY_POLICY.description} />
+</svelte:head>
+
 <PageLayout max_width="2xl" padding="compact">
 	<PageHeader page={PAGES.PRIVACY_POLICY} />
 

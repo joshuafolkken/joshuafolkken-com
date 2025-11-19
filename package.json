@@ -1,13 +1,13 @@
 {
 	"name": "joshuafolkken-com",
 	"private": true,
-	"version": "0.37.0",
+	"version": "0.41.0",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
-		"stop:preview": "npx kill-port 4173 || true",
+		"preview:stop": "npx kill-port 4173 || true",
 		"prepare": "svelte-kit sync || echo '' && lefthook install",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
@@ -22,7 +22,8 @@
 		"lefthook:push": "lefthook run pre-push",
 		"check-commit-message": "tsx scripts/check-commit-message.ts",
 		"prevent-main-commit": "tsx scripts/prevent-main-commit.ts",
-		"git": "tsx scripts/git-workflow.ts"
+		"git": "tsx scripts/git-workflow.ts",
+		"start:pm2": "pm2 restart joshuafolkken-com || pm2 start ecosystem.config.cjs"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^2.0.0",
