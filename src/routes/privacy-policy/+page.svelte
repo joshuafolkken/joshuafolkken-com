@@ -2,7 +2,6 @@
 	/* eslint-disable max-lines, max-len */
 	import { APP, AUTHOR } from '$lib/app'
 	import Divider from '$lib/components/Divider.svelte'
-	import PageFooter from '$lib/components/PageFooter.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import PageSection from '$lib/components/PageSection.svelte'
@@ -16,7 +15,7 @@
 	<meta name="description" content={PAGES.PRIVACY_POLICY.description} />
 </svelte:head>
 
-<PageLayout max_width="2xl" padding="compact">
+<PageLayout>
 	<PageHeader page={PAGES.PRIVACY_POLICY} />
 
 	<Divider />
@@ -407,8 +406,4 @@
 			</p>
 		</div>
 	</PageSection>
-
-	<Divider />
-
-	<PageFooter />
 </PageLayout>

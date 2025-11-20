@@ -1,4 +1,5 @@
 import { APP, AUTHOR, URLS } from '$lib/app'
+import BlogIcon from '$lib/icons/BlogIcon.svelte'
 import LinkIcon from '$lib/icons/LinkIcon.svelte'
 import OpenCollectiveIcon from '$lib/icons/OpenCollectiveIcon.svelte'
 import PrivacyPolicyIcon from '$lib/icons/PrivacyPolicyIcon.svelte'
@@ -60,6 +61,13 @@ const DONATIONS: Page = {
 	link: URLS.OPEN_COLLECTIVE,
 }
 
+const BLOG: Page = {
+	icon: BlogIcon,
+	title: 'Blog',
+	description: 'Unwritten Chapters',
+	link: '/blog',
+}
+
 export const PAGES = {
 	TOP,
 	TALK,
@@ -68,6 +76,7 @@ export const PAGES = {
 	SOCIAL_LINKS,
 	PRIVACY_POLICY,
 	DONATIONS,
+	BLOG,
 }
 
 export type { Page }

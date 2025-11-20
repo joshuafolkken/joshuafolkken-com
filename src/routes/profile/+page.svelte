@@ -2,7 +2,6 @@
 	import { APP, AUTHOR, LINK_REL, LINK_TARGET, URLS } from '$lib/app'
 	import AdSenseScript from '$lib/components/AdSenseScript.svelte'
 	import Divider from '$lib/components/Divider.svelte'
-	import PageFooter from '$lib/components/PageFooter.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import PageSection from '$lib/components/PageSection.svelte'
@@ -17,7 +16,7 @@
 
 <AdSenseScript />
 
-<PageLayout max_width="2xl" padding="compact">
+<PageLayout>
 	<PageHeader page={PAGES.PROFILE} />
 
 	<Divider />
@@ -111,7 +110,6 @@
 		<div class="space-y-4">
 			<p>
 				I believe in giving back to the community. Through
-				<!-- eslint-disable svelte/no-navigation-without-resolve -->
 				<a
 					href={URLS.OPEN_COLLECTIVE}
 					target={LINK_TARGET}
@@ -120,7 +118,6 @@
 				>
 					<strong>Joshua Studio on Open Collective</strong>
 				</a>
-				<!-- eslint-enable svelte/no-navigation-without-resolve -->
 				, we support:
 			</p>
 			<ul class="ml-4 list-disc space-y-1">
@@ -148,7 +145,4 @@
 			</p>
 		</div>
 	</PageSection>
-
-	<Divider />
-	<PageFooter />
 </PageLayout>

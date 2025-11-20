@@ -1,6 +1,10 @@
 @import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap');
 
 html {
+	font-family: 'Zen Kaku Gothic New', sans-serif;
 	@apply min-h-screen bg-slate-900 text-white/70;
 }
 
@@ -16,4 +20,70 @@ a:focus-visible {
 
 a.link-base {
 	@apply underline-offset-4 transition duration-300 hover:text-white;
+}
+
+.prose h1 {
+	@apply flex items-center gap-3 text-xl font-medium text-white;
+}
+
+.prose h1::before {
+	content: '';
+	display: inline-block;
+	width: 1.2em;
+	height: 1.2em;
+	flex-shrink: 0;
+	background-color: currentColor;
+	/* アイコン切り替え用:
+       - /icons/terminal.svg    (ターミナル/コマンド)
+       - /icons/sparkles.svg    (キラキラ/発見)
+       - /icons/zap.svg         (稲妻/閃き)
+       - /icons/compass.svg     (コンパス/指針)
+       - /icons/map-pin.svg     (マップピン/現在地)
+       - /icons/play-circle.svg (再生/開始)
+       - /icons/book-open.svg   (本)
+       - /icons/file-plus.svg   (新規ページ)
+       - /icons/sunrise.svg     (日の出)
+       - /icons/door-open.svg   (扉)
+       - /icons/ink-bottle.svg  (インク壺)
+    */
+	-webkit-mask-image: url('/icons/terminal.svg');
+	mask-image: url('/icons/terminal.svg');
+	-webkit-mask-repeat: no-repeat;
+	mask-repeat: no-repeat;
+	-webkit-mask-size: contain;
+	mask-size: contain;
+	opacity: 0.9;
+}
+
+.prose h2 {
+	@apply mt-8 mb-4 flex items-center gap-2 text-lg font-medium text-white;
+}
+
+.prose h2::before {
+	content: '';
+	display: inline-block;
+	width: 1.2em;
+	height: 1.2em;
+	flex-shrink: 0;
+	background-color: currentColor;
+	-webkit-mask-image: url('/icons/feather.svg');
+	mask-image: url('/icons/feather.svg');
+	-webkit-mask-repeat: no-repeat;
+	mask-repeat: no-repeat;
+	-webkit-mask-size: contain;
+	mask-size: contain;
+	opacity: 0.8;
+}
+
+.prose a {
+	@apply underline-offset-4;
+}
+
+.prose p {
+	@apply leading-[1.8] text-white/75;
+}
+
+.prose h2,
+.prose h3 {
+	font-family: 'Shippori Mincho', serif;
 }

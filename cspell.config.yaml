@@ -15,34 +15,40 @@ ignorePaths:
   - '**/*.min.js'
   - .git/**/*
   - .gitignore
+  - src/lib/posts/*.md
+  - '**/*.svg'
 words:
   - aboutads
+  - appleboy
+  - autorestart
   - bttf
+  - Caddyfile
   - CCPA
+  - Csvg
   - darkmode
   - EDITMSG
   - elif
+  - fastcgi
   - Folkken
+  - gsub
   - Hotspots
   - ianvs
   - joshuafolkken
+  - joshuastudio
+  - Kaku
   - KAWAII
+  - Mdsvex
   - mischeck
   - noopener
   - noreferrer
   - Platformer
   - Platformers
   - Qube
+  - redir
+  - Shippori
   - sonarcloud
   - sonarjs
   - sonarqube
   - Stylesheet
-  - appleboy
-  - autorestart
-  - Caddyfile
-  - zstd
-  - redir
-  - fastcgi
   - TERE
-  - joshuastudio
-  - gsub
+  - zstd

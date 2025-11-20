@@ -9,7 +9,6 @@
 	}>()
 </script>
 
-<!-- eslint-disable svelte/no-navigation-without-resolve -->
 <div class="mt-2 flex flex-wrap gap-5">
 	{#each links as link (link.href)}
 		<a
@@ -27,4 +26,3 @@
 		</a>
 	{/each}
 </div>
-<!-- eslint-enable svelte/no-navigation-without-resolve -->

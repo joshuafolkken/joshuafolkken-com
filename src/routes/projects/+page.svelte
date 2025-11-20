@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { AUTHOR, SUBTITLE_DEVELOPMENT_TOOL, URLS } from '$lib/app'
 	import Divider from '$lib/components/Divider.svelte'
-	import PageFooter from '$lib/components/PageFooter.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import ProjectList from '$lib/components/ProjectList.svelte'
@@ -86,12 +85,9 @@
 	<meta name="description" content={PAGES.PROJECTS.description} />
 </svelte:head>
 
-<PageLayout max_width="2xl" padding="compact">
+<PageLayout>
 	<PageHeader page={PAGES.PROJECTS} />
 
 	<Divider />
 	<ProjectList {projects} />
-
-	<Divider />
-	<PageFooter />
 </PageLayout>
