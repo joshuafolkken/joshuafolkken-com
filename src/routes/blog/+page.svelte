@@ -32,7 +32,7 @@
 							<img
 								src={post.cover_image}
 								alt={post.title}
-								class="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+								class="h-48 w-full object-cover transition-transform duration-1000 group-hover:scale-120"
 							/>
 						</div>
 					{/if}
