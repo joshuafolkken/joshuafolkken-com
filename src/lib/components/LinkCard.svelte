@@ -27,7 +27,6 @@
 	const href = get_href()
 </script>
 
-<!-- eslint-disable svelte/no-navigation-without-resolve -->
 <div class=" w-full">
 	{#if href}
 		<a
@@ -42,4 +41,3 @@
 		<ContentCard {icon} {title} {description} class="text-center" />
 	{/if}
 </div>
-<!-- eslint-enable svelte/no-navigation-without-resolve -->

@@ -35,5 +35,6 @@
 		}
 	],
 	"playwright.reuseBrowser": false,
-	"errorLens.gutterIconsEnabled": true
+	"errorLens.gutterIconsEnabled": true,
+	"css.lint.unknownAtRules": "ignore"
 }

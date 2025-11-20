@@ -70,7 +70,6 @@
 	{#each social_links as link (link.href)}
 		<!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
 		{@const Icon = link.icon}
-		<!-- eslint-disable svelte/no-navigation-without-resolve -->
 		<a
 			href={link.href}
 			aria-label={link.aria_label}
@@ -81,7 +80,6 @@
 			<Icon />
 			<span class="social-link-label">{link.label}</span>
 		</a>
-		<!-- eslint-enable svelte/no-navigation-without-resolve -->
 	{/each}
 </nav>
 

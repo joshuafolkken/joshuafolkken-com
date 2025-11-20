@@ -18,6 +18,8 @@ const ROUTES: Array<RouteConfig> = [
 	{ path: '/privacy-policy' },
 	{ path: '/profile' },
 	{ path: '/projects' },
+	{ path: '/blog' },
+	{ path: '/blog/first-post' },
 ]
 
 const DEFAULT_LASTMOD = new Date('2025-11-18')

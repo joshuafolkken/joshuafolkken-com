@@ -870,6 +870,14 @@ export default defineConfig(
 			'svelte/no-at-html-tags': 'error',
 			'svelte/no-dom-manipulating': 'error',
 			'svelte/require-optimized-style-attribute': 'error',
+
+			// ナビゲーションのパス解決を必須にしない
+			'svelte/no-navigation-without-resolve': [
+				'error',
+				{
+					ignoreLinks: true,
+				},
+			],
 		},
 	},
 	{
@@ -950,6 +958,13 @@ export default defineConfig(
 		files: ['src/params/**/*.ts'],
 		rules: {
 			'unicorn/filename-case': 'off',
+			'no-restricted-syntax': 'off',
+		},
+	},
+	{
+		// SvelteKitのルートファイル（+page.server.tsなど）では名前付きエクスポートが必須のためルールを緩和
+		files: ['src/routes/**/+*.ts', 'src/routes/**/+*.js'],
+		rules: {
 			'no-restricted-syntax': 'off',
 		},
 	},

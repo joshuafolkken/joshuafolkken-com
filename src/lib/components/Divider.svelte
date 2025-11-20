@@ -1,1 +1,1 @@
-<div class="my-6 h-px bg-white/30"></div>
+<div class="my-6 h-px bg-white/10"></div>

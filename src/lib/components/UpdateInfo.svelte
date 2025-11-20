@@ -45,7 +45,6 @@
 					{#if get_href(note.link)}
 						{@const href = get_href(note.link)}
 						{@const is_external = note.link?.startsWith('http') ?? false}
-						<!-- eslint-disable svelte/no-navigation-without-resolve -->
 						<a
 							{href}
 							target={is_external ? LINK_TARGET : undefined}
@@ -54,7 +53,6 @@
 						>
 							• {note.text}
 						</a>
-						<!-- eslint-enable svelte/no-navigation-without-resolve -->
 					{:else}
 						• {note.text}
 					{/if}
@@ -62,7 +60,6 @@
 			{/each}
 		</ul>
 		<div class="mt-2 flex items-center justify-center gap-1.5">
-			<!-- eslint-disable svelte/no-navigation-without-resolve -->
 			<a
 				href="https://github.com/joshuafolkken/joshuafolkken-com/pulls?q=is%3Apr+is%3Aclosed"
 				target={LINK_TARGET}
@@ -73,7 +70,6 @@
 				<GitHubIcon size="1rem" aria_label="" />
 				<span>More</span>
 			</a>
-			<!-- eslint-enable svelte/no-navigation-without-resolve -->
 		</div>
 	</div>
 </div>
