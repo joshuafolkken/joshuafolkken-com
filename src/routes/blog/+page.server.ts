@@ -5,7 +5,7 @@ interface Post {
 	title: string
 	date: string
 	excerpt: string
-	cover_image?: string
+	cover_image?: string | undefined
 }
 
 interface Metadata {
