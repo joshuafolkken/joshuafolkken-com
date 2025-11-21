@@ -1,11 +1,19 @@
 <script lang="ts">
 	import { resolve } from '$app/paths'
 	import { APP, AUTHOR } from '$lib/app'
+	import HeartIcon from '$lib/icons/HeartIcon.svelte'
 	import { PAGES } from '$lib/types/page'
+	import ContentCard from './ContentCard.svelte'
 	import Divider from './Divider.svelte'
 	import LinkCard from './LinkCard.svelte'
+	import SupportersList from './SupportersList.svelte'
 </script>
 
+<ContentCard icon={HeartIcon} title="Top Supporters" class="text-center">
+	<SupportersList />
+</ContentCard>
+
+<Divider />
 <LinkCard page={PAGES.DONATIONS} />
 
 <Divider />

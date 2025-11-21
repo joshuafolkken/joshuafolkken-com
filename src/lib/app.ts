@@ -20,7 +20,13 @@ const URLS = {
 	GITHUB_PAGE: 'https://joshuafolkken.github.io',
 	X: 'https://x.com/joshuafolkken',
 	YOUTUBE: 'https://www.youtube.com/@Joshuafolkken-studio',
-	OPEN_COLLECTIVE: 'https://opencollective.com/joshua-studio',
+} as const
+
+const OPENCOLLECTIVE = {
+	SLUG: 'joshua-studio',
+	get URL(): string {
+		return `https://opencollective.com/${this.SLUG}`
+	},
 } as const
 
 const LINK_TARGET = '_blank'
@@ -46,4 +52,5 @@ export {
 	LINK_TARGET,
 	SUBTITLE_DEVELOPMENT_TOOL,
 	URLS,
+	OPENCOLLECTIVE,
 }

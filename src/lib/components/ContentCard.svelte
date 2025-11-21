@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Component } from 'svelte'
+	import type { Component, Snippet } from 'svelte'
 
 	interface Props {
 		icon?: Component | undefined
@@ -7,9 +7,10 @@
 		subtitle?: string | undefined
 		description?: string | undefined
 		class?: string | undefined
+		children?: Snippet | undefined
 	}
 
-	const { icon, title, subtitle, description, class: class_name }: Props = $props()
+	const { icon, title, subtitle, description, class: class_name, children }: Props = $props()
 
 	const is_centered = class_name?.includes('text-center') ?? false
 	const justify_class = is_centered ? 'justify-center' : ''
@@ -29,5 +30,8 @@
 	</h2>
 	{#if description}
 		<p>{description}</p>
+	{/if}
+	{#if children}
+		{@render children()}
 	{/if}
 </section>
