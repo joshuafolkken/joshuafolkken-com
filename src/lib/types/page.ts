@@ -1,4 +1,4 @@
-import { APP, AUTHOR, URLS } from '$lib/app'
+import { APP, AUTHOR, OPENCOLLECTIVE, URLS } from '$lib/app'
 import BlogIcon from '$lib/icons/BlogIcon.svelte'
 import LinkIcon from '$lib/icons/LinkIcon.svelte'
 import OpenCollectiveIcon from '$lib/icons/OpenCollectiveIcon.svelte'
@@ -58,7 +58,7 @@ const DONATIONS: Page = {
 	icon: OpenCollectiveIcon,
 	title: 'Support & Donations',
 	description: 'Support our mission',
-	link: URLS.OPEN_COLLECTIVE,
+	link: OPENCOLLECTIVE.URL,
 }
 
 const BLOG: Page = {
