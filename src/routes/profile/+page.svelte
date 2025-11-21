@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { APP, AUTHOR, LINK_REL, LINK_TARGET, URLS } from '$lib/app'
+	import { APP, AUTHOR, LINK_REL, LINK_TARGET, OPENCOLLECTIVE } from '$lib/app'
 	import AdSenseScript from '$lib/components/AdSenseScript.svelte'
 	import Divider from '$lib/components/Divider.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
@@ -111,7 +111,7 @@
 			<p>
 				I believe in giving back to the community. Through
 				<a
-					href={URLS.OPEN_COLLECTIVE}
+					href={OPENCOLLECTIVE.URL}
 					target={LINK_TARGET}
 					rel={LINK_REL}
 					class="link-base text-white/80"
