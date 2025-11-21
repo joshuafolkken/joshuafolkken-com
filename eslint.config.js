@@ -878,6 +878,19 @@ export default defineConfig(
 					ignoreLinks: true,
 				},
 			],
+
+			// // ===== パフォーマンス改善のための無効化 =====
+			// // 非常に重いため無効化。非推奨チェックは @typescript-eslint/no-deprecated で十分
+			// 'sonarjs/deprecation': 'off',
+			// // AWS関連のルールは不要な場合が多い
+			// 'sonarjs/aws-restricted-ip-admin-access': 'off',
+
+			// // 循環参照チェックは重いため、ローカル開発時は off、CIでのみ実行などを検討
+			// // どうしても有効にしたい場合は maxDepth を指定して制限する
+			// 'import/no-cycle': 'off',
+
+			// // // 未使用モジュールチェックも非常に重い
+			// // 'import/no-unused-modules': 'off',
 		},
 	},
 	{
