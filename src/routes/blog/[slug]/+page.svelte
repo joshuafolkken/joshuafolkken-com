@@ -21,7 +21,7 @@
 	<PageHeader page={PAGES.BLOG} />
 	<Divider />
 
-	<article class="prose prose-invert" use:external_links_action.external_links>
+	<article class="prose max-w-none prose-invert" use:external_links_action.external_links>
 		<h1 class="mb-1">{data.meta.title}</h1>
 		<time class="mt-0 block text-right text-[0.75rem] text-white/50">{data.meta.date}</time>
 		<Divider />
