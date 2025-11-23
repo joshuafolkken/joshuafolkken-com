@@ -9,6 +9,7 @@ const APP = {
 const AUTHOR = {
 	NAME: 'Joshua Folkken',
 	EMAIL: 'joshuafolkken@gmail.com',
+	X_USERNAME: 'joshuafolkken',
 	YEAR: new Date().getFullYear(),
 	get COPYRIGHT(): string {
 		return `© ${String(this.YEAR)} ${this.NAME}`
@@ -19,7 +20,9 @@ const URLS = {
 	TALK: 'https://talk.joshuafolkken.com',
 	GITHUB: 'https://github.com/joshuafolkken',
 	GITHUB_PAGE: 'https://joshuafolkken.github.io',
-	X: 'https://x.com/joshuafolkken',
+	get X(): string {
+		return `https://x.com/${AUTHOR.X_USERNAME}`
+	},
 	YOUTUBE: 'https://www.youtube.com/@Joshuafolkken-studio',
 } as const
 

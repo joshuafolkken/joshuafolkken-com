@@ -10,11 +10,19 @@
 	import type { PageData } from './$types'
 
 	const { data }: { data: PageData } = $props()
+	const image_url = `https://joshuafolkken.com${data.meta.cover_image ?? ''}`
 </script>
 
 <svelte:head>
 	<title>{data.meta.title} - {AUTHOR.NAME}</title>
 	<meta name="description" content={data.meta.excerpt} />
+
+	<meta property="og:type" content="webpage" />
+	<meta property="og:image" content={image_url} />
+
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:image" content={image_url} />
+	<meta name="twitter:site" content="@{AUTHOR.X_USERNAME}" />
 </svelte:head>
 
 <PageLayout>
