@@ -1,3 +1,4 @@
+import { APP } from '$lib/app'
 import { liked_posts } from '$lib/stores/LikedPosts.svelte'
 
 const ANIMATION_DURATION = 1000
@@ -36,6 +37,10 @@ export class LikeState {
 		try {
 			await fetch('/api/like', {
 				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-App-Client': APP.ID,
+				},
 				body: JSON.stringify({ slug: this.#slug }),
 			})
 		} catch (error) {
