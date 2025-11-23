@@ -2,6 +2,7 @@
 	import { APP, AUTHOR, LINK_REL, LINK_TARGET, OPENCOLLECTIVE } from '$lib/app'
 	import AdSenseScript from '$lib/components/AdSenseScript.svelte'
 	import Divider from '$lib/components/Divider.svelte'
+	import LikeContainer from '$lib/components/LikeContainer.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import PageSection from '$lib/components/PageSection.svelte'
@@ -143,6 +144,8 @@
 				All source code is available for learning purposes. Let's build a brighter future together!
 				🌟
 			</p>
+
+			<LikeContainer slug="page:profile" class="mt-8" />
 		</div>
 	</PageSection>
 </PageLayout>

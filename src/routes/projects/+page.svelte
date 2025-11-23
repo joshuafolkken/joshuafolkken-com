@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { AUTHOR, SUBTITLE_DEVELOPMENT_TOOL, URLS } from '$lib/app'
 	import Divider from '$lib/components/Divider.svelte'
+	import LikeContainer from '$lib/components/LikeContainer.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import ProjectList from '$lib/components/ProjectList.svelte'
@@ -90,4 +91,7 @@
 
 	<Divider />
 	<ProjectList {projects} />
+
+	<Divider />
+	<LikeContainer slug="page:projects" />
 </PageLayout>

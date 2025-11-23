@@ -1,27 +1,15 @@
 <script lang="ts">
+	import { page } from '$app/state'
+	import { external_links_action } from '$lib/actions/external-links'
 	import { AUTHOR } from '$lib/app'
 	import Divider from '$lib/components/Divider.svelte'
+	import LikeContainer from '$lib/components/LikeContainer.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import { PAGES } from '$lib/types/page'
-	import { onMount } from 'svelte'
 	import type { PageData } from './$types'
 
 	const { data }: { data: PageData } = $props()
-
-	let article_element = $state<HTMLElement>()
-
-	onMount(() => {
-		if (article_element === undefined) return
-
-		const links = article_element.querySelectorAll('a')
-		for (const link of links) {
-			if (link.href.startsWith('http')) {
-				link.setAttribute('target', '_blank')
-				link.setAttribute('rel', 'noopener noreferrer')
-			}
-		}
-	})
 </script>
 
 <svelte:head>
@@ -33,7 +21,7 @@
 	<PageHeader page={PAGES.BLOG} />
 	<Divider />
 
-	<article class="prose prose-invert" bind:this={article_element}>
+	<article class="prose prose-invert" use:external_links_action.external_links>
 		<h1 class="mb-1">{data.meta.title}</h1>
 		<time class="mt-0 block text-right text-[0.75rem] text-white/50">{data.meta.date}</time>
 		<Divider />
@@ -51,6 +39,8 @@
 		</div>
 
 		<Divider />
+
+		<LikeContainer slug={page.params.slug ?? ''} class="my-8" />
 
 		<h2>ありがとう！</h2>
 		<p>

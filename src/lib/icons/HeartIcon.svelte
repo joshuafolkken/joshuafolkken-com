@@ -1,16 +1,20 @@
 <script lang="ts">
+	import type { SVGAttributes } from 'svelte/elements'
+
 	const {
 		size = '1.5rem',
 		title = 'Heart',
 		aria_label,
-	} = $props<{
+		...rest
+	}: SVGAttributes<SVGElement> & {
 		size?: string
 		title?: string
 		aria_label?: string
-	}>()
+	} = $props()
 </script>
 
 <svg
+	{...rest}
 	viewBox="0 0 24 24"
 	width={size}
 	height={size}

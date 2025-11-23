@@ -1,4 +1,5 @@
 const APP = {
+	ID: 'joshuafolkken-com',
 	NAME: 'joshuafolkken.com',
 	DESCRIPTION: 'Creating a Brighter Future',
 	URL: 'https://joshuafolkken.com',
