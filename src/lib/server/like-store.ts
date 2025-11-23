@@ -6,6 +6,13 @@ const local_cache = new Map<string, number>()
 
 const INITIAL_COUNT = 0
 const SELECT_LIKES_QUERY = 'SELECT count FROM post_likes WHERE slug = ?'
+const INSERT_LIKE_QUERY = `
+    INSERT INTO post_likes (slug, count, updated_at)
+    VALUES (?, 1, ?)
+    ON CONFLICT(slug) DO UPDATE SET
+        count = count + 1,
+        updated_at = excluded.updated_at
+`
 
 function get_from_cache(slug: string): number | undefined {
 	const cached = local_cache.get(slug)
@@ -27,13 +34,7 @@ async function get_likes_from_database(slug: string): Promise<number> {
 
 async function update_likes_in_database(slug: string): Promise<void> {
 	await turso.client.execute({
-		sql: `
-            INSERT INTO post_likes (slug, count, updated_at)
-            VALUES (?, 1, ?)
-            ON CONFLICT(slug) DO UPDATE SET
-                count = count + 1,
-                updated_at = excluded.updated_at
-        `,
+		sql: INSERT_LIKE_QUERY,
 		args: [slug, Date.now()],
 	})
 }

@@ -15,6 +15,16 @@ interface Page {
 	link?: string
 }
 
+type PageKey =
+	| 'TOP'
+	| 'TALK'
+	| 'PROJECTS'
+	| 'PROFILE'
+	| 'SOCIAL_LINKS'
+	| 'PRIVACY_POLICY'
+	| 'DONATIONS'
+	| 'BLOG'
+
 const TOP: Page = {
 	title: AUTHOR.NAME,
 	description: APP.DESCRIPTION,
@@ -68,7 +78,7 @@ const BLOG: Page = {
 	link: '/blog',
 }
 
-export const PAGES = {
+const PAGES: Record<PageKey, Page> = {
 	TOP,
 	TALK,
 	PROJECTS,
@@ -79,4 +89,5 @@ export const PAGES = {
 	BLOG,
 }
 
-export type { Page }
+export { PAGES }
+export type { Page, PageKey }

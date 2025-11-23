@@ -42,7 +42,14 @@
 	)
 </script>
 
-<button {onclick} class={button_class} disabled={is_liked} aria-label="Like this post">
+<button
+	{onclick}
+	class={button_class}
+	disabled={is_liked}
+	aria-label="Like this post"
+	aria-pressed={is_liked}
+	title={is_liked ? 'You have already liked this post' : 'Like this post'}
+>
 	<div class="relative">
 		<HeartIcon class={icon_class} />
 		{#if is_animating}

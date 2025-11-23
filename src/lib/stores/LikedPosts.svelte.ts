@@ -25,30 +25,28 @@ function save_to_storage(likes: Array<string>): void {
 }
 
 class LikedPostsStore {
-	#likes = $state<Array<string>>([])
+	#likes = $state<Set<string>>(new Set())
 
 	constructor() {
-		this.#likes = load_from_storage()
+		this.#likes = new Set(load_from_storage())
 
 		$effect.root(() => {
 			$effect(() => {
-				save_to_storage(this.#likes)
+				save_to_storage([...this.#likes])
 			})
 		})
 	}
 
-	get likes(): Array<string> {
-		return this.#likes
-	}
-
 	has_liked(slug: string): boolean {
-		return this.#likes.includes(slug)
+		return this.#likes.has(slug)
 	}
 
 	add_like(slug: string): void {
-		if (!this.has_liked(slug)) {
-			this.#likes = [...this.#likes, slug]
-		}
+		this.#likes.add(slug)
+	}
+
+	remove_like(slug: string): void {
+		this.#likes.delete(slug)
 	}
 }
 

@@ -3,18 +3,13 @@
 	import { external_links_action } from '$lib/actions/external-links'
 	import { AUTHOR } from '$lib/app'
 	import Divider from '$lib/components/Divider.svelte'
-	import LikeButton from '$lib/components/LikeButton.svelte'
+	import LikeContainer from '$lib/components/LikeContainer.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
-	import { LikeState } from '$lib/hooks/UseLike.svelte'
 	import { PAGES } from '$lib/types/page'
 	import type { PageData } from './$types'
 
-	const { data }: { data: PageData & { likes: number } } = $props()
-
-	// slug が undefined の可能性を考慮して空文字を渡すが、
-	// 通常は +page.ts で保証される
-	const like_state = new LikeState((data.likes as number | undefined) ?? 0, page.params.slug ?? '')
+	const { data }: { data: PageData } = $props()
 </script>
 
 <svelte:head>
@@ -45,16 +40,7 @@
 
 		<Divider />
 
-		<div class="my-8 flex justify-center">
-			<LikeButton
-				count={like_state.count}
-				is_liked={like_state.is_liked}
-				is_animating={like_state.is_animating}
-				onclick={() => {
-					void like_state.toggle()
-				}}
-			/>
-		</div>
+		<LikeContainer slug={page.params.slug ?? ''} class="my-8" />
 
 		<h2>ありがとう！</h2>
 		<p>
