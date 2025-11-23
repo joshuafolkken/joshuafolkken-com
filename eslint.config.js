@@ -30,7 +30,7 @@ export default defineConfig(
 			'src/app.d.ts',
 			'src/hooks.server.ts',
 			'src/hooks.ts',
-			'src/lib/server/**',
+			// 'src/lib/server/**',
 			'src/routes/+layout*',
 		],
 	},

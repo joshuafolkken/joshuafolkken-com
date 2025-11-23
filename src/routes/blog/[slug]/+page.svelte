@@ -1,27 +1,20 @@
 <script lang="ts">
+	import { page } from '$app/state'
+	import { external_links_action } from '$lib/actions/external-links'
 	import { AUTHOR } from '$lib/app'
 	import Divider from '$lib/components/Divider.svelte'
+	import LikeButton from '$lib/components/LikeButton.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
+	import { LikeState } from '$lib/hooks/UseLike.svelte'
 	import { PAGES } from '$lib/types/page'
-	import { onMount } from 'svelte'
 	import type { PageData } from './$types'
 
-	const { data }: { data: PageData } = $props()
+	const { data }: { data: PageData & { likes: number } } = $props()
 
-	let article_element = $state<HTMLElement>()
-
-	onMount(() => {
-		if (article_element === undefined) return
-
-		const links = article_element.querySelectorAll('a')
-		for (const link of links) {
-			if (link.href.startsWith('http')) {
-				link.setAttribute('target', '_blank')
-				link.setAttribute('rel', 'noopener noreferrer')
-			}
-		}
-	})
+	// slug が undefined の可能性を考慮して空文字を渡すが、
+	// 通常は +page.ts で保証される
+	const like_state = new LikeState((data.likes as number | undefined) ?? 0, page.params.slug ?? '')
 </script>
 
 <svelte:head>
@@ -33,7 +26,7 @@
 	<PageHeader page={PAGES.BLOG} />
 	<Divider />
 
-	<article class="prose prose-invert" bind:this={article_element}>
+	<article class="prose prose-invert" use:external_links_action.external_links>
 		<h1 class="mb-1">{data.meta.title}</h1>
 		<time class="mt-0 block text-right text-[0.75rem] text-white/50">{data.meta.date}</time>
 		<Divider />
@@ -51,6 +44,17 @@
 		</div>
 
 		<Divider />
+
+		<div class="my-8 flex justify-center">
+			<LikeButton
+				count={like_state.count}
+				is_liked={like_state.is_liked}
+				is_animating={like_state.is_animating}
+				onclick={() => {
+					void like_state.toggle()
+				}}
+			/>
+		</div>
 
 		<h2>ありがとう！</h2>
 		<p>

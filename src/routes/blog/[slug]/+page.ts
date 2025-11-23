@@ -2,7 +2,7 @@ import { error } from '@sveltejs/kit'
 import type { Component } from 'svelte'
 import type { PageLoad } from './$types'
 
-export const load: PageLoad = async ({ params }) => {
+export const load: PageLoad = async ({ params, data }) => {
 	try {
 		const post = (await import(`../../../lib/posts/${params.slug}.md`)) as {
 			default: Component
@@ -15,6 +15,7 @@ export const load: PageLoad = async ({ params }) => {
 		}
 
 		return {
+			...data,
 			content: post.default,
 			meta: post.metadata,
 			excerpt: post.metadata.excerpt,
