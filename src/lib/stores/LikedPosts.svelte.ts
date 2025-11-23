@@ -21,32 +21,48 @@ function load_from_storage(): Array<string> {
 
 function save_to_storage(likes: Array<string>): void {
 	if (!browser) return
-	localStorage.setItem(STORAGE_KEY, JSON.stringify(likes))
+	try {
+		localStorage.setItem(STORAGE_KEY, JSON.stringify(likes))
+	} catch (error) {
+		console.error('Failed to save liked posts:', error)
+	}
 }
 
 class LikedPostsStore {
-	#likes = $state<Set<string>>(new Set())
+	#likes = $state<Array<string>>([])
 
 	constructor() {
-		this.#likes = new Set(load_from_storage())
+		this.#likes = load_from_storage()
+
+		let is_initialized = false
 
 		$effect.root(() => {
 			$effect(() => {
-				save_to_storage([...this.#likes])
+				// 依存関係としてアクセス
+				const current_likes = this.#likes
+
+				if (!is_initialized) {
+					is_initialized = true
+					return
+				}
+
+				save_to_storage(current_likes)
 			})
 		})
 	}
 
 	has_liked(slug: string): boolean {
-		return this.#likes.has(slug)
+		return this.#likes.includes(slug)
 	}
 
 	add_like(slug: string): void {
-		this.#likes.add(slug)
+		if (!this.has_liked(slug)) {
+			this.#likes = [...this.#likes, slug]
+		}
 	}
 
 	remove_like(slug: string): void {
-		this.#likes.delete(slug)
+		this.#likes = this.#likes.filter((stored_slug) => stored_slug !== slug)
 	}
 }
 
