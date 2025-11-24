@@ -22,15 +22,19 @@ a.link-base {
 }
 
 .prose h1 {
-	@apply flex items-center gap-3 text-xl font-medium text-white;
+	@apply flex items-center gap-3 text-white;
+	@apply text-2xl font-light tracking-tight;
 }
 
 .prose h2 {
-	@apply mt-8 mb-4 flex items-center gap-2 text-lg font-medium text-white;
+	@apply flex items-center gap-2 text-white;
+	@apply mt-10 mb-4 text-xl font-light tracking-tight;
+	font-family: 'Shippori Mincho', serif;
 }
 
 .prose h3 {
-	@apply text-base font-medium text-white;
+	@apply text-white;
+	@apply mt-8 mb-3 text-lg font-light tracking-tight;
 }
 
 .prose h2::before {
@@ -55,19 +59,4 @@ a.link-base {
 
 .prose p {
 	@apply leading-[1.8] text-white/75;
-}
-
-.prose h1 {
-	@apply text-2xl font-light tracking-tight;
-}
-
-.prose h2 {
-	@apply mt-10 mb-4 text-xl font-light tracking-tight;
-}
-.prose h3 {
-	@apply mt-6 mb-2 text-lg font-light tracking-tight;
-}
-
-.prose h2 {
-	font-family: 'Shippori Mincho', serif;
 }
