@@ -5,6 +5,7 @@
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import ProjectList from '$lib/components/ProjectList.svelte'
+	import SupportBox from '$lib/components/SupportBox.svelte'
 	import FilmIcon from '$lib/icons/FilmIcon.svelte'
 	import GlobeIcon from '$lib/icons/GlobeIcon.svelte'
 	import RunningIcon from '$lib/icons/RunningIcon.svelte'
@@ -92,6 +93,6 @@
 	<Divider />
 	<ProjectList {projects} />
 
-	<Divider />
+	<SupportBox />
 	<LikeContainer slug="page:projects" />
 </PageLayout>

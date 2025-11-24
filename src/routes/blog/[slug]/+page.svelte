@@ -7,6 +7,7 @@
 	import LikeContainer from '$lib/components/LikeContainer.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
+	import SupportBox from '$lib/components/SupportBox.svelte'
 	import { PAGES } from '$lib/types/page'
 	import type { PageData } from './$types'
 
@@ -47,16 +48,7 @@
 			<data.content />
 		</div>
 
-		<Divider />
-
-		<LikeContainer slug={page.params.slug ?? ''} class="my-8" />
-
-		<h2>ありがとう！</h2>
-		<p>
-			最後までありがとうございます！皆さんの応援が次の記事や開発の大きな力になります。
-			この記事や活動が気に入ったら「
-			<a href={PAGES.DONATIONS.link} class="link-base">サポーターになる</a
-			>」で応援をお願い致します！
-		</p>
+		<SupportBox />
+		<LikeContainer slug={page.params.slug ?? ''} />
 	</article>
 </PageLayout>

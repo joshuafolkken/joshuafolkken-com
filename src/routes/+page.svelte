@@ -25,4 +25,7 @@
 	<Divider />
 	<LinkCard page={PAGES.SOCIAL_LINKS} />
 	<SocialLinks icon_size="1.5rem" justify_content="start" class="mt-4" />
+
+	<!-- <Divider />
+	<LinkCard page={PAGES.DONATIONS} /> -->
 </PageLayout>
