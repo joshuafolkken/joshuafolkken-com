@@ -386,7 +386,7 @@
 	}
 </script>
 
-<section>
+<section class="my-6">
 	<h2 class="mb-4 text-2xl font-light tracking-tight">🛠️ Tech Stack</h2>
 	<div class="space-y-6">
 		{#each tech_stack as category, index (category.title)}

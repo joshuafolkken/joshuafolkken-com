@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte'
-	import Divider from './Divider.svelte'
 	import PageFooter from './PageFooter.svelte'
 
 	const { max_width = 'max-w-2xl', children } = $props<{
@@ -16,7 +15,6 @@
 	<main class="{max_width_class} {padding_class} flex w-full flex-col">
 		{@render children()}
 
-		<Divider />
 		<PageFooter />
 	</main>
 </div>

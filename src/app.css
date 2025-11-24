@@ -25,35 +25,6 @@ a.link-base {
 	@apply flex items-center gap-3 text-xl font-medium text-white;
 }
 
-.prose h1::before {
-	content: '';
-	display: inline-block;
-	width: 1.2em;
-	height: 1.2em;
-	flex-shrink: 0;
-	background-color: currentColor;
-	/* アイコン切り替え用:
-       - /icons/terminal.svg    (ターミナル/コマンド)
-       - /icons/sparkles.svg    (キラキラ/発見)
-       - /icons/zap.svg         (稲妻/閃き)
-       - /icons/compass.svg     (コンパス/指針)
-       - /icons/map-pin.svg     (マップピン/現在地)
-       - /icons/play-circle.svg (再生/開始)
-       - /icons/book-open.svg   (本)
-       - /icons/file-plus.svg   (新規ページ)
-       - /icons/sunrise.svg     (日の出)
-       - /icons/door-open.svg   (扉)
-       - /icons/ink-bottle.svg  (インク壺)
-    */
-	-webkit-mask-image: url('/icons/terminal.svg');
-	mask-image: url('/icons/terminal.svg');
-	-webkit-mask-repeat: no-repeat;
-	mask-repeat: no-repeat;
-	-webkit-mask-size: contain;
-	mask-size: contain;
-	opacity: 0.9;
-}
-
 .prose h2 {
 	@apply mt-8 mb-4 flex items-center gap-2 text-lg font-medium text-white;
 }
@@ -86,7 +57,17 @@ a.link-base {
 	@apply leading-[1.8] text-white/75;
 }
 
-.prose h2,
+.prose h1 {
+	@apply text-2xl font-light tracking-tight;
+}
+
+.prose h2 {
+	@apply mt-10 mb-4 text-xl font-light tracking-tight;
+}
 .prose h3 {
+	@apply mt-6 mb-2 text-lg font-light tracking-tight;
+}
+
+.prose h2 {
 	font-family: 'Shippori Mincho', serif;
 }
