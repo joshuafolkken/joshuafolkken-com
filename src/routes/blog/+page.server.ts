@@ -4,6 +4,7 @@ interface Post {
 	slug: string
 	title: string
 	date: string
+	updated?: string | undefined
 	excerpt: string
 	cover_image?: string | undefined
 }
@@ -11,6 +12,7 @@ interface Post {
 interface Metadata {
 	title?: unknown
 	date?: unknown
+	updated?: unknown
 	excerpt?: unknown
 	cover_image?: unknown
 }
@@ -32,14 +34,25 @@ const get_slug_from_path = (path: string): string | undefined => {
 	return path.split('/').pop()?.replace('.md', '')
 }
 
+const is_optional_string = (value: unknown): boolean => {
+	return value === undefined || typeof value === 'string'
+}
+
 const has_valid_metadata = (
 	metadata: Metadata,
-): metadata is { title: string; date: string; excerpt: string; cover_image?: string } => {
+): metadata is {
+	title: string
+	date: string
+	updated?: string
+	excerpt: string
+	cover_image?: string
+} => {
 	return (
 		typeof metadata.title === 'string' &&
 		typeof metadata.date === 'string' &&
+		is_optional_string(metadata.updated) &&
 		typeof metadata.excerpt === 'string' &&
-		(metadata.cover_image === undefined || typeof metadata.cover_image === 'string')
+		is_optional_string(metadata.cover_image)
 	)
 }
 
@@ -61,6 +74,7 @@ const parse_post = (path: string, file: unknown): Post | undefined => {
 		slug,
 		title: file.metadata.title,
 		date: file.metadata.date,
+		updated: file.metadata.updated,
 		excerpt: file.metadata.excerpt,
 		cover_image: file.metadata.cover_image,
 	}

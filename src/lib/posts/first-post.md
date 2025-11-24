@@ -1,6 +1,7 @@
 ---
-title: さて、書きますか！
+title: SvelteKit × mdsvex × Tailwind。モダンな技術でブログをフルスクラッチした
 date: '2025-11-20'
+updated: '2025-11-24'
 cover_image: '/images/blog/domenico-loia-hGV2TfOh0ns-unsplash.jpg'
 excerpt: これからブログみたいなもんを始めていこうかと思います！WordPress のようなブログシステムみたいなものを使いたいわけではなく、かといって HTML, CSS を直接書いてページを作りたいわけでもなく。
 ---
@@ -25,7 +26,7 @@ WordPress のようなブログシステムみたいなものを使いたいわ�
 
 ## なんで WordPress 使わないの？使えないの？
 
-WordPress はもうずっーーーっと使ってきました。今は SvelteKit を使うのが楽しいので、これで作りたかったんですよね。
+WordPress はもうずーっと使ってきました。今は SvelteKit を使うのが楽しいので、これで作りたかったんですよね。
 
 また、数年前にも md ファイルから Webページを作るってのはやったことがあるんですよね。その時も mdsvex は存在していたのですが、使い方が理解できなくて挫折したんですよ。いやぁ、いい時代になりました。ありがとう AI さん！
 

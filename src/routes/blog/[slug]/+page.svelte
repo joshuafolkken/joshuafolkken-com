@@ -2,6 +2,7 @@
 	import { page } from '$app/state'
 	import { external_links_action } from '$lib/actions/external-links'
 	import { AUTHOR } from '$lib/app'
+	import DateDisplay from '$lib/components/DateDisplay.svelte'
 	import Divider from '$lib/components/Divider.svelte'
 	import LikeContainer from '$lib/components/LikeContainer.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
@@ -31,7 +32,7 @@
 
 	<article class="prose max-w-none prose-invert" use:external_links_action.external_links>
 		<h1 class="mb-1">{data.meta.title}</h1>
-		<time class="mt-0 block text-right text-[0.75rem] text-white/50">{data.meta.date}</time>
+		<DateDisplay date={data.meta.date} updated={data.meta.updated} class="mt-0" />
 		<Divider />
 
 		{#if data.meta.cover_image}

@@ -9,6 +9,7 @@ export const load: PageLoad = async ({ params }) => {
 			metadata: {
 				title: string
 				date: string
+				updated?: string
 				excerpt: string
 				cover_image?: string
 			}

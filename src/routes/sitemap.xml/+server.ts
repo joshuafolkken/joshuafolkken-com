@@ -12,6 +12,7 @@ interface SitemapUrl {
 interface MdsvexFile {
 	metadata: {
 		date?: string
+		updated?: string
 		[key: string]: unknown
 	}
 }
@@ -77,14 +78,14 @@ function get_blog_posts(): Array<SitemapUrl> {
 			return { slug, metadata: mdsvex_file.metadata }
 		})
 		.filter(
-			(post): post is { slug: string; metadata: { date: string } } =>
+			(post): post is { slug: string; metadata: { date: string; updated?: string } } =>
 				post.slug !== undefined && post.metadata.date !== undefined,
 		)
 		.map((post) => ({
 			loc: `${APP.URL}/blog/${post.slug}`,
 			changefreq: 'weekly',
 			priority: '0.8',
-			lastmod: format_date_to_w3c(new Date(post.metadata.date)),
+			lastmod: format_date_to_w3c(new Date(post.metadata.updated ?? post.metadata.date)),
 		}))
 }
 
