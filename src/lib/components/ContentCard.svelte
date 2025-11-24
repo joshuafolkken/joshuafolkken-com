@@ -17,7 +17,7 @@
 </script>
 
 <section class={class_name}>
-	<h2 class="mb-2 flex items-center {justify_class} gap-2 text-xl font-medium">
+	<h2 class="mb-4 flex items-center {justify_class} gap-2 text-2xl font-light tracking-tight">
 		{#if icon}
 			<!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
 			{@const Icon = icon}

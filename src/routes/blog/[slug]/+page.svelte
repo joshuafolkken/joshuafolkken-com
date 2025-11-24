@@ -3,7 +3,6 @@
 	import { external_links_action } from '$lib/actions/external-links'
 	import { AUTHOR } from '$lib/app'
 	import DateDisplay from '$lib/components/DateDisplay.svelte'
-	import Divider from '$lib/components/Divider.svelte'
 	import LikeContainer from '$lib/components/LikeContainer.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
@@ -29,26 +28,20 @@
 
 <PageLayout>
 	<PageHeader page={PAGES.BLOG} />
-	<Divider />
 
-	<article class="prose max-w-none prose-invert" use:external_links_action.external_links>
+	<article class="prose mt-6 mb-6 max-w-none prose-invert" use:external_links_action.external_links>
 		<h1 class="mb-1">{data.meta.title}</h1>
-		<DateDisplay date={data.meta.date} updated={data.meta.updated} class="mt-0" />
-		<Divider />
+		<DateDisplay date={data.meta.date} updated={data.meta.updated} />
 
 		{#if data.meta.cover_image}
-			<img
-				src={data.meta.cover_image}
-				alt={data.meta.title}
-				class="-mt-2 h-auto w-full rounded-lg"
-			/>
+			<div class="-mx-4 overflow-hidden">
+				<img src={data.meta.cover_image} alt={data.meta.title} class="mb-0 h-auto w-full" />
+			</div>
 		{/if}
 
-		<div class="-mt-2">
-			<data.content />
-		</div>
-
-		<SupportBox />
-		<LikeContainer slug={page.params.slug ?? ''} />
+		<data.content />
 	</article>
+
+	<SupportBox />
+	<LikeContainer slug={page.params.slug ?? ''} />
 </PageLayout>

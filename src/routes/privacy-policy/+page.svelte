@@ -1,7 +1,6 @@
 <script lang="ts">
 	/* eslint-disable max-lines, max-len */
 	import { APP, AUTHOR } from '$lib/app'
-	import Divider from '$lib/components/Divider.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import PageSection from '$lib/components/PageSection.svelte'
@@ -18,13 +17,9 @@
 <PageLayout>
 	<PageHeader page={PAGES.PRIVACY_POLICY} />
 
-	<Divider />
-
 	<PageSection>
-		<p class="text-sm text-white/60">Last Updated: {last_updated}</p>
+		<p class="text-right text-sm text-white/60">Last Updated: {last_updated}</p>
 	</PageSection>
-
-	<Divider />
 
 	<PageSection title="Introduction">
 		<p class="mt-4">
@@ -33,8 +28,6 @@
 			our practices regarding data collection and usage when you visit our website.
 		</p>
 	</PageSection>
-
-	<Divider />
 
 	<PageSection title="Information We Collect">
 		<div class="space-y-4">
@@ -73,8 +66,6 @@
 		</div>
 	</PageSection>
 
-	<Divider />
-
 	<PageSection title="How We Use Your Information">
 		<p class="mb-2">We use the collected information for the following purposes:</p>
 		<ol class="ml-4 list-decimal space-y-1">
@@ -95,8 +86,6 @@
 			<li><strong>Legal Compliance</strong>: To comply with applicable laws and regulations</li>
 		</ol>
 	</PageSection>
-
-	<Divider />
 
 	<PageSection title="Cookies and Tracking Technologies">
 		<div class="space-y-4">
@@ -165,8 +154,6 @@
 		</div>
 	</PageSection>
 
-	<Divider />
-
 	<PageSection title="Google AdSense">
 		<p class="mb-4">
 			Our website uses Google AdSense, a service provided by Google LLC ("Google") for displaying
@@ -220,8 +207,6 @@
 		</div>
 	</PageSection>
 
-	<Divider />
-
 	<PageSection title="Third-Party Services">
 		<p class="mb-2">
 			We may use other third-party services that collect information about your use of our website:
@@ -239,8 +224,6 @@
 			your information. We encourage you to review their privacy policies.
 		</p>
 	</PageSection>
-
-	<Divider />
 
 	<PageSection title="Data Sharing and Disclosure">
 		<p class="mb-2">
@@ -267,8 +250,6 @@
 		</ol>
 	</PageSection>
 
-	<Divider />
-
 	<PageSection title="Data Security">
 		<p>
 			We implement appropriate technical and organizational measures to protect your personal
@@ -278,8 +259,6 @@
 		</p>
 	</PageSection>
 
-	<Divider />
-
 	<PageSection title="Data Retention">
 		<p>
 			We retain your personal information only for as long as necessary to fulfill the purposes
@@ -287,8 +266,6 @@
 			law.
 		</p>
 	</PageSection>
-
-	<Divider />
 
 	<PageSection title="Your Rights">
 		<p class="mb-2">
@@ -323,8 +300,6 @@
 		</p>
 	</PageSection>
 
-	<Divider />
-
 	<PageSection title="Children's Privacy">
 		<p>
 			Our website is not intended for children under the age of 13. We do not knowingly collect
@@ -332,8 +307,6 @@
 			child has provided us with personal information, please contact us immediately.
 		</p>
 	</PageSection>
-
-	<Divider />
 
 	<PageSection title="International Data Transfers">
 		<p>
@@ -343,8 +316,6 @@
 			countries.
 		</p>
 	</PageSection>
-
-	<Divider />
 
 	<PageSection title="Changes to This Privacy Policy">
 		<p class="mb-2">
@@ -357,8 +328,6 @@
 			protect your information.
 		</p>
 	</PageSection>
-
-	<Divider />
 
 	<PageSection title="California Privacy Rights">
 		<p class="mb-2">
@@ -373,8 +342,6 @@
 		</ul>
 	</PageSection>
 
-	<Divider />
-
 	<PageSection title="European Privacy Rights">
 		<p class="mb-2">
 			If you are located in the European Economic Area (EEA), you have rights under the General Data
@@ -387,8 +354,6 @@
 			<li>The right to lodge a complaint with a supervisory authority</li>
 		</ul>
 	</PageSection>
-
-	<Divider />
 
 	<PageSection title="Contact Us">
 		<p class="mb-2">

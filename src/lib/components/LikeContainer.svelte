@@ -11,7 +11,7 @@
 	const like_state = new LikeState(slug)
 </script>
 
-<div class="flex justify-center {class_name}" {...rest}>
+<div class="mb-4 flex justify-center {class_name}" {...rest}>
 	<LikeButton
 		count={like_state.count}
 		is_liked={like_state.is_liked}

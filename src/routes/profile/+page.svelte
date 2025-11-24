@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { APP, AUTHOR, LINK_REL, LINK_TARGET, OPENCOLLECTIVE } from '$lib/app'
 	import AdSenseScript from '$lib/components/AdSenseScript.svelte'
-	import Divider from '$lib/components/Divider.svelte'
 	import LikeContainer from '$lib/components/LikeContainer.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
@@ -21,7 +20,6 @@
 <PageLayout>
 	<PageHeader page={PAGES.PROFILE} />
 
-	<Divider />
 	<PageSection title="Hi there! 👋 I'm {AUTHOR.NAME}">
 		<p class="mt-4 text-lg text-white/80">
 			<strong>Indie Game Developer & Educator</strong> | Japan 🇯🇵
@@ -32,7 +30,6 @@
 		</p>
 	</PageSection>
 
-	<Divider />
 	<!-- What I Do -->
 	<PageSection title="🌟 What I Do">
 		<div class="space-y-6">
@@ -73,10 +70,8 @@
 		</div>
 	</PageSection>
 
-	<Divider />
 	<TechStack />
 
-	<Divider />
 	<!-- GitHub Stats -->
 	<PageSection title="📊 GitHub Stats">
 		<div class="space-y-4">
@@ -93,7 +88,6 @@
 		</div>
 	</PageSection>
 
-	<Divider />
 	<!-- Philosophy -->
 	<PageSection title="🌈 Philosophy">
 		<blockquote class="border-l-4 border-white/30 pl-4 italic">
@@ -106,7 +100,6 @@
 		</p>
 	</PageSection>
 
-	<Divider />
 	<!-- Community Support -->
 	<PageSection title="💖 Community Support">
 		<div class="space-y-4">
@@ -136,7 +129,6 @@
 		</div>
 	</PageSection>
 
-	<Divider />
 	<!-- Footer Message -->
 	<PageSection title="⭐️ Thanks for visiting! ⭐️">
 		<div>

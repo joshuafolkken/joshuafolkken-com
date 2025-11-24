@@ -42,7 +42,7 @@
 
 <header
 	bind:this={header_element}
-	class="flex flex-col items-center justify-center transition-all duration-300"
+	class="mb-4 flex flex-col items-center justify-center transition-all duration-300"
 	class:opacity-0={is_sticky}
 	class:pointer-events-none={is_sticky}
 >

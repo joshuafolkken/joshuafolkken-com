@@ -4,7 +4,7 @@
 </script>
 
 <div
-	class="mt-10 mb-6 flex flex-col items-center justify-center gap-4 rounded-xl border border-white/10 bg-slate-800/50 p-6 text-center backdrop-blur-sm"
+	class="mt-6 mb-6 flex flex-col items-center justify-center gap-4 rounded-xl border border-white/10 bg-slate-800/50 p-6 text-center backdrop-blur-sm"
 >
 	<h3 class="mt-0! text-lg font-medium text-white/90">いいなと思ったら応援しよう！</h3>
 	<a
