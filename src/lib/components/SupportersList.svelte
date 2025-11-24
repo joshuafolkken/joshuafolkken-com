@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state'
 	import type { OpenCollectiveMember } from '$lib/types/opencollective'
+	import { PAGES } from '$lib/types/page'
 
 	const { supporters = [] }: { supporters?: Array<OpenCollectiveMember> } = page.data
 
@@ -52,8 +53,9 @@
 
 				<!-- Details -->
 				<div class="flex min-w-0 flex-1 flex-col text-start">
+					<!-- href={supporter.profile} -->
 					<a
-						href={supporter.profile}
+						href={PAGES.DONATIONS.link}
 						target="_blank"
 						rel="noopener noreferrer"
 						class="line-clamp-2 text-sm font-medium"

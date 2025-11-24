@@ -6,6 +6,7 @@
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import PageSection from '$lib/components/PageSection.svelte'
+	import SupportBox from '$lib/components/SupportBox.svelte'
 	import TechStack from '$lib/components/TechStack.svelte'
 	import { PAGES } from '$lib/types/page'
 </script>
@@ -144,8 +145,9 @@
 				All source code is available for learning purposes. Let's build a brighter future together!
 				🌟
 			</p>
-
-			<LikeContainer slug="page:profile" class="mt-8" />
 		</div>
 	</PageSection>
+
+	<SupportBox />
+	<LikeContainer slug="page:profile" />
 </PageLayout>
