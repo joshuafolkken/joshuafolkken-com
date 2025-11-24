@@ -12,7 +12,7 @@
 </script>
 
 <svg
-	viewBox="0 0 24 24"
+	viewBox="0 -2 24 24"
 	width={size}
 	height={size}
 	class="text-white"
