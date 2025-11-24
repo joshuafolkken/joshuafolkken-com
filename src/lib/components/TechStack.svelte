@@ -367,7 +367,8 @@
 	function intersect(node: HTMLElement, index: number): { destroy: () => void } {
 		const observer = new IntersectionObserver(
 			(entries) => {
-				if (entries[0].isIntersecting) {
+				const [entry] = entries
+				if (entry?.isIntersecting === true) {
 					visible_indices.add(index)
 					observer.disconnect()
 				}
