@@ -58,6 +58,10 @@ a.link-base {
 	@apply mt-8 mb-4 flex items-center gap-2 text-lg font-medium text-white;
 }
 
+.prose h3 {
+	@apply text-base font-medium text-white;
+}
+
 .prose h2::before {
 	content: '';
 	display: inline-block;
