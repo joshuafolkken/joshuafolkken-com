@@ -1,18 +1,12 @@
-import { turso } from './turso'
+import { eq, sql } from 'drizzle-orm'
+import { database } from './db'
+import { post_likes } from './db/schema'
 
 // サーバーメモリ上のキャッシュ
 // { 'slug': count }
 const local_cache = new Map<string, number>()
 
 const INITIAL_COUNT = 0
-const SELECT_LIKES_QUERY = 'SELECT count FROM post_likes WHERE slug = ?'
-const INSERT_LIKE_QUERY = `
-    INSERT INTO post_likes (slug, count, updated_at)
-    VALUES (?, 1, ?)
-    ON CONFLICT(slug) DO UPDATE SET
-        count = count + 1,
-        updated_at = excluded.updated_at
-`
 
 function get_from_cache(slug: string): number | undefined {
 	const cached = local_cache.get(slug)
@@ -24,19 +18,29 @@ function get_from_cache(slug: string): number | undefined {
 }
 
 async function get_likes_from_database(slug: string): Promise<number> {
-	const result = await turso.client.execute({
-		sql: SELECT_LIKES_QUERY,
-		args: [slug],
-	})
-	// eslint-disable-next-line dot-notation
-	return (result.rows[0]?.['count'] as number | undefined) ?? INITIAL_COUNT
+	const result = await database.select().from(post_likes).where(eq(post_likes.slug, slug)).limit(1)
+
+	return result[0]?.count ?? INITIAL_COUNT
 }
 
 async function update_likes_in_database(slug: string): Promise<void> {
-	await turso.client.execute({
-		sql: INSERT_LIKE_QUERY,
-		args: [slug, Date.now()],
-	})
+	const now = Date.now()
+	const increment_value = 1
+
+	await database
+		.insert(post_likes)
+		.values({
+			slug,
+			count: increment_value,
+			updated_at: now,
+		})
+		.onConflictDoUpdate({
+			target: post_likes.slug,
+			set: {
+				count: sql`${post_likes.count} + ${increment_value}`,
+				updated_at: now,
+			},
+		})
 }
 
 async function get_likes(slug: string): Promise<number> {

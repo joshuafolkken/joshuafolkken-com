@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths'
 	import { AUTHOR } from '$lib/app'
+	import DateDisplay from '$lib/components/DateDisplay.svelte'
 	import Divider from '$lib/components/Divider.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
@@ -41,7 +42,11 @@
 						<p class="my-2 text-sm leading-relaxed text-gray-400 group-hover:text-gray-300">
 							{post.excerpt}
 						</p>
-						<p class="text-right text-xs text-gray-500 group-hover:text-gray-400">{post.date}</p>
+						<DateDisplay
+							date={post.date}
+							updated={post.updated}
+							class="text-gray-500 group-hover:text-gray-400"
+						/>
 					</div>
 				</a>
 			</li>
