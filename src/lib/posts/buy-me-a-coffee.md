@@ -1,7 +1,7 @@
 ---
 title: 「寄付」より「応援」を。Noteライクなボタンをブログに実装した理由
 date: '2025-11-24 18:30'
-cover_image: '/images/blog/kelly-sikkema-4le7k9XVYjE-unsplash.jpg'
+cover_image: /api/images/blog/kelly-sikkema-4le7k9XVYjE-unsplash.webp
 excerpt: ブログ記事の下に、Noteのような「チップで応援」ボタンを実装してみました。デザインのこだわりやSVGアイコンの作成秘話、そして「寄付」ではなく「応援」という言葉を選んだ理由について。
 ---
 

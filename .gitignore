@@ -25,3 +25,5 @@ vite.config.ts.timestamp-*
 
 # ESLint cache
 .eslintcache
+
+static/images/blog/*-w*.webp
