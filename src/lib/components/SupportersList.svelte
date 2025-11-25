@@ -28,46 +28,34 @@
 </script>
 
 {#if supporters.length > 0}
-	<div class="mt-6 flex flex-col items-center gap-2">
+	<div class="mt-0 flex flex-col items-center gap-2">
 		{#each supporters as supporter, index (supporter.MemberId)}
-			<div
-				class="flex max-w-[240px] min-w-[240px] items-center gap-3 rounded-lg bg-white/5 p-3 transition-colors hover:bg-white/10"
+			<a
+				href={PAGES.DONATIONS.link}
+				target="_blank"
+				rel="noopener noreferrer"
+				class="group flex w-auto items-center gap-3 rounded-lg px-6 py-3 text-white/60 transition duration-300 hover:bg-slate-800/60 hover:text-white/80"
 			>
 				<!-- Rank -->
-				<span class="w-4 text-center text-sm font-bold text-white/40">{index + 1}</span>
+				<span class="w-4 text-center text-sm font-bold">{index + 1}</span>
 
 				<!-- Avatar -->
-				<a
-					href={supporter.profile}
-					target="_blank"
-					rel="noopener noreferrer"
-					class="shrink-0 transition-opacity hover:opacity-80"
-				>
+				<div class="shrink-0 opacity-80 transition-opacity group-hover:opacity-100">
 					<img
 						src={get_avatar_url(supporter)}
 						alt={supporter.name}
 						class="h-10 w-10 rounded-full border border-gray-200 bg-gray-50 object-cover"
 						loading="lazy"
 					/>
-				</a>
+				</div>
 
 				<!-- Details -->
 				<div class="flex min-w-0 flex-1 flex-col text-start">
-					<!-- href={supporter.profile} -->
-					<a
-						href={PAGES.DONATIONS.link}
-						target="_blank"
-						rel="noopener noreferrer"
-						class="line-clamp-2 text-sm font-medium"
-					>
+					<span class="line-clamp-2 text-sm font-medium">
 						{supporter.name}
-					</a>
-					<!-- <p class="text-xs text-white/60">
-						¥{supporter.totalAmountDonated.toLocaleString()}
-						<span class="ml-1 text-white/40">JPY</span>
-					</p> -->
+					</span>
 				</div>
-			</div>
+			</a>
 		{/each}
 	</div>
 {/if}
