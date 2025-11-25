@@ -16,7 +16,7 @@
 			'active:scale-95 disabled:cursor-default disabled:active:scale-100 cursor-pointer',
 			is_liked
 				? 'border-red-200 bg-red-50 text-red-500 dark:border-red-900/30 dark:bg-red-900/10'
-				: 'border-neutral-200 hover:border-red-200 hover:bg-red-50 dark:border-neutral-700 dark:hover:border-red-900/30 dark:hover:bg-red-900/10',
+				: 'border-neutral-200 hover:border-red-200 hover:bg-red-50 border-white/10 dark:hover:border-red-900/30 dark:hover:bg-red-900/10',
 		].join(' '),
 	)
 

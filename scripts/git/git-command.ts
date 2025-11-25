@@ -25,7 +25,7 @@ async function exec_git_command_with_output(
 	command: string,
 	arguments_list: Array<string>,
 ): Promise<void> {
-	const git_command: string = git_utilities.get_git_command()
+	const git_command: string = git_utilities.get_git_command_for_spawn()
 	await new Promise<void>((resolve, reject) => {
 		const child = spawn(git_command, [command, ...arguments_list], {
 			stdio: 'inherit',

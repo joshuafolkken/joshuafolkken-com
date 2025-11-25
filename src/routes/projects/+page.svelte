@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { AUTHOR, SUBTITLE_DEVELOPMENT_TOOL, URLS } from '$lib/app'
-	import LikeContainer from '$lib/components/LikeContainer.svelte'
+	import EngagementButtons from '$lib/components/EngagementButtons.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import ProjectList from '$lib/components/ProjectList.svelte'
@@ -79,10 +79,11 @@
 			links: [{ href: `${URLS.GITHUB}/godot-multiplayer`, type: 'github' }],
 		},
 	]
+	const title = `${PAGES.PROJECTS.title} - ${AUTHOR.NAME}`
 </script>
 
 <svelte:head>
-	<title>{PAGES.PROJECTS.title} - {AUTHOR.NAME}</title>
+	<title>{title}</title>
 	<meta name="description" content={PAGES.PROJECTS.description} />
 </svelte:head>
 
@@ -92,5 +93,5 @@
 	<ProjectList {projects} />
 
 	<SupportBox />
-	<LikeContainer slug="page:projects" />
+	<EngagementButtons slug="page:projects" {title} />
 </PageLayout>

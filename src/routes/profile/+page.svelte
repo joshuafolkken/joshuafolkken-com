@@ -1,17 +1,19 @@
 <script lang="ts">
 	import { APP, AUTHOR, LINK_REL, LINK_TARGET, OPENCOLLECTIVE } from '$lib/app'
 	import AdSenseScript from '$lib/components/AdSenseScript.svelte'
-	import LikeContainer from '$lib/components/LikeContainer.svelte'
+	import EngagementButtons from '$lib/components/EngagementButtons.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import PageSection from '$lib/components/PageSection.svelte'
 	import SupportBox from '$lib/components/SupportBox.svelte'
 	import TechStack from '$lib/components/TechStack.svelte'
 	import { PAGES } from '$lib/types/page'
+
+	const title = `${PAGES.PROFILE.title} - ${AUTHOR.NAME}`
 </script>
 
 <svelte:head>
-	<title>{PAGES.PROFILE.title} - {AUTHOR.NAME}</title>
+	<title>{title}</title>
 	<meta name="description" content={PAGES.PROFILE.description} />
 </svelte:head>
 
@@ -141,5 +143,5 @@
 	</PageSection>
 
 	<SupportBox />
-	<LikeContainer slug="page:profile" />
+	<EngagementButtons slug="page:profile" {title} />
 </PageLayout>
