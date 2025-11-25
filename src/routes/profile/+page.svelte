@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { APP, AUTHOR, LINK_REL, LINK_TARGET, OPENCOLLECTIVE } from '$lib/app'
 	import AdSenseScript from '$lib/components/AdSenseScript.svelte'
-	import LikeContainer from '$lib/components/LikeContainer.svelte'
+	import EngagementButtons from '$lib/components/EngagementButtons.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import PageSection from '$lib/components/PageSection.svelte'
@@ -143,5 +143,5 @@
 	</PageSection>
 
 	<SupportBox />
-	<LikeContainer slug="page:profile" {title} />
+	<EngagementButtons slug="page:profile" {title} />
 </PageLayout>

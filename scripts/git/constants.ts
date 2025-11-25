@@ -4,16 +4,25 @@ const REQUIRED_STATUS_LENGTH = 2
 const STAGED_STATUS_INDEX = 1
 const UNTRACKED_FILE_PREFIX = '??'
 const SEPARATOR_LINE = '────────────────────────────────────────'
+const GIT_COMMAND_UNIX = '/usr/bin/git'
 
 function get_git_command(): string {
 	if (platform() === 'win32') {
-		return String.raw`"C:\Program Files\Git\bin\git.exe"`
+		return String.raw`"C:\Program Files\Git\cmd\git.exe"`
 	}
-	return '/usr/bin/git'
+	return GIT_COMMAND_UNIX
+}
+
+function get_git_command_for_spawn(): string {
+	if (platform() === 'win32') {
+		return String.raw`C:\Program Files\Git\cmd\git.exe`
+	}
+	return GIT_COMMAND_UNIX
 }
 
 const git_utilities = {
 	get_git_command,
+	get_git_command_for_spawn,
 }
 
 export {

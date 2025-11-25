@@ -3,7 +3,7 @@
 	import { external_links_action } from '$lib/actions/external-links'
 	import { AUTHOR } from '$lib/app'
 	import DateDisplay from '$lib/components/DateDisplay.svelte'
-	import LikeContainer from '$lib/components/LikeContainer.svelte'
+	import EngagementButtons from '$lib/components/EngagementButtons.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import SupportBox from '$lib/components/SupportBox.svelte'
@@ -46,5 +46,5 @@
 
 	<SupportBox />
 
-	<LikeContainer slug={page.params.slug ?? ''} title={blog_title} />
+	<EngagementButtons slug={page.params.slug ?? ''} title={blog_title} />
 </PageLayout>
