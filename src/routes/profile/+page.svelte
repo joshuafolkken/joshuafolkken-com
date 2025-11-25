@@ -8,10 +8,12 @@
 	import SupportBox from '$lib/components/SupportBox.svelte'
 	import TechStack from '$lib/components/TechStack.svelte'
 	import { PAGES } from '$lib/types/page'
+
+	const title = `${PAGES.PROFILE.title} - ${AUTHOR.NAME}`
 </script>
 
 <svelte:head>
-	<title>{PAGES.PROFILE.title} - {AUTHOR.NAME}</title>
+	<title>{title}</title>
 	<meta name="description" content={PAGES.PROFILE.description} />
 </svelte:head>
 
@@ -141,5 +143,5 @@
 	</PageSection>
 
 	<SupportBox />
-	<LikeContainer slug="page:profile" />
+	<LikeContainer slug="page:profile" {title} />
 </PageLayout>

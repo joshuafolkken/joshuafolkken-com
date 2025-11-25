@@ -79,10 +79,11 @@
 			links: [{ href: `${URLS.GITHUB}/godot-multiplayer`, type: 'github' }],
 		},
 	]
+	const title = `${PAGES.PROJECTS.title} - ${AUTHOR.NAME}`
 </script>
 
 <svelte:head>
-	<title>{PAGES.PROJECTS.title} - {AUTHOR.NAME}</title>
+	<title>{title}</title>
 	<meta name="description" content={PAGES.PROJECTS.description} />
 </svelte:head>
 
@@ -92,5 +93,5 @@
 	<ProjectList {projects} />
 
 	<SupportBox />
-	<LikeContainer slug="page:projects" />
+	<LikeContainer slug="page:projects" {title} />
 </PageLayout>

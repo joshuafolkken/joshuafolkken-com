@@ -12,10 +12,12 @@
 
 	const { data }: { data: PageData } = $props()
 	const image_url = `https://joshuafolkken.com${data.meta.cover_image ?? ''}`
+	const blog_title = data.meta.title
+	const page_title = `${blog_title} - ${AUTHOR.NAME}`
 </script>
 
 <svelte:head>
-	<title>{data.meta.title} - {AUTHOR.NAME}</title>
+	<title>{page_title}</title>
 	<meta name="description" content={data.meta.excerpt} />
 
 	<meta property="og:type" content="webpage" />
@@ -30,12 +32,12 @@
 	<PageHeader page={PAGES.BLOG} />
 
 	<article class="prose mt-6 mb-6 max-w-none prose-invert" use:external_links_action.external_links>
-		<h1 class="mb-1">{data.meta.title}</h1>
+		<h1 class="mb-1">{blog_title}</h1>
 		<DateDisplay date={data.meta.date} updated={data.meta.updated} />
 
 		{#if data.meta.cover_image}
 			<div class="-mx-4 overflow-hidden">
-				<img src={data.meta.cover_image} alt={data.meta.title} class="mb-0 h-auto w-full" />
+				<img src={data.meta.cover_image} alt={blog_title} class="mb-0 h-auto w-full" />
 			</div>
 		{/if}
 
@@ -43,5 +45,6 @@
 	</article>
 
 	<SupportBox />
-	<LikeContainer slug={page.params.slug ?? ''} />
+
+	<LikeContainer slug={page.params.slug ?? ''} title={blog_title} />
 </PageLayout>
