@@ -1,349 +1,169 @@
-/* eslint-disable max-lines */
 import type { Category } from '$lib/types/tech-stack'
 
-type BadgeTuple = [name: string, url: string]
-type CategoryData = [title: string, badges: Array<BadgeTuple>]
+const BADGE_BASE_URL = 'https://img.shields.io/badge'
+const BADGE_STYLE = 'for-the-badge'
+const LOGO_COLOR_WHITE = 'white'
+const LOGO_COLOR_BLACK = 'black'
+const COLOR_BLACK = '000000'
+const COLOR_GODOT = '478CBF'
+const COLOR_WINDOWS = '0078D6'
+const COLOR_AWS = 'FF9900'
+const LOGO_DOT_NET = '.net'
+const LOGO_AMAZON_AWS = 'amazon-aws'
+const LOGO_GODOT_ENGINE = 'godot-engine'
+
+type BadgeParameters = [name: string, color: string, logo: string, logo_color: string]
+type CategoryData = [title: string, badges: Array<BadgeParameters>]
+
+interface BadgeConfig {
+	name: string
+	color: string
+	logo: string
+	logo_color: string
+}
+
+function create_badge_url(config: BadgeConfig): string {
+	const label = encodeURIComponent(config.name)
+	const message = config.color
+	const parameters = new URLSearchParams({
+		style: BADGE_STYLE,
+		logo: config.logo,
+		// eslint-disable-next-line @typescript-eslint/naming-convention
+		logoColor: config.logo_color,
+	})
+	return `${BADGE_BASE_URL}/${label}-${message}?${parameters.toString()}`
+}
 
 const tech_stack_data: Array<CategoryData> = [
 	[
 		'💻 Programming Languages',
 		[
-			[
-				'TypeScript',
-				'https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white',
-			],
-			[
-				'JavaScript',
-				'https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black',
-			],
-			[
-				'Rust',
-				'https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white',
-			],
-			[
-				'Dart',
-				'https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white',
-			],
-			[
-				'Kotlin',
-				'https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white',
-			],
-			[
-				'Swift',
-				'https://img.shields.io/badge/Swift-FA7343?style=for-the-badge&logo=swift&logoColor=white',
-			],
-			[
-				'Java',
-				'https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white',
-			],
-			[
-				'C#',
-				'https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=c-sharp&logoColor=white',
-			],
-			[
-				'VB.NET',
-				'https://img.shields.io/badge/VB.NET-512BD4?style=for-the-badge&logo=.net&logoColor=white',
-			],
-			[
-				'PHP',
-				'https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white',
-			],
-			[
-				'Python',
-				'https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white',
-			],
-			['C', 'https://img.shields.io/badge/C-A8B9CC?style=for-the-badge&logo=c&logoColor=black'],
+			['TypeScript', '007ACC', 'typescript', LOGO_COLOR_WHITE],
+			['JavaScript', 'F7DF1E', 'javascript', LOGO_COLOR_BLACK],
+			['Rust', COLOR_BLACK, 'rust', LOGO_COLOR_WHITE],
+			['Dart', '0175C2', 'dart', LOGO_COLOR_WHITE],
+			['Kotlin', '7F52FF', 'kotlin', LOGO_COLOR_WHITE],
+			['Swift', 'FA7343', 'swift', LOGO_COLOR_WHITE],
+			['Java', 'ED8B00', 'openjdk', LOGO_COLOR_WHITE],
+			['C#', '239120', 'c-sharp', LOGO_COLOR_WHITE],
+			['VB.NET', '512BD4', LOGO_DOT_NET, LOGO_COLOR_WHITE],
+			['PHP', '777BB4', 'php', LOGO_COLOR_WHITE],
+			['Python', '3776AB', 'python', LOGO_COLOR_WHITE],
+			['C', 'A8B9CC', 'c', LOGO_COLOR_BLACK],
 		],
 	],
 	[
 		'🌐 Web Technologies',
 		[
-			[
-				'Svelte',
-				'https://img.shields.io/badge/Svelte-FF3E00?style=for-the-badge&logo=svelte&logoColor=white',
-			],
-			[
-				'HTML5',
-				'https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white',
-			],
-			[
-				'CSS3',
-				'https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white',
-			],
-			[
-				'Tailwind CSS',
-				'https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white',
-			],
-			[
-				'Node.js',
-				'https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white',
-			],
-			[
-				'Vue.js',
-				'https://img.shields.io/badge/Vue.js-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white',
-			],
-			[
-				'.NET',
-				'https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=.net&logoColor=white',
-			],
-			[
-				'Angular',
-				'https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white',
-			],
-			[
-				'Bootstrap',
-				'https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white',
-			],
-			[
-				'Vite',
-				'https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white',
-			],
+			['Svelte', 'FF3E00', 'svelte', LOGO_COLOR_WHITE],
+			['HTML5', 'E34F26', 'html5', LOGO_COLOR_WHITE],
+			['CSS3', '1572B6', 'css3', LOGO_COLOR_WHITE],
+			['Tailwind CSS', '38B2AC', 'tailwind-css', LOGO_COLOR_WHITE],
+			['Node.js', '43853D', 'node.js', LOGO_COLOR_WHITE],
+			['Vue.js', '4FC08D', 'vue.js', LOGO_COLOR_WHITE],
+			['.NET', '512BD4', LOGO_DOT_NET, LOGO_COLOR_WHITE],
+			['Angular', 'DD0031', 'angular', LOGO_COLOR_WHITE],
+			['Bootstrap', '563D7C', 'bootstrap', LOGO_COLOR_WHITE],
+			['Vite', '646CFF', 'vite', LOGO_COLOR_WHITE],
 		],
 	],
 	[
 		'🗄️ Databases & Cloud',
 		[
-			[
-				'TURSO',
-				'https://img.shields.io/badge/TURSO-444444?style=for-the-badge&logo=turso&logoColor=white',
-			],
-			[
-				'LibSQL',
-				'https://img.shields.io/badge/LibSQL-444444?style=for-the-badge&logo=sqlite&logoColor=white',
-			],
-			[
-				'SQLite',
-				'https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white',
-			],
-			[
-				'Drizzle',
-				'https://img.shields.io/badge/Drizzle-C5F74F?style=for-the-badge&logo=drizzle&logoColor=black',
-			],
-			[
-				'PostgreSQL',
-				'https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white',
-			],
-			[
-				'MySQL',
-				'https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white',
-			],
-			[
-				'Redis',
-				'https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white',
-			],
-			[
-				'AWS',
-				'https://img.shields.io/badge/AWS-FF9900?style=for-the-badge&logo=amazon-aws&logoColor=white',
-			],
-			[
-				'Vercel',
-				'https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white',
-			],
+			['TURSO', '444444', 'turso', LOGO_COLOR_WHITE],
+			['LibSQL', '444444', 'sqlite', LOGO_COLOR_WHITE],
+			['SQLite', '003B57', 'sqlite', LOGO_COLOR_WHITE],
+			['Drizzle', 'C5F74F', 'drizzle', LOGO_COLOR_BLACK],
+			['PostgreSQL', '316192', 'postgresql', LOGO_COLOR_WHITE],
+			['MySQL', '4479A1', 'mysql', LOGO_COLOR_WHITE],
+			['Redis', 'DC382D', 'redis', LOGO_COLOR_WHITE],
+			['AWS', COLOR_AWS, LOGO_AMAZON_AWS, LOGO_COLOR_WHITE],
+			['Vercel', COLOR_BLACK, 'vercel', LOGO_COLOR_WHITE],
 		],
 	],
 	[
 		'🎮 Game Development',
 		[
-			[
-				'Godot',
-				'https://img.shields.io/badge/Godot-478CBF?style=for-the-badge&logo=godot-engine&logoColor=white',
-			],
-			[
-				'GDScript',
-				'https://img.shields.io/badge/GDScript-478CBF?style=for-the-badge&logo=godot-engine&logoColor=white',
-			],
-			[
-				'Unity',
-				'https://img.shields.io/badge/Unity-000000?style=for-the-badge&logo=unity&logoColor=white',
-			],
+			['Godot', COLOR_GODOT, LOGO_GODOT_ENGINE, LOGO_COLOR_WHITE],
+			['GDScript', COLOR_GODOT, LOGO_GODOT_ENGINE, LOGO_COLOR_WHITE],
+			['Unity', COLOR_BLACK, 'unity', LOGO_COLOR_WHITE],
 		],
 	],
 	[
 		'📱 Mobile Development',
 		[
-			[
-				'Android',
-				'https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white',
-			],
-			[
-				'iOS',
-				'https://img.shields.io/badge/iOS-000000?style=for-the-badge&logo=ios&logoColor=white',
-			],
-			[
-				'Flutter',
-				'https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white',
-			],
+			['Android', '3DDC84', 'android', LOGO_COLOR_WHITE],
+			['iOS', COLOR_BLACK, 'ios', LOGO_COLOR_WHITE],
+			['Flutter', '02569B', 'flutter', LOGO_COLOR_WHITE],
 		],
 	],
 	[
 		'🖥️ Desktop Development',
 		[
-			[
-				'Windows',
-				'https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white',
-			],
-			[
-				'macOS',
-				'https://img.shields.io/badge/macOS-000000?style=for-the-badge&logo=macos&logoColor=white',
-			],
-			[
-				'Linux',
-				'https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black',
-			],
+			['Windows', COLOR_WINDOWS, 'windows', LOGO_COLOR_WHITE],
+			['macOS', COLOR_BLACK, 'macos', LOGO_COLOR_WHITE],
+			['Linux', 'FCC624', 'linux', LOGO_COLOR_BLACK],
 		],
 	],
 	[
 		'☁️ Infrastructure & Servers',
 		[
-			[
-				'PM2',
-				'https://img.shields.io/badge/PM2-2B037A?style=for-the-badge&logo=pm2&logoColor=white',
-			],
-			[
-				'VPS',
-				'https://img.shields.io/badge/VPS-0078D6?style=for-the-badge&logo=windows&logoColor=white',
-			],
-			[
-				'Ubuntu',
-				'https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white',
-			],
-			[
-				'CentOS',
-				'https://img.shields.io/badge/CentOS-262577?style=for-the-badge&logo=centos&logoColor=white',
-			],
-			[
-				'Nginx',
-				'https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white',
-			],
-			[
-				'Apache',
-				'https://img.shields.io/badge/Apache-D22128?style=for-the-badge&logo=apache&logoColor=white',
-			],
-			[
-				'AWS EC2',
-				'https://img.shields.io/badge/AWS_EC2-FF9900?style=for-the-badge&logo=amazon-aws&logoColor=white',
-			],
+			['PM2', '2B037A', 'pm2', LOGO_COLOR_WHITE],
+			['VPS', COLOR_WINDOWS, 'windows', LOGO_COLOR_WHITE],
+			['Ubuntu', 'E95420', 'ubuntu', LOGO_COLOR_WHITE],
+			['CentOS', '262577', 'centos', LOGO_COLOR_WHITE],
+			['Nginx', '009639', 'nginx', LOGO_COLOR_WHITE],
+			['Apache', 'D22128', 'apache', LOGO_COLOR_WHITE],
+			['AWS EC2', COLOR_AWS, LOGO_AMAZON_AWS, LOGO_COLOR_WHITE],
 		],
 	],
 	[
 		'📡 Web Servers & Proxies',
 		[
-			[
-				'Caddy',
-				'https://img.shields.io/badge/Caddy-000000?style=for-the-badge&logo=caddy&logoColor=white',
-			],
-			[
-				'ngrok',
-				'https://img.shields.io/badge/ngrok-1F1E1E?style=for-the-badge&logo=ngrok&logoColor=white',
-			],
-			[
-				"Let's Encrypt",
-				"https://img.shields.io/badge/Let's_Encrypt-003A70?style=for-the-badge&logo=lets-encrypt&logoColor=white",
-			],
+			['Caddy', COLOR_BLACK, 'caddy', LOGO_COLOR_WHITE],
+			['ngrok', '1F1E1E', 'ngrok', LOGO_COLOR_WHITE],
+			["Let's Encrypt", '003A70', 'lets-encrypt', LOGO_COLOR_WHITE],
 		],
 	],
 	[
 		'🔧 Development Tools',
 		[
-			[
-				'Git',
-				'https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white',
-			],
-			[
-				'GitHub',
-				'https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white',
-			],
-			[
-				'npm',
-				'https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white',
-			],
-			[
-				'Lefthook',
-				'https://img.shields.io/badge/Lefthook-FF0000?style=for-the-badge&logo=git&logoColor=white',
-			],
-			[
-				'tsx',
-				'https://img.shields.io/badge/tsx-3178C6?style=for-the-badge&logo=typescript&logoColor=white',
-			],
-			[
-				'Sharp',
-				'https://img.shields.io/badge/Sharp-99CC00?style=for-the-badge&logo=sharp&logoColor=white',
-			],
+			['Git', 'F05032', 'git', LOGO_COLOR_WHITE],
+			['GitHub', '100000', 'github', LOGO_COLOR_WHITE],
+			['npm', 'CB3837', 'npm', LOGO_COLOR_WHITE],
+			['Lefthook', 'FF0000', 'git', LOGO_COLOR_WHITE],
+			['tsx', '3178C6', 'typescript', LOGO_COLOR_WHITE],
+			['Sharp', '99CC00', 'sharp', LOGO_COLOR_WHITE],
 		],
 	],
 	[
 		'🔍 Code Quality & Testing',
 		[
-			[
-				'Prettier',
-				'https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=black',
-			],
-			[
-				'ESLint',
-				'https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white',
-			],
-			[
-				'Vitest',
-				'https://img.shields.io/badge/Vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white',
-			],
-			[
-				'Playwright',
-				'https://img.shields.io/badge/Playwright-2EAD33?style=for-the-badge&logo=playwright&logoColor=white',
-			],
-			[
-				'SonarCloud',
-				'https://img.shields.io/badge/SonarCloud-F3702A?style=for-the-badge&logo=sonarcloud&logoColor=white',
-			],
+			['Prettier', 'F7B93E', 'prettier', LOGO_COLOR_BLACK],
+			['ESLint', '4B32C3', 'eslint', LOGO_COLOR_WHITE],
+			['Vitest', '6E9F18', 'vitest', LOGO_COLOR_WHITE],
+			['Playwright', '2EAD33', 'playwright', LOGO_COLOR_WHITE],
+			['SonarCloud', 'F3702A', 'sonarcloud', LOGO_COLOR_WHITE],
 		],
 	],
 	[
 		'⌨️ IDEs & Editors',
 		[
-			[
-				'Cursor',
-				'https://img.shields.io/badge/Cursor-000000?style=for-the-badge&logo=cursor&logoColor=white',
-			],
-			[
-				'VS Code',
-				'https://img.shields.io/badge/VS_Code-007ACC?style=for-the-badge&logo=visual-studio-code&logoColor=white',
-			],
-			[
-				'Android Studio',
-				'https://img.shields.io/badge/Android_Studio-3DDC84?style=for-the-badge&logo=android-studio&logoColor=white',
-			],
-			[
-				'Xcode',
-				'https://img.shields.io/badge/Xcode-147EFB?style=for-the-badge&logo=xcode&logoColor=white',
-			],
-			[
-				'Visual Studio',
-				'https://img.shields.io/badge/Visual_Studio-5C2D91?style=for-the-badge&logo=visual-studio&logoColor=white',
-			],
-			[
-				'IntelliJ IDEA',
-				'https://img.shields.io/badge/IntelliJ_IDEA-000000?style=for-the-badge&logo=intellij-idea&logoColor=white',
-			],
-			[
-				'PhpStorm',
-				'https://img.shields.io/badge/PhpStorm-000000?style=for-the-badge&logo=phpstorm&logoColor=white',
-			],
-			[
-				'Eclipse',
-				'https://img.shields.io/badge/Eclipse-2C2255?style=for-the-badge&logo=eclipse&logoColor=white',
-			],
+			['Cursor', COLOR_BLACK, 'cursor', LOGO_COLOR_WHITE],
+			['VS Code', '007ACC', 'visual-studio-code', LOGO_COLOR_WHITE],
+			['Android Studio', '3DDC84', 'android-studio', LOGO_COLOR_WHITE],
+			['Xcode', '147EFB', 'xcode', LOGO_COLOR_WHITE],
+			['Visual Studio', '5C2D91', 'visual-studio', LOGO_COLOR_WHITE],
+			['IntelliJ IDEA', COLOR_BLACK, 'intellij-idea', LOGO_COLOR_WHITE],
+			['PhpStorm', COLOR_BLACK, 'phpstorm', LOGO_COLOR_WHITE],
+			['Eclipse', '2C2255', 'eclipse', LOGO_COLOR_WHITE],
 		],
 	],
 	[
 		'📚 Learning & Documentation',
 		[
-			[
-				'Markdown',
-				'https://img.shields.io/badge/Markdown-000000?style=for-the-badge&logo=markdown&logoColor=white',
-			],
-			[
-				'mdsvex',
-				'https://img.shields.io/badge/mdsvex-000000?style=for-the-badge&logo=markdown&logoColor=white',
-			],
+			['Markdown', COLOR_BLACK, 'markdown', LOGO_COLOR_WHITE],
+			['mdsvex', COLOR_BLACK, 'markdown', LOGO_COLOR_WHITE],
 		],
 	],
 ]
@@ -351,7 +171,10 @@ const tech_stack_data: Array<CategoryData> = [
 function transform_to_categories(data: Array<CategoryData>): Array<Category> {
 	return data.map(([title, badges]) => ({
 		title,
-		badges: badges.map(([name, url]) => ({ name, url })),
+		badges: badges.map(([name, color, logo, logo_color]) => ({
+			name,
+			url: create_badge_url({ name, color, logo, logo_color }),
+		})),
 	}))
 }
 
