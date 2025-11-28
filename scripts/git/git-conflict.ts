@@ -1,4 +1,4 @@
-import { git_gh_command } from './git-gh-command.js'
+import { git_gh_command } from './git-gh-command'
 
 const MERGE_STATE_DIRTY = 'dirty'
 const MERGE_STATE_BLOCKED = 'blocked'

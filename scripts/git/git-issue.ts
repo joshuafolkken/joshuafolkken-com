@@ -1,5 +1,5 @@
-import { SEPARATOR_LINE } from './constants.js'
-import { git_prompt } from './git-prompt.js'
+import { SEPARATOR_LINE } from './constants'
+import { git_prompt } from './git-prompt'
 
 interface IssueInfo {
 	title: string

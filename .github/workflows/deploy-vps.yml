@@ -55,7 +55,10 @@ jobs:
             echo "Deploying tag: $LATEST_TAG"
             git checkout tags/$LATEST_TAG
 
-            npm ci
+            npm i -g @aikidosec/safe-chain
+            safe-chain setup-ci
+
+            npm ci --ignore-scripts
             NODE_ENV=production npm run build
 
             mkdir -p logs

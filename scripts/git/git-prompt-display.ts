@@ -1,4 +1,4 @@
-import { SEPARATOR_LINE } from './constants.js'
+import { SEPARATOR_LINE } from './constants'
 
 function display_start_separator(): void {
 	console.info('')

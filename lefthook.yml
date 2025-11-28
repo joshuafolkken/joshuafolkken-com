@@ -5,6 +5,9 @@ pre-commit:
       skip: git diff --cached --quiet
       run: npm run prevent-main-commit
 
+    audit:
+      run: npm audit
+
     cspell:
       run: npx cspell {staged_files}
 

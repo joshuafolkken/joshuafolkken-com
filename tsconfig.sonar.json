@@ -4,7 +4,7 @@
 		"module": "ES2020",
 		"lib": ["ES2020", "DOM", "DOM.Iterable"],
 		"moduleResolution": "node",
-		"allowImportingTsExtensions": true,
+		"allowImportingTsExtensions": false,
 		"allowJs": true,
 		"checkJs": true,
 		"esModuleInterop": true,

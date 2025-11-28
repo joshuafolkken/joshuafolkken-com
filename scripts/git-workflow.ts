@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-import { git_branch } from './git/git-branch.js'
-import { git_commit } from './git/git-commit.js'
-import { git_error } from './git/git-error.js'
-import { git_issue, type IssueInfo } from './git/git-issue.js'
-import { git_pr } from './git/git-pr.js'
-import { git_prompt, type WorkflowConfirmations } from './git/git-prompt.js'
-import { git_push } from './git/git-push.js'
-import { git_staging } from './git/git-staging.js'
+import { git_branch } from './git/git-branch'
+import { git_commit } from './git/git-commit'
+import { git_error } from './git/git-error'
+import { git_issue, type IssueInfo } from './git/git-issue'
+import { git_pr } from './git/git-pr'
+import { git_prompt, type WorkflowConfirmations } from './git/git-prompt'
+import { git_push } from './git/git-push'
+import { git_staging } from './git/git-staging'
 
 const SKIP_MESSAGES = {
 	commit: '💡 Commit skipped.',

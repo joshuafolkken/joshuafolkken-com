@@ -1,5 +1,5 @@
-import { git_prompt } from './git-prompt.js'
-import { git_status } from './git-status.js'
+import { git_prompt } from './git-prompt'
+import { git_status } from './git-status'
 
 async function confirm_package_json_staged(): Promise<boolean> {
 	const is_package_json_staged = await git_status.check_package_json_staged()

@@ -679,8 +679,8 @@ export default defineConfig(
 			'import/extensions': [
 				'error',
 				{
-					js: 'always',
-					ts: 'always',
+					js: 'never',
+					ts: 'never',
 					svelte: 'always',
 					// SvelteKitの仮想モジュールを無視
 					ignorePackages: true,

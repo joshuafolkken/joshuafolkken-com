@@ -1,6 +1,6 @@
 import { exec, spawn } from 'node:child_process'
 import { promisify } from 'node:util'
-import { git_utilities } from './constants.js'
+import { git_utilities } from './constants'
 
 const exec_async = promisify(exec)
 

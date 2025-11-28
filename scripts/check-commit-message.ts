@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { readFileSync } from 'node:fs'
-import { execute_check, get_current_branch, type CheckResult } from './common.js'
+import { execute_check, get_current_branch, type CheckResult } from './common'
 
 function get_commit_message(): string {
 	// 引数からコミットメッセージファイルのパスを取得
