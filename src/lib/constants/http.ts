@@ -12,3 +12,8 @@ export const ERROR_MESSAGES = {
 	TOO_MANY_REQUESTS: 'Too Many Requests',
 	INTERNAL_SERVER_ERROR: 'Internal Server Error',
 } as const
+
+export const HTTP_HEADERS = {
+	X_APP_CLIENT: 'X-App-Client',
+	CONTENT_TYPE: 'Content-Type',
+} as const

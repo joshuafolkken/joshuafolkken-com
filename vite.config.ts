@@ -11,6 +11,9 @@ export default defineConfig({
 		'import.meta.env.APP_VERSION': JSON.stringify(package_json.version),
 	},
 	plugins: [tailwindcss(), sveltekit()],
+	server: {
+		host: true,
+	},
 	test: {
 		expect: { requireAssertions: true },
 		projects: [

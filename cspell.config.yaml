@@ -19,6 +19,7 @@ ignorePaths:
   - '**/*.svg'
 words:
   - aboutads
+  - aikidosec
   - appleboy
   - autorestart
   - bttf
@@ -30,6 +31,7 @@ words:
   - elif
   - fastcgi
   - Folkken
+  - Frontmatter
   - gsub
   - Hotspots
   - ianvs
@@ -43,6 +45,7 @@ words:
   - noopener
   - noreferrer
   - opencollective
+  - phpstorm
   - Platformer
   - Platformers
   - Qube
@@ -55,5 +58,3 @@ words:
   - TERE
   - turso
   - zstd
-  - Frontmatter
-  - aikidosec
