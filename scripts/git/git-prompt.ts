@@ -1,6 +1,6 @@
 import { stdin as input, stdout as output } from 'node:process'
 import { createInterface, type Interface } from 'node:readline/promises'
-import { git_prompt_display } from './git-prompt-display.js'
+import { git_prompt_display } from './git-prompt-display'
 
 const OPERATION_CANCELLED_MESSAGE = '💡 Operation cancelled.'
 

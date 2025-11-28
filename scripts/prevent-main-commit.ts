@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { execute_check, get_current_branch, type CheckResult } from './common.js'
+import { execute_check, get_current_branch, type CheckResult } from './common'
 
 function check_main_branch(): CheckResult {
 	const current_branch = get_current_branch()

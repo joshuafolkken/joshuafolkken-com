@@ -1,6 +1,6 @@
-import { animation_helpers, type AnimationOptions } from './animation-helpers.js'
-import { REQUIRED_STATUS_LENGTH, STAGED_STATUS_INDEX, UNTRACKED_FILE_PREFIX } from './constants.js'
-import { git_command } from './git-command.js'
+import { animation_helpers, type AnimationOptions } from './animation-helpers'
+import { REQUIRED_STATUS_LENGTH, STAGED_STATUS_INDEX, UNTRACKED_FILE_PREFIX } from './constants'
+import { git_command } from './git-command'
 
 const WARNING_ICON = '🔔'
 const PACKAGE_JSON_FILE = 'package.json'

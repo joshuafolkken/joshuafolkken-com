@@ -1,5 +1,5 @@
-import { animation_helpers, type AnimationOptions } from './animation-helpers.js'
-import { git_command } from './git-command.js'
+import { animation_helpers, type AnimationOptions } from './animation-helpers'
+import { git_command } from './git-command'
 
 function create_git_operation_config(error_message: string): AnimationOptions<string> {
 	return {

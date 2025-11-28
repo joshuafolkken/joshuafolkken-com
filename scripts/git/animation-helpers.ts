@@ -1,4 +1,4 @@
-import { git_animation } from './git-animation.js'
+import { git_animation } from './git-animation'
 
 interface AnimationOptions<T> {
 	icon_selector?: (result: T) => string | undefined

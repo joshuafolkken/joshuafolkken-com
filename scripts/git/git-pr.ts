@@ -1,10 +1,10 @@
-import { animation_helpers, type AnimationOptions } from './animation-helpers.js'
-import { git_conflict } from './git-conflict.js'
-import { git_countdown } from './git-countdown.js'
-import { git_gh_command } from './git-gh-command.js'
-import type { IssueInfo } from './git-issue.js'
-import { git_pr_error } from './git-pr-error.js'
-import { git_pr_messages } from './git-pr-messages.js'
+import { animation_helpers, type AnimationOptions } from './animation-helpers'
+import { git_conflict } from './git-conflict'
+import { git_countdown } from './git-countdown'
+import { git_gh_command } from './git-gh-command'
+import type { IssueInfo } from './git-issue'
+import { git_pr_error } from './git-pr-error'
+import { git_pr_messages } from './git-pr-messages'
 
 const WAIT_AFTER_PR_SECONDS = 5
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { execSync } from 'node:child_process'
-import { git_utilities } from './git/constants.js'
+import { git_utilities } from './git/constants'
 
 interface CheckResult {
 	success: boolean
