@@ -1,4 +1,4 @@
-import { APP } from '$lib/app'
+import { like_api } from '$lib/api/like-api'
 import { liked_posts } from '$lib/stores/LikedPosts.svelte'
 
 const ANIMATION_DURATION = 1000
@@ -23,22 +23,10 @@ export class LikeState {
 		})
 	}
 
-	async #update_count_from_response(response: Response): Promise<void> {
-		if (!response.ok) {
-			throw new Error(`Failed to update count: ${String(response.status)}`)
-		}
-		const data = (await response.json()) as { likes: number }
-		this.count = data.likes
-	}
-
 	async #fetch_likes(): Promise<void> {
 		try {
-			const response = await fetch(`/api/like?slug=${this.#slug}`, {
-				headers: {
-					'X-App-Client': APP.ID,
-				},
-			})
-			await this.#update_count_from_response(response)
+			const data = await like_api.get(this.#slug)
+			this.count = data.likes
 		} catch (error) {
 			console.error('Failed to fetch likes:', error)
 		}
@@ -60,16 +48,8 @@ export class LikeState {
 		}, ANIMATION_DURATION)
 
 		try {
-			const response = await fetch('/api/like', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-App-Client': APP.ID,
-				},
-				body: JSON.stringify({ slug: this.#slug }),
-			})
-
-			await this.#update_count_from_response(response)
+			const data = await like_api.increment(this.#slug)
+			this.count = data.likes
 		} catch (error) {
 			console.error('Failed to like:', error)
 			// Rollback

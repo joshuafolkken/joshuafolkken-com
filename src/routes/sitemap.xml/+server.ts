@@ -1,5 +1,8 @@
-import { execSync } from 'node:child_process'
 import { APP } from '$lib/app'
+import { HTTP_HEADERS } from '$lib/constants/http'
+import { git_utilities } from '$lib/server/git-utilities'
+import type { Post } from '$lib/types/blog'
+import { blog_parser } from '$lib/utils/blog-parser'
 import type { RequestHandler } from './$types'
 
 interface SitemapUrl {
@@ -9,45 +12,13 @@ interface SitemapUrl {
 	lastmod: string
 }
 
-interface MdsvexFile {
-	metadata: {
-		date?: string
-		updated?: string
-		[key: string]: unknown
-	}
-}
-
 function format_date_to_w3c(date: Date): string {
 	return date.toISOString()
 }
 
-// Gitからファイルの最終更新日時を取得する
-function get_file_lastmod(path: string): Date {
-	try {
-		// ファイルパスはプロジェクトルート相対（例: src/routes/+page.svelte）になっている前提
-		// 先頭の / を削除して git コマンドに渡す
-		const relative_path = path.startsWith('/') ? path.slice(1) : path
-
-		// git log でそのファイルの最終コミット日時を取得 (ISO 8601形式)
-		// eslint-disable-next-line sonarjs/os-command
-		const stdout = execSync(`git log -1 --format=%cI -- "${relative_path}"`, {
-			encoding: 'utf8',
-		})
-
-		if (stdout.trim() !== '') {
-			return new Date(stdout.trim())
-		}
-	} catch {
-		// Gitコマンドが失敗した場合や、まだコミットされていないファイルの場合は無視
-	}
-
-	// 取得できなかった場合は現在日時（ビルド日時）を返す
-	return new Date()
-}
-
 function create_sitemap_entry(route: string, filepath: string): SitemapUrl {
 	const is_home = route === ''
-	const lastmod = get_file_lastmod(filepath)
+	const lastmod = git_utilities.get_file_lastmod(filepath)
 	return {
 		loc: `${APP.URL}${route}`,
 		changefreq: 'weekly',
@@ -72,20 +43,13 @@ function get_blog_posts(): Array<SitemapUrl> {
 	const posts = import.meta.glob('/src/lib/posts/*.md', { eager: true })
 
 	return Object.entries(posts)
-		.map(([path, file]) => {
-			const mdsvex_file = file as MdsvexFile
-			const slug = path.split('/').pop()?.replace('.md', '')
-			return { slug, metadata: mdsvex_file.metadata }
-		})
-		.filter(
-			(post): post is { slug: string; metadata: { date: string; updated?: string } } =>
-				post.slug !== undefined && post.metadata.date !== undefined,
-		)
+		.map(([path, file]) => blog_parser.parse_post(path, file))
+		.filter((post): post is Post => post !== undefined)
 		.map((post) => ({
 			loc: `${APP.URL}/blog/${post.slug}`,
 			changefreq: 'weekly',
 			priority: '0.8',
-			lastmod: format_date_to_w3c(new Date(post.metadata.updated ?? post.metadata.date)),
+			lastmod: format_date_to_w3c(new Date(post.updated ?? post.date)),
 		}))
 }
 
@@ -116,7 +80,7 @@ ${url_xml}
 
 	return new Response(sitemap_xml, {
 		headers: {
-			'Content-Type': 'application/xml',
+			[HTTP_HEADERS.CONTENT_TYPE]: 'application/xml',
 			'Cache-Control': 'public, max-age=3600',
 		},
 	})

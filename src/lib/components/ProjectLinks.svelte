@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { get_link_label, LINK_REL, LINK_TARGET } from '$lib/app'
+	import { app, LINK_REL, LINK_TARGET } from '$lib/app'
 	import GitHubIcon from '$lib/icons/GitHubIcon.svelte'
 	import LiveDemoIcon from '$lib/icons/LiveDemoIcon.svelte'
 	import type { ProjectLink } from '$lib/types/project'
@@ -22,7 +22,7 @@
 			{:else if link.type === 'demo'}
 				<LiveDemoIcon size="1rem" />
 			{/if}
-			{get_link_label(link.type)}
+			{app.link_label(link.type)}
 		</a>
 	{/each}
 </div>

@@ -41,7 +41,8 @@
 		"./scripts/**/*.js",
 		"./scripts/**/*.ts",
 		"./e2e/**/*.js",
-		"./e2e/**/*.ts"
+		"./e2e/**/*.ts",
+		"./eslint/**/*.js"
 	]
 
 	// Path aliases are handled by https://svelte.dev/docs/kit/configuration#alias

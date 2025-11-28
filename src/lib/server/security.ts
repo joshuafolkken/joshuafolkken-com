@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit'
 import { APP } from '$lib/app'
-import { ERROR_MESSAGES, HTTP_STATUS } from '$lib/constants/http'
+import { ERROR_MESSAGES, HTTP_HEADERS, HTTP_STATUS } from '$lib/constants/http'
 
 const ONE_MINUTE_SECONDS = 60
 const ONE_SECOND_MS = 1000
@@ -59,7 +59,7 @@ function validate_rate_limit(ip: string): Response | undefined {
 }
 
 function validate_custom_header(request: Request): Response | undefined {
-	const client_header = request.headers.get('X-App-Client')
+	const client_header = request.headers.get(HTTP_HEADERS.X_APP_CLIENT)
 	if (client_header !== APP.ID) {
 		console.warn(`[HeaderCheck] Blocked request with invalid header: ${client_header ?? 'null'}`)
 		return json_error(ERROR_MESSAGES.FORBIDDEN, HTTP_STATUS.FORBIDDEN)

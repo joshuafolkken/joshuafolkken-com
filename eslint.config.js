@@ -10,6 +10,7 @@ import unicorn from 'eslint-plugin-unicorn'
 import { defineConfig } from 'eslint/config'
 import globals from 'globals'
 import ts from 'typescript-eslint'
+import { naming_convention } from './eslint/rules/naming-convention.js'
 import svelteConfig from './svelte.config.js'
 
 const gitignorePath = fileURLToPath(new URL('./.gitignore', import.meta.url))
@@ -92,81 +93,7 @@ export default defineConfig(
 			'no-undef': 'off',
 
 			// ===== 命名規則の厳格化 =====
-			'@typescript-eslint/naming-convention': [
-				'error',
-				// 変数は snake_case
-				{
-					selector: 'variable',
-					format: ['snake_case'],
-					leadingUnderscore: 'allow',
-					trailingUnderscore: 'forbid',
-				},
-				// 定数（const）は UPPER_CASE または snake_case
-				{
-					selector: 'variable',
-					modifiers: ['const'],
-					format: ['UPPER_CASE', 'snake_case'],
-					leadingUnderscore: 'allow',
-				},
-				// boolean 変数は is_, has_, should_ などで始める
-				{
-					selector: 'variable',
-					types: ['boolean'],
-					format: ['snake_case'],
-					prefix: ['is_', 'has_', 'should_', 'can_', 'will_', 'did_'],
-				},
-				// 関数は snake_case
-				{
-					selector: 'function',
-					format: ['snake_case'],
-					leadingUnderscore: 'allow',
-				},
-				// パラメータは snake_case
-				{
-					selector: 'parameter',
-					format: ['snake_case'],
-					leadingUnderscore: 'allow',
-				},
-				// クラス、インターフェース、型エイリアス、Enum は PascalCase
-				{
-					selector: 'typeLike',
-					format: ['PascalCase'],
-				},
-				// Enum メンバーは UPPER_CASE
-				{
-					selector: 'enumMember',
-					format: ['UPPER_CASE'],
-				},
-				// クラスのプロパティは snake_case
-				{
-					selector: 'classProperty',
-					format: ['snake_case'],
-					leadingUnderscore: 'allow',
-				},
-				// クラスのメソッドは snake_case
-				{
-					selector: 'classMethod',
-					format: ['snake_case'],
-					leadingUnderscore: 'allow',
-				},
-				// オブジェクトリテラルのプロパティは snake_case（外部APIとの互換性のため例外を許可）
-				{
-					selector: 'objectLiteralProperty',
-					format: ['snake_case', 'UPPER_CASE'],
-					leadingUnderscore: 'allow',
-					filter: {
-						// 一般的な HTTP ヘッダー名のパターンのみ許可
-						regex:
-							'^(Content-Type|Accept|Accept-Language|Authorization|Cache-Control|Connection|Cookie|Host|Origin|Referer|User-Agent|X-[A-Za-z-]+|x[a-z]-[a-z-]+|[a-z-/]+)$',
-						match: false,
-					},
-				},
-				// 型プロパティは snake_case
-				{
-					selector: 'typeProperty',
-					format: ['snake_case'],
-				},
-			],
+			...naming_convention,
 
 			// ===== TypeScript 厳格化 =====
 			// 明示的な関数戻り値の型を必須に

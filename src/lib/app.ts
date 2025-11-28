@@ -43,18 +43,22 @@ const LINK_LABELS = {
 	demo: 'Live Demo',
 } as const
 
-function get_link_label(type: 'github' | 'demo'): string {
+function link_label(type: 'github' | 'demo'): string {
 	return LINK_LABELS[type]
+}
+
+const app = {
+	link_label,
 }
 
 export {
 	APP,
 	AUTHOR,
-	get_link_label,
 	LINK_LABELS,
 	LINK_REL,
 	LINK_TARGET,
 	SUBTITLE_DEVELOPMENT_TOOL,
 	URLS,
 	OPENCOLLECTIVE,
+	app,
 }

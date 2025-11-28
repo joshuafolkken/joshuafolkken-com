@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit'
 import { HTTP_STATUS } from '$lib/constants/http'
-import { like_store } from '$lib/server/like-store'
+import { like_service } from '$lib/server/like-service'
 import { security } from '$lib/server/security'
 import type { RequestHandler } from './$types'
 
@@ -24,7 +24,7 @@ function json_likes(likes: number): Response {
 
 async function process_get_likes(slug: string): Promise<Response> {
 	try {
-		const likes = await like_store.get_likes(slug)
+		const likes = await like_service.get_likes(slug)
 		return json_likes(likes)
 	} catch (error) {
 		console.error(error)
@@ -34,8 +34,7 @@ async function process_get_likes(slug: string): Promise<Response> {
 
 async function process_like_increment(slug: string): Promise<Response> {
 	try {
-		await like_store.increment_likes(slug)
-		const likes = await like_store.get_likes(slug)
+		const likes = await like_service.increment_likes(slug)
 		return json_likes(likes)
 	} catch (error) {
 		console.error(error)
