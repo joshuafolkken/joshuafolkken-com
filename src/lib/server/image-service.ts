@@ -10,8 +10,8 @@ const DEFAULT_WIDTH = 1344
 const WEBP_QUALITY = 80
 const ERROR_SOURCE_IMAGE_NOT_FOUND = 'Source image not found'
 
-function get_images_directory(): string {
-	return path.join(process.cwd(), 'static', 'images', 'blog')
+function get_images_directory(image_type: 'blog' | 'projects'): string {
+	return path.join(process.cwd(), 'static', 'images', image_type)
 }
 
 function find_source_image(images_directory: string, base_name: string): string | undefined {
@@ -62,8 +62,9 @@ async function create_optimized_image(
 
 async function get_optimized_image(
 	filename: string,
+	image_type: 'blog' | 'projects' = 'blog',
 ): Promise<{ buffer: Buffer; content_type: string }> {
-	const images_directory = get_images_directory()
+	const images_directory = get_images_directory(image_type)
 	const base_name = path.basename(filename, WEBP_EXTENSION)
 	const file_path = get_target_file_path(images_directory, base_name)
 
