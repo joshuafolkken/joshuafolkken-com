@@ -1,9 +1,10 @@
 {
 	"name": "joshuafolkken-com",
 	"private": true,
-	"version": "0.61.0",
+	"version": "0.62.0",
 	"type": "module",
 	"scripts": {
+		"setup:security": "safe-chain setup",
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
@@ -29,6 +30,7 @@
 		"db:migrate": "drizzle-kit migrate"
 	},
 	"devDependencies": {
+		"@aikidosec/safe-chain": "^1.1.10",
 		"@eslint/compat": "^2.0.0",
 		"@eslint/js": "^9.39.1",
 		"@ianvs/prettier-plugin-sort-imports": "^4.7.0",
