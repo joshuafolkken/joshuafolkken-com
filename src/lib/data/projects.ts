@@ -17,7 +17,7 @@ export const PROJECTS: Array<Project> = [
 			{ href: URLS.TALK, type: 'demo' },
 			{ href: `${URLS.GITHUB}/talk-svelte`, type: 'github' },
 		],
-		image: '/images/projects/talk.png',
+		image: '/api/images/projects/talk.webp',
 	},
 	{
 		icon: RunningIcon,
@@ -28,7 +28,7 @@ export const PROJECTS: Array<Project> = [
 			{ href: `${URLS.GITHUB_PAGE}/godot-2d-platformer`, type: 'demo' },
 			{ href: `${URLS.GITHUB}/godot-2d-platformer`, type: 'github' },
 		],
-		image: 'images/projects/godot-2d-platformer.png',
+		image: '/api/images/projects/godot-2d-platformer.webp',
 	},
 	{
 		icon: FilmIcon,
@@ -39,7 +39,7 @@ export const PROJECTS: Array<Project> = [
 			{ href: `${URLS.GITHUB_PAGE}/tic-tac-toe`, type: 'demo' },
 			{ href: `${URLS.GITHUB}/tic-tac-toe`, type: 'github' },
 		],
-		image: 'images/projects/tic-tac-toe.png',
+		image: '/api/images/projects/tic-tac-toe.webp',
 	},
 	{
 		icon: TennisIcon,
@@ -50,7 +50,7 @@ export const PROJECTS: Array<Project> = [
 			{ href: `${URLS.GITHUB_PAGE}/pong`, type: 'demo' },
 			{ href: `${URLS.GITHUB}/pong`, type: 'github' },
 		],
-		image: 'images/projects/pong.png',
+		image: '/api/images/projects/pong.webp',
 	},
 	{
 		icon: ToolIcon,
@@ -61,7 +61,7 @@ export const PROJECTS: Array<Project> = [
 			{ href: `${URLS.GITHUB}/godot-project-template`, type: 'github' },
 			{ href: `${URLS.GITHUB_PAGE}/godot-project-template`, type: 'demo' },
 		],
-		image: 'images/projects/godot-project-template.png',
+		image: '/api/images/projects/godot-project-template.webp',
 	},
 	{
 		icon: GlobeIcon,
