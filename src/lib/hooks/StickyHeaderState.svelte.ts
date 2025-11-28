@@ -5,7 +5,7 @@ export class StickyHeaderState {
 	is_sticky = $state(false)
 	#header_element = $state<HTMLElement | undefined>()
 	#debounce_timer: ReturnType<typeof setTimeout> | undefined = undefined
-	#sticky_threshold: number
+	readonly #sticky_threshold: number
 
 	constructor(sticky_threshold = DEFAULT_STICKY_THRESHOLD) {
 		this.#sticky_threshold = sticky_threshold

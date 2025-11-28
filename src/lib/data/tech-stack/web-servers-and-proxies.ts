@@ -1,8 +1,8 @@
-import type { Category } from '$lib/types/tech-stack'
+import { category_utilities } from './utilities'
 
-export const WEB_SERVERS_AND_PROXIES: Category = {
-	title: '📡 Web Servers & Proxies',
-	badges: [
+export const WEB_SERVERS_AND_PROXIES = category_utilities.create_category(
+	'📡 Web Servers & Proxies',
+	[
 		{
 			name: 'Caddy',
 			url: 'https://img.shields.io/badge/Caddy-000000?style=for-the-badge&logo=caddy&logoColor=white',
@@ -16,4 +16,4 @@ export const WEB_SERVERS_AND_PROXIES: Category = {
 			url: "https://img.shields.io/badge/Let's_Encrypt-003A70?style=for-the-badge&logo=lets-encrypt&logoColor=white",
 		},
 	],
-}
+)

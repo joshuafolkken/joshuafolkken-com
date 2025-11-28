@@ -1,8 +1,8 @@
-import type { Category } from '$lib/types/tech-stack'
+import { category_utilities } from './utilities'
 
-export const CODE_QUALITY_AND_TESTING: Category = {
-	title: '🔍 Code Quality & Testing',
-	badges: [
+export const CODE_QUALITY_AND_TESTING = category_utilities.create_category(
+	'🔍 Code Quality & Testing',
+	[
 		{
 			name: 'Prettier',
 			url: 'https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=black',
@@ -24,4 +24,4 @@ export const CODE_QUALITY_AND_TESTING: Category = {
 			url: 'https://img.shields.io/badge/SonarCloud-F3702A?style=for-the-badge&logo=sonarcloud&logoColor=white',
 		},
 	],
-}
+)

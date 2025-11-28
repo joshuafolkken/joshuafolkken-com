@@ -1,8 +1,8 @@
-import type { Category } from '$lib/types/tech-stack'
+import { category_utilities } from './utilities'
 
-export const PROGRAMMING_LANGUAGES: Category = {
-	title: '💻 Programming Languages',
-	badges: [
+export const PROGRAMMING_LANGUAGES = category_utilities.create_category(
+	'💻 Programming Languages',
+	[
 		{
 			name: 'TypeScript',
 			url: 'https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white',
@@ -52,4 +52,4 @@ export const PROGRAMMING_LANGUAGES: Category = {
 			url: 'https://img.shields.io/badge/C-A8B9CC?style=for-the-badge&logo=c&logoColor=black',
 		},
 	],
-}
+)

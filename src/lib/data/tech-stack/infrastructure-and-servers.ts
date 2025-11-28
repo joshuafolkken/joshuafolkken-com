@@ -1,8 +1,8 @@
-import type { Category } from '$lib/types/tech-stack'
+import { category_utilities } from './utilities'
 
-export const INFRASTRUCTURE_AND_SERVERS: Category = {
-	title: '☁️ Infrastructure & Servers',
-	badges: [
+export const INFRASTRUCTURE_AND_SERVERS = category_utilities.create_category(
+	'☁️ Infrastructure & Servers',
+	[
 		{
 			name: 'PM2',
 			url: 'https://img.shields.io/badge/PM2-2B037A?style=for-the-badge&logo=pm2&logoColor=white',
@@ -32,4 +32,4 @@ export const INFRASTRUCTURE_AND_SERVERS: Category = {
 			url: 'https://img.shields.io/badge/AWS_EC2-FF9900?style=for-the-badge&logo=amazon-aws&logoColor=white',
 		},
 	],
-}
+)
