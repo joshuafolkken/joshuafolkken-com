@@ -64,3 +64,7 @@ HTMLAudioElement から [Web Audio API](https://developer.mozilla.org/en-US/docs
 実際、Web API で実現するのは諦めかけていた。クラウドの音声認識サービスを使うことも考えたし、サーバー側で認識させる方法として、たとえば OpenAI の音声認識モデル Whisper を使った「[Whisper.cpp](https://github.com/ggml-org/whisper.cpp)」を使うことも考えて色々と調べたが、最終的に Web API で実現できてよかった。
 
 ただ、まだ不具合が残っている可能性はある。諦めないぞー！不具合を見つけたらぜひ連絡してほしい！
+
+## 実際の成果物
+
+今回の問題解決により、「[話す英語ゲーム「Talk」](https://talk.joshuafolkken.com/)」は iOS Safari でも安定して動作するようになりました。Web Speech API と Web Audio API を組み合わせて、音声認識を使った英語学習ゲームを作っています。まだまだゲーム要素を何も含められていませんが、ぜひ実際に遊んでみてください！
