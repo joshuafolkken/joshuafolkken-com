@@ -58,7 +58,7 @@
 		...rest_properties
 	}: Props = $props()
 
-	const classes = ['social-links', class_name].filter(Boolean).join(' ')
+	const classes = $derived(['social-links', class_name].filter(Boolean).join(' '))
 </script>
 
 <nav

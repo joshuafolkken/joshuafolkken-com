@@ -11,7 +11,7 @@
 	const STICKY_HEADER_SIZE = 32
 
 	const { page }: Props = $props()
-	const { icon, title, description } = page
+	const { icon, title, description } = $derived(page)
 
 	const sticky_state = new StickyHeaderState()
 	let header_element = $state<HTMLElement | undefined>()

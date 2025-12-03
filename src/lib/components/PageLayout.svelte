@@ -7,7 +7,7 @@
 		children: Snippet
 	}>()
 
-	const max_width_class = max_width === 'sm' ? 'max-w-sm' : 'max-w-2xl'
+	const max_width_class = $derived(max_width === 'sm' ? 'max-w-sm' : 'max-w-2xl')
 	const padding_class = 'mx-4 my-8'
 </script>
 

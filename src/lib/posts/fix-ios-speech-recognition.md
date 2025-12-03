@@ -67,4 +67,4 @@ HTMLAudioElement から [Web Audio API](https://developer.mozilla.org/en-US/docs
 
 ## 実際の成果物
 
-今回の問題解決により、「[話す英語ゲーム「Talk」](https://talk.joshuafolkken.com/)」は iOS Safari でも安定して動作するようになりました。Web Speech API と Web Audio API を組み合わせて、音声認識を使った英語学習ゲームを作っています。まだまだゲーム要素を何も含められていませんが、ぜひ実際に遊んでみてください！
+今回の問題解決により、[話す英語ゲーム「Talk」](https://talk.joshuafolkken.com/)は iOS Safari でも安定して動作するようになりました。Web Speech API と Web Audio API を組み合わせて、音声認識を使った英語学習ゲームを作っています。まだまだゲーム要素を何も含められていませんが、ぜひ実際に遊んでみてください！
