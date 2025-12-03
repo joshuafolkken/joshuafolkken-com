@@ -1,4 +1,7 @@
 {
+	"files.associations": {
+		"*.css": "tailwindcss"
+	},
 	"editor.formatOnSave": true,
 	"editor.defaultFormatter": "esbenp.prettier-vscode",
 	"editor.codeActionsOnSave": {
@@ -36,5 +39,9 @@
 	],
 	"playwright.reuseBrowser": false,
 	"errorLens.gutterIconsEnabled": true,
-	"css.lint.unknownAtRules": "ignore"
+	"css.lint.unknownAtRules": "ignore",
+	"sonarlint.connectedMode.project": {
+		"connectionId": "joshuafolkken",
+		"projectKey": "joshuafolkken_joshuafolkken-com"
+	}
 }
