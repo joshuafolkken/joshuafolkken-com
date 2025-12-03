@@ -12,8 +12,8 @@
 
 	const { icon, title, subtitle, description, class: class_name, children }: Props = $props()
 
-	const is_centered = class_name?.includes('text-center') ?? false
-	const justify_class = is_centered ? 'justify-center' : ''
+	const is_centered = $derived(class_name?.includes('text-center') ?? false)
+	const justify_class = $derived(is_centered ? 'justify-center' : '')
 </script>
 
 <section class={class_name}>

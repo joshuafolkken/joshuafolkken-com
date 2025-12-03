@@ -22,6 +22,7 @@
 		"matthewpi.caddyfile-support",
 		"vincaslt.highlight-matching-tag",
 		"wix.vscode-import-cost",
-		"eamodio.gitlens"
+		"eamodio.gitlens",
+		"sonarsource.sonarlint-vscode"
 	]
 }

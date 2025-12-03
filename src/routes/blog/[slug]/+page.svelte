@@ -11,9 +11,9 @@
 	import type { PageData } from './$types'
 
 	const { data }: { data: PageData } = $props()
-	const image_url = `https://joshuafolkken.com${data.meta.cover_image ?? ''}`
-	const blog_title = data.meta.title
-	const page_title = `${blog_title} - ${AUTHOR.NAME}`
+	const image_url = $derived(`https://joshuafolkken.com${data.meta.cover_image ?? ''}`)
+	const blog_title = $derived(data.meta.title)
+	const page_title = $derived(`${blog_title} - ${AUTHOR.NAME}`)
 </script>
 
 <svelte:head>

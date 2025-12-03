@@ -9,10 +9,10 @@
 	}
 
 	const { page }: Props = $props()
-	const { title, description, icon } = page
+	const { title, description, icon } = $derived(page)
 
-	const link = page.link ?? ''
-	const is_external = link.startsWith('http')
+	const link = $derived(page.link ?? '')
+	const is_external = $derived(link.startsWith('http'))
 
 	function get_href(): string | undefined {
 		if (link === '') {

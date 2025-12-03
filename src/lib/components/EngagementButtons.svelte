@@ -10,7 +10,7 @@
 	}
 
 	const { slug, title, class: class_name = '', ...rest }: Props = $props()
-	const like_state = new LikeState(slug)
+	const like_state = $derived(new LikeState(slug))
 </script>
 
 <div class="mb-4 flex flex-row items-center justify-center gap-4 {class_name}" {...rest}>
