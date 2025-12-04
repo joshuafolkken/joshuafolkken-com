@@ -60,12 +60,12 @@
 </header>
 
 <header
-	class="fixed top-0 right-0 left-0 z-50 flex items-center justify-center gap-2 bg-slate-900 p-4 shadow-lg transition-all duration-300"
+	class="fixed top-0 right-0 left-0 z-50 flex items-center justify-center gap-2 border-b border-white/10 bg-slate-900/10 p-3 shadow-lg backdrop-blur transition-all duration-300"
 	class:translate-y-0={sticky_state.is_sticky}
 	class:-translate-y-full={!sticky_state.is_sticky}
 >
-	<LogoIcon size={STICKY_HEADER_SIZE} />
-	<h1 class="text-2xl font-light tracking-tight">
+	<LogoIcon size={STICKY_HEADER_SIZE} class="drop-shadow" />
+	<h1 class="text-2xl font-light tracking-tight drop-shadow">
 		{title}
 	</h1>
 </header>

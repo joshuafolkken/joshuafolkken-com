@@ -3,25 +3,27 @@
 
 	interface Props {
 		size?: number
+		radius?: number
+		class?: string
 	}
 
 	const DEFAULT_SIZE = 80
-	const { size = DEFAULT_SIZE }: Props = $props()
+	const { size = DEFAULT_SIZE, radius = 0, class: class_name = '' }: Props = $props()
 </script>
 
 <a href={resolve('/')}>
 	<svg
 		xmlns="http://www.w3.org/2000/svg"
-		viewBox="20 20 45 55"
+		viewBox="20 18 45 59"
 		width={size}
 		height={size}
-		class="text-white"
+		class="text-white {class_name}"
 		aria-label="Geometric JF Fusion Logo"
 	>
 		<defs>
 			<filter id="outline">
-				<feMorphology operator="dilate" radius="2" in="SourceAlpha" result="dilated"></feMorphology>
-				<feFlood flood-color="black" flood-opacity="1" result="flood"></feFlood>
+				<feMorphology operator="dilate" {radius} in="SourceAlpha" result="dilated"></feMorphology>
+				<feFlood flood-color="#0008" flood-opacity="1" result="flood"></feFlood>
 				<feComposite in="flood" in2="dilated" operator="in" result="outline"></feComposite>
 				<feComposite in="SourceGraphic" in2="outline" operator="over"></feComposite>
 			</filter>
