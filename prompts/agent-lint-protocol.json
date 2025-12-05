@@ -71,8 +71,8 @@
 		},
 		"format_check": {
 			"description": "Prettierのフォーマットチェックも実行",
-			"command": "npx prettier --check <ファイルパス>",
-			"auto_fix_command": "npx prettier --write <ファイルパス>",
+			"command": "pnpm exec prettier --check <ファイルパス>",
+			"auto_fix_command": "pnpm exec prettier --write <ファイルパス>",
 			"note": "npm run lintにはPrettierのチェックが含まれているが、個別に実行することも可能"
 		}
 	}

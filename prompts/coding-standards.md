@@ -331,19 +331,19 @@ const _unused_var = 'value'; // アンダースコアプレフィックス
 ### 特定ファイルのLintチェック
 
 ```bash
-npx eslint src/path/to/file.ts
+pnpm exec eslint src/path/to/file.ts
 ```
 
 ### 自動修正可能なエラーを修正
 
 ```bash
-npx eslint --fix src/path/to/file.ts
+pnpm exec eslint --fix src/path/to/file.ts
 ```
 
 ### 型チェックのみ
 
 ```bash
-npx tsc --noEmit
+pnpm exec tsc --noEmit
 ```
 
 ## ⚠️ よくある間違いトップ5
@@ -458,7 +458,7 @@ npm run lint -- 変更したファイル1 変更したファイル2
 
 - **新規作成したファイル**: `read_lints` の後に必ず `npm run lint` で再確認
 - **複数ファイルを変更した場合**: すべてのファイルを `npm run lint` に指定
-- **Prettierのフォーマット**: `npx prettier --write <ファイルパス>` で自動修正も可能
+- **Prettierのフォーマット**: `pnpm exec prettier --write <ファイルパス>` で自動修正も可能
 
 5. **報告文テンプレート（必須記載）**
    - 「Lint: 0 errors（確認対象: 変更ファイル/またはsrc配下）」。ゼロ以外は報告不可
