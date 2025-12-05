@@ -17,6 +17,7 @@ ignorePaths:
   - .gitignore
   - src/lib/posts/*.md
   - '**/*.svg'
+  - 'pnpm-lock.yaml'
 words:
   - aboutads
   - aikidosec
@@ -58,3 +59,6 @@ words:
   - TERE
   - turso
   - zstd
+  - unrs
+  - esbuild
+  - lefthook

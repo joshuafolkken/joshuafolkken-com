@@ -1,23 +1,24 @@
 {
 	"name": "joshuafolkken-com",
 	"private": true,
-	"version": "0.68.0",
+	"version": "0.69.0",
 	"type": "module",
+	"packageManager": "pnpm@10.18.0",
 	"scripts": {
-		"preinstall": "npx @aikidosec/safe-chain setup-ci",
+		"preinstall": "npx only-allow pnpm && pnpm dlx @aikidosec/safe-chain setup-ci",
 		"postinstall": "lefthook install",
 		"setup:security": "safe-chain setup",
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
-		"preview:stop": "npx kill-port 4173 || true",
+		"preview:stop": "pnpm exec kill-port 4173 || true",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
 		"lint": "svelte-kit sync && prettier --check . && eslint . --cache",
 		"test:unit": "vitest",
-		"test": "npm run test:unit -- --run && npm run test:e2e",
+		"test": "pnpm run test:unit -- --run && pnpm run test:e2e",
 		"test:e2e": "playwright test",
 		"lefthook:install": "lefthook install",
 		"lefthook:uninstall": "lefthook uninstall",
@@ -78,8 +79,10 @@
 		"drizzle-orm": "^0.44.7",
 		"sharp": "^0.34.5"
 	},
-	"overrides": {
-		"esbuild": "^0.25.0",
-		"cookie": "^0.7.0"
+	"pnpm": {
+		"overrides": {
+			"esbuild": "^0.25.0",
+			"cookie": "^0.7.0"
+		}
 	}
 }

@@ -6,14 +6,14 @@ Thank you for your interest in contributing to this project!
 
 1. Fork the repository
 2. Clone your fork
-3. Install dependencies: `npm install`
+3. Install dependencies: `pnpm install`
 4. Create a new branch for your feature or fix
 
 ## Development
 
-- Run dev server: `npm run dev`
-- Run tests: `npm run test`
-- Lint code: `npm run lint`
+- Run dev server: `pnpm run dev`
+- Run tests: `pnpm run test`
+- Lint code: `pnpm run lint`
 
 ## Coding Standards
 

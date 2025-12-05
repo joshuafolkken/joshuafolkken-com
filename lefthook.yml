@@ -3,10 +3,10 @@ pre-commit:
   commands:
     prevent-main-commit:
       skip: git diff --cached --quiet
-      run: npm run prevent-main-commit
+      run: pnpm run prevent-main-commit
 
     audit:
-      run: npm audit
+      run: pnpm audit
 
     cspell:
       run: npx cspell {staged_files}
@@ -24,34 +24,34 @@ pre-commit:
     Please fix the issues above and try again.
 
     Quick fixes:
-    • Run `npm run format` to auto-format code
-    • Run `npm run lint` to check and fix linting issues
-    • Run `npm run check` to verify TypeScript types
+    • Run `pnpm run format` to auto-format code
+    • Run `pnpm run lint` to check and fix linting issues
+    • Run `pnpm run check` to verify TypeScript types
 
 commit-msg:
   commands:
     check-commit-message:
-      run: npm run check-commit-message {1}
+      run: pnpm run check-commit-message {1}
 
 pre-push:
   parallel: true
   commands:
     type-check:
       glob: '*.{svelte,ts,js,mjs,cjs}'
-      run: npm run check
+      run: pnpm run check
 
     test-unit:
       glob: '*.{svelte,ts,js,css}'
-      run: npm run test:unit -- --run
+      run: pnpm run test:unit -- --run
 
     test-e2e:
       glob: '{*.{svelte,ts,js,mjs,cjs},package.json}'
-      run: npm run preview:stop && npm run test:e2e
+      run: pnpm run preview:stop && pnpm run test:e2e
 
   fail_text: |
     🚫 Push blocked due to build or test failures
     Please resolve the issues above before pushing.
 
     Troubleshooting:
-    • Check build errors: `npm run build`
-    • Run tests locally: `npm run test:unit` and `npm run test:e2e`
+    • Check build errors: `pnpm run build`
+    • Run tests locally: `pnpm run test:unit` and `pnpm run test:e2e`
