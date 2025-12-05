@@ -18,6 +18,7 @@ ignorePaths:
   - src/lib/posts/*.md
   - '**/*.svg'
   - 'pnpm-lock.yaml'
+  - '.env*'
 words:
   - aboutads
   - aikidosec
