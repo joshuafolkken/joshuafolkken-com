@@ -56,8 +56,9 @@ jobs:
             git checkout tags/$LATEST_TAG
 
             # pnpmをインストール（Corepackを使用）
-            corepack enable
-            corepack prepare pnpm@10.18.0 --activate
+            # corepack enable は権限エラーが発生する可能性があるため削除
+            # corepackは通常システムレベルで既に有効化されている
+            corepack prepare pnpm@10.24.0 --activate
 
             pnpm dlx @aikidosec/safe-chain setup-ci
             pnpm install --frozen-lockfile --ignore-scripts
