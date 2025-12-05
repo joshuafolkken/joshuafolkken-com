@@ -60,7 +60,7 @@ jobs:
             corepack prepare pnpm@10.18.0 --activate
 
             npx -y @aikidosec/safe-chain setup-ci
-            pnpm install --frozen-lockfile
+            pnpm install --frozen-lockfile --ignore-scripts
             NODE_ENV=production pnpm run build
 
             mkdir -p logs

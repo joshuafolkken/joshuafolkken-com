@@ -42,7 +42,7 @@ pre-push:
 
     test-unit:
       glob: '*.{svelte,ts,js,css}'
-      run: pnpm run test:unit -- --run
+      run: pnpm run test:unit --run
 
     test-e2e:
       glob: '{*.{svelte,ts,js,mjs,cjs},package.json}'
