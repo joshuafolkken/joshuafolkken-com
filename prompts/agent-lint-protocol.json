@@ -38,7 +38,7 @@
 			"limitations": [
 				"一部のESLintルールを検出しない可能性がある（例: id-length, 識別子名の長さチェック）",
 				"Prettierのフォーマットチェックが含まれない",
-				"実際のnpm run lintコマンドと結果に差異がある可能性"
+				"実際のpnpm run lintコマンドと結果に差異がある可能性"
 			]
 		},
 		"required_verification_steps": [
@@ -51,21 +51,21 @@
 			{
 				"step": 2,
 				"description": "実際のlintコマンドで検証",
-				"command": "npm run lint -- <変更したファイルのパス>",
+				"command": "pnpm run lint -- <変更したファイルのパス>",
 				"note": "PrettierとESLintの両方が実行され、すべてのルールがチェックされる",
 				"required": true
 			},
 			{
 				"step": 3,
 				"description": "エラーが0件であることを確認してから報告",
-				"note": "npm run lintでエラーが見つかった場合は修正してから再実行"
+				"note": "pnpm run lintでエラーが見つかった場合は修正してから再実行"
 			}
 		],
 		"new_file_check": {
 			"description": "新規作成したファイルは特に注意してチェック",
 			"steps": [
 				"read_lintsでチェック",
-				"npm run lintで再確認（必須）",
+				"pnpm run lintで再確認（必須）",
 				"Prettierのフォーマットも確認"
 			]
 		},
@@ -73,7 +73,7 @@
 			"description": "Prettierのフォーマットチェックも実行",
 			"command": "pnpm exec prettier --check <ファイルパス>",
 			"auto_fix_command": "pnpm exec prettier --write <ファイルパス>",
-			"note": "npm run lintにはPrettierのチェックが含まれているが、個別に実行することも可能"
+			"note": "pnpm run lintにはPrettierのチェックが含まれているが、個別に実行することも可能"
 		}
 	}
 }
