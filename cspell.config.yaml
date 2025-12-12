@@ -15,10 +15,12 @@ ignorePaths:
   - '**/*.min.js'
   - .git/**/*
   - .gitignore
-  - src/lib/posts/*.md
   - '**/*.svg'
   - 'pnpm-lock.yaml'
   - '.env*'
+  - src/lib/posts/*.md
+  - 'prompts/blog-drafts/**/*.md'
+  - 'prompts/antigravity-blog-writer.md'
 words:
   - aboutads
   - aikidosec
