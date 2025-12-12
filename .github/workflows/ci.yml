@@ -35,9 +35,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Setup safe-chain
-        run: |
-          pnpm i -g @aikidosec/safe-chain
-          safe-chain setup-ci
+        run: pnpm dlx @aikidosec/safe-chain setup-ci
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
@@ -68,9 +66,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Setup safe-chain
-        run: |
-          pnpm i -g @aikidosec/safe-chain
-          safe-chain setup-ci
+        run: pnpm dlx @aikidosec/safe-chain setup-ci
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
@@ -98,9 +94,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Setup safe-chain
-        run: |
-          pnpm i -g @aikidosec/safe-chain
-          safe-chain setup-ci
+        run: pnpm dlx @aikidosec/safe-chain setup-ci
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
@@ -125,9 +119,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Setup safe-chain
-        run: |
-          pnpm i -g @aikidosec/safe-chain
-          safe-chain setup-ci
+        run: pnpm dlx @aikidosec/safe-chain setup-ci
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
@@ -152,9 +144,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Setup safe-chain
-        run: |
-          pnpm i -g @aikidosec/safe-chain
-          safe-chain setup-ci
+        run: pnpm dlx @aikidosec/safe-chain setup-ci
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
@@ -200,9 +190,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Setup safe-chain
-        run: |
-          pnpm i -g @aikidosec/safe-chain
-          safe-chain setup-ci
+        run: pnpm dlx @aikidosec/safe-chain setup-ci
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
