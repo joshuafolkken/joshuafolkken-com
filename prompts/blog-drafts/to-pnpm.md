@@ -1,6 +1,7 @@
 ## プロンプト
 
-./prompts/generate-blog-post-3.md
+Antigravity: ./prompts/antigravity-blog-writer.md
+Cursor: ./prompts/generate-blog-post-3.md
 
 ## 原稿
 
