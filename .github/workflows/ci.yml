@@ -9,24 +9,18 @@ on:
   pull_request:
     branches: [main]
 
-env:
-  TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
-  TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  lint:
-    name: Lint
+  ci:
+    name: CI
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -34,124 +28,28 @@ jobs:
           node-version: '24'
           cache: 'pnpm'
 
-      - name: Setup safe-chain
-        run: pnpm dlx @aikidosec/safe-chain setup-ci
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
-
-      - name: Sync SvelteKit
-        run: pnpm exec svelte-kit sync
-
-      - name: Run prettier check
-        run: pnpm exec prettier --check .
-
-      - name: Run eslint check
-        run: pnpm exec eslint .
-
-  type-check:
-    name: Type Check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Install pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: 'pnpm'
-
-      - name: Setup safe-chain
-        run: pnpm dlx @aikidosec/safe-chain setup-ci
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
-
-      - name: Run spell check
-        run: pnpm exec cspell . --dot
-
-      - name: Run type check
-        run: pnpm run check
-
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: 'pnpm'
-
-      - name: Setup safe-chain
-        run: pnpm dlx @aikidosec/safe-chain setup-ci
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
-
-      - name: Run unit tests
-        run: pnpm run test:unit
-
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: 'pnpm'
-
-      - name: Setup safe-chain
-        run: pnpm dlx @aikidosec/safe-chain setup-ci
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
-
-      - name: Build application
-        run: pnpm run build
-
-  e2e-test:
-    name: E2E Tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: 'pnpm'
-
-      - name: Setup safe-chain
-        run: pnpm dlx @aikidosec/safe-chain setup-ci
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
-
-      - name: Cache Playwright browsers
-        id: playwright-cache
+      - name: Setup caches
         uses: actions/cache@v4
+        with:
+          path: |
+            .svelte-kit
+            .eslintcache
+          key: ${{ runner.os }}-cache-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-cache-
+
+      - name: Setup safe-chain
+        run: pnpm dlx @aikidosec/safe-chain setup-ci
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Setup Playwright
+        uses: actions/cache@v4
+        id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
@@ -162,7 +60,31 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm exec playwright install chromium --with-deps
 
+      - name: Run security audit
+        run: pnpm audit --audit-level high
+
+      - name: Run spell check
+        run: pnpm exec cspell . --dot
+
+      - name: Run type check
+        run: pnpm run check
+
+      - name: Run prettier check
+        run: pnpm exec prettier --check .
+
+      - name: Run eslint check
+        run: pnpm exec eslint . --cache
+
+      - name: Run unit tests
+        run: pnpm run test:unit
+
+      - name: Build application
+        run: pnpm run build
+
       - name: Run E2E tests
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
         run: pnpm run test:e2e
 
       - name: Upload test results
@@ -172,28 +94,3 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
-
-  security-audit:
-    name: Security Audit
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: 'pnpm'
-
-      - name: Setup safe-chain
-        run: pnpm dlx @aikidosec/safe-chain setup-ci
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
-
-      - name: Run security audit
-        run: pnpm audit --audit-level high
