@@ -8,9 +8,11 @@ const config = {
 	// for more information about preprocessors
 	preprocess: [
 		vitePreprocess(),
-		mdsvex({
-			extensions: ['.svx', '.md'],
-		}),
+		/** @type {import('svelte/compiler').PreprocessorGroup} */ (
+			mdsvex({
+				extensions: ['.svx', '.md'],
+			})
+		),
 	],
 
 	kit: { adapter: adapter() },
