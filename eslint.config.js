@@ -20,34 +20,11 @@ export default defineConfig(
 	{
 		// tsconfig に含まれないファイルを明示的に除外
 		ignores: [
-			'*.config.js',
-			'*.config.cjs',
-			'*.config.ts',
-			'vite.config.js',
-			'vite.config.ts',
-			'vitest-setup-client.ts',
-			'src/routes/demo/**',
-			'src/stories/**',
 			'src/app.d.ts',
-			'src/hooks.server.ts',
-			'src/hooks.ts',
-			// 'src/lib/server/**',
-			'src/routes/+layout*',
-		],
-	},
-	{
-		// tsconfig の include に合わせた対象ファイルを指定
-		files: [
-			'vite.config.js',
-			'vite.config.ts',
-			'src/**/*.js',
-			'src/**/*.ts',
-			'src/**/*.svelte',
-			'tests/**/*.js',
-			'tests/**/*.ts',
-			'tests/**/*.svelte',
-			'scripts/**/*.js',
-			'scripts/**/*.ts',
+			'*.config.{ts,js,cjs,mjs}',
+			'src/routes/+layout.server.ts',
+			'src/routes/+layout.svelte',
+			'src/routes/+layout.ts',
 		],
 	},
 	js.configs.recommended,
@@ -73,7 +50,6 @@ export default defineConfig(
 			'import/resolver': {
 				typescript: {
 					alwaysTryTypes: true,
-					project: './tsconfig.json',
 				},
 				node: true,
 			},
@@ -83,7 +59,7 @@ export default defineConfig(
 		languageOptions: {
 			globals: { ...globals.browser, ...globals.node },
 			parserOptions: {
-				projectService: true,
+				project: './tsconfig.json',
 				tsconfigRootDir: import.meta.dirname,
 			},
 		},
@@ -265,7 +241,6 @@ export default defineConfig(
 			// ===== 一般的なコード品質 =====
 			// console の使用を警告（開発時は許可、本番ではエラーにするべき）
 			'no-console': ['error', { allow: ['warn', 'error', 'info'] }],
-			// 'no-console': 'error',
 			// デバッガーの使用を禁止
 			'no-debugger': 'error',
 			// var の使用を禁止
@@ -453,7 +428,7 @@ export default defineConfig(
 				},
 				{
 					selector:
-						'ExportNamedDeclaration > VariableDeclaration[declarations.length=1] > VariableDeclarator[id.type="Identifier"]:not([id.name=/^[A-Z_]+$/]):not([init.type="ObjectExpression"]):not([init.type="ArrayExpression"])',
+						'ExportNamedDeclaration > VariableDeclaration[declarations.length=1] > VariableDeclarator[id.type="Identifier"]:not([id.name=/^[A-Z_]+$/]):not([init.type="ObjectExpression"]):not([init.type="ArrayExpression"]):not([init.type="ArrowFunctionExpression"])',
 					message:
 						'Individual named exports (constants) are not allowed (except UPPER_CASE). Use object export instead. Example: export const module_name = { constant_name }',
 				},
@@ -824,7 +799,6 @@ export default defineConfig(
 		files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
 		languageOptions: {
 			parserOptions: {
-				projectService: true,
 				extraFileExtensions: ['.svelte'],
 				parser: ts.parser,
 				svelteConfig,
@@ -873,14 +847,6 @@ export default defineConfig(
 	},
 	{
 		files: ['**/hooks/**/*.svelte.ts', '**/*State.svelte.ts'],
-		languageOptions: {
-			parserOptions: {
-				projectService: true,
-				extraFileExtensions: ['.svelte'],
-				parser: ts.parser,
-				svelteConfig,
-			},
-		},
 		rules: {
 			'prefer-const': 'off',
 			'max-lines-per-function': ['error', 150],
@@ -908,13 +874,14 @@ export default defineConfig(
 			'no-restricted-syntax': 'off',
 		},
 	},
-	// {
-	// 	// テストファイルではルールを緩和
-	// 	files: ['**/*.test.ts', '**/*.spec.ts', '**/*.test.svelte.ts', '**/*.spec.svelte.ts'],
-	// 	rules: {
-	// 		'@typescript-eslint/no-explicit-any': 'off',
-	// 		'max-lines-per-function': 'off',
-	// 		'@typescript-eslint/explicit-function-return-type': 'off',
-	// 	},
-	// },
+	{
+		// テストファイルではルールを緩和
+		files: ['**/*.test.ts', '**/*.spec.ts', '**/*.test.svelte.ts', '**/*.spec.svelte.ts'],
+		rules: {
+			'@typescript-eslint/no-magic-numbers': 'off',
+			// '@typescript-eslint/no-explicit-any': 'off',
+			// 'max-lines-per-function': 'off',
+			// '@typescript-eslint/explicit-function-return-type': 'off',
+		},
+	},
 )

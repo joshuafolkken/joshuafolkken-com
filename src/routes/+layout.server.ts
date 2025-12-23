@@ -3,7 +3,7 @@ import type { OpenCollectiveMember } from '$lib/types/opencollective'
 import type { LayoutServerLoad } from './$types'
 
 interface SupportersCache {
-	data: OpenCollectiveMember[]
+	data: Array<OpenCollectiveMember>
 	timestamp: number
 }
 
@@ -31,7 +31,7 @@ export const load: LayoutServerLoad = async ({ fetch }) => {
 
 		if (!response.ok) throw new Error('Failed to fetch backers')
 
-		const members: OpenCollectiveMember[] = await response.json()
+		const members: Array<OpenCollectiveMember> = await response.json()
 
 		// console.log(members)
 
@@ -50,8 +50,8 @@ export const load: LayoutServerLoad = async ({ fetch }) => {
 		return {
 			supporters,
 		}
-	} catch (e) {
-		console.error(e)
+	} catch (error) {
+		console.error(error)
 
 		// エラー時はキャッシュがあればそれを返す (Stale-if-error)
 		if (supporters_cache !== null) {
