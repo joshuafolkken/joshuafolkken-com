@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 export const import_rules = {
 	// TypeScriptコンパイラが既にチェックするため無効化
 	'import/no-unresolved': 'off',

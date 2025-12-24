@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 export const unicorn_rules = {
 	// null よりも undefined を優先
 	'unicorn/no-null': 'error',

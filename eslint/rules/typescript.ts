@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 export const typescript_rules = {
 	// ===== TypeScript 厳格化 =====
 	// 明示的な関数戻り値の型を必須に

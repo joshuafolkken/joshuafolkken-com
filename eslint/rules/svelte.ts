@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 export const svelte_rules = {
 	// a11y（アクセシビリティ）ルールを厳格に
 	'svelte/valid-compile': 'error',

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 export const naming_convention_rules = {
 	'@typescript-eslint/naming-convention': [
 		'error',

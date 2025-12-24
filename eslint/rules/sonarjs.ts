@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 export const sonarjs_rules = {
 	// 認知的複雑度の制限（より厳しい複雑度の指標）
 	'sonarjs/cognitive-complexity': ['error', 4],

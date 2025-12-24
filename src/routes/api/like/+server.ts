@@ -13,8 +13,10 @@ interface LikeRequestBody {
 async function get_valid_slug(request: Request): Promise<string | undefined> {
 	const body = (await request.json()) as LikeRequestBody
 	const { slug } = body
-	// eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-	if (!slug) return undefined
+
+	if (slug === undefined || slug === '') {
+		return undefined
+	}
 	return slug
 }
 

@@ -21,6 +21,30 @@ import { unicorn_rules } from './eslint/rules/unicorn.ts'
 import svelteConfig from './svelte.config.js'
 
 const gitignorePath = fileURLToPath(new URL('./.gitignore', import.meta.url))
+const tsconfigRootDir = import.meta.dirname
+
+// ファイルパターンの定数化
+const FILE_PATTERNS = {
+	rules: ['eslint/**/*.ts'],
+	d_ts: ['**/*.d.ts'],
+	typescript: ['**/*.ts', '**/*.tsx'],
+	svelte: ['**/*.svelte', '**/*.svelte.ts'],
+	svelteJs: ['**/*.svelte.js'], // 存在しないが設定に含まれている
+	scripts: ['scripts/**/*.ts', 'scripts/**/*.js'],
+	hooks: ['**/hooks/**/*.svelte.ts', '**/*State.svelte.ts'],
+	phrases: ['**/phrases/collections/*.ts', '**/phrases/praise.ts'],
+	params: ['src/params/**/*.ts'],
+	routes: ['src/routes/**/+*.ts', 'src/routes/**/+*.js'],
+	tests: ['**/*.test.ts', '**/*.spec.ts', '**/*.test.svelte.ts', '**/*.spec.svelte.ts'],
+}
+
+// SvelteKitのルートファイル名パターン
+const SVELTEKIT_ROUTE_PATTERNS = [
+	String.raw`\+page\.svelte$`,
+	String.raw`\+layout\.svelte$`,
+	String.raw`\+error\.svelte$`,
+	String.raw`\+server\.ts$`,
+]
 
 export default defineConfig(
 	includeIgnoreFile(gitignorePath),
@@ -29,9 +53,8 @@ export default defineConfig(
 		ignores: [
 			'src/app.d.ts',
 			'*.config.{ts,js,cjs,mjs}',
-			'src/routes/+layout.server.ts',
-			'src/routes/+layout.svelte',
-			'src/routes/+layout.ts',
+			'src/routes/**/+layout.svelte',
+			'src/routes/**/+layout.ts',
 		],
 	},
 	js.configs.recommended,
@@ -83,18 +106,31 @@ export default defineConfig(
 		},
 	},
 	{
-		files: ['**/*.ts', '**/*.tsx'],
+		files: FILE_PATTERNS.rules,
+		rules: {
+			'@typescript-eslint/naming-convention': 'off',
+			'@typescript-eslint/no-magic-numbers': 'off',
+		},
+	},
+	{
+		files: FILE_PATTERNS.d_ts,
+		rules: {
+			'import/no-default-export': 'off',
+		},
+	},
+	{
+		files: FILE_PATTERNS.typescript,
 		ignores: ['**/*.svelte.ts'], // .svelte.ts ファイルを除外
 		languageOptions: {
 			parser: ts.parser,
 			parserOptions: {
 				project: './tsconfig.json',
-				tsconfigRootDir: import.meta.dirname,
+				tsconfigRootDir,
 			},
 		},
 	},
 	{
-		files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
+		files: FILE_PATTERNS.svelte,
 		languageOptions: {
 			parserOptions: {
 				projectService: true,
@@ -104,22 +140,12 @@ export default defineConfig(
 			},
 		},
 		rules: {
-			// Svelte ファイルでは Svelte 固有のルールを適用
-
-			// Svelte の $state などのリアクティブ変数は再代入されるため、prefer-const を緩和
-			// 'prefer-const': 'warn',
-
 			// Svelte コンポーネントファイルは PascalCase を許可
 			'unicorn/filename-case': [
 				'error',
 				{
 					case: 'pascalCase',
-					ignore: [
-						String.raw`\+page\.svelte$`,
-						String.raw`\+layout\.svelte$`,
-						String.raw`\+error\.svelte$`,
-						String.raw`\+server\.ts$`,
-					],
+					ignore: SVELTEKIT_ROUTE_PATTERNS,
 				},
 			],
 
@@ -139,13 +165,13 @@ export default defineConfig(
 	},
 	{
 		// CLI スクリプトでは process.exit() を許可
-		files: ['scripts/**/*.ts', 'scripts/**/*.js'],
+		files: FILE_PATTERNS.scripts,
 		rules: {
 			'unicorn/no-process-exit': 'off',
 		},
 	},
 	{
-		files: ['**/hooks/**/*.svelte.ts', '**/*State.svelte.ts'],
+		files: FILE_PATTERNS.hooks,
 		rules: {
 			'prefer-const': 'off',
 			'max-lines-per-function': ['error', 150],
@@ -153,14 +179,14 @@ export default defineConfig(
 		},
 	},
 	{
-		files: ['**/phrases/*.ts'],
+		files: FILE_PATTERNS.phrases,
 		rules: {
 			'max-lines': 'off',
 			'sonarjs/no-duplicate-string': 'off',
 		},
 	},
 	{
-		files: ['src/params/**/*.ts'],
+		files: FILE_PATTERNS.params,
 		rules: {
 			'unicorn/filename-case': 'off',
 			'no-restricted-syntax': 'off',
@@ -168,14 +194,14 @@ export default defineConfig(
 	},
 	{
 		// SvelteKitのルートファイル（+page.server.tsなど）では名前付きエクスポートが必須のためルールを緩和
-		files: ['src/routes/**/+*.ts', 'src/routes/**/+*.js'],
+		files: FILE_PATTERNS.routes,
 		rules: {
 			'no-restricted-syntax': 'off',
 		},
 	},
 	{
 		// テストファイルではルールを緩和
-		files: ['**/*.test.ts', '**/*.spec.ts', '**/*.test.svelte.ts', '**/*.spec.svelte.ts'],
+		files: FILE_PATTERNS.tests,
 		rules: {
 			'@typescript-eslint/no-magic-numbers': 'off',
 			// '@typescript-eslint/no-explicit-any': 'off',

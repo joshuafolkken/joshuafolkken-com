@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention, @typescript-eslint/no-magic-numbers */
 export const code_quality_rules = {
 	// ===== 一般的なコード品質 =====
 	// console の使用を警告（開発時は許可、本番ではエラーにするべき）
