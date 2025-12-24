@@ -1,7 +1,7 @@
 {
 	"name": "joshuafolkken-com",
 	"private": true,
-	"version": "0.73.1",
+	"version": "0.74.0",
 	"type": "module",
 	"packageManager": "pnpm@10.26.2",
 	"scripts": {
@@ -20,6 +20,7 @@
 		"test:unit": "vitest",
 		"test": "pnpm run test:unit --run && pnpm run test:e2e",
 		"test:e2e": "playwright test",
+		"test:e2e:timing": "playwright test --reporter=list",
 		"lefthook:install": "lefthook install",
 		"lefthook:uninstall": "lefthook uninstall",
 		"lefthook:commit": "lefthook run pre-commit",

@@ -26,4 +26,8 @@ vite.config.ts.timestamp-*
 # ESLint cache
 .eslintcache
 
+# Images
 static/images/**/*-w*.webp
+
+# Playwright
+playwright-report
