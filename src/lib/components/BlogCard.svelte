@@ -9,7 +9,7 @@
 <li
 	class="group overflow-hidden rounded-lg border border-slate-300/50 transition duration-300 hover:border-slate-300 hover:bg-slate-800/60 hover:text-white"
 >
-	<a href={resolve(`/blog/${post.slug}`)} class="block">
+	<a href={resolve('/blog/[slug]', { slug: post.slug })} class="block">
 		{#if post.cover_image}
 			<div class="overflow-hidden">
 				<img

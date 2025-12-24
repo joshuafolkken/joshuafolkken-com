@@ -18,7 +18,7 @@ function get_current_branch(): string {
 
 function execute_check(check_function: () => CheckResult): void {
 	const result = check_function()
-	console.log(result.message) // eslint-disable-line no-console
+	console.info(result.message)
 
 	if (!result.success) {
 		process.exit(1)
