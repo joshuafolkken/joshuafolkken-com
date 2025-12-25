@@ -17,7 +17,7 @@ pre-commit:
 
     eslint:
       glob: '*.{js,jsx,ts,tsx,mjs,cjs,svelte}'
-      run: pnpm exec eslint --quiet {staged_files}
+      run: pnpm exec eslint --quiet --cache --cache-strategy content {staged_files}
 
   fail_text: |
     🚫 Commit blocked due to quality checks failure

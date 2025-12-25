@@ -1,7 +1,7 @@
 {
 	"name": "joshuafolkken-com",
 	"private": true,
-	"version": "0.78.0",
+	"version": "0.79.0",
 	"type": "module",
 	"packageManager": "pnpm@10.26.2",
 	"scripts": {
@@ -16,7 +16,8 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
-		"lint": "svelte-kit sync && prettier --check . && eslint . --cache",
+		"lint": "svelte-kit sync && prettier --check . && pnpm run lint:eslint",
+		"lint:eslint": "eslint . --cache --cache-strategy content",
 		"test:unit": "vitest",
 		"test": "pnpm run test:unit --run && pnpm run test:e2e",
 		"test:e2e": "playwright test",
