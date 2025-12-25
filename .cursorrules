@@ -1,0 +1,15 @@
+# Code Change Rules
+
+- When you modify, add, or delete any code:
+  1. You MUST run `pnpm run check` to verify type safety.
+  2. You MUST run `pnpm run lint` to verify code style and quality.
+  3. If any command fails, you MUST fix all reported issues.
+  4. Repeat checks until they pass.
+  5. Only then finish the response.
+
+- Never say "it should pass" without actually running the commands.
+- Do not end the task while errors exist.
+
+# Git Rules
+
+- DO NOT commit changes unless explicitly requested by the user.
