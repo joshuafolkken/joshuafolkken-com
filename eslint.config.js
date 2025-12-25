@@ -204,6 +204,7 @@ export default defineConfig(
 		files: FILE_PATTERNS.tests,
 		rules: {
 			'@typescript-eslint/no-magic-numbers': 'off',
+			'max-lines-per-function': ['error', { max: 35, skipBlankLines: true, skipComments: true }],
 			// '@typescript-eslint/no-explicit-any': 'off',
 			// 'max-lines-per-function': 'off',
 			// '@typescript-eslint/explicit-function-return-type': 'off',

@@ -33,6 +33,7 @@ export const naming_convention_rules = {
 			selector: 'parameter',
 			format: ['snake_case'],
 			leadingUnderscore: 'allow',
+			trailingUnderscore: 'allow',
 		},
 		// クラス、インターフェース、型エイリアス、Enum は PascalCase
 		{
