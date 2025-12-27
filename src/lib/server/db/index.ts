@@ -1,14 +1,15 @@
 import { createClient } from '@libsql/client'
-import { TURSO_AUTH_TOKEN, TURSO_DATABASE_URL } from '$env/static/private'
+import { env } from '$env/dynamic/private'
 import { drizzle } from 'drizzle-orm/libsql'
-import { post_likes } from './schema'
+import { schema } from './schema'
 
-const client = createClient({
-	url: TURSO_DATABASE_URL,
-	// eslint-disable-next-line @typescript-eslint/naming-convention
-	authToken: TURSO_AUTH_TOKEN,
-})
+const url = env.TURSO_DATABASE_URL
+const auth_token = env.TURSO_AUTH_TOKEN
 
-const database = drizzle(client, { schema: { post_likes } })
+if (url === '') throw new Error('TURSO_DATABASE_URL is not set')
+if (auth_token === '') throw new Error('TURSO_AUTH_TOKEN is not set')
+
+const client = createClient({ url, authToken: auth_token }) // eslint-disable-line @typescript-eslint/naming-convention
+const database = drizzle(client, { schema })
 
 export { database }
