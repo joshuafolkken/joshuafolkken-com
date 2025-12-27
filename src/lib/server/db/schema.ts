@@ -7,3 +7,7 @@ export const post_likes = sqliteTable('post_likes', {
 	count: integer('count').default(0).notNull(),
 	updated_at: integer('updated_at').default(sql`CURRENT_TIMESTAMP`),
 })
+
+export const schema = {
+	post_likes,
+}
