@@ -21,6 +21,7 @@ ignorePaths:
   - src/lib/posts/*.md
   - 'prompts/blog-drafts/**/*.md'
   - 'prompts/antigravity-blog-writer.md'
+  - 'playwright-report/**'
 words:
   - aboutads
   - aikidosec
@@ -68,3 +69,4 @@ words:
   - cooldown
   - eslintcache
   - octocat
+  - workerd

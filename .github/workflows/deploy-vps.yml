@@ -1,8 +1,8 @@
 name: Deploy on VPS
 
 on:
-  repository_dispatch:
-    types: [new-tag-created]
+  # repository_dispatch:
+  #   types: [new-tag-created]
   # push:
   #   branches: [main]
   workflow_dispatch:
