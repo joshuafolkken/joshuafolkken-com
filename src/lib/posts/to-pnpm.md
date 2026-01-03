@@ -2,7 +2,7 @@
 title: npm から pnpm へ移行した話。容量削減と「3日も待てない」僕の選択
 date: '2025-12-05 23:45'
 updated: '2025-12-12 9:30'
-cover_image: /api/images/blog/pexels-markusspiske-1089438.webp
+cover_image: /images/blog/pexels-markusspiske-1089438.webp
 excerpt: パッケージマネージャーが3つも書いてある README を見て疑問に思った僕は、npm から pnpm への移行を決意しました。容量削減と動作の快適さを手に入れるまでの道のりを語ります。
 ---
 

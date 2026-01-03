@@ -1,7 +1,7 @@
 ---
 title: 型安全って最高。TypeScript ユーザーなら今すぐ Drizzle ORM を使うべき理由
 date: '2025-11-24'
-cover_image: /api/images/blog/imagine-buddy-vsLbaIdhwaU-unsplash.webp
+cover_image: /images/blog/imagine-buddy-vsLbaIdhwaU-unsplash.webp
 excerpt: SQLの文法エラーに怯えるのはもう終わり。Drizzle ORM を導入して、TypeScript の恩恵（型チェック・補完）をフル活用した DB 操作へ移行します。
 ---
 

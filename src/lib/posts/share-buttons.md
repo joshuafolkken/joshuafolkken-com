@@ -1,7 +1,7 @@
 ---
 title: 「あーー！これじゃダメだ！」シェアボタンで学んだシンプルの価値
 date: '2025-11-26 00:45'
-cover_image: /api/images/blog/yuriy-bogdanov-tBY61CbBJg8-unsplash.webp
+cover_image: /images/blog/yuriy-bogdanov-tBY61CbBJg8-unsplash.webp
 excerpt: シェアボタンを作ってみたら、ボタンが増えるたびに窮屈で閉所恐怖症が発動しそうになった。結局、X とリンクコピーだけにした。シンプルに保つことの大切さを学んだ。
 ---
 
