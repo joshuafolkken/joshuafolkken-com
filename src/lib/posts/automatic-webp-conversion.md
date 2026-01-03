@@ -1,7 +1,7 @@
 ---
 title: ファイルサイズを 98% 削減！Sharp と SvelteKit で実装した「オンデマンド WebP 変換 API」
 date: '2025-11-25 14:25'
-cover_image: /api/images/blog/marc-sendra-martorell--Vqn2WrfxTQ-unsplash.webp
+cover_image: /images/blog/marc-sendra-martorell--Vqn2WrfxTQ-unsplash.webp
 excerpt: 重たい画像管理の手間とサヨナラ。画像をサーバーに置くだけで、アクセス時に勝手に WebP 化＆リサイズしてくれる「自分専用 CDN」っぽいものを SvelteKit で作ってみました。
 ---
 
@@ -25,7 +25,7 @@ excerpt: 重たい画像管理の手間とサヨナラ。画像をサーバー�
 
 具体的にはこんな流れです。
 
-1. ブログ記事では `/api/images/blog/hoge.webp` というパスで画像を指定する。
+1. ブログ記事では `/images/blog/hoge.webp` というパスで画像を指定する。
 2. サーバーはその画像がリクエストされたとき、**元画像の JPG を探す**。
 3. その場で **WebP に変換** しつつ、**適切なサイズにリサイズ** する。
 4. 変換した画像をブラウザに返す（そしてサーバーに保存しておく）。

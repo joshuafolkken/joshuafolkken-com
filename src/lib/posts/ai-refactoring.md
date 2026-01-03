@@ -1,7 +1,7 @@
 ---
 title: ESLint で厳格なルールを定義して、AI と一緒にプロジェクト全体のリファクタリングを進める話
 date: '2025-11-28 19:00'
-cover_image: /api/images/blog/verne-ho-0LAJfSNa-xQ-unsplash.webp
+cover_image: /images/blog/verne-ho-0LAJfSNa-xQ-unsplash.webp
 excerpt: Cursor の Gemini 3 Pro とカスタムプロンプトを使って、小さく小さくリファクタリングを繰り返している話。ESLint で厳格なルールを定義して、コード品質を保ちながら進めています。
 ---
 

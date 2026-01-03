@@ -1,7 +1,7 @@
 ---
 title: ESLint が 30秒 かかって遅すぎる！原因は projectService の設定だった
 date: '2025-12-25 7:30'
-cover_image: /api/images/blog/pexels-goumbik-590020.webp
+cover_image: /images/blog/pexels-goumbik-590020.webp
 excerpt: ESLint の実行に 30秒 もかかって困っていた僕。ChatGPT にも Claude にも Gemini にも聞いても解決しなかった。最後に残った原因は projectService の設定でした。
 ---
 

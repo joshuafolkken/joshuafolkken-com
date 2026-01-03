@@ -1,7 +1,7 @@
 ---
 title: SvelteKit × Tailwind CSS で、グラスモーフィズムのスティッキーヘッダーを作った話
 date: '2025-12-04 19:00'
-cover_image: /api/images/blog/pexels-blitzboy-940880.webp
+cover_image: /images/blog/pexels-blitzboy-940880.webp
 excerpt: Discord Nitro の案内ページで見たグラスモーフィズムの固定ヘッダーに「かっこいいな...」と思ってしまった。自分のサイトのスティッキーヘッダーも、同じようにかっこよくしてみました。
 ---
 
