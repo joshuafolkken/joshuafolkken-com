@@ -40,10 +40,21 @@ jobs:
         with:
           path: |
             .svelte-kit
-            .eslintcache
-          key: ${{ runner.os }}-cache-${{ hashFiles('pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-svelte-kit-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-cache-
+            ${{ runner.os }}-svelte-kit-
+
+      - name: Get ESLint version
+        id: eslint-version
+        run: echo "version=$(node -p "require('./package.json').devDependencies.eslint")" >> $GITHUB_OUTPUT
+
+      - name: Setup ESLint cache
+        uses: actions/cache@v4
+        with:
+          path: .eslintcache
+          key: ${{ runner.os }}-eslint-${{ steps.eslint-version.outputs.version }}-${{ hashFiles('eslint.config.js', 'eslint.config.d.ts', 'eslint/**/*.ts') }}
+          restore-keys: |
+            ${{ runner.os }}-eslint-
 
       - name: Setup safe-chain
         run: pnpm dlx @aikidosec/safe-chain setup-ci
