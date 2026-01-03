@@ -6,6 +6,9 @@ on:
   #   tags:
   #     - 'v*' # v1.0.0 などのタグが Push された時に起動
 
+permissions:
+  contents: write
+
 jobs:
   update-branch:
     runs-on: ubuntu-latest
