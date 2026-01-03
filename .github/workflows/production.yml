@@ -1,0 +1,24 @@
+name: Release to Production
+on:
+  repository_dispatch:
+    types: [new-tag-created]
+  # push:
+  #   tags:
+  #     - 'v*' # v1.0.0 などのタグが Push された時に起動
+
+jobs:
+  update-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update production branch
+        run: |
+          git fetch origin
+          git checkout production || git checkout -b production origin/production || git checkout -b production
+
+          git merge ${{ github.ref_name }} --no-ff -m "Release ${{ github.ref_name }}"
+          git push origin production
