@@ -18,7 +18,12 @@ function get_from_cache(slug: string): number | undefined {
 }
 
 async function get_likes_from_database(slug: string): Promise<number> {
-	const result = await database.select().from(post_likes).where(eq(post_likes.slug, slug)).limit(1)
+	const database_instance = database.get_instance()
+	const result = await database_instance
+		.select()
+		.from(post_likes)
+		.where(eq(post_likes.slug, slug))
+		.limit(1)
 
 	return result[0]?.count ?? INITIAL_COUNT
 }
@@ -26,8 +31,9 @@ async function get_likes_from_database(slug: string): Promise<number> {
 async function update_likes_in_database(slug: string): Promise<void> {
 	const now = Date.now()
 	const increment_value = 1
+	const database_instance = database.get_instance()
 
-	await database
+	await database_instance
 		.insert(post_likes)
 		.values({
 			slug,
