@@ -4,18 +4,22 @@ function get_error_message(error: unknown): string {
 
 function get_stderr_from_error(cause: Error): string | undefined {
 	const exec_error = cause as { stderr?: string }
+
 	if (exec_error.stderr === undefined) {
 		return undefined
 	}
+
 	const stderr = exec_error.stderr.trim()
 	return stderr.length > 0 ? stderr : undefined
 }
 
 function get_error_message_from_cause(cause: Error): string | undefined {
 	const message = cause.message.trim()
+
 	if (message.length > 0) {
 		return message
 	}
+
 	return get_stderr_from_error(cause)
 }
 
@@ -23,14 +27,17 @@ function get_cause_message(cause: unknown): string | undefined {
 	if (cause instanceof Error) {
 		return get_error_message_from_cause(cause)
 	}
+
 	if (typeof cause === 'string') {
 		return cause.trim()
 	}
+
 	return undefined
 }
 
 function display_error_details(cause: unknown): void {
 	const cause_message = get_cause_message(cause)
+
 	if (cause_message !== undefined && cause_message.length > 0) {
 		console.error('')
 		console.error('💡 Details:', cause_message)

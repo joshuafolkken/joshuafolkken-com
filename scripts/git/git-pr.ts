@@ -14,6 +14,7 @@ async function create_pr(title: string, body: string): Promise<void> {
 		error_message: 'Failed to create PR',
 		result_formatter: (message) => message,
 	}
+
 	try {
 		await animation_helpers.execute_with_animation(
 			'Creating pull request...',
@@ -28,6 +29,7 @@ async function create_pr(title: string, body: string): Promise<void> {
 			git_pr_messages.display_pr_exists_message()
 			return
 		}
+
 		throw error
 	}
 }
@@ -48,6 +50,7 @@ async function watch_pr_checks(branch_name: string): Promise<void> {
 
 async function display_pr_url_if_available(branch_name: string): Promise<void> {
 	const pr_url = await git_gh_command.pr_get_url(branch_name)
+
 	if (pr_url !== undefined) {
 		git_pr_messages.display_pr_url(pr_url)
 	}
@@ -105,9 +108,11 @@ function parse_pr_state(pr_info_json: string): string | undefined {
 async function get_pr_state_safe(branch_name: string): Promise<string | undefined> {
 	try {
 		const pr_info_json = await git_gh_command.pr_view(branch_name)
+
 		if (pr_info_json.length === 0) {
 			return undefined
 		}
+
 		return parse_pr_state(pr_info_json)
 	} catch {
 		return undefined
@@ -124,24 +129,29 @@ function is_pr_state_undefined(pr_state: string | undefined): boolean {
 
 async function handle_existing_pr(title: string, body: string, branch_name: string): Promise<void> {
 	const pr_state_result = await get_pr_state_safe(branch_name)
+
 	if (is_pr_state_undefined(pr_state_result)) {
 		await wait_and_check_status(branch_name)
 		return
 	}
+
 	if (is_pr_state_merged(pr_state_result)) {
 		git_pr_messages.display_merged_pr_message()
 		await create_and_check_status(title, body, branch_name)
 		return
 	}
+
 	await wait_and_check_status(branch_name)
 }
 
 async function create(title: string, body: string, branch_name: string): Promise<void> {
 	const has_pr = await git_gh_command.pr_exists(branch_name)
+
 	if (!has_pr) {
 		await create_and_check_status(title, body, branch_name)
 		return
 	}
+
 	await handle_existing_pr(title, body, branch_name)
 }
 

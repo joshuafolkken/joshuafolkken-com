@@ -37,9 +37,11 @@ function is_staged_file(line: string): boolean {
 	if (line.length < REQUIRED_STATUS_LENGTH) {
 		return false
 	}
+
 	if (is_untracked_file(line)) {
 		return false
 	}
+
 	const [staged_status] = line
 	return staged_status !== ' '
 }
@@ -50,9 +52,11 @@ function has_unstaged_changes(line: string): boolean {
 
 function has_all_files_staged(status_output: string): boolean {
 	const lines = parse_status_lines(status_output)
+
 	if (lines.length === 0) {
 		return true
 	}
+
 	return lines.every((line) => !has_unstaged_changes(line))
 }
 
@@ -66,6 +70,7 @@ function is_package_json_staged(status_output: string): boolean {
 		if (!is_staged_file(line)) {
 			return false
 		}
+
 		const filename = extract_filename(line)
 		return filename === PACKAGE_JSON_FILE
 	})

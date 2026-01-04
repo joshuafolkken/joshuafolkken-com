@@ -5,6 +5,7 @@ const intersect: Action<HTMLElement, (() => void) | undefined> = (node, callback
 	const observer = new IntersectionObserver(
 		(entries) => {
 			const [entry] = entries
+
 			if (entry?.isIntersecting === true) {
 				callback?.()
 				observer.disconnect()

@@ -12,17 +12,21 @@ const ISSUE_NUMBER_PATTERN = /#(\d+)$/u
 
 function extract_issue_number(input: string): string {
 	const match = ISSUE_NUMBER_PATTERN.exec(input)
+
 	if (match === null) {
 		throw new Error('Invalid format: Issue number not found (e.g., "title #52")')
 	}
+
 	return match[1] ?? ''
 }
 
 function extract_issue_title(input: string): string {
 	const title = input.replace(/#\d+$/u, '').trim()
+
 	if (title.length === 0) {
 		throw new Error('Invalid format: Issue title is required')
 	}
+
 	return title
 }
 

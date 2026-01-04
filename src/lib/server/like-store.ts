@@ -39,6 +39,7 @@ async function update_likes_in_database(slug: string): Promise<void> {
 
 async function get_likes(slug: string): Promise<number> {
 	const cache_key = `like:${slug}`
+
 	try {
 		return await in_memory_cache.with_cache(cache_key, async () => {
 			return await get_likes_from_database(slug)

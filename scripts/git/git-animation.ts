@@ -28,6 +28,7 @@ function create_stop_function(interval_id: NodeJS.Timeout, message: string): Ani
 			process.stdout.write(`\r${' '.repeat(clear_length)}\r`)
 			return
 		}
+
 		const display_icon = icon ?? SUCCESS_ICON
 		const icon_without_space = display_icon.trimEnd()
 		process.stdout.write(`\r${icon_without_space} ${message} ${result}\n`)
