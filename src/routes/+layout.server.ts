@@ -1,5 +1,5 @@
 import { OPENCOLLECTIVE } from '$lib/app'
-import { in_memory_cache } from '$lib/server/in-memory-cache'
+import { kv_cache } from '$lib/server/kv-cache'
 import type { OpenCollectiveMember } from '$lib/types/opencollective'
 import type { LayoutServerLoad } from './$types'
 
@@ -27,12 +27,14 @@ async function fetch_supporters(
 	return filter_and_sort_supporters(members)
 }
 
-export const load: LayoutServerLoad = async ({ fetch }) => {
+export const load: LayoutServerLoad = async ({ fetch, platform }) => {
 	try {
-		const supporters = await in_memory_cache.with_cache(
+		const supporters = await kv_cache.get(
 			CACHE_KEY,
 			async () => await fetch_supporters(fetch),
+			platform,
 		)
+
 		return {
 			supporters,
 		}

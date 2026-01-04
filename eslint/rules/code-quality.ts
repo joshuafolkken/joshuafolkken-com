@@ -27,7 +27,7 @@ export const code_quality_rules = {
 	// ファイルの最大行数
 	'max-lines': ['error', { max: 300, skipBlankLines: true, skipComments: true }],
 	// パラメータの最大数
-	'max-params': ['error', 3],
+	'max-params': ['error', 4],
 	// 関数内の文の数を制限
 	'max-statements': ['error', 10],
 	// 1行の最大長

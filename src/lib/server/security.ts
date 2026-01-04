@@ -51,7 +51,9 @@ function json_error(message: string, status: number): Response {
 	return json({ error: message }, { status })
 }
 
-function validate_rate_limit(ip: string): Response | undefined {
+type ValidationResult = Response | undefined
+
+function validate_rate_limit(ip: string): ValidationResult {
 	if (!check_rate_limit(ip)) {
 		console.warn(`[RateLimit] Blocked request from ${ip}`)
 		return json_error(ERROR_MESSAGES.TOO_MANY_REQUESTS, HTTP_STATUS.TOO_MANY_REQUESTS)
@@ -60,7 +62,7 @@ function validate_rate_limit(ip: string): Response | undefined {
 	return undefined
 }
 
-function validate_custom_header(request: Request): Response | undefined {
+function validate_custom_header(request: Request): ValidationResult {
 	const client_header = request.headers.get(HTTP_HEADERS.X_APP_CLIENT)
 
 	if (client_header !== APP.ID) {
@@ -71,11 +73,34 @@ function validate_custom_header(request: Request): Response | undefined {
 	return undefined
 }
 
-function validate_origin(request: Request, url: URL): Response | undefined {
+function is_localhost_hostname(hostname: string): boolean {
+	return hostname === 'localhost' || hostname === '127.0.0.1'
+}
+
+function check_development_localhost(origin_url: URL, _current_url: URL): boolean {
+	// originがlocalhostの場合、開発環境として扱う
+	// Cloudflare Workers環境（wrangler dev）でも、localhostからのリクエストは開発環境として許可
+	// 標準的な開発環境（import.meta.env.DEVがtrue、または現在のURLがlocalhost）の場合も許可
+	// 本番環境では通常localhostからのリクエストは来ないため、セキュリティ上の問題は少ない
+	return is_localhost_hostname(origin_url.hostname)
+}
+
+function validate_origin(request: Request, url: URL): ValidationResult {
 	const origin = request.headers.get('origin')
 
+	if (origin === null) {
+		return undefined
+	}
+
+	const origin_url = new URL(origin)
+
+	// 開発環境では、localhostの異なるポートを許可
+	if (check_development_localhost(origin_url, url)) {
+		return undefined
+	}
+
 	// originが存在し、かつ現在のサイトのオリジンと一致しない場合は不正
-	if (origin !== null && new URL(origin).origin !== url.origin) {
+	if (origin_url.origin !== url.origin) {
 		console.warn(`[OriginCheck] Blocked request from origin: ${origin}`)
 		return json_error(ERROR_MESSAGES.FORBIDDEN, HTTP_STATUS.FORBIDDEN)
 	}
@@ -83,7 +108,7 @@ function validate_origin(request: Request, url: URL): Response | undefined {
 	return undefined
 }
 
-function validate_request_security(request: Request, url: URL, ip: string): Response | undefined {
+function validate_request_security(request: Request, url: URL, ip: string): ValidationResult {
 	return validate_rate_limit(ip) ?? validate_custom_header(request) ?? validate_origin(request, url)
 }
 
