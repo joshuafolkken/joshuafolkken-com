@@ -1,5 +1,5 @@
 import { OPENCOLLECTIVE } from '$lib/app'
-import { in_memory_cache } from '$lib/server/in-memory-cache'
+import { kv_cache, type KVNamespace } from '$lib/server/kv-cache'
 import type { OpenCollectiveMember } from '$lib/types/opencollective'
 import type { LayoutServerLoad } from './$types'
 
@@ -27,12 +27,26 @@ async function fetch_supporters(
 	return filter_and_sort_supporters(members)
 }
 
-export const load: LayoutServerLoad = async ({ fetch }) => {
+function get_kv_from_platform(platform: App.Platform | undefined): KVNamespace | undefined {
+	if (platform?.env === undefined || platform.env === null) {
+		return undefined
+	}
+
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	const cache = (platform.env as { CACHE?: KVNamespace }).CACHE
+	return cache ?? undefined
+}
+
+export const load: LayoutServerLoad = async ({ fetch, platform }) => {
 	try {
-		const supporters = await in_memory_cache.with_cache(
-			CACHE_KEY,
-			async () => await fetch_supporters(fetch),
-		)
+		const kv = get_kv_from_platform(platform)
+
+		if (kv === undefined) {
+			throw new Error('KV cache not available')
+		}
+
+		const supporters = await kv_cache.get(CACHE_KEY, async () => await fetch_supporters(fetch), kv)
+
 		return {
 			supporters,
 		}

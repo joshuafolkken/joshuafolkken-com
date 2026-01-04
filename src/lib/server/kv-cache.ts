@@ -12,15 +12,52 @@ const MS_PER_SEC = 1000
 const SEC_PER_MIN = 60
 
 const MEMORY_TTL_MINUTES = 1
-const KV_TTL_MINUTES = 10
+const KV_SUPPORTERS_TTL_MINUTES = 30
+// const KV_LIKE_TTL_MINUTES = 5
 
 const memory_cache = new Map<string, CacheEntry<unknown>>()
 
 const MEMORY_TTL_MS = MS_PER_SEC * SEC_PER_MIN * MEMORY_TTL_MINUTES
-const KV_TTL_MS = MS_PER_SEC * SEC_PER_MIN * KV_TTL_MINUTES
+const KV_SUPPORTERS_TTL_MS = MS_PER_SEC * SEC_PER_MIN * KV_SUPPORTERS_TTL_MINUTES
+const MAX_LOG_VALUE_LENGTH = 80
+
+function value_to_string(value: unknown): string {
+	if (value === null || value === undefined) {
+		return String(value)
+	}
+
+	if (typeof value === 'object') {
+		return JSON.stringify(value)
+	}
+
+	// At this point, value is a primitive type (string, number, boolean, symbol, bigint)
+	const primitive_value = value as string | number | boolean | symbol | bigint
+	return String(primitive_value)
+}
+
+function format_value_for_log(value: unknown): unknown {
+	try {
+		const string_value = value_to_string(value)
+		const without_newlines = string_value.replaceAll('\n', ' ')
+		return without_newlines.length > MAX_LOG_VALUE_LENGTH
+			? without_newlines.slice(0, MAX_LOG_VALUE_LENGTH)
+			: without_newlines
+	} catch {
+		return value
+	}
+}
 
 function log_cache_hit(source: 'memory' | 'kv', key: string, value: unknown): void {
-	console.info(`[kv-cache] ${source === 'memory' ? 'Memory' : 'KV'} cache hit for ${key}:`, value)
+	const formatted_value = format_value_for_log(value)
+	console.info(
+		`[kv-cache] ${source === 'memory' ? 'Memory' : 'KV'} cache hit for ${key}:`,
+		formatted_value,
+	)
+}
+
+function log_duration(start: number, key: string): void {
+	const duration = Date.now() - start
+	console.info(`[kv-cache] get completed in ${String(duration)}ms for key: ${key}`)
 }
 
 function get_from_memory(key: string, now: number): unknown {
@@ -28,6 +65,7 @@ function get_from_memory(key: string, now: number): unknown {
 
 	if (memory_entry !== undefined && memory_entry.expires > now) {
 		log_cache_hit('memory', key, memory_entry.value)
+		log_duration(now, key)
 		return memory_entry.value
 	}
 
@@ -52,6 +90,7 @@ async function get_from_kv(key: string, kv: KVNamespace, now: number): Promise<u
 		const entry = { value: kv_entry.value, expires: now + MEMORY_TTL_MS }
 		memory_cache.set(key, entry)
 		log_cache_hit('kv', key, kv_entry.value)
+		log_duration(now, key)
 		return kv_entry.value
 	} catch {
 		// Invalid JSON, ignore
@@ -69,11 +108,35 @@ interface SaveCacheParameters {
 async function save_to_cache(parameters: SaveCacheParameters): Promise<void> {
 	const { key, value, now, kv } = parameters
 	memory_cache.set(key, { value, expires: now + MEMORY_TTL_MS })
-	const cache_entry = { value, expires: now + KV_TTL_MS }
-	await kv.put(key, JSON.stringify(cache_entry))
+	const cache_entry = { value, expires: now + KV_SUPPORTERS_TTL_MS }
+
+	try {
+		await kv.put(key, JSON.stringify(cache_entry))
+		console.info(`[kv-cache] Successfully saved to KV for key: ${key}`)
+	} catch (error) {
+		console.error(`[kv-cache] Failed to save to KV for key: ${key}:`, error)
+		throw error
+	}
 }
 
-// eslint-disable-next-line max-statements
+interface FetchAndSaveParameters<T> {
+	key: string
+	fetcher: () => Promise<T>
+	now: number
+	kv: KVNamespace
+}
+
+async function fetch_and_save<T>(parameters: FetchAndSaveParameters<T>): Promise<T> {
+	const { key, fetcher, now, kv } = parameters
+	console.info(`[kv-cache] Cache miss for ${key}, fetching fresh value`)
+	const fresh = await fetcher()
+	const formatted_fresh = format_value_for_log(fresh)
+	console.info(`[kv-cache] Fetched fresh value for ${key}:`, formatted_fresh)
+	await save_to_cache({ key, value: fresh, now, kv })
+	log_duration(now, key)
+	return fresh
+}
+
 async function get<T>(key: string, fetcher: () => Promise<T>, kv: KVNamespace): Promise<T> {
 	const now = Date.now()
 	const memory_value = get_from_memory(key, now)
@@ -88,12 +151,8 @@ async function get<T>(key: string, fetcher: () => Promise<T>, kv: KVNamespace): 
 		return kv_value as T
 	}
 
-	console.info(`[kv-cache] Cache miss for ${key}, fetching fresh value`)
-	const fresh = await fetcher()
-	console.info(`[kv-cache] Fetched fresh value for ${key}:`, fresh)
-	await save_to_cache({ key, value: fresh, now, kv })
-
-	return fresh
+	return await fetch_and_save({ key, fetcher, now, kv })
 }
 
 export const kv_cache = { get }
+export type { KVNamespace }

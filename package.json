@@ -9,6 +9,7 @@
 		"postinstall": "lefthook install",
 		"setup:security": "safe-chain setup",
 		"dev": "vite dev",
+		"dev:cloudflare": "pnpm run build && wrangler dev --remote",
 		"build:images": "tsx scripts/generate-webp-images.ts",
 		"build": "vite build",
 		"preview": "vite preview",
