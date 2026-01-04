@@ -29,25 +29,31 @@ function is_pr_already_exists_message(error_message: string): boolean {
 function get_error_message_with_stderr(error: unknown): string {
 	if (error instanceof Error) {
 		const exec_error = error as { stderr?: string }
+
 		if (exec_error.stderr !== undefined && exec_error.stderr.length > 0) {
 			return `${error.message}\n${exec_error.stderr}`
 		}
+
 		return error.message
 	}
+
 	return String(error)
 }
 
 function handle_pr_create_error(error: unknown): never {
 	const error_message = get_error_message_with_stderr(error)
+
 	if (is_pr_already_exists_message(error_message)) {
 		throw new Error('PR_ALREADY_EXISTS')
 	}
+
 	throw error
 }
 
 async function pr_create(title: string, body: string): Promise<string> {
 	const safe_title = JSON.stringify(title)
 	const safe_body = JSON.stringify(body)
+
 	try {
 		return await exec_gh_command(
 			`pr create --title ${safe_title} --body ${safe_body} --label enhancement --base main`,
@@ -62,9 +68,11 @@ async function pr_checks(branch_name: string): Promise<string> {
 		return await exec_gh_command(`pr checks ${branch_name}`)
 	} catch (error) {
 		const exec_error = error as { stderr?: string; stdout?: string }
+
 		if (exec_error.stderr !== undefined && exec_error.stderr.length > 0) {
 			throw new Error(exec_error.stderr)
 		}
+
 		throw error
 	}
 }
@@ -115,9 +123,11 @@ async function pr_get_url(branch_name: string): Promise<string | undefined> {
 	try {
 		const result: string = await exec_gh_command(`pr view ${branch_name} --json url --jq .url`)
 		const trimmed = result.trim()
+
 		if (trimmed.length === 0) {
 			return undefined
 		}
+
 		const without_quotes = trimmed.replaceAll(/(?:^")|(?:"$)/gu, '')
 		return without_quotes.length > 0 ? without_quotes : undefined
 	} catch {
@@ -127,9 +137,11 @@ async function pr_get_url(branch_name: string): Promise<string | undefined> {
 
 function parse_pr_state_string(result: string): string | undefined {
 	const trimmed = result.trim()
+
 	if (trimmed.length === 0) {
 		return undefined
 	}
+
 	const without_quotes = trimmed.replaceAll(/(?:^")|(?:"$)/gu, '')
 	return without_quotes.length > 0 ? without_quotes : undefined
 }

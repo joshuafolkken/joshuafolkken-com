@@ -22,9 +22,11 @@
 		if (link === undefined || link === '') {
 			return undefined
 		}
+
 		if (link.startsWith('http')) {
 			return link
 		}
+
 		return resolve(link as '/projects' | '/profile' | '/privacy-policy')
 	}
 </script>

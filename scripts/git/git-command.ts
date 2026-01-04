@@ -79,6 +79,7 @@ function is_upstream_not_set_error(error: unknown): boolean {
 	if (!(error instanceof Error) || error.cause === undefined) {
 		return false
 	}
+
 	const cause = error.cause as { exit_code?: string }
 	return cause.exit_code === '128'
 }
@@ -96,6 +97,7 @@ async function push(): Promise<void> {
 			await push_with_upstream(current_branch)
 			return
 		}
+
 		throw error
 	}
 }

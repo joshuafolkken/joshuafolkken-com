@@ -17,6 +17,7 @@ async function get_valid_slug(request: Request): Promise<string | undefined> {
 	if (slug === undefined || slug === '') {
 		return undefined
 	}
+
 	return slug
 }
 
@@ -50,6 +51,7 @@ export const GET: RequestHandler = async ({
 	getClientAddress: get_client_address,
 }) => {
 	const error_response = security.validate_request_security(request, url, get_client_address())
+
 	if (error_response !== undefined) {
 		return error_response
 	}
@@ -69,11 +71,13 @@ export const POST: RequestHandler = async ({
 	url,
 }) => {
 	const error_response = security.validate_request_security(request, url, get_client_address())
+
 	if (error_response !== undefined) {
 		return error_response
 	}
 
 	const slug = await get_valid_slug(request)
+
 	if (slug === undefined) {
 		return security.json_error(ERROR_SLUG_REQUIRED, HTTP_STATUS.BAD_REQUEST)
 	}

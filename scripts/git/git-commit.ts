@@ -18,6 +18,7 @@ async function commit(commit_message: string): Promise<void> {
 			if (pause_animation !== undefined) {
 				pause_animation()
 			}
+
 			await git_command.commit(commit_message)
 			return 'Commit completed.'
 		},

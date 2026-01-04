@@ -18,9 +18,11 @@
 		if (link === '') {
 			return undefined
 		}
+
 		if (is_external) {
 			return link
 		}
+
 		return resolve(link as '/projects' | '/profile' | '/privacy-policy')
 	}
 

@@ -12,6 +12,7 @@ function is_mergeable_conflicting(mergeable: MergeableValue): boolean {
 	if (typeof mergeable === 'string') {
 		return mergeable === MERGEABLE_CONFLICTING
 	}
+
 	return mergeable === false
 }
 
@@ -19,6 +20,7 @@ function is_merge_state_blocked(merge_state_status: string | null | undefined): 
 	if (merge_state_status === undefined || merge_state_status === null) {
 		return false
 	}
+
 	const normalized = merge_state_status.toLowerCase()
 	return normalized === MERGE_STATE_DIRTY || normalized === MERGE_STATE_BLOCKED
 }
@@ -49,14 +51,17 @@ function check_conflict_conditions(
 	if (is_mergeable_conflicting(is_mergeable)) {
 		return true
 	}
+
 	return is_merge_state_blocked(merge_state_status)
 }
 
 function has_conflicts(pr_info_json: string): boolean {
 	const pr_info = parse_pr_info(pr_info_json)
+
 	if (pr_info === undefined) {
 		return false
 	}
+
 	const { is_mergeable, merge_state_status } = get_pr_properties(pr_info)
 	return check_conflict_conditions(is_mergeable, merge_state_status)
 }
@@ -82,13 +87,16 @@ async function get_pr_info_safe(branch_name: string): Promise<string | undefined
 
 async function check_pr_status_for_errors(branch_name: string): Promise<boolean> {
 	const pr_info_json = await get_pr_info_safe(branch_name)
+
 	if (pr_info_json === undefined) {
 		return false
 	}
+
 	if (has_conflicts(pr_info_json)) {
 		display_conflict_warning()
 		return true
 	}
+
 	return false
 }
 

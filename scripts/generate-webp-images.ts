@@ -29,10 +29,12 @@ function get_target_file_path(target_images_directory: string, base_name: string
 function find_source_image(images_directory: string, base_name: string): string | undefined {
 	for (const extension of SOURCE_EXTENSIONS) {
 		const probe_path = path.join(images_directory, base_name + extension)
+
 		if (existsSync(probe_path)) {
 			return probe_path
 		}
 	}
+
 	return undefined
 }
 
@@ -63,6 +65,7 @@ function should_skip_conversion(target_path: string, source_file: string): boole
 		console.info(`  ✓ Skipped: ${source_file} (WebP already exists)`)
 		return true
 	}
+
 	return false
 }
 
@@ -92,6 +95,7 @@ async function process_single_image(
 	}
 
 	const source_path = find_source_image(source_images_directory, base_name)
+
 	if (source_path === undefined) {
 		console.warn(`  ⚠ Warning: Source image not found for ${source_file}`)
 		return

@@ -16,6 +16,7 @@ const ip_limits = new Map<string, LimitData>()
 
 const cleanup_interval = setInterval(() => {
 	const now = Date.now()
+
 	for (const [ip, data] of ip_limits.entries()) {
 		if (now > data.reset_at) {
 			ip_limits.delete(ip)
@@ -55,25 +56,30 @@ function validate_rate_limit(ip: string): Response | undefined {
 		console.warn(`[RateLimit] Blocked request from ${ip}`)
 		return json_error(ERROR_MESSAGES.TOO_MANY_REQUESTS, HTTP_STATUS.TOO_MANY_REQUESTS)
 	}
+
 	return undefined
 }
 
 function validate_custom_header(request: Request): Response | undefined {
 	const client_header = request.headers.get(HTTP_HEADERS.X_APP_CLIENT)
+
 	if (client_header !== APP.ID) {
 		console.warn(`[HeaderCheck] Blocked request with invalid header: ${client_header ?? 'null'}`)
 		return json_error(ERROR_MESSAGES.FORBIDDEN, HTTP_STATUS.FORBIDDEN)
 	}
+
 	return undefined
 }
 
 function validate_origin(request: Request, url: URL): Response | undefined {
 	const origin = request.headers.get('origin')
+
 	// originが存在し、かつ現在のサイトのオリジンと一致しない場合は不正
 	if (origin !== null && new URL(origin).origin !== url.origin) {
 		console.warn(`[OriginCheck] Blocked request from origin: ${origin}`)
 		return json_error(ERROR_MESSAGES.FORBIDDEN, HTTP_STATUS.FORBIDDEN)
 	}
+
 	return undefined
 }
 

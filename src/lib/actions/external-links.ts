@@ -3,6 +3,7 @@ import type { Action } from 'svelte/action'
 const external_links: Action = (node: HTMLElement) => {
 	const apply = (): void => {
 		const links = node.querySelectorAll('a')
+
 		for (const link of links) {
 			if (link.href.startsWith('http')) {
 				link.setAttribute('target', '_blank')
