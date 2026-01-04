@@ -1,21 +1,49 @@
 import { APP } from '$lib/app'
 import { HTTP_HEADERS } from '$lib/constants/http'
 
-async function get(slug: string): Promise<{ likes: number }> {
+interface LikeResponse {
+	likes: number
+}
+
+const ERROR_INVALID_RESPONSE_FORMAT = 'Invalid response format'
+
+function validate_like_response(data: unknown): data is LikeResponse {
+	return (
+		typeof data === 'object' &&
+		data !== null &&
+		'likes' in data &&
+		typeof (data as { likes: unknown }).likes === 'number'
+	)
+}
+
+async function handle_like_response(
+	response: Response,
+	error_message: string,
+): Promise<LikeResponse> {
+	if (!response.ok) {
+		throw new Error(`${error_message}: ${String(response.status)}`)
+	}
+
+	const data = (await response.json()) as unknown
+
+	if (!validate_like_response(data)) {
+		throw new Error(ERROR_INVALID_RESPONSE_FORMAT)
+	}
+
+	return data
+}
+
+async function get(slug: string): Promise<LikeResponse> {
 	const response = await fetch(`/api/like?slug=${slug}`, {
 		headers: {
 			[HTTP_HEADERS.X_APP_CLIENT]: APP.ID,
 		},
 	})
 
-	if (!response.ok) {
-		throw new Error(`Failed to get likes: ${String(response.status)}`)
-	}
-
-	return (await response.json()) as { likes: number }
+	return await handle_like_response(response, 'Failed to get likes')
 }
 
-async function increment(slug: string): Promise<{ likes: number }> {
+async function increment(slug: string): Promise<LikeResponse> {
 	const response = await fetch('/api/like', {
 		method: 'POST',
 		headers: {
@@ -25,11 +53,7 @@ async function increment(slug: string): Promise<{ likes: number }> {
 		body: JSON.stringify({ slug }),
 	})
 
-	if (!response.ok) {
-		throw new Error(`Failed to increment likes: ${String(response.status)}`)
-	}
-
-	return (await response.json()) as { likes: number }
+	return await handle_like_response(response, 'Failed to increment likes')
 }
 
 export const like_api = {

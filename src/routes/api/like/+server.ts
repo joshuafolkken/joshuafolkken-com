@@ -1,10 +1,8 @@
 import { json } from '@sveltejs/kit'
-import { HTTP_STATUS } from '$lib/constants/http'
-import { like_service } from '$lib/server/like-service'
+import { ERROR_MESSAGES, HTTP_STATUS } from '$lib/constants/http'
+import { like_store } from '$lib/server/like-store'
 import { security } from '$lib/server/security'
 import type { RequestHandler } from './$types'
-
-const ERROR_SLUG_REQUIRED = 'Slug is required'
 
 interface LikeRequestBody {
 	slug?: string
@@ -30,11 +28,14 @@ async function process_get_likes(
 	platform: App.Platform | undefined,
 ): Promise<Response> {
 	try {
-		const likes = await like_service.get_likes(slug, platform)
+		const likes = await like_store.get_likes(slug, platform)
 		return json_likes(likes)
 	} catch (error) {
 		console.error(error)
-		return security.json_error('Failed to get likes', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+		return security.json_error(
+			ERROR_MESSAGES.FAILED_TO_GET_LIKES,
+			HTTP_STATUS.INTERNAL_SERVER_ERROR,
+		)
 	}
 }
 
@@ -43,11 +44,14 @@ async function process_like_increment(
 	platform: App.Platform | undefined,
 ): Promise<Response> {
 	try {
-		const likes = await like_service.increment_likes(slug, platform)
+		const likes = await like_store.increment_likes(slug, platform)
 		return json_likes(likes)
 	} catch (error) {
 		console.error(error)
-		return security.json_error('Failed to increment likes', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+		return security.json_error(
+			ERROR_MESSAGES.FAILED_TO_INCREMENT_LIKES,
+			HTTP_STATUS.INTERNAL_SERVER_ERROR,
+		)
 	}
 }
 
@@ -66,7 +70,7 @@ export const GET: RequestHandler = async ({
 	const slug = url.searchParams.get('slug')
 
 	if (slug === null || slug === '') {
-		return security.json_error(ERROR_SLUG_REQUIRED, HTTP_STATUS.BAD_REQUEST)
+		return security.json_error(ERROR_MESSAGES.SLUG_REQUIRED, HTTP_STATUS.BAD_REQUEST)
 	}
 
 	return await process_get_likes(slug, platform)
@@ -87,7 +91,7 @@ export const POST: RequestHandler = async ({
 	const slug = await get_valid_slug(request)
 
 	if (slug === undefined) {
-		return security.json_error(ERROR_SLUG_REQUIRED, HTTP_STATUS.BAD_REQUEST)
+		return security.json_error(ERROR_MESSAGES.SLUG_REQUIRED, HTTP_STATUS.BAD_REQUEST)
 	}
 
 	return await process_like_increment(slug, platform)

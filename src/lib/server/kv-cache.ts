@@ -9,8 +9,8 @@ interface KVNamespace {
 	delete: (key: string) => Promise<void>
 }
 
-const MS_PER_SEC = 1000
-const SEC_PER_MIN = 60
+const MILLISECONDS_PER_SECOND = 1000
+const SECONDS_PER_MINUTE = 60
 
 const MEMORY_TTL_MINUTES = 1
 const KV_SUPPORTERS_TTL_MINUTES = 30
@@ -18,8 +18,9 @@ const KV_SUPPORTERS_TTL_MINUTES = 30
 
 const memory_cache = new Map<string, CacheEntry<unknown>>()
 
-const MEMORY_TTL_MS = MS_PER_SEC * SEC_PER_MIN * MEMORY_TTL_MINUTES
-const KV_SUPPORTERS_TTL_MS = MS_PER_SEC * SEC_PER_MIN * KV_SUPPORTERS_TTL_MINUTES
+const MEMORY_TTL_MS = MILLISECONDS_PER_SECOND * SECONDS_PER_MINUTE * MEMORY_TTL_MINUTES
+const KV_SUPPORTERS_TTL_MS =
+	MILLISECONDS_PER_SECOND * SECONDS_PER_MINUTE * KV_SUPPORTERS_TTL_MINUTES
 const MAX_LOG_VALUE_LENGTH = 80
 const ERROR_KV_CACHE_NOT_AVAILABLE = 'KV cache not available'
 
@@ -57,8 +58,8 @@ function log_cache_hit(source: 'memory' | 'kv', key: string, value: unknown): vo
 	)
 }
 
-function log_duration(start: number, key: string): void {
-	const duration = Date.now() - start
+function log_duration(start_time: number, key: string): void {
+	const duration = Date.now() - start_time
 	console.info(`[kv-cache] get completed in ${String(duration)}ms for key: ${key}`)
 }
 
@@ -100,15 +101,12 @@ async function get_from_kv(key: string, kv: KVNamespace, now: number): Promise<u
 	}
 }
 
-interface SaveCacheParameters {
-	key: string
-	value: unknown
-	now: number
-	kv: KVNamespace
-}
-
-async function save_to_cache(parameters: SaveCacheParameters): Promise<void> {
-	const { key, value, now, kv } = parameters
+async function save_to_cache(
+	key: string,
+	value: unknown,
+	now: number,
+	kv: KVNamespace,
+): Promise<void> {
 	memory_cache.set(key, { value, expires: now + MEMORY_TTL_MS })
 	const cache_entry = { value, expires: now + KV_SUPPORTERS_TTL_MS }
 
@@ -121,20 +119,17 @@ async function save_to_cache(parameters: SaveCacheParameters): Promise<void> {
 	}
 }
 
-interface FetchAndSaveParameters<T> {
-	key: string
-	fetcher: () => Promise<T>
-	now: number
-	kv: KVNamespace
-}
-
-async function fetch_and_save<T>(parameters: FetchAndSaveParameters<T>): Promise<T> {
-	const { key, fetcher, now, kv } = parameters
+async function fetch_and_save<T>(
+	key: string,
+	fetcher: () => Promise<T>,
+	now: number,
+	kv: KVNamespace,
+): Promise<T> {
 	console.info(`[kv-cache] Cache miss for ${key}, fetching fresh value`)
 	const fresh = await fetcher()
 	const formatted_fresh = format_value_for_log(fresh)
 	console.info(`[kv-cache] Fetched fresh value for ${key}:`, formatted_fresh)
-	await save_to_cache({ key, value: fresh, now, kv })
+	await save_to_cache(key, fresh, now, kv)
 	log_duration(now, key)
 	return fresh
 }
@@ -176,7 +171,7 @@ async function get<T>(
 		return kv_value as T
 	}
 
-	return await fetch_and_save({ key, fetcher, now, kv })
+	return await fetch_and_save(key, fetcher, now, kv)
 }
 
 async function delete_cache(key: string, platform: App.Platform | undefined): Promise<void> {

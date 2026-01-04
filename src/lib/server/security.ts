@@ -51,7 +51,9 @@ function json_error(message: string, status: number): Response {
 	return json({ error: message }, { status })
 }
 
-function validate_rate_limit(ip: string): Response | undefined {
+type ValidationResult = Response | undefined
+
+function validate_rate_limit(ip: string): ValidationResult {
 	if (!check_rate_limit(ip)) {
 		console.warn(`[RateLimit] Blocked request from ${ip}`)
 		return json_error(ERROR_MESSAGES.TOO_MANY_REQUESTS, HTTP_STATUS.TOO_MANY_REQUESTS)
@@ -60,7 +62,7 @@ function validate_rate_limit(ip: string): Response | undefined {
 	return undefined
 }
 
-function validate_custom_header(request: Request): Response | undefined {
+function validate_custom_header(request: Request): ValidationResult {
 	const client_header = request.headers.get(HTTP_HEADERS.X_APP_CLIENT)
 
 	if (client_header !== APP.ID) {
@@ -83,7 +85,7 @@ function check_development_localhost(origin_url: URL, _current_url: URL): boolea
 	return is_localhost_hostname(origin_url.hostname)
 }
 
-function validate_origin(request: Request, url: URL): Response | undefined {
+function validate_origin(request: Request, url: URL): ValidationResult {
 	const origin = request.headers.get('origin')
 
 	if (origin === null) {
@@ -106,7 +108,7 @@ function validate_origin(request: Request, url: URL): Response | undefined {
 	return undefined
 }
 
-function validate_request_security(request: Request, url: URL, ip: string): Response | undefined {
+function validate_request_security(request: Request, url: URL, ip: string): ValidationResult {
 	return validate_rate_limit(ip) ?? validate_custom_header(request) ?? validate_origin(request, url)
 }
 
