@@ -10,6 +10,7 @@ function get_git_command(): string {
 	if (platform() === 'win32') {
 		return String.raw`"C:\Program Files\Git\cmd\git.exe"`
 	}
+
 	return GIT_COMMAND_UNIX
 }
 
@@ -17,6 +18,7 @@ function get_git_command_for_spawn(): string {
 	if (platform() === 'win32') {
 		return String.raw`C:\Program Files\Git\cmd\git.exe`
 	}
+
 	return GIT_COMMAND_UNIX
 }
 

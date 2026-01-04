@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url'
 import { includeIgnoreFile } from '@eslint/compat'
 import js from '@eslint/js'
+import stylistic from '@stylistic/eslint-plugin'
 import prettier from 'eslint-config-prettier'
 import importPlugin from 'eslint-plugin-import'
 import promise from 'eslint-plugin-promise'
@@ -11,6 +12,7 @@ import { defineConfig } from 'eslint/config'
 import globals from 'globals'
 import ts from 'typescript-eslint'
 import { code_quality_rules } from './eslint/rules/code-quality.ts'
+import { formatting_rules } from './eslint/rules/formatting.ts'
 import { import_rules } from './eslint/rules/import.ts'
 import { naming_convention_rules } from './eslint/rules/naming-convention.ts'
 import { promise_rules } from './eslint/rules/promise.ts'
@@ -86,6 +88,9 @@ export default defineConfig(
 		},
 	},
 	{
+		plugins: {
+			'@stylistic': stylistic,
+		},
 		languageOptions: {
 			globals: { ...globals.browser, ...globals.node },
 		},
@@ -103,6 +108,7 @@ export default defineConfig(
 			...sonarjs_rules,
 			...promise_rules,
 			...svelte_rules,
+			...formatting_rules,
 		},
 	},
 	{

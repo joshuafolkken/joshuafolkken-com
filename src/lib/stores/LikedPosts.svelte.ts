@@ -10,12 +10,14 @@ function load_from_storage(): Array<string> {
 
 	try {
 		const parsed = JSON.parse(stored) as unknown
+
 		if (Array.isArray(parsed)) {
 			return parsed as Array<string>
 		}
 	} catch (error) {
 		console.error('Failed to parse liked posts:', error)
 	}
+
 	return []
 }
 

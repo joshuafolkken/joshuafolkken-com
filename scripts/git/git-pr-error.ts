@@ -11,8 +11,10 @@ function is_pr_already_exists_error(error: unknown): boolean {
 		if (is_pr_already_exists_message(error.message)) {
 			return true
 		}
+
 		return check_error_cause(error)
 	}
+
 	return false
 }
 

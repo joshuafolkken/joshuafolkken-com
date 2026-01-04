@@ -27,6 +27,7 @@ async function ask_yes_no_internal(
 	if (is_first_call) {
 		git_prompt_display.display_start_separator()
 	}
+
 	const raw_answer: unknown = await prompt.question(question)
 	const answer = String(raw_answer).trim().toLowerCase()
 
@@ -63,6 +64,7 @@ function handle_prompt_fallback<T>(fallback_value?: T): T {
 	if (fallback_value !== undefined) {
 		return fallback_value
 	}
+
 	throw new Error('TTY not available')
 }
 
@@ -83,6 +85,7 @@ async function with_prompt<T>(callback: PromptCallback<T>, fallback_value?: T): 
 
 async function confirm_with_exit_on_cancel(confirm_action: () => Promise<boolean>): Promise<void> {
 	const should_continue = await confirm_action()
+
 	if (!should_continue) {
 		console.info(OPERATION_CANCELLED_MESSAGE)
 		console.info('')

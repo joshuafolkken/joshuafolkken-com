@@ -18,6 +18,7 @@ async function push(): Promise<void> {
 			if (pause_animation !== undefined) {
 				pause_animation()
 			}
+
 			await git_command.push()
 			return 'Push completed.'
 		},
