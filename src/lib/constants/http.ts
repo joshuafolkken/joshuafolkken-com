@@ -11,6 +11,9 @@ export const ERROR_MESSAGES = {
 	FORBIDDEN: 'Forbidden',
 	TOO_MANY_REQUESTS: 'Too Many Requests',
 	INTERNAL_SERVER_ERROR: 'Internal Server Error',
+	SLUG_REQUIRED: 'Slug is required',
+	FAILED_TO_GET_LIKES: 'Failed to get likes',
+	FAILED_TO_INCREMENT_LIKES: 'Failed to increment likes',
 } as const
 
 export const HTTP_HEADERS = {
