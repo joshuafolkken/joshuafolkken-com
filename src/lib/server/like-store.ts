@@ -1,7 +1,7 @@
 import { eq, sql } from 'drizzle-orm'
 import { database } from './db'
 import { post_likes } from './db/schema'
-import { in_memory_cache } from './in-memory-cache'
+import { kv_cache } from './kv-cache'
 
 const INITIAL_COUNT = 0
 
@@ -37,31 +37,41 @@ async function update_likes_in_database(slug: string): Promise<void> {
 		})
 }
 
-async function get_likes(slug: string): Promise<number> {
+async function get_likes(slug: string, platform: App.Platform | undefined): Promise<number> {
 	const cache_key = `like:${slug}`
 
 	try {
-		return await in_memory_cache.with_cache(cache_key, async () => {
-			return await get_likes_from_database(slug)
-		})
+		return await kv_cache.get(
+			cache_key,
+			async () => {
+				return await get_likes_from_database(slug)
+			},
+			platform,
+		)
 	} catch (error) {
 		console.error('Failed to fetch likes from DB:', error)
 		return INITIAL_COUNT
 	}
 }
 
-async function increment_likes(slug: string): Promise<number> {
+async function increment_likes(slug: string, platform: App.Platform | undefined): Promise<number> {
 	console.info(`[like-store] Incrementing likes for slug: "${slug}"`)
 	try {
 		await update_likes_in_database(slug)
 
 		const cache_key = `like:${slug}`
-		in_memory_cache.delete(cache_key)
-		return await in_memory_cache.with_cache(cache_key, async () => {
-			const count = await get_likes_from_database(slug)
-			console.info(`[like-store] New count after increment: ${String(count)}`)
-			return count
-		})
+
+		await kv_cache.delete(cache_key, platform)
+
+		return await kv_cache.get(
+			cache_key,
+			async () => {
+				const count = await get_likes_from_database(slug)
+				console.info(`[like-store] New count after increment: ${String(count)}`)
+				return count
+			},
+			platform,
+		)
 	} catch (error) {
 		console.error('Failed to increment likes:', error)
 		throw error

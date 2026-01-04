@@ -6,6 +6,7 @@ interface CacheEntry<T> {
 interface KVNamespace {
 	get: (key: string) => Promise<string | null>
 	put: (key: string, value: string) => Promise<void>
+	delete: (key: string) => Promise<void>
 }
 
 const MS_PER_SEC = 1000
@@ -20,6 +21,7 @@ const memory_cache = new Map<string, CacheEntry<unknown>>()
 const MEMORY_TTL_MS = MS_PER_SEC * SEC_PER_MIN * MEMORY_TTL_MINUTES
 const KV_SUPPORTERS_TTL_MS = MS_PER_SEC * SEC_PER_MIN * KV_SUPPORTERS_TTL_MINUTES
 const MAX_LOG_VALUE_LENGTH = 80
+const ERROR_KV_CACHE_NOT_AVAILABLE = 'KV cache not available'
 
 function value_to_string(value: unknown): string {
 	if (value === null || value === undefined) {
@@ -137,7 +139,30 @@ async function fetch_and_save<T>(parameters: FetchAndSaveParameters<T>): Promise
 	return fresh
 }
 
-async function get<T>(key: string, fetcher: () => Promise<T>, kv: KVNamespace): Promise<T> {
+function get_kv_from_platform(platform: App.Platform | undefined): KVNamespace | undefined {
+	if (platform?.env === undefined || platform.env === null) {
+		return undefined
+	}
+
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	const cache = (platform.env as { CACHE?: KVNamespace }).CACHE
+	return cache ?? undefined
+}
+
+function ensure_kv(kv: KVNamespace | undefined): KVNamespace {
+	if (kv === undefined) {
+		throw new Error(ERROR_KV_CACHE_NOT_AVAILABLE)
+	}
+
+	return kv
+}
+
+async function get<T>(
+	key: string,
+	fetcher: () => Promise<T>,
+	platform: App.Platform | undefined,
+): Promise<T> {
+	const kv = ensure_kv(get_kv_from_platform(platform))
 	const now = Date.now()
 	const memory_value = get_from_memory(key, now)
 
@@ -154,5 +179,19 @@ async function get<T>(key: string, fetcher: () => Promise<T>, kv: KVNamespace): 
 	return await fetch_and_save({ key, fetcher, now, kv })
 }
 
-export const kv_cache = { get }
+async function delete_cache(key: string, platform: App.Platform | undefined): Promise<void> {
+	const kv = ensure_kv(get_kv_from_platform(platform))
+
+	memory_cache.delete(key)
+
+	try {
+		await kv.delete(key)
+		console.info(`[kv-cache] Successfully deleted cache for key: ${key}`)
+	} catch (error) {
+		console.error(`[kv-cache] Failed to delete from KV for key: ${key}:`, error)
+		throw error
+	}
+}
+
+export const kv_cache = { get_kv_from_platform, get, delete: delete_cache }
 export type { KVNamespace }

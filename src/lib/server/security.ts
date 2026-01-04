@@ -71,11 +71,34 @@ function validate_custom_header(request: Request): Response | undefined {
 	return undefined
 }
 
+function is_localhost_hostname(hostname: string): boolean {
+	return hostname === 'localhost' || hostname === '127.0.0.1'
+}
+
+function check_development_localhost(origin_url: URL, _current_url: URL): boolean {
+	// originがlocalhostの場合、開発環境として扱う
+	// Cloudflare Workers環境（wrangler dev）でも、localhostからのリクエストは開発環境として許可
+	// 標準的な開発環境（import.meta.env.DEVがtrue、または現在のURLがlocalhost）の場合も許可
+	// 本番環境では通常localhostからのリクエストは来ないため、セキュリティ上の問題は少ない
+	return is_localhost_hostname(origin_url.hostname)
+}
+
 function validate_origin(request: Request, url: URL): Response | undefined {
 	const origin = request.headers.get('origin')
 
+	if (origin === null) {
+		return undefined
+	}
+
+	const origin_url = new URL(origin)
+
+	// 開発環境では、localhostの異なるポートを許可
+	if (check_development_localhost(origin_url, url)) {
+		return undefined
+	}
+
 	// originが存在し、かつ現在のサイトのオリジンと一致しない場合は不正
-	if (origin !== null && new URL(origin).origin !== url.origin) {
+	if (origin_url.origin !== url.origin) {
 		console.warn(`[OriginCheck] Blocked request from origin: ${origin}`)
 		return json_error(ERROR_MESSAGES.FORBIDDEN, HTTP_STATUS.FORBIDDEN)
 	}

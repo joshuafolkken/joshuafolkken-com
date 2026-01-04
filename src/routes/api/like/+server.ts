@@ -25,9 +25,12 @@ function json_likes(likes: number): Response {
 	return json({ likes })
 }
 
-async function process_get_likes(slug: string): Promise<Response> {
+async function process_get_likes(
+	slug: string,
+	platform: App.Platform | undefined,
+): Promise<Response> {
 	try {
-		const likes = await like_service.get_likes(slug)
+		const likes = await like_service.get_likes(slug, platform)
 		return json_likes(likes)
 	} catch (error) {
 		console.error(error)
@@ -35,9 +38,12 @@ async function process_get_likes(slug: string): Promise<Response> {
 	}
 }
 
-async function process_like_increment(slug: string): Promise<Response> {
+async function process_like_increment(
+	slug: string,
+	platform: App.Platform | undefined,
+): Promise<Response> {
 	try {
-		const likes = await like_service.increment_likes(slug)
+		const likes = await like_service.increment_likes(slug, platform)
 		return json_likes(likes)
 	} catch (error) {
 		console.error(error)
@@ -49,6 +55,7 @@ export const GET: RequestHandler = async ({
 	url,
 	request,
 	getClientAddress: get_client_address,
+	platform,
 }) => {
 	const error_response = security.validate_request_security(request, url, get_client_address())
 
@@ -62,13 +69,14 @@ export const GET: RequestHandler = async ({
 		return security.json_error(ERROR_SLUG_REQUIRED, HTTP_STATUS.BAD_REQUEST)
 	}
 
-	return await process_get_likes(slug)
+	return await process_get_likes(slug, platform)
 }
 
 export const POST: RequestHandler = async ({
 	request,
 	getClientAddress: get_client_address,
 	url,
+	platform,
 }) => {
 	const error_response = security.validate_request_security(request, url, get_client_address())
 
@@ -82,5 +90,5 @@ export const POST: RequestHandler = async ({
 		return security.json_error(ERROR_SLUG_REQUIRED, HTTP_STATUS.BAD_REQUEST)
 	}
 
-	return await process_like_increment(slug)
+	return await process_like_increment(slug, platform)
 }
