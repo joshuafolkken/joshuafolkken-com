@@ -4,13 +4,13 @@
 	"main": "./build/server/index.js",
 	"assets": {
 		"directory": "./build/client",
-		"binding": "ASSETS",
+		"binding": "ASSETS"
 	},
 	"kv_namespaces": [
 		{
 			"binding": "CACHE",
 			"id": "931f196821b4487a918efdddb8bb6032",
-			"preview_id": "931f196821b4487a918efdddb8bb6032",
-		},
-	],
+			"preview_id": "931f196821b4487a918efdddb8bb6032"
+		}
+	]
 }

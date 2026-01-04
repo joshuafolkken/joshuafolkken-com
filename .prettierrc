@@ -21,6 +21,12 @@
 				"svelteIndentScriptAndStyle": true,
 				"svelteSortOrder": "options-scripts-markup-styles"
 			}
+		},
+		{
+			"files": "*.jsonc",
+			"options": {
+				"trailingComma": "none"
+			}
 		}
 	],
 	"tailwindStylesheet": "./src/app.css"
