@@ -75,6 +75,7 @@ async function check_and_display_status(branch_name: string): Promise<void> {
 
 async function wait_and_check_status(branch_name: string): Promise<void> {
 	await wait_before_check()
+
 	try {
 		await watch_pr_checks(branch_name)
 	} catch (error) {
