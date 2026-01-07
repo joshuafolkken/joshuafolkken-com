@@ -23,6 +23,7 @@ function load_from_storage(): Array<string> {
 
 function save_to_storage(likes: Array<string>): void {
 	if (!browser) return
+
 	try {
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(likes))
 	} catch (error) {

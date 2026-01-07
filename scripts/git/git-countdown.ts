@@ -17,6 +17,7 @@ function create_countdown_interval(message: string, total_seconds: number): Node
 
 	return setInterval(() => {
 		remaining_seconds -= 1
+
 		if (remaining_seconds > 0) {
 			update_countdown_display(message, remaining_seconds)
 		} else {

@@ -30,6 +30,7 @@ function handle_animation_error(
 	error_message: string | undefined,
 ): never {
 	animation.stop()
+
 	if (error_message === undefined || error_message.length === 0) {
 		if (error instanceof Error) {
 			throw error
