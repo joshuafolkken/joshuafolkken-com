@@ -74,22 +74,6 @@
 
 	<TechStack />
 
-	<!-- GitHub Stats -->
-	<PageSection title="📊 GitHub Stats">
-		<div class="space-y-4">
-			<img
-				src="https://github-readme-stats.vercel.app/api?username=joshuafolkken&show_icons=true&theme=tokyonight&count_private=true"
-				alt="Joshua's GitHub stats"
-				class="w-full rounded"
-			/>
-			<img
-				src="https://github-readme-stats.vercel.app/api/top-langs/?username=joshuafolkken&layout=compact&theme=tokyonight"
-				alt="Top Languages"
-				class="w-full rounded"
-			/>
-		</div>
-	</PageSection>
-
 	<!-- Philosophy -->
 	<PageSection title="🌈 Philosophy">
 		<blockquote class="border-l-4 border-white/30 pl-4 italic">
