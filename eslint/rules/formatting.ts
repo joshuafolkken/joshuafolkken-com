@@ -5,6 +5,7 @@ export const formatting_rules = {
 	'padding-line-between-statements': [
 		'error',
 		{ blankLine: BLANK_LINE_ALWAYS, prev: BLOCK_LIKE, next: '*' },
+		{ blankLine: BLANK_LINE_ALWAYS, prev: '*', next: BLOCK_LIKE },
 		{
 			blankLine: BLANK_LINE_ALWAYS,
 			prev: ['const', 'let', 'var'],
