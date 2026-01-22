@@ -37,6 +37,9 @@
 			"mode": "auto"
 		}
 	],
+	"eslint.nodePath": "./node_modules",
+	"eslint.runtime": "node",
+	"svelte.language-server.runtime": "node",
 	"playwright.reuseBrowser": false,
 	"errorLens.gutterIconsEnabled": true,
 	"css.lint.unknownAtRules": "ignore",
