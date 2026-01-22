@@ -36,14 +36,7 @@
 		"./**/*.ts",
 		"./**/*.svelte"
 	],
-	"exclude": [
-		"node_modules",
-		"build",
-		"dist",
-		".svelte-kit/cloudflare",
-		".svelte-kit/cloudflare-tmp",
-		".svelte-kit/output"
-	]
+	"exclude": ["node_modules", "build", "dist"]
 
 	// Path aliases are handled by https://svelte.dev/docs/kit/configuration#alias
 	// except $lib which is handled by https://svelte.dev/docs/kit/configuration#files
