@@ -26,5 +26,12 @@
 			"id": "931f196821b4487a918efdddb8bb6032",
 			"preview_id": "931f196821b4487a918efdddb8bb6032"
 		}
+	],
+
+	"routes": [
+		{
+			"pattern": "joshuafolkken.com",
+			"custom_domain": true
+		}
 	]
 }
