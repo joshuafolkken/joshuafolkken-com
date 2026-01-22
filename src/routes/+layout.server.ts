@@ -23,7 +23,7 @@ async function fetch_supporters(
 
 	if (!response.ok) throw new Error('Failed to fetch backers')
 
-	const members = (await response.json()) as Array<OpenCollectiveMember>
+	const members: Array<OpenCollectiveMember> = await response.json()
 	return filter_and_sort_supporters(members)
 }
 

@@ -22,6 +22,7 @@ ignorePaths:
   - 'prompts/blog-drafts/**/*.md'
   - 'prompts/antigravity-blog-writer.md'
   - 'playwright-report/**'
+  - '.pnpm-store/**'
 words:
   - aboutads
   - aikidosec
