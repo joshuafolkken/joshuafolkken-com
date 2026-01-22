@@ -9,7 +9,7 @@ interface LikeRequestBody {
 }
 
 async function get_valid_slug(request: Request): Promise<string | undefined> {
-	const body = (await request.json()) as LikeRequestBody
+	const body: LikeRequestBody = await request.json()
 	const { slug } = body
 
 	if (slug === undefined || slug === '') {
