@@ -24,7 +24,7 @@ async function handle_like_response(
 		throw new Error(`${error_message}: ${String(response.status)}`)
 	}
 
-	const data = (await response.json()) as unknown
+	const data: unknown = await response.json()
 
 	if (!validate_like_response(data)) {
 		throw new Error(ERROR_INVALID_RESPONSE_FORMAT)
