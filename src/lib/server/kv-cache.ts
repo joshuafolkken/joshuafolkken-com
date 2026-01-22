@@ -3,12 +3,6 @@ interface CacheEntry<T> {
 	expires: number
 }
 
-interface KVNamespace {
-	get: (key: string) => Promise<string | null>
-	put: (key: string, value: string) => Promise<void>
-	delete: (key: string) => Promise<void>
-}
-
 const MILLISECONDS_PER_SECOND = 1000
 const SECONDS_PER_MINUTE = 60
 
@@ -189,4 +183,3 @@ async function delete_cache(key: string, platform: App.Platform | undefined): Pr
 }
 
 export const kv_cache = { get_kv_from_platform, get, delete: delete_cache }
-export type { KVNamespace }

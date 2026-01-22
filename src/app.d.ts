@@ -2,18 +2,17 @@
 // for information about these interfaces
 declare global {
 	namespace App {
+		interface Platform {
+			env: Env
+			ctx: ExecutionContext
+			caches: CacheStorage
+			cf?: IncomingRequestCfProperties
+		}
+
 		// interface Error {}
 		// interface Locals {}
 		// interface PageData {}
 		// interface PageState {}
-		interface Platform {
-			env?: {
-				CACHE?: {
-					get: (key: string) => Promise<string | null>
-					put: (key: string, value: string) => Promise<void>
-				}
-			}
-		}
 	}
 }
 
