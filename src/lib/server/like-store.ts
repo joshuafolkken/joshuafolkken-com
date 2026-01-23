@@ -1,3 +1,4 @@
+import { logger } from '$lib/logger'
 import { eq, sql } from 'drizzle-orm'
 import { database } from './db'
 import { post_likes } from './db/schema'
@@ -54,13 +55,13 @@ async function get_likes(slug: string, platform: App.Platform | undefined): Prom
 			platform,
 		)
 	} catch (error) {
-		console.error('Failed to fetch likes from DB:', error)
+		logger.error('Failed to fetch likes from DB:', error)
 		return INITIAL_COUNT
 	}
 }
 
 async function increment_likes(slug: string, platform: App.Platform | undefined): Promise<number> {
-	console.info(`[like-store] Incrementing likes for slug: "${slug}"`)
+	logger.debug(`[like-store] Incrementing likes for slug: "${slug}"`)
 
 	try {
 		await update_likes_in_database(slug)
@@ -69,10 +70,10 @@ async function increment_likes(slug: string, platform: App.Platform | undefined)
 
 		// キャッシュを再取得（データベースから最新値を取得）
 		const count = await get_likes(slug, platform)
-		console.info(`[like-store] New count after increment: ${String(count)}`)
+		logger.debug(`[like-store] New count after increment: ${String(count)}`)
 		return count
 	} catch (error) {
-		console.error('Failed to increment likes:', error)
+		logger.error('Failed to increment likes:', error)
 		throw error
 	}
 }

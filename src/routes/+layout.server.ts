@@ -1,4 +1,5 @@
 import { OPENCOLLECTIVE } from '$lib/app'
+import { logger } from '$lib/logger'
 import { kv_cache } from '$lib/server/kv-cache'
 import type { OpenCollectiveMember } from '$lib/types/opencollective'
 import type { LayoutServerLoad } from './$types'
@@ -39,7 +40,7 @@ export const load: LayoutServerLoad = async ({ fetch, platform }) => {
 			supporters,
 		}
 	} catch (error) {
-		console.error('[layout.server] Error fetching supporters:', error)
+		logger.error('[layout.server] Error fetching supporters:', error)
 		return {
 			supporters: [],
 		}

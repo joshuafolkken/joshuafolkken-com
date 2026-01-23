@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit'
 import { APP } from '$lib/app'
 import { ERROR_MESSAGES, HTTP_HEADERS, HTTP_STATUS } from '$lib/constants/http'
+import { logger } from '$lib/logger'
 
 const ONE_MINUTE_SECONDS = 60
 const ONE_SECOND_MS = 1000
@@ -55,7 +56,7 @@ type ValidationResult = Response | undefined
 
 function validate_rate_limit(ip: string): ValidationResult {
 	if (!check_rate_limit(ip)) {
-		console.warn(`[RateLimit] Blocked request from ${ip}`)
+		logger.warn(`[RateLimit] Blocked request from ${ip}`)
 		return json_error(ERROR_MESSAGES.TOO_MANY_REQUESTS, HTTP_STATUS.TOO_MANY_REQUESTS)
 	}
 
@@ -66,7 +67,7 @@ function validate_custom_header(request: Request): ValidationResult {
 	const client_header = request.headers.get(HTTP_HEADERS.X_APP_CLIENT)
 
 	if (client_header !== APP.ID) {
-		console.warn(`[HeaderCheck] Blocked request with invalid header: ${client_header ?? 'null'}`)
+		logger.warn(`[HeaderCheck] Blocked request with invalid header: ${client_header ?? 'null'}`)
 		return json_error(ERROR_MESSAGES.FORBIDDEN, HTTP_STATUS.FORBIDDEN)
 	}
 
@@ -101,7 +102,7 @@ function validate_origin(request: Request, url: URL): ValidationResult {
 
 	// originが存在し、かつ現在のサイトのオリジンと一致しない場合は不正
 	if (origin_url.origin !== url.origin) {
-		console.warn(`[OriginCheck] Blocked request from origin: ${origin}`)
+		logger.warn(`[OriginCheck] Blocked request from origin: ${origin}`)
 		return json_error(ERROR_MESSAGES.FORBIDDEN, HTTP_STATUS.FORBIDDEN)
 	}
 

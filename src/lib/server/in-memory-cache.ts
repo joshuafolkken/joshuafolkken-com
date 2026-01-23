@@ -1,3 +1,5 @@
+import { logger } from '$lib/logger'
+
 const SECONDS_PER_MINUTE = 60
 const MILLISECONDS_PER_SECOND = 1000
 
@@ -69,7 +71,7 @@ class InMemoryCache {
 		executor: () => Promise<T>,
 		now: number,
 	): Promise<T> {
-		console.info(`Cache miss for ${key}`)
+		// logger.debug(`Cache miss ${key}`)
 		const value = await executor()
 
 		if (this.cache.size >= this.max_size) {
@@ -99,12 +101,12 @@ class InMemoryCache {
 		if (entry === undefined) return undefined
 
 		if (this.is_entry_valid(entry, now)) {
-			console.info(`Cache hit for ${key}`)
+			logger.debug(`Cache hit for ${key}`)
 			return entry.value
 		}
 
 		this.cache.delete(key)
-		console.info(`Cache expired for ${key}`)
+		logger.debug(`Cache expired for ${key}`)
 		return undefined
 	}
 

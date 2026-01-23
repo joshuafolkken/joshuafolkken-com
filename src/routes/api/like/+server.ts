@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit'
 import { ERROR_MESSAGES, HTTP_STATUS } from '$lib/constants/http'
+import { logger } from '$lib/logger'
 import { like_store } from '$lib/server/like-store'
 import { security } from '$lib/server/security'
 import type { RequestHandler } from './$types'
@@ -31,7 +32,7 @@ async function process_get_likes(
 		const likes = await like_store.get_likes(slug, platform)
 		return json_likes(likes)
 	} catch (error) {
-		console.error(error)
+		logger.error(error)
 		return security.json_error(
 			ERROR_MESSAGES.FAILED_TO_GET_LIKES,
 			HTTP_STATUS.INTERNAL_SERVER_ERROR,
@@ -47,7 +48,7 @@ async function process_like_increment(
 		const likes = await like_store.increment_likes(slug, platform)
 		return json_likes(likes)
 	} catch (error) {
-		console.error(error)
+		logger.error(error)
 		return security.json_error(
 			ERROR_MESSAGES.FAILED_TO_INCREMENT_LIKES,
 			HTTP_STATUS.INTERNAL_SERVER_ERROR,

@@ -1,3 +1,5 @@
+import { logger } from '$lib/logger'
+
 interface CacheEntry<T> {
 	value: T
 	expires: number
@@ -32,7 +34,7 @@ function value_to_string(value: unknown): string {
 	return String(primitive_value)
 }
 
-function format_value_for_log(value: unknown): unknown {
+function format_value_for_log(value: unknown): string {
 	try {
 		const string_value = value_to_string(value)
 		const without_newlines = string_value.replaceAll('\n', ' ')
@@ -40,29 +42,34 @@ function format_value_for_log(value: unknown): unknown {
 			? without_newlines.slice(0, MAX_LOG_VALUE_LENGTH)
 			: without_newlines
 	} catch {
-		return value
+		return String(value)
 	}
 }
 
-function log_cache_hit(source: 'memory' | 'kv', key: string, value: unknown): void {
-	const formatted_value = format_value_for_log(value)
-	console.info(
-		`[kv-cache] ${source === 'memory' ? 'Memory' : 'KV'} cache hit for ${key}:`,
-		formatted_value,
-	)
+function get_duration(start_time: number): string {
+	const duration = Date.now() - start_time
+	return `${String(duration)}ms`
 }
 
-function log_duration(start_time: number, key: string): void {
-	const duration = Date.now() - start_time
-	console.info(`[kv-cache] get completed in ${String(duration)}ms for key: ${key}`)
+function log_cache_hit(
+	source: 'memory' | 'kv',
+	key: string,
+	value: unknown,
+	start_time: number,
+): void {
+	const formatted_value = format_value_for_log(value)
+	const duration = get_duration(start_time)
+
+	logger.debug(
+		`[kv-cache] ${source === 'memory' ? 'Memory' : 'KV'} ${duration} ${key} ${formatted_value}`,
+	)
 }
 
 function get_from_memory(key: string, now: number): unknown {
 	const memory_entry = memory_cache.get(key)
 
 	if (memory_entry !== undefined && memory_entry.expires > now) {
-		log_cache_hit('memory', key, memory_entry.value)
-		log_duration(now, key)
+		log_cache_hit('memory', key, memory_entry.value, now)
 		return memory_entry.value
 	}
 
@@ -86,8 +93,7 @@ async function get_from_kv(key: string, kv: KVNamespace, now: number): Promise<u
 
 		const entry = { value: kv_entry.value, expires: now + MEMORY_TTL_MS }
 		memory_cache.set(key, entry)
-		log_cache_hit('kv', key, kv_entry.value)
-		log_duration(now, key)
+		log_cache_hit('kv', key, kv_entry.value, now)
 		return kv_entry.value
 	} catch {
 		// Invalid JSON, ignore
@@ -106,9 +112,10 @@ async function save_to_cache(
 
 	try {
 		await kv.put(key, JSON.stringify(cache_entry))
-		console.info(`[kv-cache] Successfully saved to KV for key: ${key}`)
+		logger.debug(`[kv-cache] saved to KV: ${key}`)
 	} catch (error) {
-		console.error(`[kv-cache] Failed to save to KV for key: ${key}:`, error)
+		const duration = get_duration(now)
+		logger.error(`[kv-cache] Failed to save to KV ${duration} ${key}:`, error)
 		throw error
 	}
 }
@@ -119,12 +126,12 @@ async function fetch_and_save<T>(
 	now: number,
 	kv: KVNamespace,
 ): Promise<T> {
-	console.info(`[kv-cache] Cache miss for ${key}, fetching fresh value`)
+	logger.debug(`[kv-cache] Cache miss ${key}`)
 	const fresh = await fetcher()
 	const formatted_fresh = format_value_for_log(fresh)
-	console.info(`[kv-cache] Fetched fresh value for ${key}:`, formatted_fresh)
+	const duration = get_duration(now)
+	logger.debug(`[kv-cache] Fetched ${duration} ${key}: ${formatted_fresh}`)
 	await save_to_cache(key, fresh, now, kv)
-	log_duration(now, key)
 	return fresh
 }
 
@@ -175,9 +182,9 @@ async function delete_cache(key: string, platform: App.Platform | undefined): Pr
 
 	try {
 		await kv.delete(key)
-		console.info(`[kv-cache] Successfully deleted cache for key: ${key}`)
+		logger.debug(`[kv-cache] Successfully deleted ${key}`)
 	} catch (error) {
-		console.error(`[kv-cache] Failed to delete from KV for key: ${key}:`, error)
+		logger.error(`[kv-cache] Failed to delete ${key}:`, error)
 		throw error
 	}
 }
