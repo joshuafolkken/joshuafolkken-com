@@ -174,6 +174,7 @@ export default defineConfig(
 		files: FILE_PATTERNS.scripts,
 		rules: {
 			'unicorn/no-process-exit': 'off',
+			'no-console': ['error', { allow: ['warn', 'error', 'info'] }],
 		},
 	},
 	{
@@ -211,6 +212,7 @@ export default defineConfig(
 		rules: {
 			'@typescript-eslint/no-magic-numbers': 'off',
 			'max-lines-per-function': ['error', { max: 35, skipBlankLines: true, skipComments: true }],
+			'no-console': ['error', { allow: ['warn', 'error', 'info'] }],
 			// '@typescript-eslint/no-explicit-any': 'off',
 			// 'max-lines-per-function': 'off',
 			// '@typescript-eslint/explicit-function-return-type': 'off',
