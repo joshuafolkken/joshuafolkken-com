@@ -72,8 +72,8 @@ function display_issue_info(issue_info: IssueInfo): void {
 	console.info(SEPARATOR_LINE)
 }
 
-async function get_and_display(): Promise<IssueInfo> {
-	const input = await git_prompt.get_issue_info()
+async function get_and_display(cli_input?: string): Promise<IssueInfo> {
+	const input = cli_input ?? (await git_prompt.get_issue_info())
 	const issue_info = parse_issue_input(input)
 	display_issue_info(issue_info)
 	return issue_info
