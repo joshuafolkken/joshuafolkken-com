@@ -1,7 +1,8 @@
 export const code_quality_rules = {
 	// ===== 一般的なコード品質 =====
 	// console の使用を警告（開発時は許可、本番ではエラーにするべき）
-	'no-console': ['error', { allow: ['warn', 'error', 'info'] }],
+	'no-console': ['error'],
+	// 'no-console': ['error', { allow: ['warn', 'error', 'info'] }],
 	// デバッガーの使用を禁止
 	'no-debugger': 'error',
 	// var の使用を禁止

@@ -1,4 +1,5 @@
 import { browser } from '$app/environment'
+import { logger } from '$lib/logger'
 
 const STORAGE_KEY = 'liked_posts'
 
@@ -15,7 +16,7 @@ function load_from_storage(): Array<string> {
 			return parsed as Array<string>
 		}
 	} catch (error) {
-		console.error('Failed to parse liked posts:', error)
+		logger.error('Failed to parse liked posts:', error)
 	}
 
 	return []
@@ -27,7 +28,7 @@ function save_to_storage(likes: Array<string>): void {
 	try {
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(likes))
 	} catch (error) {
-		console.error('Failed to save liked posts:', error)
+		logger.error('Failed to save liked posts:', error)
 	}
 }
 

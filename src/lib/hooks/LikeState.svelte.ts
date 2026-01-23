@@ -1,4 +1,5 @@
 import { like_api } from '$lib/api/like-api'
+import { logger } from '$lib/logger'
 import { liked_posts } from '$lib/stores/LikedPosts.svelte'
 
 const ANIMATION_DURATION = 1000
@@ -28,7 +29,7 @@ export class LikeState {
 			const data = await like_api.get(this.#slug)
 			this.count = data.likes
 		} catch (error) {
-			console.error('Failed to fetch likes:', error)
+			logger.error('Failed to fetch likes:', error)
 		}
 	}
 
@@ -51,7 +52,7 @@ export class LikeState {
 			const data = await like_api.increment(this.#slug)
 			this.count = data.likes
 		} catch (error) {
-			console.error('Failed to like:', error)
+			logger.error('Failed to like:', error)
 			// Rollback
 			this.is_liked = false
 			this.count = previous_count
