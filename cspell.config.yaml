@@ -1,9 +1,9 @@
 version: '0.2'
 language: en
-files:
-  - src/**/*
-  - e2e/**/*
-  - stories/**/*
+# files:
+#   - src/**/*
+#   - e2e/**/*
+#   - stories/**/*
 ignorePaths:
   - .vscode/**
   - node_modules/**
@@ -73,3 +73,5 @@ words:
   - workerd
   - webp
   - vite
+  - Ghsas
+  - GHSA
