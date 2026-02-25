@@ -15,7 +15,10 @@ reviews:
   auto_review:
     enabled: true
     drafts: false
-    incremental: true
+auto_review:
+  enabled: true
+  drafts: false
+  auto_incremental_review: true
   path_instructions:
     - path: 'src/**'
       instructions: |
