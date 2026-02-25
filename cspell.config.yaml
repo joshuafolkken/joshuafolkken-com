@@ -1,9 +1,5 @@
 version: '0.2'
 language: en
-# files:
-#   - src/**/*
-#   - e2e/**/*
-#   - stories/**/*
 ignorePaths:
   - .vscode/**
   - node_modules/**
@@ -16,13 +12,14 @@ ignorePaths:
   - .git/**/*
   - .gitignore
   - '**/*.svg'
-  - 'pnpm-lock.yaml'
-  - '.env*'
+  - pnpm-lock.yaml
+  - .env*
   - src/lib/posts/*.md
-  - 'prompts/blog-drafts/**/*.md'
-  - 'prompts/antigravity-blog-writer.md'
-  - 'playwright-report/**'
-  - '.pnpm-store/**'
+  - prompts/blog-drafts/**/*.md
+  - prompts/antigravity-blog-writer.md
+  - playwright-report/**
+  - .pnpm-store/**
+  - .wrangler/**
 words:
   - aboutads
   - aikidosec
@@ -31,13 +28,18 @@ words:
   - bttf
   - Caddyfile
   - CCPA
+  - cooldown
   - Csvg
   - darkmode
   - EDITMSG
   - elif
+  - esbuild
+  - eslintcache
   - fastcgi
   - Folkken
   - Frontmatter
+  - GHSA
+  - Ghsas
   - gsub
   - Hotspots
   - ianvs
@@ -45,11 +47,13 @@ words:
   - joshuastudio
   - Kaku
   - KAWAII
+  - lefthook
   - libsql
   - Mdsvex
   - mischeck
   - noopener
   - noreferrer
+  - octocat
   - opencollective
   - phpstorm
   - Platformer
@@ -63,15 +67,9 @@ words:
   - Stylesheet
   - TERE
   - turso
-  - zstd
   - unrs
-  - esbuild
-  - lefthook
-  - cooldown
-  - eslintcache
-  - octocat
-  - workerd
-  - webp
   - vite
-  - Ghsas
-  - GHSA
+  - Vitest
+  - webp
+  - workerd
+  - zstd
