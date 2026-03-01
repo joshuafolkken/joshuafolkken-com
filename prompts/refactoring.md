@@ -28,11 +28,18 @@
    - このプロンプトの内容説明は不要
    - 直接リファクタリング提案に移る
 
+5. **実装時の品質保証（絶対遵守）**
+   - リファクタリングを実装する場合、**必ず `read_lints` ツールでエラーを確認する**
+   - エラーがある場合は **報告前に必ず修正する**
+   - **Lintエラーが残っている状態での完了報告は禁止**
+
 ---
 
 ## コーディング規約の参照
 
 - 命名規則やスタイルなどの共通ルールは `prompts/coding-standards.md` に集約されています。
+- **Svelte コンポーネントのファイル名**: プロジェクトの慣習に従い、必ず `PascalCase.svelte` とします。TypeScript ファイルなどの `kebab-case.ts` とは異なる点に注意してください。
+- **`*.svelte.ts` のファイル名**: Svelte のリアクティブな状態やロジックを格納する `*.svelte.ts` ファイルも、`PascalCase.svelte.ts` 形式とする必要があります（例: `ThemeStore.svelte.ts`、`LocaleStore.svelte.ts`）。
 - 本書では重複説明を避けるため、対象箇所では同ドキュメントを参照してください。
 - 提案に含めるサンプルコードも、必ず `prompts/coding-standards.md` の規約に準拠させてください。
 
@@ -41,10 +48,13 @@
 ### 提案の優先順位
 
 1. **小さくて簡単な方法から提案**
-   - 1つの関数の分割
-   - 1つのファイルの分割
    - 変数名の改善
    - 定数の抽出
+   - コードクローンの排除（同一・類似コードの共通化）
+   - メソッド抽出（長大・複数責務の関数の分割）
+   - 共通コンポーネントの作成（UI・ロジックの再利用）
+   - 1つの関数の分割
+   - 1つのファイルの分割
 
 2. **ユーザー主導の対応**
    - Agent モードでも勝手に変更しない
@@ -66,6 +76,12 @@
    - **メインファイルの肥大化を避けることを優先する**（詳細は `coding-standards.md` の「ファイル分割の指針」を参照）
    - 再利用可能な機能や独立した責任を持つ機能の分割を積極的に提案する
    - ファイル分割により、メインファイルの可読性と保守性が向上する場合は分割を推奨する
+
+6. **推奨するリファクタリング方針（必ず検討すること）**
+   - リファクタリング提案時は、以下を**必ず分析し、該当する場合は提案に含める**。
+   - **コードクローンの排除**: 同一・類似のコードが2箇所以上にある場合は、関数・モジュール・コンポーネントへの共通化を提案する。`coding-standards.md` の「コードの重複は撲滅」に従う。
+   - **メソッド抽出**: 長大な関数や複数の責任を持つ関数は、意図の単位でメソッド・関数に抽出することを提案する。
+   - **共通コンポーネントの作成**: 複数箇所で同じUI・同じ振る舞いが使われている場合は、共通コンポーネントや共通関数への抽出を提案する。類似コンポーネントの統合も検討する。
 
 ---
 
@@ -134,8 +150,8 @@
 4. **名前空間オブジェクトエクスポートの適用**
    - 個別の関数エクスポート（`export { func1, func2 }`）を名前空間オブジェクトエクスポートに変更
    - ファイル名と名前空間名で意図を明確にし、メソッド名を短くする工夫
-   - **注意**: このルールは**関数のみ**に適用される。定数は個別エクスポートで問題なく、名前空間オブジェクトにまとめる必要はない
    - 詳細は `coding-standards.md` の「名前空間オブジェクトエクスポート（必須）」を参照
+   - **ただし、定数のみのエクスポート（例: `constants.ts`）については、名前空間オブジェクト化は不要とする**
 
 5. **型定義の改善**
    - `any` の使用
@@ -147,8 +163,8 @@
 6. **名前空間オブジェクトエクスポートの適用**
    - 個別の関数エクスポートを名前空間オブジェクトエクスポートに変更
    - ファイル名と名前空間名で意図を明確にし、メソッド名を短くする工夫
-   - **注意**: このルールは**関数のみ**に適用される。定数は個別エクスポートで問題なく、名前空間オブジェクトにまとめる必要はない
    - 詳細は `coding-standards.md` の「名前空間オブジェクトエクスポート（必須）」を参照
+   - **ただし、定数のみのエクスポート（例: `constants.ts`）については、名前空間オブジェクト化は不要とする**
 
 7. **定数の抽出**
    - `coding-standards.md` で定められたマジックナンバーや繰り返し値の定数化
@@ -158,11 +174,26 @@
    - `coding-standards.md` の命名規則に合致しない名前の見直し
    - 意味が不明確・長すぎる名前の再検討
 
+9. **コードクローンの排除**
+   - 同一・類似のコードが2箇所以上ある場合は、**必ず**共通化を提案する。関数・モジュール・ユーティリティへの抽出、または共通コンポーネント化を行う。
+   - プロジェクト全体または関連ファイルを確認し、重複箇所を特定してから提案する。`coding-standards.md` の「コードの重複は撲滅」に従う。
+
+10. **メソッド抽出**
+
+- 行数が多い関数、複数の責任を持つ関数は、処理の塊ごとにメソッド・関数へ抽出することを提案する。
+- 抽出後の関数名で意図が分かるようにし、`coding-standards.md` の「意図が不明瞭な処理は関数に抽出」に沿う。
+
+11. **共通コンポーネントの作成**
+
+- 同じマークアップ・同じ振る舞いが複数箇所にある場合は、共通コンポーネント（Svelte コンポーネントや共通関数）への抽出を提案する。
+- 類似したコンポーネントが複数ある場合は、props で差を吸収する1つの共通コンポーネントへの統合を検討する。
+
 #### 低優先度の候補
 
-9. **コードの整理**
-   - `coding-standards.md` で禁止されている未使用の変数・関数の削除
-   - 重複コードや不要なコメントの削除
+12. **コードの整理**
+
+- `coding-standards.md` で禁止されている未使用の変数・関数の削除
+- 重複コードや不要なコメントの削除（共通化後の残り屑の整理を含む）
 
 ---
 
@@ -190,6 +221,12 @@
 - ステップバイステップの手順
 - 注意点
 
+#### サンプルコード
+
+- そのまま利用できる具体的なコード
+- 実装例を含む
+- **lintエラーがないことを確認済み**
+
 #### 関連ファイル
 
 - 影響を受けるファイル
@@ -202,7 +239,7 @@
 
 **特に注意すべき点**:
 
-- **名前空間オブジェクトエクスポート**: 複数の関数を公開する場合は、必ず名前空間オブジェクトにまとめてエクスポートする。**注意**: このルールは**関数のみ**に適用される。定数は個別エクスポートで問題なく、名前空間オブジェクトにまとめる必要はない（`coding-standards.md`の「名前空間オブジェクトエクスポート（必須）」を参照）
+- **名前空間オブジェクトエクスポート**: 複数の関数を公開する場合は、必ず名前空間オブジェクトにまとめてエクスポートする（`coding-standards.md`の「名前空間オブジェクトエクスポート（必須）」を参照）
 - **アロー関数の禁止**: `function`構文で表現できる処理はアロー関数ではなく通常の`function`構文で記述する
 - **メソッド名の短縮**: ファイル名と名前空間名で意図を明確にし、メソッド名を短くする工夫を行う
 
@@ -270,14 +307,12 @@ const process_user_data = async (user_data: UserData): Promise<void> => {
 	await save_user_data(transformed_data)
 }
 ```
-````
 
 #### 関連ファイル
 
 - `src/lib/utils/user-utils.ts` - 新規作成
 - `src/lib/types/user.ts` - 型定義確認
 - `src/lib/data/user-data.ts` - データ処理確認
-
 ````
 
 ---
@@ -368,6 +403,7 @@ const process_user_data = async (user_data: UserData): Promise<void> => {
 2. **開いているファイルがない場合** → プロジェクト全体を分析し、最も改善が必要なファイルを特定（除外条件に該当するファイルは除外）
 
 **除外条件**:
+
 - `demo` フォルダ内のすべてのファイル
 - ファイル名に `demo` が含まれるファイル
 - `src/lib/server` フォルダ内のすべてのファイル
@@ -475,39 +511,39 @@ const process_user_data = async (user_data: UserData): Promise<void> => {
 ```typescript
 // Before: 長い関数
 const process_user_data = (user_data: UserData): ProcessedUserData => {
-  // 検証処理 (10行)
-  // 変換処理 (15行)
-  // 保存処理 (10行)
-  // 通知処理 (5行)
+	// 検証処理 (10行)
+	// 変換処理 (15行)
+	// 保存処理 (10行)
+	// 通知処理 (5行)
 }
 
 // After: 分割された関数
 const validate_user_data = (user_data: UserData): boolean => {
-  // 検証処理
+	// 検証処理
 }
 
 const transform_user_data = (user_data: UserData): TransformedUserData => {
-  // 変換処理
+	// 変換処理
 }
 
 const save_user_data = (user_data: TransformedUserData): void => {
-  // 保存処理
+	// 保存処理
 }
 
 const notify_user = (user_data: ProcessedUserData): void => {
-  // 通知処理
+	// 通知処理
 }
 
 const process_user_data = (user_data: UserData): ProcessedUserData => {
-  if (!validate_user_data(user_data)) {
-    throw new Error('Invalid user data')
-  }
+	if (!validate_user_data(user_data)) {
+		throw new Error('Invalid user data')
+	}
 
-  const transformed_data = transform_user_data(user_data)
-  save_user_data(transformed_data)
-  notify_user(transformed_data)
+	const transformed_data = transform_user_data(user_data)
+	save_user_data(transformed_data)
+	notify_user(transformed_data)
 
-  return transformed_data
+	return transformed_data
 }
 ```
 
@@ -517,31 +553,31 @@ const process_user_data = (user_data: UserData): ProcessedUserData => {
 // Before: 大きなファイル (400行)
 // user-service.ts
 export class UserService {
-  // 認証関連 (100行)
-  // データ処理関連 (150行)
-  // 通知関連 (100行)
-  // ユーティリティ関連 (50行)
+	// 認証関連 (100行)
+	// データ処理関連 (150行)
+	// 通知関連 (100行)
+	// ユーティリティ関連 (50行)
 }
 
 // After: 分割されたファイル
 // user-auth.ts
 export class UserAuth {
-  // 認証関連
+	// 認証関連
 }
 
 // user-data.ts
 export class UserData {
-  // データ処理関連
+	// データ処理関連
 }
 
 // user-notification.ts
 export class UserNotification {
-  // 通知関連
+	// 通知関連
 }
 
 // user-utils.ts
 export class UserUtils {
-  // ユーティリティ関連
+	// ユーティリティ関連
 }
 ```
 
@@ -550,10 +586,11 @@ export class UserUtils {
 ```typescript
 // Before: マジックナンバー
 const process_items = (items: Item[]): ProcessedItem[] => {
-  return items.filter(item => item.status === 1)
-    .map(item => ({ ...item, priority: 2 }))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 10)
+	return items
+		.filter((item) => item.status === 1)
+		.map((item) => ({ ...item, priority: 2 }))
+		.sort((a, b) => b.score - a.score)
+		.slice(0, 10)
 }
 
 // After: 定数抽出
@@ -562,10 +599,11 @@ const HIGH_PRIORITY = 2
 const MAX_RESULTS = 10
 
 const process_items = (items: Item[]): ProcessedItem[] => {
-  return items.filter(item => item.status === ACTIVE_STATUS)
-    .map(item => ({ ...item, priority: HIGH_PRIORITY }))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, MAX_RESULTS)
+	return items
+		.filter((item) => item.status === ACTIVE_STATUS)
+		.map((item) => ({ ...item, priority: HIGH_PRIORITY }))
+		.sort((a, b) => b.score - a.score)
+		.slice(0, MAX_RESULTS)
 }
 ```
 
@@ -607,6 +645,7 @@ export { git_command }
 ```
 
 **使用例**:
+
 ```typescript
 // インポート
 import { git_command } from './git/git-command.js'
@@ -617,10 +656,11 @@ const status_output = await git_command.status()
 ```
 
 **ポイント**:
+
 - ファイル名と名前空間名で意図を明確にする（`git-command.ts` → `git_command`）
 - メソッド名は短く、名前空間で補完する（`exec_git_branch()` → `git_command.branch()`）
 - アロー関数は使わず、通常の`function`構文を使用する
-- **重要**: このルールは**関数のみ**に適用される。定数は個別エクスポートで問題なく、名前空間オブジェクトにまとめる必要はない
+- **ただし、定数のみのエクスポート（例: `constants.ts`）については、名前空間オブジェクト化は不要とする**
 
 ---
 
@@ -630,7 +670,7 @@ const status_output = await git_command.status()
 
 - [ ] **提案するサンプルコードにlintエラーがないことを確認した**
 - [ ] **新規作成するファイルのコードにlintエラーがないことを確認した**
-- [ ] **複数の関数を公開する場合は名前空間オブジェクトエクスポートを使用しているか確認した**（**注意**: このルールは**関数のみ**に適用される。定数は個別エクスポートで問題ない。`coding-standards.md`の「名前空間オブジェクトエクスポート（必須）」を参照）
+- [ ] **複数の関数を公開する場合は名前空間オブジェクトエクスポートを使用しているか確認した**（`coding-standards.md`の「名前空間オブジェクトエクスポート（必須）」を参照）
 - [ ] **アロー関数ではなく通常の`function`構文を使用しているか確認した**
 - [ ] 現在のファイルの状況を正確に把握した
 - [ ] 関連ファイルを確認した
@@ -680,23 +720,19 @@ const status_output = await git_command.status()
 
 ## 10. リファクタリング実装後の報告手順
 
-**重要**: ユーザーが「対応して」などと指示してリファクタリングを実装した場合、以下の手順で報告してください：
+**重要**: ユーザーが「対応して」などと指示してリファクタリングを実装した場合、**例外なく以下の手順を実行してください**：
 
-1. **実装後のlintエラーチェック（必須）**
-   - **リファクタリングを実装した後、報告する前に必ずlintエラーをチェックする**
-   - **すべての変更したファイルと新規作成したファイルのlintエラーを漏れなくチェックする**
-   - 関連ファイル（インポート/エクスポートされているファイル）もチェック
-   - `read_lints`ツールを使用して、変更・新規作成したすべてのファイルを明示的に指定してlintエラーを確認する
-   - 例: `read_lints({ paths: ['変更したファイル1', '変更したファイル2', '新規作成したファイル1'] })`
+1. **実装後のlintエラーチェック（絶対必須）**
+   - リファクタリング実装直後に、**必ず `read_lints` ツールを実行する**
+   - `read_lints({ paths: ['変更したファイル1', '変更したファイル2', '新規作成したファイル1'] })` のように、**すべての関与したファイルを指定して確認する**
+   - この手順を省略することは禁止されています
 
-2. **lintエラーの解決**
-   - lintエラーが存在する場合、先に解決してから報告する
-   - **すべてのlintエラーが解決されるまで報告しない**
-   - lintエラーを修正した後、再度 `read_lints` で確認してエラーが0件であることを確認する
+2. **lintエラーの即時修正（修正ループ）**
+   - lintエラーが1つでも見つかった場合、**ユーザーに報告する前に修正を行う**
+   - 修正後、再度 `read_lints` を実行し、エラーが0件になるまで繰り返す
+   - **Lintエラーが残っている状態での完了報告は禁止**
 
 3. **報告内容**
    - 実施した変更内容を説明
-   - 変更したファイルと新規作成したファイルを明記
-   - **すべてのlintエラーが解決されたことを明記**
-   - 変更による効果や改善点を説明
-````
+   - **「Lintエラーチェックを実施し、エラーがないことを確認しました」** と明記する
+   - もし自動修正できないエラーが残った場合のみ、その理由と共に報告する
