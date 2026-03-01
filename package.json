@@ -1,7 +1,7 @@
 {
 	"name": "joshuafolkken-com",
 	"private": true,
-	"version": "0.106.0",
+	"version": "0.107.0",
 	"type": "module",
 	"packageManager": "pnpm@10.30.2+sha512.36cdc707e7b7940a988c9c1ecf88d084f8514b5c3f085f53a2e244c2921d3b2545bc20dd4ebe1fc245feec463bb298aecea7a63ed1f7680b877dc6379d8d0cb4",
 	"scripts": {
@@ -39,7 +39,9 @@
 		"db:push": "drizzle-kit push",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
-		"version:minor": "npm version minor --no-git-tag-version --loglevel=error"
+		"version:minor": "npm version minor --no-git-tag-version --loglevel=error",
+		"update:latest": "pnpm update --latest --save",
+		"cspell:dot": "pnpm cspell . --dot"
 	},
 	"devDependencies": {
 		"@aikidosec/safe-chain": "^1.4.4",
@@ -49,12 +51,12 @@
 		"@playwright/test": "^1.58.2",
 		"@stylistic/eslint-plugin": "^5.9.0",
 		"@sveltejs/adapter-cloudflare": "^7.2.8",
-		"@sveltejs/adapter-node": "^5.5.3",
-		"@sveltejs/kit": "^2.53.0",
+		"@sveltejs/adapter-node": "^5.5.4",
+		"@sveltejs/kit": "^2.53.4",
 		"@sveltejs/vite-plugin-svelte": "^6.2.4",
 		"@tailwindcss/typography": "^0.5.19",
 		"@tailwindcss/vite": "^4.2.1",
-		"@types/node": "^25.3.0",
+		"@types/node": "^25.3.2",
 		"@vitest/browser-playwright": "^4.0.18",
 		"cspell": "^9.7.0",
 		"drizzle-kit": "^0.31.9",
@@ -74,8 +76,8 @@
 		"prettier": "^3.8.1",
 		"prettier-plugin-svelte": "^3.5.0",
 		"prettier-plugin-tailwindcss": "^0.7.2",
-		"svelte": "^5.53.3",
-		"svelte-check": "^4.4.3",
+		"svelte": "^5.53.6",
+		"svelte-check": "^4.4.4",
 		"tailwindcss": "^4.2.1",
 		"tsx": "^4.21.0",
 		"typescript": "^5.9.3",
@@ -83,7 +85,7 @@
 		"vite": "^7.3.1",
 		"vitest": "^4.0.18",
 		"vitest-browser-svelte": "^2.0.2",
-		"wrangler": "^4.68.0"
+		"wrangler": "^4.69.0"
 	},
 	"dependencies": {
 		"@libsql/client": "^0.17.0",
@@ -98,16 +100,13 @@
 				"@eslint/js"
 			]
 		},
-		"auditConfig": {
-			"ignoreGhsas": [
-				"GHSA-3ppc-4f35-3m26",
-				"GHSA-2g4f-4pwh-qvx6"
-			]
-		},
 		"overrides": {
 			"esbuild": "^0.25.0",
 			"cookie": "^0.7.0",
-			"undici": "^7.18.2"
+			"undici": "^7.18.2",
+			"minimatch@<3.1.4": "3.1.5",
+			"minimatch@>=10.0.0 <10.2.3": "10.2.4",
+			"ajv@<6.14.0": "6.14.0"
 		},
 		"onlyBuiltDependencies": [
 			"esbuild",
