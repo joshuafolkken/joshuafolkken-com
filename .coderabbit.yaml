@@ -12,15 +12,15 @@ reviews:
   poem: false
   review_status: true
   review_details: false
-  fortune_message: true
-  include_sequence_diagrams: false
-  include_estimated_code_review_effort: true
-  include_related_issues: false
-  include_related_prs: false
+  in_progress_fortune: false
+  sequence_diagrams: false
+  estimate_code_review_effort: false
+  related_issues: false
+  related_prs: false
   assess_linked_issues: true
-  suggest_labels: false
-  suggest_reviewers: false
-  changed_files_summary: true
+  suggested_labels: false
+  suggested_reviewers: false
+  changed_files_summary: false
   enable_prompt_for_ai_agents: true
   path_filters:
     - '!node_modules/**'
@@ -36,7 +36,7 @@ reviews:
     auto_pause_after_reviewed_commits: 3
   tools:
     github-checks:
-      wait_for_checks_timeout_ms: 30000
+      timeout_ms: 30000
     phpstan:
       enabled: false
     phpmd:
@@ -119,7 +119,7 @@ knowledge_base:
     enabled: false
   code_guidelines:
     enabled: true
-    file_patterns:
+    filePatterns:
       - '**/.cursorrules'
       - '**/AGENTS.md'
       - '**/GEMINI.md'
