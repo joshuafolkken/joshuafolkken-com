@@ -1,4 +1,4 @@
-# CodeRabbit 設定ファイル
+# CodeRabbit 設定ファイル（高速化版）
 # https://docs.coderabbit.ai/reference/configuration
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 
@@ -6,16 +6,99 @@ language: 'ja'
 early_access: false
 
 reviews:
-  profile: 'chill'
+  profile: 'assertive'
   request_changes_workflow: false
   high_level_summary: true
-  poem: true
+  poem: false
   review_status: true
   review_details: false
+  fortune_message: true
+  include_sequence_diagrams: false
+  include_estimated_code_review_effort: true
+  include_related_issues: false
+  include_related_prs: false
+  assess_linked_issues: true
+  suggest_labels: false
+  suggest_reviewers: false
+  changed_files_summary: true
+  enable_prompt_for_ai_agents: true
+  path_filters:
+    - '!node_modules/**'
+    - '!dist/**'
+    - '!build/**'
+    - '!*.lock'
+    - '!pnpm-lock.yaml'
+    - '!.svelte-kit/**'
   auto_review:
     enabled: true
     drafts: false
     auto_incremental_review: true
+    auto_pause_after_reviewed_commits: 3
+  tools:
+    github-checks:
+      wait_for_checks_timeout_ms: 30000
+    phpstan:
+      enabled: false
+    phpmd:
+      enabled: false
+    phpcs:
+      enabled: false
+    golangci-lint:
+      enabled: false
+    rubocop:
+      enabled: false
+    ruff:
+      enabled: false
+    flake8:
+      enabled: false
+    pylint:
+      enabled: false
+    hadolint:
+      enabled: false
+    checkov:
+      enabled: false
+    tflint:
+      enabled: false
+    trivy:
+      enabled: false
+    circleci:
+      enabled: false
+    clippy:
+      enabled: false
+    sqlfluff:
+      enabled: false
+    pmd:
+      enabled: false
+    clang:
+      enabled: false
+    cppcheck:
+      enabled: false
+    buf:
+      enabled: false
+    regal:
+      enabled: false
+    checkmake:
+      enabled: false
+    brakeman:
+      enabled: false
+    swiftlint:
+      enabled: false
+    detekt:
+      enabled: false
+    shopifyThemeCheck:
+      enabled: false
+    luacheck:
+      enabled: false
+    oxc:
+      enabled: true
+    semgrep:
+      enabled: false
+    opengrep:
+      enabled: false
+    languagetool:
+      enabled: false
+    biome:
+      enabled: false
   path_instructions:
     - path: 'src/**'
       instructions: |
@@ -30,6 +113,18 @@ reviews:
     - path: 'scripts/**'
       instructions: |
         ビルド・デプロイ用スクリプトです。エラーハンドリングとクロスプラットフォーム互換性を確認してください。
+
+knowledge_base:
+  web_search:
+    enabled: false
+  code_guidelines:
+    enabled: true
+    file_patterns:
+      - '**/.cursorrules'
+      - '**/AGENTS.md'
+      - '**/GEMINI.md'
+      - 'prompts/coding-standards.md'
+      - 'prompts/refactoring.md'
 
 chat:
   auto_reply: true
