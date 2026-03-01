@@ -206,7 +206,7 @@ const status_output = await git_command.status()
 ### ファイル変更時の必須ルール
 
 - **ファイルを変更したときは、最後にかならず lint チェックを行うこと**
-- 変更したファイルに対して `npm run lint` を実行し、エラーがないことを確認する
+- 変更したファイルに対して `pnpm run lint` を実行し、エラーがないことを確認する
 - エラーがある場合は修正してからコミットする
 
 ### Lintチェック対象の範囲
@@ -247,16 +247,16 @@ const status_output = await git_command.status()
 
 ```bash
 # 1. ESLintチェック
-npm run lint
+pnpm run lint
 
 # 2. エラーがある場合は修正
-npm run lint:fix
+pnpm run lint:fix
 
 # 3. 型チェック
-npm run check
+pnpm run check
 
 # 4. 最終確認
-npm run build
+pnpm run build
 ```
 
 ### よくあるLintエラーと対処法
@@ -351,7 +351,7 @@ pnpm exec tsc --noEmit
 1. **camelCase使用** → `snake_case`に変更
 2. **型定義省略** → 明示的な型定義を追加
 3. **any使用** → 適切な型を定義
-4. **Lintチェック忘れ** → 必ず`npm run lint`実行
+4. **Lintチェック忘れ** → 必ず`pnpm run lint`実行
 5. **既存ファイル未参照** → 類似機能のファイルを必ず確認
 
 ### その他のよくある間違い
@@ -369,8 +369,8 @@ pnpm exec tsc --noEmit
 - [ ] 命名規則（snake_case）を守った
 - [ ] 明示的な型定義を追加した
 - [ ] `any`を使用していない
-- [ ] `npm run lint`でエラーがない
-- [ ] `npm run check`で型エラーがない
+- [ ] `pnpm run lint`でエラーがない
+- [ ] `pnpm run check`で型エラーがない
 - [ ] 複雑度制限内に収まっている
 - [ ] コードがシンプルで読みやすいか
 - [ ] 現在の要件に集中しているか（未来の拡張性を考慮していないか）
@@ -391,10 +391,10 @@ pnpm exec tsc --noEmit
    - **ステップ1**: ツール呼び出し: `read_lints([変更ファイルの絶対パス配列])`
      - エラーが1件でもあれば、その場で修正→再実行。ゼロになるまで報告禁止
    - **ステップ2**: 実際のlintコマンドで検証（必須）
-     - コマンド: `npm run lint -- <変更したファイルのパス>`
+     - コマンド: `pnpm run lint -- <変更したファイルのパス>`
      - **重要**: `read_lints` ツールは一部のESLintルールやPrettierのフォーマットチェックを検出しない可能性があるため、実際のlintコマンドでも必ず検証すること
-     - `npm run lint` では Prettier と ESLint の両方が実行され、すべてのルールがチェックされる
-     - `npm run lint` でエラーが見つかった場合は修正してから再実行し、エラーが0件であることを確認する
+     - `pnpm run lint` では Prettier と ESLint の両方が実行され、すべてのルールがチェックされる
+     - `pnpm run lint` でエラーが見つかった場合は修正してから再実行し、エラーが0件であることを確認する
 
 2. **変更したすべてのファイルをチェック**
    - 編集したファイル、新規作成したファイル、削除したファイルすべてを含める
@@ -419,8 +419,8 @@ pnpm exec tsc --noEmit
 4. **報告直前に最終確認**
    - **ステップ1**: ツール呼び出し: `read_lints(['src'])` または変更したディレクトリ
    - **ステップ2**: 実際のlintコマンドで再確認（必須）
-     - コマンド: `npm run lint -- <変更したファイル/ディレクトリ>`
-     - または: `npm run lint` （全体をチェック）
+     - コマンド: `pnpm run lint -- <変更したファイル/ディレクトリ>`
+     - または: `pnpm run lint` （全体をチェック）
    - 結果がゼロでない場合は再修正→再実行
    - すべてのlintエラーが解決されるまで報告しない
 
@@ -431,16 +431,16 @@ pnpm exec tsc --noEmit
 1. **一部のESLintルールを検出しない可能性**
    - 例: `id-length`（識別子名の長さチェック）
    - 例: 一部のカスタムルール
-   - **対策**: 必ず実際のlintコマンド（`npm run lint`）でも検証すること
+   - **対策**: 必ず実際のlintコマンド（`pnpm run lint`）でも検証すること
 
 2. **Prettierのフォーマットチェックが含まれない**
    - `read_lints` ツールはESLintのエラーのみを検出する
    - Prettierのフォーマットエラーは検出されない
-   - **対策**: `npm run lint` を実行することで、PrettierとESLintの両方がチェックされる
+   - **対策**: `pnpm run lint` を実行することで、PrettierとESLintの両方がチェックされる
 
 3. **実際のlintコマンドとの差異**
-   - `read_lints` と `npm run lint` の結果に差異がある可能性がある
-   - **対策**: 報告前に必ず `npm run lint` で再確認すること
+   - `read_lints` と `pnpm run lint` の結果に差異がある可能性がある
+   - **対策**: 報告前に必ず `pnpm run lint` で再確認すること
 
 **推奨されるチェック手順**:
 
@@ -449,15 +449,15 @@ pnpm exec tsc --noEmit
 read_lints(['変更したファイル1', '変更したファイル2'])
 
 # 2. 実際のlintコマンドで検証（必須）
-npm run lint -- 変更したファイル1 変更したファイル2
+pnpm run lint -- 変更したファイル1 変更したファイル2
 
 # 3. エラーが0件であることを確認してから報告
 ```
 
 **特に注意すべき状況**:
 
-- **新規作成したファイル**: `read_lints` の後に必ず `npm run lint` で再確認
-- **複数ファイルを変更した場合**: すべてのファイルを `npm run lint` に指定
+- **新規作成したファイル**: `read_lints` の後に必ず `pnpm run lint` で再確認
+- **複数ファイルを変更した場合**: すべてのファイルを `pnpm run lint` に指定
 - **Prettierのフォーマット**: `pnpm exec prettier --write <ファイルパス>` で自動修正も可能
 
 5. **報告文テンプレート（必須記載）**
