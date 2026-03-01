@@ -20,6 +20,7 @@ ignorePaths:
   - playwright-report/**
   - .pnpm-store/**
   - .wrangler/**
+  - .coderabbit.yaml
 words:
   - aboutads
   - aikidosec
@@ -74,3 +75,4 @@ words:
   - webp
   - workerd
   - zstd
+  - coderabbit
