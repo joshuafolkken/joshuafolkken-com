@@ -12,7 +12,7 @@ export default defineConfig({
 	},
 	plugins: [tailwindcss(), sveltekit()],
 	server: {
-		host: true,
+		allowedHosts: ['.trycloudflare.com'],
 	},
 	test: {
 		expect: { requireAssertions: true },
