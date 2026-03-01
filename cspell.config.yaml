@@ -1,8 +1,5 @@
 version: '0.2'
 language: en
-# files:
-#   - src/**/*
-#   - e2e/**/*
 ignorePaths:
   - .vscode/**
   - node_modules/**
@@ -69,6 +66,7 @@ words:
   - sonarqube
   - Stylesheet
   - TERE
+  - trycloudflare
   - turso
   - unrs
   - vite
