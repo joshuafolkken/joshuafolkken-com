@@ -21,7 +21,6 @@
 			"head_sampling_rate": 0.1
 		}
 	},
-
 	"kv_namespaces": [
 		{
 			"binding": "CACHE",
@@ -29,11 +28,19 @@
 			"preview_id": "931f196821b4487a918efdddb8bb6032"
 		}
 	],
-
 	"routes": [
 		{
 			"pattern": "joshuafolkken.com",
 			"custom_domain": true
+		}
+	],
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "joshuafolkken-com-db",
+			"database_id": "3838875a-f903-455c-9e45-c9ddc11a1f41",
+			"migrations_dir": "drizzle/migrations"
+			// "remote": true
 		}
 	]
 }
