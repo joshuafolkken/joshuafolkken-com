@@ -9,7 +9,8 @@ pre-commit:
       run: pnpm audit
 
     cspell:
-      run: pnpm exec cspell {staged_files}
+      glob: '*.{ts,tsx,js,jsx,svelte,md,mdx,html,css,scss,yml,yaml}'
+      run: pnpm exec cspell --no-must-find-files {staged_files}
 
     prettier:
       glob: '*.{js,jsx,ts,tsx,mjs,cjs,svelte,html,css,scss,md,mdx,json,jsonc,yaml,yml}'
