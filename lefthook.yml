@@ -47,7 +47,7 @@ pre-push:
 
     test-e2e:
       glob: '{*.{svelte,ts,js,mjs,cjs},package.json}'
-      run: pnpm run test:e2e
+      run: PLAYWRIGHT_HTML_OPEN=never pnpm run test:e2e
 
   fail_text: |
     🚫 Push blocked due to build or test failures
