@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { AUTHOR, URLS } from '$lib/app'
+	import { AUTHOR, LINK_REL, LINK_TARGET, URLS } from '$lib/app'
 	import GitHubIcon from '$lib/icons/GitHubIcon.svelte'
 	import MailIcon from '$lib/icons/MailIcon.svelte'
 	import XIcon from '$lib/icons/XIcon.svelte'
@@ -73,8 +73,8 @@
 		<a
 			href={link.href}
 			aria-label={link.aria_label}
-			target={link.is_external === true ? '_blank' : undefined}
-			rel={link.is_external === true ? 'noopener noreferrer' : undefined}
+			target={link.is_external ? LINK_TARGET : undefined}
+			rel={link.is_external ? LINK_REL : undefined}
 			class="social-link-item"
 		>
 			<Icon />

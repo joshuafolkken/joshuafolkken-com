@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state'
 	import CopyButton from './CopyButton.svelte'
-	import TwitterShareButton from './TwitterShareButton.svelte'
+	import SocialShareButton from './SocialShareButton.svelte'
 
 	interface Props {
 		title: string
@@ -14,10 +14,10 @@
 </script>
 
 <!-- X (Twitter) -->
-<TwitterShareButton {title} class={class_name} />
+<SocialShareButton type="twitter" {title} class={class_name} />
 
 <!-- Facebook -->
-<!-- <FacebookShareButton class={class_name} /> -->
+<!-- <SocialShareButton type="facebook" class={class_name} /> -->
 
 <!-- Copy Link -->
 <CopyButton text_to_copy={`${title}\n${url}`} class={class_name} />

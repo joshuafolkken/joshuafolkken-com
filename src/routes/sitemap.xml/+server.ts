@@ -1,9 +1,13 @@
 import { APP } from '$lib/app'
 import { HTTP_HEADERS } from '$lib/constants/http'
 import { git_utilities } from '$lib/server/git-utilities'
-import type { Post } from '$lib/types/blog'
 import { blog_parser } from '$lib/utils/blog-parser'
+import { date_utilities } from '$lib/utils/date-utilities'
 import type { RequestHandler } from './$types'
+
+const SITEMAP_CHANGEFREQ = 'weekly'
+const SITEMAP_PRIORITY_HOME = '1.0'
+const SITEMAP_PRIORITY_DEFAULT = '0.8'
 
 interface SitemapUrl {
 	loc: string
@@ -12,18 +16,18 @@ interface SitemapUrl {
 	lastmod: string
 }
 
-function format_date_to_w3c(date: Date): string {
-	return date.toISOString()
-}
+function create_sitemap_entry(route: string, filepath_or_lastmod: string | Date): SitemapUrl {
+	const is_home = !route
+	const lastmod =
+		typeof filepath_or_lastmod === 'string'
+			? git_utilities.get_file_lastmod(filepath_or_lastmod)
+			: filepath_or_lastmod
 
-function create_sitemap_entry(route: string, filepath: string): SitemapUrl {
-	const is_home = route === ''
-	const lastmod = git_utilities.get_file_lastmod(filepath)
 	return {
 		loc: `${APP.URL}${route}`,
-		changefreq: 'weekly',
-		priority: is_home ? '1.0' : '0.8',
-		lastmod: format_date_to_w3c(lastmod),
+		changefreq: SITEMAP_CHANGEFREQ,
+		priority: is_home ? SITEMAP_PRIORITY_HOME : SITEMAP_PRIORITY_DEFAULT,
+		lastmod: date_utilities.format_date_to_w3c(lastmod),
 	}
 }
 
@@ -40,17 +44,9 @@ function get_static_pages(): Array<SitemapUrl> {
 }
 
 function get_blog_posts(): Array<SitemapUrl> {
-	const posts = import.meta.glob('/src/lib/posts/*.md', { eager: true })
-
-	return Object.entries(posts)
-		.map(([path, file]) => blog_parser.parse_post(path, file))
-		.filter((post): post is Post => post !== undefined)
-		.map((post) => ({
-			loc: `${APP.URL}/blog/${post.slug}`,
-			changefreq: 'weekly',
-			priority: '0.8',
-			lastmod: format_date_to_w3c(new Date(post.updated ?? post.date)),
-		}))
+	return blog_parser
+		.get_all_posts()
+		.map((post) => create_sitemap_entry(`/blog/${post.slug}`, new Date(post.updated ?? post.date)))
 }
 
 function generate_url_xml(urls: Array<SitemapUrl>): string {

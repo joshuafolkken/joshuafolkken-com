@@ -1,4 +1,5 @@
 import { OPENCOLLECTIVE } from '$lib/app'
+import { ERROR_MESSAGES, HTTP_HEADERS } from '$lib/constants/http'
 import type {
 	GraphqlContributor,
 	GraphqlResponse,
@@ -7,7 +8,7 @@ import type {
 
 const GRAPHQL_ENDPOINT = 'https://api.opencollective.com/graphql/v2'
 const CONTRIBUTORS_LIMIT = 100
-const OPENCOLLECTIVE_BASE_URL = 'https://opencollective.com'
+const OPENCOLLECTIVE_BASE_URL = new URL(OPENCOLLECTIVE.URL).origin
 
 const CONTRIBUTORS_QUERY = `
   query Contributors($slug: String!, $limit: Int!) {
@@ -35,7 +36,7 @@ const CONTRIBUTORS_QUERY = `
 function is_valid_contributor(
 	node: GraphqlContributor,
 ): node is GraphqlContributor & { account: NonNullable<GraphqlContributor['account']> } {
-	return node.isBacker && node.totalAmountContributed.value > 0 && node.account !== null
+	return node.isBacker && node.totalAmountContributed.value > 0 && Boolean(node.account)
 }
 
 function map_contributors_to_supporters(
@@ -62,7 +63,7 @@ function map_contributors_to_supporters(
 function throw_if_graphql_errors(response: GraphqlResponse): void {
 	const { errors } = response
 
-	if (errors !== undefined && errors.length > 0) {
+	if (errors?.length) {
 		const message = errors[0]?.message ?? 'GraphQL error'
 		throw new Error(message)
 	}
@@ -79,14 +80,14 @@ async function fetch_supporters(
 ): Promise<Array<OpenCollectiveMember>> {
 	const response = await fetch_function(GRAPHQL_ENDPOINT, {
 		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
+		headers: { [HTTP_HEADERS.CONTENT_TYPE]: 'application/json' },
 		body: JSON.stringify({
 			query: CONTRIBUTORS_QUERY,
 			variables: { slug: OPENCOLLECTIVE.SLUG, limit: CONTRIBUTORS_LIMIT },
 		}),
 	})
 
-	if (!response.ok) throw new Error('Failed to fetch contributors')
+	if (!response.ok) throw new Error(ERROR_MESSAGES.FAILED_TO_FETCH_CONTRIBUTORS)
 
 	const json: unknown = await response.json()
 	const nodes = parse_graphql_response(json)

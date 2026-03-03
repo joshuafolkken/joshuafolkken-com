@@ -17,7 +17,7 @@
 	let header_element = $state<HTMLElement | undefined>()
 
 	$effect(() => {
-		if (header_element !== undefined) {
+		if (header_element) {
 			sticky_state.set_element(header_element)
 			sticky_state.update_sticky_state()
 		}
@@ -54,7 +54,7 @@
 		{/if}
 		{title}
 	</h1>
-	{#if description !== ''}
+	{#if description}
 		<p class="mt-1 text-right text-white/80 italic">{description}</p>
 	{/if}
 </header>

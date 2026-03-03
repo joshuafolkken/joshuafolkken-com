@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { SOCIAL_BUTTONS } from '$lib/constants/social-buttons'
+
 	interface Props {
 		text_to_copy: string
 		class?: string
@@ -20,7 +22,7 @@
 
 <button
 	onclick={copy}
-	class="group relative inline-flex h-[50px] w-[50px] cursor-pointer items-center justify-center rounded-full border border-white/10 text-neutral-400 transition-all duration-300 hover:border-white/0 hover:bg-white/20 hover:text-white {class_name}"
+	class="group relative cursor-pointer {SOCIAL_BUTTONS.BASE} {SOCIAL_BUTTONS.COPY_HOVER} {class_name}"
 	aria-label="Copy Link"
 >
 	<div class="relative">

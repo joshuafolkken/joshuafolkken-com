@@ -16,7 +16,7 @@ export class StickyHeaderState {
 	}
 
 	update_sticky_state(): void {
-		if (this.#header_element === undefined) return
+		if (!this.#header_element) return
 		const header_rect = this.#header_element.getBoundingClientRect()
 		this.is_sticky = header_rect.top < this.#sticky_threshold
 	}

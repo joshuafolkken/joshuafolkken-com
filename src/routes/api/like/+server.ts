@@ -9,50 +9,37 @@ interface LikeRequestBody {
 	slug?: string
 }
 
-async function get_valid_slug(request: Request): Promise<string | undefined> {
-	const body: LikeRequestBody = await request.json()
-	const { slug } = body
-
-	if (slug === undefined || slug === '') {
+function parse_slug(value: unknown): string | undefined {
+	if (typeof value !== 'string' || value.trim().length === 0) {
 		return undefined
 	}
 
-	return slug
+	return value.trim()
+}
+
+async function get_valid_slug(request: Request): Promise<string | undefined> {
+	const body: LikeRequestBody = await request.json()
+	return parse_slug(body.slug)
 }
 
 function json_likes(likes: number): Response {
 	return json({ likes })
 }
 
-async function process_get_likes(
-	slug: string,
-	platform: App.Platform | undefined,
-): Promise<Response> {
-	try {
-		const likes = await like_store.get(slug, platform)
-		return json_likes(likes)
-	} catch (error) {
-		logger.error(error)
-		return security.json_error(
-			ERROR_MESSAGES.FAILED_TO_GET_LIKES,
-			HTTP_STATUS.INTERNAL_SERVER_ERROR,
-		)
-	}
-}
+type LikeOperation = (slug: string, platform: App.Platform | undefined) => Promise<number>
 
-async function process_like_increment(
+async function process_like_operation(
 	slug: string,
 	platform: App.Platform | undefined,
+	operation: LikeOperation,
+	error_message: string,
 ): Promise<Response> {
 	try {
-		const likes = await like_store.increment(slug, platform)
+		const likes = await operation(slug, platform)
 		return json_likes(likes)
 	} catch (error) {
 		logger.error(error)
-		return security.json_error(
-			ERROR_MESSAGES.FAILED_TO_INCREMENT_LIKES,
-			HTTP_STATUS.INTERNAL_SERVER_ERROR,
-		)
+		return security.json_error(error_message, HTTP_STATUS.INTERNAL_SERVER_ERROR)
 	}
 }
 
@@ -64,17 +51,20 @@ export const GET: RequestHandler = async ({
 }) => {
 	const error_response = security.validate_request_security(request, url, get_client_address())
 
-	if (error_response !== undefined) {
-		return error_response
-	}
+	if (error_response) return error_response
 
-	const slug = url.searchParams.get('slug')
+	const slug = parse_slug(url.searchParams.get('slug'))
 
-	if (slug === null || slug === '') {
+	if (!slug) {
 		return security.json_error(ERROR_MESSAGES.SLUG_REQUIRED, HTTP_STATUS.BAD_REQUEST)
 	}
 
-	return await process_get_likes(slug, platform)
+	return await process_like_operation(
+		slug,
+		platform,
+		like_store.get,
+		ERROR_MESSAGES.FAILED_TO_GET_LIKES,
+	)
 }
 
 export const POST: RequestHandler = async ({
@@ -85,15 +75,18 @@ export const POST: RequestHandler = async ({
 }) => {
 	const error_response = security.validate_request_security(request, url, get_client_address())
 
-	if (error_response !== undefined) {
-		return error_response
-	}
+	if (error_response) return error_response
 
 	const slug = await get_valid_slug(request)
 
-	if (slug === undefined) {
+	if (!slug) {
 		return security.json_error(ERROR_MESSAGES.SLUG_REQUIRED, HTTP_STATUS.BAD_REQUEST)
 	}
 
-	return await process_like_increment(slug, platform)
+	return await process_like_operation(
+		slug,
+		platform,
+		like_store.increment,
+		ERROR_MESSAGES.FAILED_TO_INCREMENT_LIKES,
+	)
 }

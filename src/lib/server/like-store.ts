@@ -14,6 +14,10 @@ function get_cache_key(slug: string): string {
 	return `${cache_keys.LIKE}${slug}`
 }
 
+function get_count_from_result(result: Array<{ count: number }>): number {
+	return result[0]?.count ?? INITIAL_COUNT
+}
+
 async function get_likes_from_database(
 	slug: string,
 	platform: App.Platform | undefined,
@@ -25,7 +29,7 @@ async function get_likes_from_database(
 		.where(eq(schema.likes.slug, slug))
 		.limit(1)
 
-	return result[0]?.count ?? INITIAL_COUNT
+	return get_count_from_result(result)
 }
 
 async function update_likes_in_database(
@@ -51,7 +55,7 @@ async function update_likes_in_database(
 		})
 		.returning({ count: schema.likes.count })
 
-	return result[0]?.count ?? INITIAL_COUNT
+	return get_count_from_result(result)
 }
 
 async function get(slug: string, platform: App.Platform | undefined): Promise<number> {

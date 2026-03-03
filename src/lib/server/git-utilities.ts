@@ -12,7 +12,7 @@ function get_file_lastmod(path: string): Date {
 			encoding: 'utf8',
 		})
 
-		if (stdout.trim() !== '') {
+		if (stdout.trim()) {
 			return new Date(stdout.trim())
 		}
 	} catch {
