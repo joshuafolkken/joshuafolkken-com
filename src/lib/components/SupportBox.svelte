@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { LINK_REL, LINK_TARGET } from '$lib/app'
 	import SupportIcon from '$lib/icons/SupportIcon.svelte'
 	import { PAGES } from '$lib/types/page'
 </script>
@@ -9,8 +10,8 @@
 	<h3 class="mt-0! text-lg font-medium text-white/90">いいなと思ったら応援しよう！</h3>
 	<a
 		href={PAGES.DONATIONS.link}
-		target="_blank"
-		rel="noreferrer"
+		target={LINK_TARGET}
+		rel={LINK_REL}
 		class="flex w-full max-w-md items-center justify-center gap-2 rounded-full bg-emerald-700 px-8 py-3 font-bold text-white no-underline shadow-lg transition-all duration-300 hover:scale-105 hover:bg-emerald-600 hover:shadow-emerald-900/50 active:scale-95"
 	>
 		<SupportIcon size="1.3rem" />

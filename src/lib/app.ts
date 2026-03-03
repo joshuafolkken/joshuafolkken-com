@@ -19,7 +19,10 @@ const AUTHOR = {
 const URLS = {
 	TALK: 'https://talk.joshuafolkken.com',
 	GITHUB: 'https://github.com/joshuafolkken',
+	GITHUB_PRS: 'https://github.com/joshuafolkken/joshuafolkken-com/pulls?q=is%3Apr+is%3Aclosed',
 	GITHUB_PAGE: 'https://joshuafolkken.github.io',
+	SHARE_FACEBOOK: 'https://www.facebook.com/sharer/sharer.php',
+	SHARE_TWITTER: 'https://twitter.com/intent/tweet',
 	get X(): string {
 		return `https://x.com/${AUTHOR.X_USERNAME}`
 	},
@@ -38,6 +41,11 @@ const LINK_REL = 'noopener noreferrer'
 
 const SUBTITLE_DEVELOPMENT_TOOL = 'Dev Tool'
 
+const LAST_UPDATED = {
+	PRIVACY_POLICY: 'November 2025',
+	UPDATE_INFO: '2025-11-19',
+} as const
+
 const LINK_LABELS = {
 	github: 'GitHub',
 	demo: 'Live Demo',
@@ -54,6 +62,7 @@ const app = {
 export {
 	APP,
 	AUTHOR,
+	LAST_UPDATED,
 	LINK_LABELS,
 	LINK_REL,
 	LINK_TARGET,

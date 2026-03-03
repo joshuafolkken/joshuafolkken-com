@@ -48,7 +48,7 @@ function has_valid_metadata(metadata: Metadata): metadata is {
 function parse_post(path: string, file: unknown): Post | undefined {
 	const slug = get_slug_from_path(path)
 
-	if (slug === undefined || slug === '' || !is_mdsvex_file(file)) {
+	if (!slug || !is_mdsvex_file(file)) {
 		return undefined
 	}
 
@@ -66,8 +66,15 @@ function parse_post(path: string, file: unknown): Post | undefined {
 	}
 }
 
+function get_all_posts(): Array<Post> {
+	const posts = import.meta.glob<{ metadata: Metadata }>('/src/lib/posts/*.md', { eager: true })
+
+	return Object.entries(posts)
+		.map(([path, file]) => parse_post(path, file))
+		.filter((post): post is Post => post !== undefined)
+}
+
 export const blog_parser = {
-	is_mdsvex_file,
-	get_slug_from_path,
+	get_all_posts,
 	parse_post,
 }

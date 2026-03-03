@@ -46,9 +46,8 @@ function get_log_parts(options: {
 	const { source, value, started_at } = options
 
 	return {
-		source: source === undefined ? '' : ` [${SOURCE_LABEL[source]}]`,
-		duration:
-			started_at === undefined ? '' : ` ${cache_log_utilities.format_elapsed_ms(started_at)}`,
+		source: source ? ` [${SOURCE_LABEL[source]}]` : '',
+		duration: started_at ? ` ${cache_log_utilities.format_elapsed_ms(started_at)}` : '',
 		value: value === undefined ? '' : ` ${cache_log_utilities.format_value_for_log(value)}`,
 	}
 }
@@ -74,7 +73,7 @@ function set_to_memory(key: string, value: unknown, now: number): void {
 function get_from_memory(key: string, now: number): unknown {
 	const memory_entry = memory_cache.get(key)
 
-	if (memory_entry !== undefined && memory_entry.expires > now) {
+	if (memory_entry && memory_entry.expires > now) {
 		log_cache_event('HIT', key, { source: 'memory', value: memory_entry.value, started_at: now })
 		return memory_entry.value
 	}
@@ -101,10 +100,10 @@ function parse_and_validate_kv_entry(
 
 async function get_from_kv(key: string, kv: KVNamespace, now: number): Promise<unknown> {
 	const kv_entry_string = await kv.get(key)
-	if (kv_entry_string === null) return undefined
+	if (!kv_entry_string) return undefined
 
 	const kv_entry = parse_and_validate_kv_entry(kv_entry_string, now)
-	if (kv_entry === undefined) return undefined
+	if (!kv_entry) return undefined
 
 	set_to_memory(key, kv_entry.value, now)
 	log_cache_event('HIT', key, { source: 'kv', value: kv_entry.value, started_at: now })

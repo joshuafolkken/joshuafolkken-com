@@ -1,5 +1,5 @@
 import { APP } from '$lib/app'
-import { HTTP_HEADERS } from '$lib/constants/http'
+import { ERROR_MESSAGES, HTTP_HEADERS } from '$lib/constants/http'
 
 interface LikeResponse {
 	likes: number
@@ -40,7 +40,7 @@ async function get(slug: string): Promise<LikeResponse> {
 		},
 	})
 
-	return await handle_like_response(response, 'Failed to get likes')
+	return await handle_like_response(response, ERROR_MESSAGES.FAILED_TO_GET_LIKES)
 }
 
 async function increment(slug: string): Promise<LikeResponse> {
@@ -53,7 +53,7 @@ async function increment(slug: string): Promise<LikeResponse> {
 		body: JSON.stringify({ slug }),
 	})
 
-	return await handle_like_response(response, 'Failed to increment likes')
+	return await handle_like_response(response, ERROR_MESSAGES.FAILED_TO_INCREMENT_LIKES)
 }
 
 export const like_api = {

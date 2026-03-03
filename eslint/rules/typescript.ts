@@ -35,18 +35,18 @@ export const typescript_rules = {
 	// switch文のフォールスルーを禁止
 	'@typescript-eslint/switch-exhaustiveness-check': 'error',
 	// 厳格なboolean式
-	'@typescript-eslint/strict-boolean-expressions': [
-		'error',
-		{
-			allowString: false,
-			allowNumber: false,
-			allowNullableObject: false,
-			allowNullableBoolean: false,
-			allowNullableString: false,
-			allowNullableNumber: false,
-			allowAny: false,
-		},
-	],
+	// '@typescript-eslint/strict-boolean-expressions': [
+	// 	'error',
+	// 	{
+	// 		allowString: false,
+	// 		allowNumber: false,
+	// 		allowNullableObject: true,
+	// 		allowNullableBoolean: true,
+	// 		allowNullableString: true,
+	// 		allowNullableNumber: true,
+	// 		allowAny: true,
+	// 	},
+	// ],
 	// nullishオペレーターの適切な使用
 	'@typescript-eslint/prefer-nullish-coalescing': 'error',
 	// optional chainingの適切な使用

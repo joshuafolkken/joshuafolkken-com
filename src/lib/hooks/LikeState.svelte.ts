@@ -1,4 +1,5 @@
 import { like_api } from '$lib/api/like-api'
+import { ERROR_MESSAGES } from '$lib/constants/http'
 import { logger } from '$lib/logger'
 import { liked_posts } from '$lib/stores/LikedPosts.svelte'
 
@@ -29,7 +30,7 @@ export class LikeState {
 			const data = await like_api.get(this.#slug)
 			this.count = data.likes
 		} catch (error) {
-			logger.error('Failed to fetch likes:', error)
+			logger.error(ERROR_MESSAGES.FAILED_TO_GET_LIKES, error)
 		}
 	}
 
@@ -52,7 +53,7 @@ export class LikeState {
 			const data = await like_api.increment(this.#slug)
 			this.count = data.likes
 		} catch (error) {
-			logger.error('Failed to like:', error)
+			logger.error(ERROR_MESSAGES.FAILED_TO_INCREMENT_LIKES, error)
 			// Rollback
 			this.is_liked = false
 			this.count = previous_count

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state'
+	import { LINK_REL, LINK_TARGET } from '$lib/app'
 	import { opencollective_utilities } from '$lib/opencollective-utilities'
 	import type { OpenCollectiveMember } from '$lib/types/opencollective'
 	import { PAGES } from '$lib/types/page'
@@ -7,13 +8,13 @@
 	const { supporters = [] }: { supporters?: Array<OpenCollectiveMember> } = page.data
 </script>
 
-{#if supporters.length > 0}
+{#if supporters.length}
 	<div class="mt-0 flex flex-col items-center gap-2">
 		{#each supporters as supporter, index (supporter.MemberId)}
 			<a
 				href={PAGES.DONATIONS.link}
-				target="_blank"
-				rel="noopener noreferrer"
+				target={LINK_TARGET}
+				rel={LINK_REL}
 				class="group flex w-auto items-center gap-3 rounded-lg px-6 py-3 text-white/60 transition duration-300 hover:bg-slate-800/60 hover:text-white/80"
 			>
 				<!-- Rank -->

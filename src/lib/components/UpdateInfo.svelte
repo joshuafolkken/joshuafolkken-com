@@ -1,11 +1,12 @@
 <script lang="ts">
-	import { resolve } from '$app/paths'
-	import { LINK_REL, LINK_TARGET } from '$lib/app'
+	import { LAST_UPDATED, LINK_REL, LINK_TARGET, URLS } from '$lib/app'
+	import ExternalLink from '$lib/components/ExternalLink.svelte'
 	import CalendarIcon from '$lib/icons/CalendarIcon.svelte'
 	import GitHubIcon from '$lib/icons/GitHubIcon.svelte'
 	import ListIcon from '$lib/icons/ListIcon.svelte'
+	import { link_utilities } from '$lib/utils/link-utilities'
 
-	const last_updated = '2025-11-19'
+	const last_updated = LAST_UPDATED.UPDATE_INFO
 
 	interface UpdateNote {
 		text: string
@@ -17,18 +18,6 @@
 		{ text: 'Created sitemap' },
 		{ text: 'Improved SEO' },
 	]
-
-	function get_href(link: string | undefined): string | undefined {
-		if (link === undefined || link === '') {
-			return undefined
-		}
-
-		if (link.startsWith('http')) {
-			return link
-		}
-
-		return resolve(link as '/projects' | '/profile' | '/privacy-policy')
-	}
 </script>
 
 <div class="space-y-4 text-center text-sm text-white/60">
@@ -43,10 +32,10 @@
 		</div>
 		<ul class="space-y-1">
 			{#each update_notes as note (note.text)}
+				{@const href = link_utilities.get_href(note.link)}
 				<li>
-					{#if get_href(note.link)}
-						{@const href = get_href(note.link)}
-						{@const is_external = note.link?.startsWith('http') ?? false}
+					{#if href}
+						{@const is_external = link_utilities.is_external_link(note.link)}
 						<a
 							{href}
 							target={is_external ? LINK_TARGET : undefined}
@@ -62,16 +51,14 @@
 			{/each}
 		</ul>
 		<div class="mt-2 flex items-center justify-center gap-1.5">
-			<a
-				href="https://github.com/joshuafolkken/joshuafolkken-com/pulls?q=is%3Apr+is%3Aclosed"
-				target={LINK_TARGET}
-				rel={LINK_REL}
-				class="link-base flex items-center gap-1.5"
-				aria-label="View all updates on GitHub"
+			<ExternalLink
+				href={URLS.GITHUB_PRS}
+				class="flex items-center gap-1.5"
+				aria_label="View all updates on GitHub"
 			>
 				<GitHubIcon size="1rem" aria_label="" />
 				<span>More</span>
-			</a>
+			</ExternalLink>
 		</div>
 	</div>
 </div>
