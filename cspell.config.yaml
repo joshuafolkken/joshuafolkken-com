@@ -21,6 +21,7 @@ ignorePaths:
   - .pnpm-store/**
   - .wrangler/**
   - .coderabbit.yaml
+  - .fast-check/**
 words:
   - aboutads
   - aikidosec
@@ -77,3 +78,4 @@ words:
   - zstd
   - coderabbit
   - autoincrement
+  - tsgo

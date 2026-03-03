@@ -29,6 +29,9 @@ vite.config.ts.timestamp-*
 # ESLint cache
 .eslintcache
 
+# svelte-fast-check cache
+.fast-check
+
 # Images
 # static/images/**/*.webp
 

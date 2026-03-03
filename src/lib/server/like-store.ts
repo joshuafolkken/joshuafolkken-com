@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/triple-slash-reference -- tsgo needs explicit reference for Cloudflare types */
+/// <reference path="../../../worker-configuration.d.ts" />
 import { logger } from '$lib/logger'
 import { eq, sql } from 'drizzle-orm'
 import { database } from './db'
