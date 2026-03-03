@@ -1,17 +1,12 @@
 import { dev } from '$app/environment'
+import { time_conversion } from '$lib/time-conversion'
 
 const JST_OFFSET_HOURS = 9
-const MINUTES_PER_HOUR = 60
-const SECONDS_PER_MINUTE = 60
-const MILLISECONDS_PER_SECOND = 1000
 const ISO_DATE_WITH_MS_LENGTH = 23
 
 function get_timestamp(): string {
 	const now = new Date()
-	const jst_now = new Date(
-		now.getTime() +
-			JST_OFFSET_HOURS * MINUTES_PER_HOUR * SECONDS_PER_MINUTE * MILLISECONDS_PER_SECOND,
-	)
+	const jst_now = new Date(now.getTime() + time_conversion.hours_to_milliseconds(JST_OFFSET_HOURS))
 	return jst_now.toISOString().replace('T', ' ').slice(0, ISO_DATE_WITH_MS_LENGTH)
 }
 

@@ -29,7 +29,7 @@ async function process_get_likes(
 	platform: App.Platform | undefined,
 ): Promise<Response> {
 	try {
-		const likes = await like_store.get_likes(slug, platform)
+		const likes = await like_store.get(slug, platform)
 		return json_likes(likes)
 	} catch (error) {
 		logger.error(error)
@@ -45,7 +45,7 @@ async function process_like_increment(
 	platform: App.Platform | undefined,
 ): Promise<Response> {
 	try {
-		const likes = await like_store.increment_likes(slug, platform)
+		const likes = await like_store.increment(slug, platform)
 		return json_likes(likes)
 	} catch (error) {
 		logger.error(error)
