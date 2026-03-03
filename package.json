@@ -1,9 +1,9 @@
 {
 	"name": "joshuafolkken-com",
 	"private": true,
-	"version": "0.117.0",
+	"version": "0.118.0",
 	"type": "module",
-	"packageManager": "pnpm@10.30.2+sha512.36cdc707e7b7940a988c9c1ecf88d084f8514b5c3f085f53a2e244c2921d3b2545bc20dd4ebe1fc245feec463bb298aecea7a63ed1f7680b877dc6379d8d0cb4",
+	"packageManager": "pnpm@10.30.3+sha512.c961d1e0a2d8e354ecaa5166b822516668b7f44cb5bd95122d590dd81922f606f5473b6d23ec4a5be05e7fcd18e8488d47d978bbe981872f1145d06e9a740017",
 	"scripts": {
 		"preinstall": "npx only-allow pnpm && pnpm dlx @aikidosec/safe-chain setup-ci",
 		"postinstall": "lefthook install",
@@ -17,7 +17,8 @@
 		"preview:normal": "vite preview",
 		"preview:stop": "pnpm exec kill-port 4173 || true",
 		"prepare": "pnpm run types && svelte-kit sync || echo ''",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check": "svelte-kit sync && svelte-fast-check --incremental",
+		"check:ci": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
 		"lint": "svelte-kit sync && prettier --check . && pnpm run lint:eslint",
@@ -41,6 +42,7 @@
 		"db:migrate": "drizzle-kit migrate",
 		"version:minor": "npm version minor --no-git-tag-version --loglevel=error",
 		"update:latest": "pnpm update --latest --save",
+		"corepack:use-latest": "corepack use pnpm@latest",
 		"cspell:dot": "pnpm cspell . --dot",
 		"db:studio": "export LOCAL_DB_PATH=$(find .wrangler/state/v3/d1 -name '*.sqlite' -type f 2>/dev/null | head -1) && drizzle-kit studio"
 	},
@@ -70,9 +72,9 @@
 		"eslint-plugin-sonarjs": "^4.0.0",
 		"eslint-plugin-svelte": "^3.15.0",
 		"eslint-plugin-unicorn": "^63.0.0",
-		"globals": "^17.3.0",
+		"globals": "^17.4.0",
 		"kill-port": "^2.0.1",
-		"lefthook": "2.1.1",
+		"lefthook": "2.1.2",
 		"mdsvex": "^0.12.6",
 		"playwright": "^1.58.2",
 		"prettier": "^3.8.1",
@@ -80,6 +82,7 @@
 		"prettier-plugin-tailwindcss": "^0.7.2",
 		"svelte": "^5.53.6",
 		"svelte-check": "^4.4.4",
+		"svelte-fast-check": "^0.4.5",
 		"tailwindcss": "^4.2.1",
 		"tsx": "^4.21.0",
 		"typescript": "^5.9.3",
@@ -110,11 +113,8 @@
 			"ajv@<6.14.0": "6.14.0"
 		},
 		"onlyBuiltDependencies": [
-			"esbuild",
-			"lefthook",
-			"sharp",
-			"unrs-resolver",
-			"workerd"
+			"better-sqlite3",
+			"esbuild"
 		]
 	}
 }

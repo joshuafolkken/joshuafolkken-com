@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/triple-slash-reference -- tsgo needs explicit reference for Cloudflare types */
+/// <reference path="../../../worker-configuration.d.ts" />
 import { logger } from '$lib/logger'
 
 interface CacheEntry<T> {
