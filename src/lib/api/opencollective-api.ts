@@ -32,13 +32,16 @@ const CONTRIBUTORS_QUERY = `
   }
 `
 
+function is_valid_contributor(
+	node: GraphqlContributor,
+): node is GraphqlContributor & { account: NonNullable<GraphqlContributor['account']> } {
+	return node.isBacker && node.totalAmountContributed.value > 0 && node.account !== null
+}
+
 function map_contributors_to_supporters(
 	nodes: Array<GraphqlContributor>,
 ): Array<OpenCollectiveMember> {
-	const filtered = nodes.filter(
-		(node): node is GraphqlContributor & { account: NonNullable<GraphqlContributor['account']> } =>
-			node.isBacker && node.totalAmountContributed.value > 0 && node.account !== null,
-	)
+	const filtered = nodes.filter((node) => is_valid_contributor(node))
 
 	return filtered
 		.map((node) => {

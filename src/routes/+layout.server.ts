@@ -1,14 +1,13 @@
 import { opencollective_api } from '$lib/api/opencollective-api'
 import { logger } from '$lib/logger'
+import { cache_keys } from '$lib/server/cache-keys'
 import { kv_cache } from '$lib/server/kv-cache'
 import type { LayoutServerLoad } from './$types'
-
-const CACHE_KEY = 'supporters'
 
 export const load: LayoutServerLoad = async ({ fetch, platform }) => {
 	try {
 		const supporters = await kv_cache.get(
-			CACHE_KEY,
+			cache_keys.SUPPORTERS,
 			async () => await opencollective_api.fetch_supporters(fetch),
 			platform,
 		)
