@@ -1,77 +1,81 @@
 /* eslint-disable @typescript-eslint/triple-slash-reference -- tsgo needs explicit reference for Cloudflare types */
 /// <reference path="../../../worker-configuration.d.ts" />
 import { logger } from '$lib/logger'
+import { time_conversion } from '$lib/time-conversion'
+import { cache_log_utilities } from './cache-log-utilities'
+import { platform_binding } from './platform-binding'
 
 interface CacheEntry<T> {
 	value: T
 	expires: number
 }
 
-const MILLISECONDS_PER_SECOND = 1000
-const SECONDS_PER_MINUTE = 60
+const CACHE_CONFIG = {
+	memory: { minutes: 1 },
+	kv: { minutes: 30 },
+} as const
 
-const MEMORY_TTL_MINUTES = 1
-const KV_SUPPORTERS_TTL_MINUTES = 30
-// const KV_LIKE_TTL_MINUTES = 5
+const LOG_PREFIX = '[kv-cache]'
+
+type CacheSource = 'memory' | 'kv' | 'remote'
+type CacheEvent = 'HIT' | 'MISS' | 'FETCH' | 'SAVE' | 'DELETE'
+
+const SOURCE_LABEL: Record<CacheSource, string> = {
+	memory: 'Memory',
+	kv: 'KV',
+	remote: 'Remote',
+}
+
+const MEMORY_TTL_MS = time_conversion.minutes_to_ms(CACHE_CONFIG.memory.minutes)
+const KV_TTL_MS = time_conversion.minutes_to_ms(CACHE_CONFIG.kv.minutes)
+const KV_TTL_SECONDS = time_conversion.minutes_to_sec(CACHE_CONFIG.kv.minutes)
 
 const memory_cache = new Map<string, CacheEntry<unknown>>()
 
-const MEMORY_TTL_MS = MILLISECONDS_PER_SECOND * SECONDS_PER_MINUTE * MEMORY_TTL_MINUTES
-const KV_SUPPORTERS_TTL_MS =
-	MILLISECONDS_PER_SECOND * SECONDS_PER_MINUTE * KV_SUPPORTERS_TTL_MINUTES
-const MAX_LOG_VALUE_LENGTH = 80
-const ERROR_KV_CACHE_NOT_AVAILABLE = 'KV cache not available'
-
-function value_to_string(value: unknown): string {
-	if (value === null || value === undefined) {
-		return String(value)
-	}
-
-	if (typeof value === 'object') {
-		return JSON.stringify(value)
-	}
-
-	// At this point, value is a primitive type (string, number, boolean, symbol, bigint)
-	const primitive_value = value as string | number | boolean | symbol | bigint
-	return String(primitive_value)
+interface LogParts {
+	source: string
+	duration: string
+	value: string
 }
 
-function format_value_for_log(value: unknown): string {
-	try {
-		const string_value = value_to_string(value)
-		const without_newlines = string_value.replaceAll('\n', ' ')
-		return without_newlines.length > MAX_LOG_VALUE_LENGTH
-			? without_newlines.slice(0, MAX_LOG_VALUE_LENGTH)
-			: without_newlines
-	} catch {
-		return String(value)
+function get_log_parts(options: {
+	source?: CacheSource
+	value?: unknown
+	started_at?: number
+}): LogParts {
+	const { source, value, started_at } = options
+
+	return {
+		source: source === undefined ? '' : ` [${SOURCE_LABEL[source]}]`,
+		duration:
+			started_at === undefined ? '' : ` ${cache_log_utilities.format_elapsed_ms(started_at)}`,
+		value: value === undefined ? '' : ` ${cache_log_utilities.format_value_for_log(value)}`,
 	}
 }
 
-function get_duration(start_time: number): string {
-	const duration = Date.now() - start_time
-	return `${String(duration)}ms`
-}
-
-function log_cache_hit(
-	source: 'memory' | 'kv',
+function log_cache_event(
+	event: CacheEvent,
 	key: string,
-	value: unknown,
-	start_time: number,
+	options: {
+		source?: CacheSource
+		value?: unknown
+		started_at?: number
+	} = {},
 ): void {
-	const formatted_value = format_value_for_log(value)
-	const duration = get_duration(start_time)
+	const parts = get_log_parts(options)
 
-	logger.debug(
-		`[kv-cache] ${source === 'memory' ? 'Memory' : 'KV'} ${duration} ${key} ${formatted_value}`,
-	)
+	logger.debug(`${LOG_PREFIX} ${event}${parts.source}${parts.duration} ${key}${parts.value}`)
+}
+
+function set_to_memory(key: string, value: unknown, now: number): void {
+	memory_cache.set(key, { value, expires: now + MEMORY_TTL_MS })
 }
 
 function get_from_memory(key: string, now: number): unknown {
 	const memory_entry = memory_cache.get(key)
 
 	if (memory_entry !== undefined && memory_entry.expires > now) {
-		log_cache_hit('memory', key, memory_entry.value, now)
+		log_cache_event('HIT', key, { source: 'memory', value: memory_entry.value, started_at: now })
 		return memory_entry.value
 	}
 
@@ -82,29 +86,29 @@ function is_kv_entry_expired(expires: unknown, now: number): boolean {
 	return typeof expires !== 'number' || Number.isNaN(expires) || expires <= now
 }
 
-// eslint-disable-next-line max-statements
-async function get_from_kv(key: string, kv: KVNamespace, now: number): Promise<unknown> {
-	const kv_entry_string = await kv.get(key)
-
-	if (kv_entry_string === null) {
-		return undefined
-	}
-
+function parse_and_validate_kv_entry(
+	kv_entry_string: string,
+	now: number,
+): CacheEntry<unknown> | undefined {
 	try {
 		const kv_entry = JSON.parse(kv_entry_string) as CacheEntry<unknown>
-
-		if (is_kv_entry_expired(kv_entry.expires, now)) {
-			return undefined
-		}
-
-		const entry = { value: kv_entry.value, expires: now + MEMORY_TTL_MS }
-		memory_cache.set(key, entry)
-		log_cache_hit('kv', key, kv_entry.value, now)
-		return kv_entry.value
+		if (is_kv_entry_expired(kv_entry.expires, now)) return undefined
+		return kv_entry
 	} catch {
-		// Invalid JSON, ignore
 		return undefined
 	}
+}
+
+async function get_from_kv(key: string, kv: KVNamespace, now: number): Promise<unknown> {
+	const kv_entry_string = await kv.get(key)
+	if (kv_entry_string === null) return undefined
+
+	const kv_entry = parse_and_validate_kv_entry(kv_entry_string, now)
+	if (kv_entry === undefined) return undefined
+
+	set_to_memory(key, kv_entry.value, now)
+	log_cache_event('HIT', key, { source: 'kv', value: kv_entry.value, started_at: now })
+	return kv_entry.value
 }
 
 async function save_to_cache(
@@ -113,20 +117,18 @@ async function save_to_cache(
 	now: number,
 	kv: KVNamespace,
 ): Promise<void> {
-	memory_cache.set(key, { value, expires: now + MEMORY_TTL_MS })
-	const cache_entry = { value, expires: now + KV_SUPPORTERS_TTL_MS }
-
-	const expiration_ttl_seconds = Math.floor(KV_SUPPORTERS_TTL_MS / MILLISECONDS_PER_SECOND)
+	set_to_memory(key, value, now)
+	const cache_entry = { value, expires: now + KV_TTL_MS }
 
 	try {
 		await kv.put(key, JSON.stringify(cache_entry), {
 			/* eslint-disable-next-line @typescript-eslint/naming-convention -- Cloudflare KV API contract */
-			expirationTtl: expiration_ttl_seconds,
+			expirationTtl: KV_TTL_SECONDS,
 		})
-		logger.debug(`[kv-cache] saved to KV: ${key}`)
+		log_cache_event('SAVE', key, { source: 'kv' })
 	} catch (error) {
-		const duration = get_duration(now)
-		logger.error(`[kv-cache] Failed to save to KV ${duration} ${key}:`, error)
+		const duration = cache_log_utilities.format_elapsed_ms(now)
+		logger.error(`${LOG_PREFIX} Failed to save to KV ${duration} ${key}:`, error)
 		throw error
 	}
 }
@@ -137,31 +139,11 @@ async function fetch_and_save<T>(
 	now: number,
 	kv: KVNamespace,
 ): Promise<T> {
-	logger.debug(`[kv-cache] Cache miss ${key}`)
+	log_cache_event('MISS', key)
 	const fresh = await fetcher()
-	const formatted_fresh = format_value_for_log(fresh)
-	const duration = get_duration(now)
-	logger.debug(`[kv-cache] Fetched ${duration} ${key}: ${formatted_fresh}`)
+	log_cache_event('FETCH', key, { source: 'remote', value: fresh, started_at: now })
 	await save_to_cache(key, fresh, now, kv)
 	return fresh
-}
-
-function get_kv_from_platform(platform: App.Platform | undefined): KVNamespace | undefined {
-	if (platform?.env === undefined || platform.env === null) {
-		return undefined
-	}
-
-	// eslint-disable-next-line @typescript-eslint/naming-convention
-	const cache = (platform.env as { CACHE?: KVNamespace }).CACHE
-	return cache ?? undefined
-}
-
-function ensure_kv(kv: KVNamespace | undefined): KVNamespace {
-	if (kv === undefined) {
-		throw new Error(ERROR_KV_CACHE_NOT_AVAILABLE)
-	}
-
-	return kv
 }
 
 async function get<T>(
@@ -169,7 +151,7 @@ async function get<T>(
 	fetcher: () => Promise<T>,
 	platform: App.Platform | undefined,
 ): Promise<T> {
-	const kv = ensure_kv(get_kv_from_platform(platform))
+	const kv = platform_binding.get_kv(platform)
 	const now = Date.now()
 	const memory_value = get_from_memory(key, now)
 
@@ -187,17 +169,17 @@ async function get<T>(
 }
 
 async function delete_cache(key: string, platform: App.Platform | undefined): Promise<void> {
-	const kv = ensure_kv(get_kv_from_platform(platform))
+	const kv = platform_binding.get_kv(platform)
 
 	memory_cache.delete(key)
 
 	try {
 		await kv.delete(key)
-		logger.debug(`[kv-cache] Successfully deleted ${key}`)
+		log_cache_event('DELETE', key, { source: 'kv' })
 	} catch (error) {
-		logger.error(`[kv-cache] Failed to delete ${key}:`, error)
+		logger.error(`${LOG_PREFIX} Failed to delete ${key}:`, error)
 		throw error
 	}
 }
 
-export const kv_cache = { get_kv_from_platform, get, delete: delete_cache }
+export const kv_cache = { get, delete: delete_cache }

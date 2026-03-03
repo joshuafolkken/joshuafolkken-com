@@ -1,15 +1,17 @@
+// Reserved for future use when KV is unavailable (e.g. local dev)
+// Currently unused - switch to this when platform.env.CACHE is undefined
+// リファクタリング対象外
 import { logger } from '$lib/logger'
-
-const SECONDS_PER_MINUTE = 60
-const MILLISECONDS_PER_SECOND = 1000
+import { time_conversion } from '$lib/time-conversion'
+import { cache_keys } from './cache-keys'
 
 const DEFAULT_TTL_MINUTES = 10
 const LIKE_TTL_MINUTES = 10
 const SUPPORTERS_TTL_MINUTES = 60
 
-const DEFAULT_TTL_MS = DEFAULT_TTL_MINUTES * SECONDS_PER_MINUTE * MILLISECONDS_PER_SECOND
-const LIKE_TTL_MS = LIKE_TTL_MINUTES * SECONDS_PER_MINUTE * MILLISECONDS_PER_SECOND
-const SUPPORTERS_TTL_MS = SUPPORTERS_TTL_MINUTES * SECONDS_PER_MINUTE * MILLISECONDS_PER_SECOND
+const DEFAULT_TTL_MS = time_conversion.minutes_to_ms(DEFAULT_TTL_MINUTES)
+const LIKE_TTL_MS = time_conversion.minutes_to_ms(LIKE_TTL_MINUTES)
+const SUPPORTERS_TTL_MS = time_conversion.minutes_to_ms(SUPPORTERS_TTL_MINUTES)
 
 const DEFAULT_MAX_SIZE = 100
 
@@ -20,8 +22,8 @@ interface TtlConfig {
 }
 
 const TTL_CONFIGS: Array<TtlConfig> = [
-	{ prefix: 'like:', ttl_ms: LIKE_TTL_MS },
-	{ exact: 'supporters', ttl_ms: SUPPORTERS_TTL_MS },
+	{ prefix: cache_keys.LIKE, ttl_ms: LIKE_TTL_MS },
+	{ exact: cache_keys.SUPPORTERS, ttl_ms: SUPPORTERS_TTL_MS },
 ]
 
 interface CacheEntry<T> {

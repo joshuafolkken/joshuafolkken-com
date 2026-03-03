@@ -1,30 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/state'
+	import { opencollective_utilities } from '$lib/opencollective-utilities'
 	import type { OpenCollectiveMember } from '$lib/types/opencollective'
 	import { PAGES } from '$lib/types/page'
 
 	const { supporters = [] }: { supporters?: Array<OpenCollectiveMember> } = page.data
-
-	// const supporters = $derived.by(() => {
-	// 	if (raw_supporters.length === 0) return []
-	// 	// ダミーで20件に増幅
-	// 	const [base] = raw_supporters
-	// 	if (base === undefined) return []
-
-	// 	const DUMMY_ID_OFFSET = 10_000
-
-	// 	return Array.from({ length: 5 }).map((_, index) => ({
-	// 		...base,
-	// 		MemberId: base.MemberId + DUMMY_ID_OFFSET + index, // ID重複回避
-	// 		// name: `${base.name} #${i + 1}`,
-	// 	}))
-	// })
-
-	function get_avatar_url(supporter: OpenCollectiveMember): string {
-		if (supporter.image !== null) return supporter.image
-		const slug = supporter.profile.split('/').pop() ?? 'guest'
-		return `https://images.opencollective.com/${slug}/avatar.png`
-	}
 </script>
 
 {#if supporters.length > 0}
@@ -42,7 +22,7 @@
 				<!-- Avatar -->
 				<div class="shrink-0 opacity-80 transition-opacity group-hover:opacity-100">
 					<img
-						src={get_avatar_url(supporter)}
+						src={opencollective_utilities.get_avatar_url(supporter)}
 						alt={supporter.name}
 						class="h-10 w-10 rounded-full border border-gray-200 bg-gray-50 object-cover"
 						loading="lazy"
