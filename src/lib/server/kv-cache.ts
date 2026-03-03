@@ -76,6 +76,10 @@ function get_from_memory(key: string, now: number): unknown {
 	return undefined
 }
 
+function is_kv_entry_expired(expires: unknown, now: number): boolean {
+	return typeof expires !== 'number' || Number.isNaN(expires) || expires <= now
+}
+
 // eslint-disable-next-line max-statements
 async function get_from_kv(key: string, kv: KVNamespace, now: number): Promise<unknown> {
 	const kv_entry_string = await kv.get(key)
@@ -87,7 +91,7 @@ async function get_from_kv(key: string, kv: KVNamespace, now: number): Promise<u
 	try {
 		const kv_entry = JSON.parse(kv_entry_string) as CacheEntry<unknown>
 
-		if (kv_entry.expires <= now) {
+		if (is_kv_entry_expired(kv_entry.expires, now)) {
 			return undefined
 		}
 
@@ -110,8 +114,13 @@ async function save_to_cache(
 	memory_cache.set(key, { value, expires: now + MEMORY_TTL_MS })
 	const cache_entry = { value, expires: now + KV_SUPPORTERS_TTL_MS }
 
+	const expiration_ttl_seconds = Math.floor(KV_SUPPORTERS_TTL_MS / MILLISECONDS_PER_SECOND)
+
 	try {
-		await kv.put(key, JSON.stringify(cache_entry))
+		await kv.put(key, JSON.stringify(cache_entry), {
+			/* eslint-disable-next-line @typescript-eslint/naming-convention -- Cloudflare KV API contract */
+			expirationTtl: expiration_ttl_seconds,
+		})
 		logger.debug(`[kv-cache] saved to KV: ${key}`)
 	} catch (error) {
 		const duration = get_duration(now)
