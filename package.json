@@ -1,7 +1,7 @@
 {
 	"name": "joshuafolkken-com",
 	"private": true,
-	"version": "0.118.0",
+	"version": "0.119.0",
 	"type": "module",
 	"packageManager": "pnpm@10.30.3+sha512.c961d1e0a2d8e354ecaa5166b822516668b7f44cb5bd95122d590dd81922f606f5473b6d23ec4a5be05e7fcd18e8488d47d978bbe981872f1145d06e9a740017",
 	"scripts": {
@@ -42,7 +42,7 @@
 		"db:migrate": "drizzle-kit migrate",
 		"version:minor": "npm version minor --no-git-tag-version --loglevel=error",
 		"update:latest": "pnpm update --latest --save",
-		"corepack:use-latest": "corepack use pnpm@latest",
+		"update:corepack": "corepack use pnpm@latest",
 		"cspell:dot": "pnpm cspell . --dot",
 		"db:studio": "export LOCAL_DB_PATH=$(find .wrangler/state/v3/d1 -name '*.sqlite' -type f 2>/dev/null | head -1) && drizzle-kit studio"
 	},
