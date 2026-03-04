@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { APP, AUTHOR } from '$lib/app'
 	import LogoIcon from '$lib/icons/LogoIcon.svelte'
+	import { PAGES } from '$lib/types/page'
+	import { link_utilities } from '$lib/utils/link-utilities'
 </script>
 
 <!-- Hero: full width, extends under sticky header -->
@@ -41,7 +43,7 @@
 				Explore Work
 			</a>
 			<a
-				href="/profile"
+				href={link_utilities.get_href(PAGES.PROFILE.link) ?? '#'}
 				class="rounded-full border border-white/10 bg-white/5 px-8 py-3 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/10"
 			>
 				About Me

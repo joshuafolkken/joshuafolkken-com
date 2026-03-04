@@ -1,49 +1,6 @@
 <script lang="ts">
-	import { AUTHOR, LINK_REL, LINK_TARGET, URLS } from '$lib/app'
-	import GitHubIcon from '$lib/icons/GitHubIcon.svelte'
-	import MailIcon from '$lib/icons/MailIcon.svelte'
-	import XIcon from '$lib/icons/XIcon.svelte'
-	import YouTubeIcon from '$lib/icons/YouTubeIcon.svelte'
-	import type { Component } from 'svelte'
-
-	interface SocialLink {
-		href: string
-		label: string
-		aria_label: string
-		icon: Component
-		is_external?: boolean
-	}
-
-	const social_links: Array<SocialLink> = [
-		{
-			href: URLS.GITHUB,
-			label: 'Code',
-			aria_label: 'GitHub - Code & Projects',
-			icon: GitHubIcon,
-			is_external: true,
-		},
-		{
-			href: URLS.X,
-			label: 'Updates',
-			aria_label: 'X - Latest Updates',
-			icon: XIcon,
-			is_external: true,
-		},
-		{
-			href: URLS.YOUTUBE,
-			label: 'Videos',
-			aria_label: 'YouTube - Video Content',
-			icon: YouTubeIcon,
-			is_external: true,
-		},
-		{
-			href: `mailto:${AUTHOR.EMAIL}`,
-			label: 'Contact',
-			aria_label: 'Mail - Contact',
-			icon: MailIcon,
-			is_external: false,
-		},
-	]
+	import SocialLinkItem from '$lib/components/SocialLinkItem.svelte'
+	import { SOCIAL_LINKS_WITH_LABELS } from '$lib/data/social-links'
 
 	interface Props {
 		class?: string
@@ -67,19 +24,8 @@
 	style:--justify-content={justify_content}
 	{...rest_properties}
 >
-	{#each social_links as link (link.href)}
-		<!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
-		{@const Icon = link.icon}
-		<a
-			href={link.href}
-			aria-label={link.aria_label}
-			target={link.is_external ? LINK_TARGET : undefined}
-			rel={link.is_external ? LINK_REL : undefined}
-			class="social-link-item"
-		>
-			<Icon />
-			<span class="social-link-label">{link.label}</span>
-		</a>
+	{#each SOCIAL_LINKS_WITH_LABELS as link (link.href)}
+		<SocialLinkItem {link} class="social-link-item" has_label />
 	{/each}
 </nav>
 

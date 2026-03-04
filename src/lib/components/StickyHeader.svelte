@@ -1,53 +1,24 @@
 <script lang="ts">
 	import { resolve } from '$app/paths'
 	import { page } from '$app/state'
-	import { AUTHOR, LINK_REL, LINK_TARGET, URLS } from '$lib/app'
-	import GitHubIcon from '$lib/icons/GitHubIcon.svelte'
+	import { AUTHOR } from '$lib/app'
+	import HeaderSocialLinks from '$lib/components/HeaderSocialLinks.svelte'
+	import MenuNavItem from '$lib/components/MenuNavItem.svelte'
+	import { sticky_header_state } from '$lib/hooks/StickyHeaderState.svelte'
 	import LogoIcon from '$lib/icons/LogoIcon.svelte'
-	import XIcon from '$lib/icons/XIcon.svelte'
-	import YouTubeIcon from '$lib/icons/YouTubeIcon.svelte'
 	import { PAGES } from '$lib/types/page'
 	import { link_utilities } from '$lib/utils/link-utilities'
 	import { page_title } from '$lib/utils/page-title'
-	import type { Component } from 'svelte'
+
+	const is_menu_open = $derived(sticky_header_state.get_is_menu_open())
 
 	const current_page = $derived(page_title.get_page_from_path(page.url.pathname))
 	const current_title = $derived(current_page.title)
 	const is_top_page = $derived(page.url.pathname === '/')
 
 	const MENU_WIDTH = 280
-	const MENU_CLOSE_DELAY_MS = 400
 	const HEADER_ICON_SIZE = 24
 	const HEADER_HEIGHT = '4rem'
-	const TRANSITION_DURATION = 'duration-300'
-
-	interface SocialLink {
-		href: string
-		aria_label: string
-		icon: Component
-		is_external?: boolean
-	}
-
-	const social_links: Array<SocialLink> = [
-		{
-			href: URLS.GITHUB,
-			aria_label: 'GitHub',
-			icon: GitHubIcon,
-			is_external: true,
-		},
-		{
-			href: URLS.X,
-			aria_label: 'X',
-			icon: XIcon,
-			is_external: true,
-		},
-		{
-			href: URLS.YOUTUBE,
-			aria_label: 'YouTube',
-			icon: YouTubeIcon,
-			is_external: true,
-		},
-	]
 
 	const menu_items = [
 		{ page: PAGES.PROJECTS },
@@ -62,71 +33,6 @@
 		const { pathname } = page.url
 
 		return pathname === link || (link !== '/' && pathname.startsWith(`${link}/`))
-	}
-
-	let is_menu_open = $state(false)
-	let close_timer: ReturnType<typeof setTimeout> | undefined = $state()
-	let is_hovering_button = $state(false)
-	let is_hovering_menu = $state(false)
-
-	function clear_close_timer(): void {
-		if (close_timer !== undefined) {
-			clearTimeout(close_timer)
-			close_timer = undefined
-		}
-	}
-
-	function open_menu(): void {
-		clear_close_timer()
-		is_menu_open = true
-	}
-
-	function close_menu(): void {
-		is_menu_open = false
-	}
-
-	function schedule_close(): void {
-		clear_close_timer()
-		close_timer = setTimeout(() => {
-			close_menu()
-			close_timer = undefined
-		}, MENU_CLOSE_DELAY_MS)
-	}
-
-	function handle_button_enter(): void {
-		is_hovering_button = true
-
-		open_menu()
-	}
-
-	function handle_button_leave(): void {
-		is_hovering_button = false
-
-		if (!is_hovering_menu) {
-			schedule_close()
-		}
-	}
-
-	function handle_menu_enter(): void {
-		is_hovering_menu = true
-
-		clear_close_timer()
-	}
-
-	function handle_menu_leave(): void {
-		is_hovering_menu = false
-
-		if (!is_hovering_button) {
-			schedule_close()
-		}
-	}
-
-	function handle_toggle_click(): void {
-		if (is_menu_open) {
-			close_menu()
-		} else {
-			open_menu()
-		}
 	}
 </script>
 
@@ -186,54 +92,25 @@
 
 		<nav class="hidden items-center gap-2 md:flex" aria-label="ページナビゲーション">
 			{#each menu_items as { page: menu_page } (menu_page.link ?? menu_page.title)}
-				{@const href = link_utilities.get_href(menu_page.link)}
-				{@const is_active = is_menu_item_active(menu_page.link)}
-				{#if href && !link_utilities.is_external_link(menu_page.link)}
-					<a
-						{href}
-						class="group relative flex items-center gap-2 px-3 py-2 text-base font-medium transition-colors {is_active
-							? 'text-sky-400'
-							: 'text-white/60 hover:text-white'}"
-					>
-						{#if menu_page.icon}
-							<!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
-							{@const Icon = menu_page.icon}
-							<Icon size="1.25rem" class="transition-transform group-hover:-translate-y-0.5" />
-						{/if}
-						{menu_page.title}
-						{#if is_active}
-							<span class="absolute right-1.5 bottom-1 left-1.5 h-px bg-sky-400/50"></span>
-						{/if}
-					</a>
-				{/if}
+				<MenuNavItem
+					page={menu_page}
+					is_active={is_menu_item_active(menu_page.link)}
+					variant="desktop"
+				/>
 			{/each}
 		</nav>
 	</div>
 
 	<div class="flex shrink-0 items-center gap-2">
-		<nav class="hidden items-center gap-2 md:flex" aria-label="ソーシャルリンク">
-			{#each social_links as link (link.href)}
-				<!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
-				{@const Icon = link.icon}
-				<a
-					href={link.href}
-					aria-label={link.aria_label}
-					target={link.is_external ? LINK_TARGET : undefined}
-					rel={link.is_external ? LINK_REL : undefined}
-					class="flex h-9 w-9 items-center justify-center rounded-xl bg-white/0 text-white/50 transition-all hover:scale-110 hover:bg-white/5 hover:text-white active:scale-95"
-				>
-					<Icon size="1.25rem" />
-				</a>
-			{/each}
-		</nav>
+		<HeaderSocialLinks variant="desktop" />
 		<button
 			type="button"
 			aria-label={is_menu_open ? 'メニューを閉じる' : 'メニューを開く'}
 			aria-expanded={is_menu_open}
 			class="flex h-9 w-9 items-center justify-center rounded-xl bg-white/0 text-white/50 transition-all hover:bg-white/5 hover:text-white md:hidden"
-			onclick={handle_toggle_click}
-			onmouseenter={handle_button_enter}
-			onmouseleave={handle_button_leave}
+			onclick={sticky_header_state.handle_toggle_click}
+			onmouseenter={sticky_header_state.handle_button_enter}
+			onmouseleave={sticky_header_state.handle_button_leave}
 		>
 			{#if is_menu_open}
 				<svg
@@ -273,7 +150,7 @@
 	class:opacity-0={!is_menu_open}
 	aria-hidden="true"
 	role="presentation"
-	onclick={close_menu}
+	onclick={sticky_header_state.close_menu}
 ></div>
 
 <aside
@@ -282,46 +159,19 @@
 	class:translate-x-0={is_menu_open}
 	class:translate-x-full={!is_menu_open}
 	aria-label="ナビゲーションメニュー"
-	onmouseenter={handle_menu_enter}
-	onmouseleave={handle_menu_leave}
+	onmouseenter={sticky_header_state.handle_menu_enter}
+	onmouseleave={sticky_header_state.handle_menu_leave}
 >
 	<nav class="flex flex-col gap-0 p-4 pt-0" aria-label="ページリンク">
 		{#each menu_items as { page: menu_page } (menu_page.link ?? menu_page.title)}
-			{@const href = link_utilities.get_href(menu_page.link)}
-			{@const is_active = is_menu_item_active(menu_page.link)}
-			{#if href && !link_utilities.is_external_link(menu_page.link)}
-				<a
-					{href}
-					class="group -mx-4 flex items-center gap-3 rounded-none border-l-2 px-4 py-3 text-base transition-colors {TRANSITION_DURATION} hover:bg-white/10 {is_active
-						? 'border-sky-400 text-sky-400 hover:text-sky-400 [&_svg]:text-sky-400 hover:[&_svg]:text-sky-400'
-						: 'border-transparent text-white/70 hover:text-white [&_svg]:text-inherit'}"
-					onclick={close_menu}
-				>
-					{#if menu_page.icon}
-						<!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
-						{@const Icon = menu_page.icon}
-						<Icon size="1.25rem" class="transition-transform group-hover:translate-x-1" />
-					{/if}
-					<span>{menu_page.title}</span>
-				</a>
-			{/if}
+			<MenuNavItem
+				page={menu_page}
+				is_active={is_menu_item_active(menu_page.link)}
+				variant="mobile"
+				on_click={sticky_header_state.close_menu}
+			/>
 		{/each}
 	</nav>
 
-	<div class="mt-4 flex gap-2 p-4 pt-0 md:hidden" aria-label="ソーシャルリンク（モバイル）">
-		{#each social_links as link (link.href)}
-			<!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
-			{@const Icon = link.icon}
-			<a
-				href={link.href}
-				aria-label={link.aria_label}
-				target={link.is_external ? LINK_TARGET : undefined}
-				rel={link.is_external ? LINK_REL : undefined}
-				class="flex h-10 w-10 items-center justify-center rounded-full text-white/70 transition-colors {TRANSITION_DURATION} hover:bg-white/10 hover:text-white"
-				onclick={close_menu}
-			>
-				<Icon size="1.25rem" />
-			</a>
-		{/each}
-	</div>
+	<HeaderSocialLinks variant="mobile" on_click={sticky_header_state.close_menu} />
 </aside>

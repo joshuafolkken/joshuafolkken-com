@@ -2,36 +2,15 @@
 	import { LINK_REL, LINK_TARGET } from '$lib/app'
 	import HeroSection from '$lib/components/HeroSection.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
+	import RevealSection from '$lib/components/RevealSection.svelte'
 	import { PROJECTS } from '$lib/data/projects'
 	import { PAGES } from '$lib/types/page'
-	import { onMount } from 'svelte'
+	import { link_utilities } from '$lib/utils/link-utilities'
+	import { project_utilities } from '$lib/utils/project-utilities'
 
 	const FEATURED_COUNT = 4
+	const QUICK_NAV_PAGES = [PAGES.PROJECTS, PAGES.BLOG, PAGES.PROFILE] as const
 	const featured_projects = $derived(PROJECTS.filter((proj) => proj.image).slice(0, FEATURED_COUNT))
-
-	// --- Scroll Reveal ---
-	onMount(() => {
-		const reveal_observer = new IntersectionObserver(
-			(entries) => {
-				for (const entry of entries) {
-					if (entry.isIntersecting) {
-						entry.target.classList.add('revealed')
-					}
-				}
-			},
-			{ threshold: 0.1 },
-		)
-
-		const elements = document.querySelectorAll('.reveal-on-scroll')
-
-		for (const element of elements) {
-			reveal_observer.observe(element)
-		}
-
-		return () => {
-			reveal_observer.disconnect()
-		}
-	})
 </script>
 
 <HeroSection />
@@ -40,14 +19,14 @@
 	<div id="main-content" class="scroll-mt-20"></div>
 
 	<!-- Featured Projects -->
-	<section class="reveal-on-scroll py-20 transition-all duration-1000">
+	<RevealSection>
 		<div class="mb-12 flex items-end justify-between">
 			<div>
 				<h2 class="text-3xl font-bold tracking-tight text-white">Featured Projects</h2>
 				<p class="mt-2 text-white/50">A selection of my recent work and experiments.</p>
 			</div>
 			<a
-				href="/projects"
+				href={link_utilities.get_href(PAGES.PROJECTS.link)}
 				class="group text-sm font-medium text-sky-400 decoration-sky-400/30 transition hover:text-sky-300 hover:underline"
 			>
 				View Gallery <span class="inline-block transition-transform group-hover:translate-x-1"
@@ -59,9 +38,7 @@
 		<div class="grid gap-8 sm:grid-cols-2">
 			{#each featured_projects as project (project.title)}
 				<a
-					href={project.links.find((link) => link.type === 'demo')?.href ??
-						project.links[0]?.href ??
-						'#'}
+					href={project_utilities.get_primary_href(project)}
 					target={LINK_TARGET}
 					rel={LINK_REL}
 					class="group relative flex flex-col overflow-hidden rounded-2xl border border-white/5 bg-slate-900/50 transition-all duration-300 hover:-translate-y-1 hover:border-white/10 hover:bg-slate-800/80"
@@ -89,15 +66,15 @@
 				</a>
 			{/each}
 		</div>
-	</section>
+	</RevealSection>
 
 	<!-- Quick Navigation -->
-	<section class="reveal-on-scroll py-20 transition-all duration-1000">
+	<RevealSection>
 		<h2 class="mb-12 text-center text-3xl font-bold tracking-tight text-white">Discover</h2>
 		<div class="grid gap-6 sm:grid-cols-3">
-			{#each [PAGES.PROJECTS, PAGES.BLOG, PAGES.PROFILE] as p (p.title)}
+			{#each QUICK_NAV_PAGES as p (p.title)}
 				<a
-					href={p.link ?? '#'}
+					href={link_utilities.get_href(p.link) ?? '#'}
 					class="group flex flex-col items-center justify-center rounded-2xl border border-white/5 bg-slate-950/40 p-10 text-center transition-all hover:bg-white/5"
 				>
 					{#if p.icon}
@@ -114,19 +91,5 @@
 				</a>
 			{/each}
 		</div>
-	</section>
+	</RevealSection>
 </PageLayout>
-
-<style>
-	:global(.reveal-on-scroll) {
-		opacity: 0;
-		transform: translateY(30px);
-		filter: blur(10px);
-	}
-
-	:global(.reveal-on-scroll.revealed) {
-		opacity: 1;
-		transform: translateY(0);
-		filter: blur(0);
-	}
-</style>

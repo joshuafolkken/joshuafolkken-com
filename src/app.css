@@ -81,3 +81,19 @@ code {
 	max-width: 100%;
 	box-sizing: border-box;
 }
+
+.reveal-on-scroll {
+	opacity: 0;
+	transform: translateY(30px);
+	filter: blur(10px);
+	transition:
+		opacity 1000ms,
+		transform 1000ms,
+		filter 1000ms;
+}
+
+.reveal-on-scroll.revealed {
+	opacity: 1;
+	transform: translateY(0);
+	filter: blur(0);
+}
