@@ -14,7 +14,7 @@ const AUTHOR = {
 	get COPYRIGHT(): string {
 		return `© ${String(this.YEAR)} ${this.NAME}`
 	},
-}
+} as const
 
 const URLS = {
 	TALK: 'https://talk.joshuafolkken.com',

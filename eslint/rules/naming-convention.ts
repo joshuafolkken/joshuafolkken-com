@@ -8,7 +8,20 @@ export const naming_convention_rules = {
 			leadingUnderscore: 'allow',
 			trailingUnderscore: 'forbid',
 		},
-		// 定数（const）は UPPER_CASE または snake_case
+		// エクスポートされる名前空間オブジェクトや関数定数はデフォルトで snake_case
+		{
+			selector: 'variable',
+			modifiers: ['const', 'exported'],
+			format: ['snake_case', 'UPPER_CASE'],
+		},
+		// エクスポートされる定数（プリミティブ値）は UPPER_CASE
+		{
+			selector: 'variable',
+			modifiers: ['const', 'exported'],
+			types: ['boolean', 'string', 'number', 'array'],
+			format: ['UPPER_CASE'],
+		},
+		// ローカルの定数（const）は UPPER_CASE または snake_case を許容
 		{
 			selector: 'variable',
 			modifiers: ['const'],
