@@ -11,7 +11,7 @@ function minutes_to_ms(minutes: number): number {
 }
 
 function hours_to_milliseconds(hours: number): number {
-	return hours * MINUTES_PER_HOUR * SECONDS_PER_MINUTE * MILLISECONDS_PER_SECOND
+	return minutes_to_ms(hours * MINUTES_PER_HOUR)
 }
 
 const time_conversion = {

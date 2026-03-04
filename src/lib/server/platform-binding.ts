@@ -9,9 +9,7 @@ function get_platform_binding<K>(
 	const environment = platform?.env as Record<string, K> | undefined
 	const binding = environment?.[key]
 
-	if (binding === undefined) {
-		throw new Error(error_message)
-	}
+	if (!binding) throw new Error(error_message)
 
 	return binding
 }

@@ -41,11 +41,11 @@ class InMemoryCache {
 	}
 
 	private matches_config(key: string, config: TtlConfig): boolean {
-		if (config.exact !== undefined && key === config.exact) {
+		if (config.exact && key === config.exact) {
 			return true
 		}
 
-		if (config.prefix !== undefined && key.startsWith(config.prefix)) {
+		if (config.prefix && key.startsWith(config.prefix)) {
 			return true
 		}
 
@@ -100,7 +100,7 @@ class InMemoryCache {
 
 	private get_cached_value(key: string, now: number): unknown {
 		const entry = this.cache.get(key)
-		if (entry === undefined) return undefined
+		if (!entry) return undefined
 
 		if (this.is_entry_valid(entry, now)) {
 			logger.debug(`Cache hit for ${key}`)
@@ -128,7 +128,7 @@ class InMemoryCache {
 	private remove_overflow_entries(): void {
 		while (this.cache.size >= this.max_size) {
 			const first_key = this.cache.keys().next().value
-			if (first_key === undefined) break
+			if (!first_key) break
 			this.cache.delete(first_key)
 		}
 	}

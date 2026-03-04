@@ -2,10 +2,9 @@ import { json } from '@sveltejs/kit'
 import { APP } from '$lib/app'
 import { ERROR_MESSAGES, HTTP_HEADERS, HTTP_STATUS } from '$lib/constants/http'
 import { logger } from '$lib/logger'
+import { time_conversion } from '$lib/time-conversion'
 
-const ONE_MINUTE_SECONDS = 60
-const ONE_SECOND_MS = 1000
-const LIMIT_WINDOW = ONE_MINUTE_SECONDS * ONE_SECOND_MS
+const LIMIT_WINDOW = time_conversion.minutes_to_ms(1)
 const LIMIT_COUNT = 60
 
 interface LimitData {
@@ -35,7 +34,7 @@ function check_rate_limit(ip: string): boolean {
 	const now = Date.now()
 	let limit_data = ip_limits.get(ip)
 
-	if (limit_data === undefined || now > limit_data.reset_at) {
+	if (!limit_data || now > limit_data.reset_at) {
 		limit_data = { count: 0, reset_at: now + LIMIT_WINDOW }
 		ip_limits.set(ip, limit_data)
 	}
@@ -78,7 +77,7 @@ function is_localhost_hostname(hostname: string): boolean {
 	return hostname === 'localhost' || hostname === '127.0.0.1'
 }
 
-function check_development_localhost(origin_url: URL, _current_url: URL): boolean {
+function check_development_localhost(origin_url: URL): boolean {
 	// originがlocalhostの場合、開発環境として扱う
 	// Cloudflare Workers環境（wrangler dev）でも、localhostからのリクエストは開発環境として許可
 	// 標準的な開発環境（import.meta.env.DEVがtrue、または現在のURLがlocalhost）の場合も許可
@@ -89,14 +88,12 @@ function check_development_localhost(origin_url: URL, _current_url: URL): boolea
 function validate_origin(request: Request, url: URL): ValidationResult {
 	const origin = request.headers.get('origin')
 
-	if (origin === null) {
-		return undefined
-	}
+	if (!origin) return undefined
 
 	const origin_url = new URL(origin)
 
 	// 開発環境では、localhostの異なるポートを許可
-	if (check_development_localhost(origin_url, url)) {
+	if (check_development_localhost(origin_url)) {
 		return undefined
 	}
 

@@ -7,7 +7,7 @@ function load_from_storage(): Array<string> {
 	if (!browser) return []
 
 	const stored = localStorage.getItem(STORAGE_KEY)
-	if (stored === null) return []
+	if (!stored) return []
 
 	try {
 		const parsed = JSON.parse(stored) as unknown

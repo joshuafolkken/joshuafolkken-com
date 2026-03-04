@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { resolve } from '$app/paths'
 	import { LINK_REL, LINK_TARGET } from '$lib/app'
 	import type { Page } from '$lib/types/page'
+	import { link_utilities } from '$lib/utils/link-utilities'
 	import ContentCard from './ContentCard.svelte'
 
 	interface Props {
@@ -12,21 +12,8 @@
 	const { title, description, icon } = $derived(page)
 
 	const link = $derived(page.link ?? '')
-	const is_external = $derived(link.startsWith('http'))
-
-	function get_href(): string | undefined {
-		if (link === '') {
-			return undefined
-		}
-
-		if (is_external) {
-			return link
-		}
-
-		return resolve(link as '/projects' | '/profile' | '/privacy-policy')
-	}
-
-	const href = get_href()
+	const is_external = $derived(link_utilities.is_external_link(link))
+	const href = $derived(link_utilities.get_href(link))
 </script>
 
 <div class="mt-2 w-full">

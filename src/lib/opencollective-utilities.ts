@@ -4,7 +4,7 @@ const OPENCOLLECTIVE_IMAGES_BASE = 'https://images.opencollective.com'
 const DEFAULT_AVATAR_SLUG = 'guest'
 
 function get_avatar_url(member: OpenCollectiveMember): string {
-	if (member.image !== null) return member.image
+	if (member.image) return member.image
 	const slug = member.profile.split('/').pop() ?? DEFAULT_AVATAR_SLUG
 	return `${OPENCOLLECTIVE_IMAGES_BASE}/${slug}/avatar.png`
 }
