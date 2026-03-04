@@ -3,14 +3,15 @@
 	import HeroSection from '$lib/components/HeroSection.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import RevealSection from '$lib/components/RevealSection.svelte'
-	import { PROJECTS } from '$lib/data/projects'
-	import { PAGES } from '$lib/types/page'
+	import { ICON_SIZE_2XL } from '$lib/constants/layout'
+	import { FEATURED_PROJECT_COUNT, PROJECTS } from '$lib/data/projects'
+	import { MAIN_NAV_PAGES, PAGES } from '$lib/types/page'
 	import { link_utilities } from '$lib/utils/link-utilities'
 	import { project_utilities } from '$lib/utils/project-utilities'
 
-	const FEATURED_COUNT = 4
-	const QUICK_NAV_PAGES = [PAGES.PROJECTS, PAGES.BLOG, PAGES.PROFILE] as const
-	const featured_projects = $derived(PROJECTS.filter((proj) => proj.image).slice(0, FEATURED_COUNT))
+	const featured_projects = $derived(
+		PROJECTS.filter((proj) => proj.image).slice(0, FEATURED_PROJECT_COUNT),
+	)
 </script>
 
 <HeroSection />
@@ -44,7 +45,7 @@
 					class="group relative flex flex-col overflow-hidden rounded-2xl border border-white/5 bg-slate-900/50 transition-all duration-300 hover:-translate-y-1 hover:border-white/10 hover:bg-slate-800/80"
 				>
 					{#if project.image}
-						<div class="aspect-video w-full overflow-hidden">
+						<div class="relative aspect-video w-full overflow-hidden">
 							<img
 								src={project.image}
 								alt={project.title}
@@ -56,10 +57,14 @@
 						</div>
 					{/if}
 					<div class="p-6">
-						<h3 class="text-lg font-semibold text-white transition-colors group-hover:text-sky-400">
-							{project.title}
+						<h3 class="text-lg font-semibold">
+							<span class="text-white/70 transition-colors duration-300 group-hover:text-white">
+								{project.title}
+							</span>
 						</h3>
-						<p class="mt-2 line-clamp-2 text-sm text-white/50">
+						<p
+							class="mt-2 line-clamp-2 text-sm text-white/50 transition-colors duration-300 group-hover:text-white/80"
+						>
 							{project.subtitle}
 						</p>
 					</div>
@@ -72,10 +77,10 @@
 	<RevealSection>
 		<h2 class="mb-12 text-center text-3xl font-bold tracking-tight text-white">Discover</h2>
 		<div class="grid gap-6 sm:grid-cols-3">
-			{#each QUICK_NAV_PAGES as p (p.title)}
+			{#each MAIN_NAV_PAGES as p (p.title)}
 				<a
 					href={link_utilities.get_href(p.link) ?? '#'}
-					class="group flex flex-col items-center justify-center rounded-2xl border border-white/5 bg-slate-950/40 p-10 text-center transition-all hover:bg-white/5"
+					class="group flex flex-col items-center justify-center rounded-2xl border border-white/5 bg-slate-900/50 p-10 text-center transition-all duration-300 hover:-translate-y-1 hover:border-white/10 hover:bg-slate-800/80"
 				>
 					{#if p.icon}
 						<!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
@@ -83,11 +88,19 @@
 						<div
 							class="mb-6 rounded-2xl bg-white/5 p-4 text-white/40 transition-all group-hover:scale-110 group-hover:bg-sky-500/10 group-hover:text-sky-400"
 						>
-							<NavIcon size="2.5rem" />
+							<NavIcon size={ICON_SIZE_2XL} />
 						</div>
 					{/if}
-					<h3 class="text-xl font-semibold text-white">{p.title}</h3>
-					<p class="mt-3 text-sm text-white/50">{p.description}</p>
+					<h3 class="text-xl font-semibold">
+						<span class="text-white/70 transition-colors duration-300 group-hover:text-white">
+							{p.title}
+						</span>
+					</h3>
+					<p
+						class="mt-3 text-sm text-white/50 transition-colors duration-300 group-hover:text-white/80"
+					>
+						{p.description}
+					</p>
 				</a>
 			{/each}
 		</div>

@@ -7,6 +7,7 @@
 	import PageSection from '$lib/components/PageSection.svelte'
 	import SupportBox from '$lib/components/SupportBox.svelte'
 	import TechStack from '$lib/components/TechStack.svelte'
+	import { LINK_BASE_DEFAULT_CLASS } from '$lib/constants/layout'
 	import { PAGES } from '$lib/types/page'
 
 	const title = `${PAGES.PROFILE.title} - ${AUTHOR.NAME}`
@@ -95,7 +96,7 @@
 					href={OPENCOLLECTIVE.URL}
 					target={LINK_TARGET}
 					rel={LINK_REL}
-					class="link-base text-white/80"
+					class={LINK_BASE_DEFAULT_CLASS}
 				>
 					<strong>Joshua Studio on Open Collective</strong>
 				</a>

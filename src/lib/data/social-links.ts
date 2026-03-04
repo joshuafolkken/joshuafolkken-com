@@ -1,6 +1,5 @@
-import { AUTHOR, URLS } from '$lib/app'
+import { URLS } from '$lib/app'
 import GitHubIcon from '$lib/icons/GitHubIcon.svelte'
-import MailIcon from '$lib/icons/MailIcon.svelte'
 import XIcon from '$lib/icons/XIcon.svelte'
 import YouTubeIcon from '$lib/icons/YouTubeIcon.svelte'
 import type { Component } from 'svelte'
@@ -36,18 +35,5 @@ const youtube_link: SocialLink = {
 
 const HEADER_SOCIAL_LINKS: Array<SocialLink> = [github_link, x_link, youtube_link]
 
-const SOCIAL_LINKS_WITH_LABELS: Array<SocialLink> = [
-	{ ...github_link, aria_label: 'GitHub - Code & Projects', label: 'Code' },
-	{ ...x_link, aria_label: 'X - Latest Updates', label: 'Updates' },
-	{ ...youtube_link, aria_label: 'YouTube - Video Content', label: 'Videos' },
-	{
-		href: `mailto:${AUTHOR.EMAIL}`,
-		aria_label: 'Mail - Contact',
-		icon: MailIcon,
-		is_external: false,
-		label: 'Contact',
-	},
-]
-
 export type { SocialLink }
-export { HEADER_SOCIAL_LINKS, SOCIAL_LINKS_WITH_LABELS }
+export { HEADER_SOCIAL_LINKS }

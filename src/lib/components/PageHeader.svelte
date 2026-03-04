@@ -1,12 +1,9 @@
 <script lang="ts">
+	import { ICON_SIZE_XL } from '$lib/constants/layout'
 	import LogoIcon from '$lib/icons/LogoIcon.svelte'
 	import { PAGES, type Page } from '$lib/types/page'
 
-	interface Props {
-		page: Page
-	}
-
-	const { page }: Props = $props()
+	const { page } = $props<{ page: Page }>()
 	const { icon, title, description } = $derived(page)
 	const is_top_page = $derived(page === PAGES.TOP)
 </script>
@@ -21,7 +18,7 @@
 		{#if icon}
 			<!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
 			{@const Icon = icon}
-			<Icon size="2.25rem" />
+			<Icon size={ICON_SIZE_XL} />
 		{/if}
 		{title}
 	</h1>

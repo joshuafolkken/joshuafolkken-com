@@ -25,14 +25,10 @@
 	class={class_name}
 	onclick={on_click}
 >
-	{#if icon_size}
+	{#if link.icon}
 		<!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
 		{@const Icon = link.icon}
 		<Icon size={icon_size} />
-	{:else}
-		<!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
-		{@const Icon = link.icon}
-		<Icon />
 	{/if}
 	{#if has_label && link.label}
 		<span class="social-link-label">{link.label}</span>

@@ -1,38 +1,45 @@
 <script lang="ts">
 	import SocialLinkItem from '$lib/components/SocialLinkItem.svelte'
+	import {
+		NAV_ICON_SIZE,
+		SOCIAL_LINK_CONTAINER_DESKTOP,
+		SOCIAL_LINK_CONTAINER_MOBILE,
+		SOCIAL_LINK_DESKTOP_CLASSES,
+		SOCIAL_LINK_MOBILE_CLASSES,
+		type StickyHeaderVariant,
+	} from '$lib/constants/sticky-header-constants'
 	import { HEADER_SOCIAL_LINKS } from '$lib/data/social-links'
+	import { property_utilities } from '$lib/utils/property-utilities'
 
 	const {
 		variant = 'desktop',
 		on_click,
 	}: {
-		variant?: 'desktop' | 'mobile'
+		variant?: StickyHeaderVariant
 		on_click?: () => void
 	} = $props()
 
+	const is_desktop = $derived(variant === 'desktop')
+
 	const link_classes = $derived(
-		variant === 'desktop'
-			? 'flex h-9 w-9 items-center justify-center rounded-xl bg-white/0 text-white/50 transition-all hover:scale-110 hover:bg-white/5 hover:text-white active:scale-95'
-			: 'flex h-10 w-10 items-center justify-center rounded-full text-white/70 transition-colors duration-300 hover:bg-white/10 hover:text-white',
+		is_desktop ? SOCIAL_LINK_DESKTOP_CLASSES : SOCIAL_LINK_MOBILE_CLASSES,
 	)
 
 	const container_classes = $derived(
-		variant === 'desktop'
-			? 'hidden items-center gap-2 md:flex'
-			: 'mt-4 flex gap-2 p-4 pt-0 md:hidden',
+		is_desktop ? SOCIAL_LINK_CONTAINER_DESKTOP : SOCIAL_LINK_CONTAINER_MOBILE,
 	)
 </script>
 
 <nav
 	class={container_classes}
-	aria-label={variant === 'desktop' ? 'ソーシャルリンク' : 'ソーシャルリンク（モバイル）'}
+	aria-label={is_desktop ? 'ソーシャルリンク' : 'ソーシャルリンク（モバイル）'}
 >
 	{#each HEADER_SOCIAL_LINKS as link (link.href)}
 		<SocialLinkItem
 			{link}
 			class={link_classes}
-			icon_size="1.25rem"
-			{...on_click ? { on_click } : {}}
+			icon_size={NAV_ICON_SIZE}
+			{...property_utilities.with_optional_on_click(on_click)}
 		/>
 	{/each}
 </nav>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { app, LINK_REL, LINK_TARGET } from '$lib/app'
+	import { ICON_SIZE_SM, LINK_BASE_DEFAULT_CLASS } from '$lib/constants/layout'
 	import GitHubIcon from '$lib/icons/GitHubIcon.svelte'
 	import LiveDemoIcon from '$lib/icons/LiveDemoIcon.svelte'
 	import type { ProjectLink } from '$lib/types/project'
@@ -15,12 +16,12 @@
 			href={link.href}
 			target={LINK_TARGET}
 			rel={LINK_REL}
-			class="link-base flex items-center gap-2 text-white/80"
+			class="{LINK_BASE_DEFAULT_CLASS} flex items-center gap-2"
 		>
 			{#if link.type === 'github'}
-				<GitHubIcon size="1rem" />
+				<GitHubIcon size={ICON_SIZE_SM} />
 			{:else if link.type === 'demo'}
-				<LiveDemoIcon size="1rem" />
+				<LiveDemoIcon size={ICON_SIZE_SM} />
 			{/if}
 			{app.link_label(link.type)}
 		</a>
