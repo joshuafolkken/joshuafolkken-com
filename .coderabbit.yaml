@@ -123,6 +123,7 @@ knowledge_base:
       - '**/.cursorrules'
       - '**/AGENTS.md'
       - '**/GEMINI.md'
+      - 'prompts/agent-rules.md'
       - 'prompts/coding-standards.md'
       - 'prompts/refactoring.md'
 

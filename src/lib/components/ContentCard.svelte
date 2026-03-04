@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON_SIZE_LG } from '$lib/constants/layout'
 	import type { Component, Snippet } from 'svelte'
 
 	interface Props {
@@ -21,7 +22,7 @@
 		{#if icon}
 			<!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
 			{@const Icon = icon}
-			<Icon size="1.5rem" />
+			<Icon size={ICON_SIZE_LG} />
 		{/if}
 		<strong>{title}</strong>
 		{#if subtitle}

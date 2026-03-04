@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { LINK_REL, LINK_TARGET } from '$lib/app'
+	import { LINK_BASE_DEFAULT_CLASS } from '$lib/constants/layout'
 	import type { Snippet } from 'svelte'
 
 	interface Props {
@@ -11,7 +12,7 @@
 
 	const { href, class: class_name = '', aria_label, children }: Props = $props()
 
-	const link_class = $derived(class_name ? `link-base ${class_name}` : 'link-base text-white/80')
+	const link_class = $derived(class_name ? `link-base ${class_name}` : LINK_BASE_DEFAULT_CLASS)
 </script>
 
 <a {href} target={LINK_TARGET} rel={LINK_REL} class={link_class} aria-label={aria_label}>
