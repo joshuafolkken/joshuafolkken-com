@@ -89,5 +89,7 @@ const PAGES: Record<PageKey, Page> = {
 	BLOG,
 }
 
-export { PAGES }
+const MAIN_NAV_PAGES = [PAGES.PROJECTS, PAGES.BLOG, PAGES.PROFILE] as const
+
+export { MAIN_NAV_PAGES, PAGES }
 export type { Page, PageKey }

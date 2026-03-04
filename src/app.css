@@ -2,9 +2,16 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
 
+@theme {
+	/* 768px */
+	--breakpoint-md: 48rem;
+	--font-display: 'Shippori Mincho', serif;
+}
+
 html {
 	font-family: 'Zen Kaku Gothic New', sans-serif;
-	@apply min-h-screen bg-slate-900 text-white/70;
+	scroll-behavior: smooth;
+	@apply min-h-screen bg-slate-950 text-slate-400;
 }
 
 h1,
@@ -73,4 +80,20 @@ code {
 	overflow-wrap: anywhere; /* ブラウザ互換のために併記 */
 	max-width: 100%;
 	box-sizing: border-box;
+}
+
+.reveal-on-scroll {
+	opacity: 0;
+	transform: translateY(30px);
+	filter: blur(10px);
+	transition:
+		opacity 1000ms,
+		transform 1000ms,
+		filter 1000ms;
+}
+
+.reveal-on-scroll.revealed {
+	opacity: 1;
+	transform: translateY(0);
+	filter: blur(0);
 }

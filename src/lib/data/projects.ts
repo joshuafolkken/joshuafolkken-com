@@ -7,6 +7,8 @@ import TennisIcon from '$lib/icons/TennisIcon.svelte'
 import ToolIcon from '$lib/icons/ToolIcon.svelte'
 import type { Project } from '$lib/types/project'
 
+export const FEATURED_PROJECT_COUNT = 4
+
 export const PROJECTS: Array<Project> = [
 	{
 		icon: TalkIcon,

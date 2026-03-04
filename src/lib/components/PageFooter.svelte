@@ -1,28 +1,11 @@
 <script lang="ts">
-	import { resolve } from '$app/paths'
-	import { APP, AUTHOR } from '$lib/app'
-	import HeartIcon from '$lib/icons/HeartIcon.svelte'
-	import { PAGES } from '$lib/types/page'
-	import ContentCard from './ContentCard.svelte'
+	import RevealSection from '$lib/components/RevealSection.svelte'
 	import SupportersList from './SupportersList.svelte'
 </script>
 
-<footer class="mt-8 space-y-1 text-center text-sm text-white/60">
-	<ContentCard icon={HeartIcon} title="Top Supporters" class="text-center">
+<footer class="space-y-6 text-sm text-white/60">
+	<RevealSection py="py-12">
+		<h2 class="mb-12 text-center text-3xl font-bold tracking-tight text-white">Top Supporters</h2>
 		<SupportersList />
-	</ContentCard>
-
-	<div class="mt-10">
-		{#if PAGES.PRIVACY_POLICY.link}
-			<a href={resolve(PAGES.PRIVACY_POLICY.link as '/privacy-policy')} class="link-base">
-				{PAGES.PRIVACY_POLICY.title}
-			</a>
-		{/if}
-	</div>
-	<div class="mt-4">
-		<a href={resolve('/')} class="link-base inline-block">
-			<p>{APP.NAME} v{APP.VERSION}</p>
-			<p>{AUTHOR.COPYRIGHT}</p>
-		</a>
-	</div>
+	</RevealSection>
 </footer>

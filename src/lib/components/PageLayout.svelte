@@ -1,20 +1,24 @@
 <script lang="ts">
+	import { get_max_width_class, PAGE_PADDING_CLASS, type MaxWidthKey } from '$lib/constants/layout'
 	import type { Snippet } from 'svelte'
 	import PageFooter from './PageFooter.svelte'
+	import PageFooterLine from './PageFooterLine.svelte'
 
-	const { max_width = 'max-w-2xl', children } = $props<{
-		max_width?: 'sm' | '2xl'
+	const { max_width = '2xl', children } = $props<{
+		max_width?: MaxWidthKey
 		children: Snippet
 	}>()
 
-	const max_width_class = $derived(max_width === 'sm' ? 'max-w-sm' : 'max-w-2xl')
-	const padding_class = 'mx-4 my-8'
+	const max_width_class = $derived(get_max_width_class(max_width))
 </script>
 
-<div class="flex justify-center">
-	<main class="{max_width_class} {padding_class} flex w-full flex-col">
-		{@render children()}
+<div class="flex w-full flex-col">
+	<div class="flex justify-center">
+		<main class="{max_width_class} {PAGE_PADDING_CLASS} flex w-full flex-col">
+			{@render children()}
 
-		<PageFooter />
-	</main>
+			<PageFooter />
+		</main>
+	</div>
+	<PageFooterLine />
 </div>
