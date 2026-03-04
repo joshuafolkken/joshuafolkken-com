@@ -1,45 +1,62 @@
 <script lang="ts">
-	import { APP, AUTHOR, LINK_REL, LINK_TARGET } from '$lib/app'
+	import { LINK_REL, LINK_TARGET } from '$lib/app'
+	import HeroSection from '$lib/components/HeroSection.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import { PROJECTS } from '$lib/data/projects'
-	import LogoIcon from '$lib/icons/LogoIcon.svelte'
 	import { PAGES } from '$lib/types/page'
+	import { onMount } from 'svelte'
 
 	const FEATURED_COUNT = 4
 	const featured_projects = $derived(PROJECTS.filter((proj) => proj.image).slice(0, FEATURED_COUNT))
+
+	// --- Scroll Reveal ---
+	onMount(() => {
+		const reveal_observer = new IntersectionObserver(
+			(entries) => {
+				for (const entry of entries) {
+					if (entry.isIntersecting) {
+						entry.target.classList.add('revealed')
+					}
+				}
+			},
+			{ threshold: 0.1 },
+		)
+
+		const elements = document.querySelectorAll('.reveal-on-scroll')
+
+		for (const element of elements) {
+			reveal_observer.observe(element)
+		}
+
+		return () => {
+			reveal_observer.disconnect()
+		}
+	})
 </script>
 
-<!-- Hero: full width, extends under sticky header -->
-<header
-	class="relative -mt-16 flex min-h-[min(100vh,1920px)] w-full flex-col items-center justify-center overflow-hidden text-center"
-	id="hero"
->
-	<img
-		src="/images/header-banner.webp"
-		alt=""
-		class="absolute inset-0 h-full w-full object-cover"
-		role="presentation"
-	/>
-	<div class="absolute inset-0 bg-slate-900/60" aria-hidden="true"></div>
-	<div class="relative z-10 flex flex-col items-center justify-center px-4">
-		<div class="my-4">
-			<LogoIcon />
-		</div>
-		<h1 class="text-4xl font-light tracking-tight text-white/95">{AUTHOR.NAME}</h1>
-		<p class="mt-3 text-lg text-white/80 italic">{APP.DESCRIPTION}</p>
-	</div>
-	<a href="#main-content" class="scroll-prompt" aria-label="Scroll to content">
-		<span class="scroll-text">SCROLL</span>
-		<div class="chevron"></div>
-	</a>
-</header>
+<HeroSection />
 
 <PageLayout max_width="4xl">
 	<div id="main-content" class="scroll-mt-20"></div>
+
 	<!-- Featured Projects -->
-	<section class="mt-4 mb-12">
-		<h2 class="mb-6 text-2xl font-light tracking-tight text-white/90">Featured Projects</h2>
-		<div class="grid gap-6 sm:grid-cols-2">
+	<section class="reveal-on-scroll py-20 transition-all duration-1000">
+		<div class="mb-12 flex items-end justify-between">
+			<div>
+				<h2 class="text-3xl font-bold tracking-tight text-white">Featured Projects</h2>
+				<p class="mt-2 text-white/50">A selection of my recent work and experiments.</p>
+			</div>
+			<a
+				href="/projects"
+				class="group text-sm font-medium text-sky-400 decoration-sky-400/30 transition hover:text-sky-300 hover:underline"
+			>
+				View Gallery <span class="inline-block transition-transform group-hover:translate-x-1"
+					>→</span
+				>
+			</a>
+		</div>
+
+		<div class="grid gap-8 sm:grid-cols-2">
 			{#each featured_projects as project (project.title)}
 				<a
 					href={project.links.find((link) => link.type === 'demo')?.href ??
@@ -47,131 +64,69 @@
 						'#'}
 					target={LINK_TARGET}
 					rel={LINK_REL}
-					class="group overflow-hidden rounded-xl border border-slate-600/50 bg-slate-800/50 transition duration-300 hover:border-slate-500 hover:bg-slate-700/60"
+					class="group relative flex flex-col overflow-hidden rounded-2xl border border-white/5 bg-slate-900/50 transition-all duration-300 hover:-translate-y-1 hover:border-white/10 hover:bg-slate-800/80"
 				>
 					{#if project.image}
-						<div class="aspect-video overflow-hidden">
+						<div class="aspect-video w-full overflow-hidden">
 							<img
 								src={project.image}
 								alt={project.title}
-								class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+								class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
 							/>
+							<div
+								class="absolute inset-0 bg-linear-to-t from-slate-950/80 via-transparent to-transparent opacity-60"
+							></div>
 						</div>
 					{/if}
-					<div class="p-4">
-						<h3 class="font-medium text-white/80 transition duration-300 group-hover:text-white">
+					<div class="p-6">
+						<h3 class="text-lg font-semibold text-white transition-colors group-hover:text-sky-400">
 							{project.title}
 						</h3>
-						<p class="mt-1 text-sm text-white/60">{project.subtitle}</p>
+						<p class="mt-2 line-clamp-2 text-sm text-white/50">
+							{project.subtitle}
+						</p>
 					</div>
 				</a>
 			{/each}
 		</div>
-		<a
-			href="/projects"
-			class="mt-6 inline-block text-white/80 underline-offset-4 transition hover:text-white"
-		>
-			View all projects →
-		</a>
 	</section>
 
-	<!-- Quick Links -->
-	<section class="mb-8">
-		<h2 class="mb-6 text-2xl font-light tracking-tight text-white/90">Explore</h2>
-		<div class="grid gap-4 sm:grid-cols-3">
-			<a
-				href="/projects"
-				class="group flex items-center gap-3 rounded-xl border border-slate-600/50 bg-slate-800/50 p-4 transition duration-300 hover:border-slate-500 hover:bg-slate-700/60"
-			>
-				{#if PAGES.PROJECTS.icon}
-					<!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
-					{@const ProjectsIcon = PAGES.PROJECTS.icon}
-					<span class="shrink-0 opacity-80 transition duration-300 group-hover:opacity-100">
-						<ProjectsIcon size="2rem" />
-					</span>
-				{/if}
-				<div>
-					<h3 class="font-medium text-white/80 transition duration-300 group-hover:text-white">
-						{PAGES.PROJECTS.title}
-					</h3>
-					<p class="text-sm text-white/60">{PAGES.PROJECTS.description}</p>
-				</div>
-			</a>
-			<a
-				href="/blog"
-				class="group flex items-center gap-3 rounded-xl border border-slate-600/50 bg-slate-800/50 p-4 transition duration-300 hover:border-slate-500 hover:bg-slate-700/60"
-			>
-				{#if PAGES.BLOG.icon}
-					<!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
-					{@const BlogIcon = PAGES.BLOG.icon}
-					<span class="shrink-0 opacity-80 transition duration-300 group-hover:opacity-100">
-						<BlogIcon size="2rem" />
-					</span>
-				{/if}
-				<div>
-					<h3 class="font-medium text-white/80 transition duration-300 group-hover:text-white">
-						{PAGES.BLOG.title}
-					</h3>
-					<p class="text-sm text-white/60">{PAGES.BLOG.description}</p>
-				</div>
-			</a>
-			<a
-				href="/profile"
-				class="group flex items-center gap-3 rounded-xl border border-slate-600/50 bg-slate-800/50 p-4 transition duration-300 hover:border-slate-500 hover:bg-slate-700/60"
-			>
-				{#if PAGES.PROFILE.icon}
-					<!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
-					{@const UserIcon = PAGES.PROFILE.icon}
-					<span class="shrink-0 opacity-80 transition duration-300 group-hover:opacity-100">
-						<UserIcon size="2rem" />
-					</span>
-				{/if}
-				<div>
-					<h3 class="font-medium text-white/80 transition duration-300 group-hover:text-white">
-						{PAGES.PROFILE.title}
-					</h3>
-					<p class="text-sm text-white/60">{PAGES.PROFILE.description}</p>
-				</div>
-			</a>
+	<!-- Quick Navigation -->
+	<section class="reveal-on-scroll py-20 transition-all duration-1000">
+		<h2 class="mb-12 text-center text-3xl font-bold tracking-tight text-white">Discover</h2>
+		<div class="grid gap-6 sm:grid-cols-3">
+			{#each [PAGES.PROJECTS, PAGES.BLOG, PAGES.PROFILE] as p (p.title)}
+				<a
+					href={p.link ?? '#'}
+					class="group flex flex-col items-center justify-center rounded-2xl border border-white/5 bg-slate-950/40 p-10 text-center transition-all hover:bg-white/5"
+				>
+					{#if p.icon}
+						<!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
+						{@const NavIcon = p.icon}
+						<div
+							class="mb-6 rounded-2xl bg-white/5 p-4 text-white/40 transition-all group-hover:scale-110 group-hover:bg-sky-500/10 group-hover:text-sky-400"
+						>
+							<NavIcon size="2.5rem" />
+						</div>
+					{/if}
+					<h3 class="text-xl font-semibold text-white">{p.title}</h3>
+					<p class="mt-3 text-sm text-white/50">{p.description}</p>
+				</a>
+			{/each}
 		</div>
 	</section>
 </PageLayout>
 
 <style>
-	.scroll-prompt {
-		position: absolute;
-		z-index: 20;
-		bottom: 2rem;
-		left: 50%;
-		transform: translate(-50%);
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		color: rgb(255 255 255 / 0.98);
-		font-size: 0.75rem;
-		letter-spacing: 0.2em;
-		cursor: pointer;
-		transition: color 0.2s;
+	:global(.reveal-on-scroll) {
+		opacity: 0;
+		transform: translateY(30px);
+		filter: blur(10px);
 	}
-	.scroll-prompt:hover {
-		color: white;
-	}
-	.chevron {
-		width: 20px;
-		height: 20px;
-		border-bottom: 2px solid white;
-		border-right: 2px solid white;
-		transform: rotate(45deg);
-		margin-top: 0.5rem;
-		animation: scroll-chevron-float 3s ease-in-out infinite;
-	}
-	@keyframes scroll-chevron-float {
-		0%,
-		100% {
-			transform: translateY(0) rotate(45deg);
-		}
-		50% {
-			transform: translateY(8px) rotate(45deg);
-		}
+
+	:global(.reveal-on-scroll.revealed) {
+		opacity: 1;
+		transform: translateY(0);
+		filter: blur(0);
 	}
 </style>

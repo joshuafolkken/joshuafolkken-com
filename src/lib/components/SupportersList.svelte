@@ -15,7 +15,7 @@
 				href={PAGES.DONATIONS.link}
 				target={LINK_TARGET}
 				rel={LINK_REL}
-				class="group flex items-center gap-3 rounded-xl border border-slate-600/50 bg-slate-800/50 p-4 transition duration-300 hover:border-slate-500 hover:bg-slate-700/60"
+				class="group flex items-center gap-4 rounded-2xl border border-white/5 bg-slate-900/40 p-5 transition-all duration-300 hover:border-white/10 hover:bg-slate-800/60"
 			>
 				<img
 					src={opencollective_utilities.get_avatar_url(supporter)}
@@ -30,7 +30,7 @@
 						{index + 1}.
 					</span>
 					<span
-						class="min-w-0 text-sm font-medium break-words text-white/80 transition duration-300 group-hover:text-white"
+						class="min-w-0 text-sm font-medium wrap-break-word text-white/50 transition duration-300 group-hover:text-white"
 					>
 						{supporter.name}
 					</span>

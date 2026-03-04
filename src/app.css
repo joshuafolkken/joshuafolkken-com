@@ -3,14 +3,15 @@
 @plugin '@tailwindcss/typography';
 
 @theme {
-	/* 768px -> 800px */
-	--breakpoint-md: 50rem;
+	/* 768px */
+	--breakpoint-md: 48rem;
+	--font-display: 'Shippori Mincho', serif;
 }
 
 html {
 	font-family: 'Zen Kaku Gothic New', sans-serif;
 	scroll-behavior: smooth;
-	@apply min-h-screen bg-slate-900 text-white/70;
+	@apply min-h-screen bg-slate-950 text-slate-400;
 }
 
 h1,

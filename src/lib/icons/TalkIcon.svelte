@@ -3,6 +3,7 @@
 		size = '1.5rem',
 		title = 'Talk',
 		aria_label,
+		class: class_name,
 	} = $props<{
 		size?: string
 		title?: string
@@ -15,7 +16,7 @@
 	viewBox="0 0 24 24"
 	width={size}
 	height={size}
-	class="text-white"
+	class={class_name}
 	role="img"
 	aria-label={aria_label}
 	fill="none"

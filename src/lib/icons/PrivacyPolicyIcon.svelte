@@ -3,10 +3,12 @@
 		size = '1.5rem',
 		title = 'Privacy Policy',
 		aria_label,
+		class: class_name,
 	} = $props<{
 		size?: string
 		title?: string
 		aria_label?: string
+		class?: string
 	}>()
 </script>
 
@@ -14,6 +16,7 @@
 	viewBox="0 0 24 24"
 	width={size}
 	height={size}
+	class={class_name}
 	role="img"
 	aria-label={aria_label}
 	fill="none"
