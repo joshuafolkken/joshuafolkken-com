@@ -2,8 +2,14 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
 
+@theme {
+	/* 768px -> 800px */
+	--breakpoint-md: 50rem;
+}
+
 html {
 	font-family: 'Zen Kaku Gothic New', sans-serif;
+	scroll-behavior: smooth;
 	@apply min-h-screen bg-slate-900 text-white/70;
 }
 
