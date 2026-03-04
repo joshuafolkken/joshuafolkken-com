@@ -9,9 +9,9 @@ const PATH_TO_PAGE: Record<string, Page> = {
 }
 
 function get_page_from_path(pathname: string): Page {
-	if (pathname in PATH_TO_PAGE) {
-		return PATH_TO_PAGE[pathname]
-	}
+	const page = PATH_TO_PAGE[pathname]
+
+	if (page) return page
 
 	if (pathname.startsWith('/blog/')) {
 		return PAGES.BLOG
