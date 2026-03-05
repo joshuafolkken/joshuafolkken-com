@@ -26,6 +26,9 @@ vite.config.ts.timestamp-*
 # Cloudflare Types
 /worker-configuration.d.ts
 
+# Server config (contains internal infrastructure details)
+.server
+
 # ESLint cache
 .eslintcache
 

@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { page } from '$app/state'
-	import { external_links_action } from '$lib/actions/external-links'
-	import { AUTHOR } from '$lib/app'
+	import { external_links } from '$lib/actions/external-links'
+	import { APP, AUTHOR } from '$lib/app'
 	import DateDisplay from '$lib/components/DateDisplay.svelte'
 	import EngagementButtons from '$lib/components/EngagementButtons.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
@@ -11,7 +10,7 @@
 	import type { PageData } from './$types'
 
 	const { data }: { data: PageData } = $props()
-	const image_url = $derived(`https://joshuafolkken.com${data.meta.cover_image ?? ''}`)
+	const image_url = $derived(`${APP.URL}${data.meta.cover_image ?? ''}`)
 	const blog_title = $derived(data.meta.title)
 	const page_title = $derived(`${blog_title} - ${AUTHOR.NAME}`)
 </script>
@@ -31,7 +30,7 @@
 <PageLayout>
 	<PageHeader page={PAGES.BLOG} />
 
-	<article class="prose mt-6 mb-6 max-w-none prose-invert" use:external_links_action.external_links>
+	<article class="prose mt-6 mb-6 max-w-none prose-invert" use:external_links>
 		<h1 class="mb-1">{blog_title}</h1>
 		<DateDisplay date={data.meta.date} updated={data.meta.updated} />
 
@@ -46,5 +45,5 @@
 
 	<SupportBox />
 
-	<EngagementButtons slug={page.params.slug ?? ''} title={blog_title} />
+	<EngagementButtons slug={data.slug} title={blog_title} />
 </PageLayout>

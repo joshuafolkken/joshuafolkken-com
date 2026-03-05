@@ -1,19 +1,26 @@
 import { APP } from '$lib/app'
-import { HTTP_HEADERS } from '$lib/constants/http'
+import { CONTENT_TYPE_XML, HTTP_HEADERS } from '$lib/constants/http'
+import {
+	SITEMAP_CACHE_MAX_AGE_SECONDS,
+	SITEMAP_CHANGEFREQ,
+	SITEMAP_PRIORITY_DEFAULT,
+	SITEMAP_PRIORITY_HOME,
+	SITEMAP_ROUTE,
+} from '$lib/constants/sitemap'
 import { git_utilities } from '$lib/server/git-utilities'
 import { blog_parser } from '$lib/utils/blog-parser'
 import { date_utilities } from '$lib/utils/date-utilities'
 import type { RequestHandler } from './$types'
-
-const SITEMAP_CHANGEFREQ = 'weekly'
-const SITEMAP_PRIORITY_HOME = '1.0'
-const SITEMAP_PRIORITY_DEFAULT = '0.8'
 
 interface SitemapUrl {
 	loc: string
 	changefreq: string
 	priority: string
 	lastmod: string
+}
+
+function is_static_route(route: string): boolean {
+	return !route.includes('[') && !route.includes(SITEMAP_ROUTE)
 }
 
 function create_sitemap_entry(route: string, filepath_or_lastmod: string | Date): SitemapUrl {
@@ -39,7 +46,7 @@ function get_static_pages(): Array<SitemapUrl> {
 			path,
 			route: path.replace('/src/routes', '').replace('/+page.svelte', ''),
 		}))
-		.filter(({ route }) => !route.includes('[') && !route.includes('sitemap.xml'))
+		.filter(({ route }) => is_static_route(route))
 		.map(({ path, route }) => create_sitemap_entry(route, path))
 }
 
@@ -49,14 +56,23 @@ function get_blog_posts(): Array<SitemapUrl> {
 		.map((post) => create_sitemap_entry(`/blog/${post.slug}`, new Date(post.updated ?? post.date)))
 }
 
+function escape_xml(value: string): string {
+	return value
+		.replaceAll('&', '&amp;')
+		.replaceAll('<', '&lt;')
+		.replaceAll('>', '&gt;')
+		.replaceAll('"', '&quot;')
+		.replaceAll("'", '&apos;')
+}
+
 function generate_url_xml(urls: Array<SitemapUrl>): string {
 	return urls
 		.map(
 			(url) => `  <url>
-    <loc>${url.loc}</loc>
-    <lastmod>${url.lastmod}</lastmod>
-    <changefreq>${url.changefreq}</changefreq>
-    <priority>${url.priority}</priority>
+    <loc>${escape_xml(url.loc)}</loc>
+    <lastmod>${escape_xml(url.lastmod)}</lastmod>
+    <changefreq>${escape_xml(url.changefreq)}</changefreq>
+    <priority>${escape_xml(url.priority)}</priority>
   </url>`,
 		)
 		.join('\n')
@@ -76,8 +92,8 @@ ${url_xml}
 
 	return new Response(sitemap_xml, {
 		headers: {
-			[HTTP_HEADERS.CONTENT_TYPE]: 'application/xml',
-			'Cache-Control': 'public, max-age=3600',
+			[HTTP_HEADERS.CACHE_CONTROL]: `public, max-age=${String(SITEMAP_CACHE_MAX_AGE_SECONDS)}`,
+			[HTTP_HEADERS.CONTENT_TYPE]: CONTENT_TYPE_XML,
 		},
 	})
 }

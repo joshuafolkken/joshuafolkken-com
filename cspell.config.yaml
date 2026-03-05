@@ -25,11 +25,14 @@ ignorePaths:
 words:
   - aboutads
   - aikidosec
+  - apos
   - appleboy
+  - autoincrement
   - autorestart
   - bttf
   - Caddyfile
   - CCPA
+  - coderabbit
   - cooldown
   - Csvg
   - darkmode
@@ -55,6 +58,7 @@ words:
   - mischeck
   - noopener
   - noreferrer
+  - nosniff
   - octocat
   - opencollective
   - phpstorm
@@ -62,6 +66,7 @@ words:
   - Platformers
   - Qube
   - redir
+  - SAMEORIGIN
   - Shippori
   - sonarcloud
   - sonarjs
@@ -69,6 +74,7 @@ words:
   - Stylesheet
   - TERE
   - trycloudflare
+  - tsgo
   - turso
   - unrs
   - vite
@@ -76,6 +82,3 @@ words:
   - webp
   - workerd
   - zstd
-  - coderabbit
-  - autoincrement
-  - tsgo
