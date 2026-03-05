@@ -1,6 +1,7 @@
-import type { Post } from '$lib/types/blog'
+import type { BlogMetadata, Post } from '$lib/types/blog'
+import { slug_validator } from '$lib/utils/slug-validator'
 
-interface Metadata {
+interface MdsvexMetadata {
 	title?: unknown
 	date?: unknown
 	updated?: unknown
@@ -9,7 +10,7 @@ interface Metadata {
 }
 
 interface MdsvexFile {
-	metadata: Metadata
+	metadata: MdsvexMetadata
 }
 
 function is_mdsvex_file(file: unknown): file is MdsvexFile {
@@ -21,21 +22,11 @@ function is_mdsvex_file(file: unknown): file is MdsvexFile {
 	)
 }
 
-function get_slug_from_path(path: string): string | undefined {
-	return path.split('/').pop()?.replace('.md', '')
-}
-
 function is_optional_string(value: unknown): boolean {
 	return value === undefined || typeof value === 'string'
 }
 
-function has_valid_metadata(metadata: Metadata): metadata is {
-	title: string
-	date: string
-	updated?: string
-	excerpt: string
-	cover_image?: string
-} {
+function has_valid_metadata(metadata: MdsvexMetadata): metadata is BlogMetadata {
 	return (
 		typeof metadata.title === 'string' &&
 		typeof metadata.date === 'string' &&
@@ -45,8 +36,17 @@ function has_valid_metadata(metadata: Metadata): metadata is {
 	)
 }
 
+function get_raw_slug_from_path(path: string): string | undefined {
+	return path.split('/').pop()?.replace('.md', '')
+}
+
+function is_safe_cover_image_path(path: string | undefined): path is string {
+	if (!path || typeof path !== 'string') return false
+	return path.startsWith('/') && !path.includes('//')
+}
+
 function parse_post(path: string, file: unknown): Post | undefined {
-	const slug = get_slug_from_path(path)
+	const slug = slug_validator.parse_slug(get_raw_slug_from_path(path))
 
 	if (!slug || !is_mdsvex_file(file)) {
 		return undefined
@@ -56,18 +56,24 @@ function parse_post(path: string, file: unknown): Post | undefined {
 		return undefined
 	}
 
+	const cover_image = is_safe_cover_image_path(file.metadata.cover_image)
+		? file.metadata.cover_image
+		: undefined
+
 	return {
 		slug,
 		title: file.metadata.title,
 		date: file.metadata.date,
 		updated: file.metadata.updated,
 		excerpt: file.metadata.excerpt,
-		cover_image: file.metadata.cover_image,
+		cover_image,
 	}
 }
 
 function get_all_posts(): Array<Post> {
-	const posts = import.meta.glob<{ metadata: Metadata }>('/src/lib/posts/*.md', { eager: true })
+	const posts = import.meta.glob<{ metadata: MdsvexMetadata }>('/src/lib/posts/*.md', {
+		eager: true,
+	})
 
 	return Object.entries(posts)
 		.map(([path, file]) => parse_post(path, file))

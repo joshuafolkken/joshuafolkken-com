@@ -5,6 +5,15 @@ import { logger } from '$lib/logger'
 import { time_conversion } from '$lib/time-conversion'
 
 const LIMIT_WINDOW = time_conversion.minutes_to_ms(1)
+
+const LOCALHOST_HOSTNAMES = new Set(['localhost', '127.0.0.1'])
+
+function add_security_headers(response: Response): void {
+	response.headers.set('X-Content-Type-Options', 'nosniff')
+	response.headers.set('X-Frame-Options', 'SAMEORIGIN')
+	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+}
+
 const LIMIT_COUNT = 60
 
 interface LimitData {
@@ -74,34 +83,42 @@ function validate_custom_header(request: Request): ValidationResult {
 }
 
 function is_localhost_hostname(hostname: string): boolean {
-	return hostname === 'localhost' || hostname === '127.0.0.1'
+	return LOCALHOST_HOSTNAMES.has(hostname)
 }
 
 function check_development_localhost(origin_url: URL): boolean {
-	// originがlocalhostの場合、開発環境として扱う
-	// Cloudflare Workers環境（wrangler dev）でも、localhostからのリクエストは開発環境として許可
-	// 標準的な開発環境（import.meta.env.DEVがtrue、または現在のURLがlocalhost）の場合も許可
-	// 本番環境では通常localhostからのリクエストは来ないため、セキュリティ上の問題は少ない
+	// Treat localhost origin as development environment (wrangler dev, Vite dev, etc.)
+	// Production typically does not receive localhost requests
 	return is_localhost_hostname(origin_url.hostname)
 }
 
+function parse_origin_url(origin: string): URL | undefined {
+	try {
+		return new URL(origin)
+	} catch {
+		return undefined
+	}
+}
+
+function is_origin_mismatch(origin_url: URL, url: URL): boolean {
+	return origin_url.origin !== url.origin
+}
+
+function block_origin(origin: string): ValidationResult {
+	logger.warn(`[OriginCheck] Blocked request from origin: ${origin}`)
+	return json_error(ERROR_MESSAGES.FORBIDDEN, HTTP_STATUS.FORBIDDEN)
+}
+
 function validate_origin(request: Request, url: URL): ValidationResult {
-	const origin = request.headers.get('origin')
+	const origin = request.headers.get(HTTP_HEADERS.ORIGIN)
 
 	if (!origin) return undefined
 
-	const origin_url = new URL(origin)
+	const origin_url = parse_origin_url(origin)
+	if (!origin_url) return block_origin(origin)
 
-	// 開発環境では、localhostの異なるポートを許可
-	if (check_development_localhost(origin_url)) {
-		return undefined
-	}
-
-	// originが存在し、かつ現在のサイトのオリジンと一致しない場合は不正
-	if (origin_url.origin !== url.origin) {
-		logger.warn(`[OriginCheck] Blocked request from origin: ${origin}`)
-		return json_error(ERROR_MESSAGES.FORBIDDEN, HTTP_STATUS.FORBIDDEN)
-	}
+	if (check_development_localhost(origin_url)) return undefined
+	if (is_origin_mismatch(origin_url, url)) return block_origin(origin)
 
 	return undefined
 }
@@ -111,6 +128,7 @@ function validate_request_security(request: Request, url: URL, ip: string): Vali
 }
 
 export const security = {
-	validate_request_security,
+	add_security_headers,
 	json_error,
+	validate_request_security,
 }

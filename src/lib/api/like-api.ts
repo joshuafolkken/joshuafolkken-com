@@ -1,5 +1,5 @@
 import { APP } from '$lib/app'
-import { ERROR_MESSAGES, HTTP_HEADERS } from '$lib/constants/http'
+import { CONTENT_TYPE_JSON, ERROR_MESSAGES, HTTP_HEADERS } from '$lib/constants/http'
 
 interface LikeResponse {
 	likes: number
@@ -8,12 +8,10 @@ interface LikeResponse {
 const ERROR_INVALID_RESPONSE_FORMAT = 'Invalid response format'
 
 function validate_like_response(data: unknown): data is LikeResponse {
-	return (
-		typeof data === 'object' &&
-		data !== null &&
-		'likes' in data &&
-		typeof (data as { likes: unknown }).likes === 'number'
-	)
+	if (typeof data !== 'object' || data === null) return false
+
+	const candidate = data as { likes?: unknown }
+	return 'likes' in data && typeof candidate.likes === 'number'
 }
 
 async function handle_like_response(
@@ -34,7 +32,7 @@ async function handle_like_response(
 }
 
 async function get(slug: string): Promise<LikeResponse> {
-	const response = await fetch(`/api/like?slug=${slug}`, {
+	const response = await fetch(`/api/like?slug=${encodeURIComponent(slug)}`, {
 		headers: {
 			[HTTP_HEADERS.X_APP_CLIENT]: APP.ID,
 		},
@@ -47,7 +45,7 @@ async function increment(slug: string): Promise<LikeResponse> {
 	const response = await fetch('/api/like', {
 		method: 'POST',
 		headers: {
-			[HTTP_HEADERS.CONTENT_TYPE]: 'application/json',
+			[HTTP_HEADERS.CONTENT_TYPE]: CONTENT_TYPE_JSON,
 			[HTTP_HEADERS.X_APP_CLIENT]: APP.ID,
 		},
 		body: JSON.stringify({ slug }),
