@@ -1,15 +1,17 @@
 import { resolve } from '$app/paths'
 import { LINK_REL, LINK_TARGET } from '$lib/app'
 
+const PROTOCOL_HTTP_PREFIX = 'http'
+
 type InternalPath = '/blog' | '/projects' | '/profile' | '/privacy-policy'
 
 function is_external_link(link: string | undefined): boolean {
-	return Boolean(link?.startsWith('http'))
+	return Boolean(link?.startsWith(PROTOCOL_HTTP_PREFIX))
 }
 
 function get_href(link: string | undefined): string | undefined {
 	if (!link) return undefined
-	if (link.startsWith('http')) return link
+	if (link.startsWith(PROTOCOL_HTTP_PREFIX)) return link
 
 	return resolve(link as InternalPath)
 }

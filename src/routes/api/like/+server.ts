@@ -1,25 +1,32 @@
 import { json } from '@sveltejs/kit'
-import { ERROR_MESSAGES, HTTP_STATUS } from '$lib/constants/http'
+import { CONTENT_TYPE_JSON, ERROR_MESSAGES, HTTP_HEADERS, HTTP_STATUS } from '$lib/constants/http'
 import { logger } from '$lib/logger'
 import { like_store } from '$lib/server/like-store'
 import { security } from '$lib/server/security'
+import { slug_validator } from '$lib/utils/slug-validator'
 import type { RequestHandler } from './$types'
 
 interface LikeRequestBody {
 	slug?: string
 }
 
-function parse_slug(value: unknown): string | undefined {
-	if (typeof value !== 'string' || value.trim().length === 0) {
-		return undefined
-	}
-
-	return value.trim()
+function is_json_content_type(request: Request): boolean {
+	const content_type = request.headers.get(HTTP_HEADERS.CONTENT_TYPE)
+	return content_type?.startsWith(CONTENT_TYPE_JSON) ?? false
 }
 
 async function get_valid_slug(request: Request): Promise<string | undefined> {
-	const body: LikeRequestBody = await request.json()
-	return parse_slug(body.slug)
+	if (!is_json_content_type(request)) {
+		return undefined
+	}
+
+	try {
+		/* eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- request.json() returns unknown */
+		const body = (await request.json()) as LikeRequestBody
+		return slug_validator.parse_slug(body.slug)
+	} catch {
+		return undefined
+	}
 }
 
 function json_likes(likes: number): Response {
@@ -43,6 +50,18 @@ async function process_like_operation(
 	}
 }
 
+function get_slug_error_message(raw_slug: string | null): string {
+	return slug_validator.is_slug_missing(raw_slug)
+		? ERROR_MESSAGES.SLUG_REQUIRED
+		: ERROR_MESSAGES.SLUG_INVALID
+}
+
+function get_post_slug_error_message(request: Request): string {
+	return is_json_content_type(request)
+		? ERROR_MESSAGES.SLUG_INVALID
+		: ERROR_MESSAGES.INVALID_CONTENT_TYPE
+}
+
 export const GET: RequestHandler = async ({
 	url,
 	request,
@@ -53,10 +72,11 @@ export const GET: RequestHandler = async ({
 
 	if (error_response) return error_response
 
-	const slug = parse_slug(url.searchParams.get('slug'))
+	const raw_slug = url.searchParams.get('slug')
+	const slug = slug_validator.parse_slug(raw_slug)
 
 	if (!slug) {
-		return security.json_error(ERROR_MESSAGES.SLUG_REQUIRED, HTTP_STATUS.BAD_REQUEST)
+		return security.json_error(get_slug_error_message(raw_slug), HTTP_STATUS.BAD_REQUEST)
 	}
 
 	return await process_like_operation(
@@ -80,7 +100,7 @@ export const POST: RequestHandler = async ({
 	const slug = await get_valid_slug(request)
 
 	if (!slug) {
-		return security.json_error(ERROR_MESSAGES.SLUG_REQUIRED, HTTP_STATUS.BAD_REQUEST)
+		return security.json_error(get_post_slug_error_message(request), HTTP_STATUS.BAD_REQUEST)
 	}
 
 	return await process_like_operation(

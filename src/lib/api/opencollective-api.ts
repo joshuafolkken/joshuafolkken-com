@@ -1,5 +1,5 @@
 import { OPENCOLLECTIVE } from '$lib/app'
-import { ERROR_MESSAGES, HTTP_HEADERS } from '$lib/constants/http'
+import { CONTENT_TYPE_JSON, ERROR_MESSAGES, HTTP_HEADERS } from '$lib/constants/http'
 import type {
 	GraphqlContributor,
 	GraphqlResponse,
@@ -60,6 +60,10 @@ function map_contributors_to_supporters(
 		.toSorted((first, second) => second.totalAmountDonated - first.totalAmountDonated)
 }
 
+function is_valid_graphql_container(value: unknown): value is object {
+	return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
 function throw_if_graphql_errors(response: GraphqlResponse): void {
 	const { errors } = response
 
@@ -69,10 +73,19 @@ function throw_if_graphql_errors(response: GraphqlResponse): void {
 	}
 }
 
+function get_contributor_nodes(response: GraphqlResponse): Array<GraphqlContributor> {
+	const nodes = response.data?.account?.contributors?.nodes
+	return nodes ?? []
+}
+
 function parse_graphql_response(json: unknown): Array<GraphqlContributor> {
+	if (!is_valid_graphql_container(json)) {
+		throw new Error('Invalid GraphQL response format')
+	}
+
 	const response = json as GraphqlResponse
 	throw_if_graphql_errors(response)
-	return response.data?.account?.contributors?.nodes ?? []
+	return get_contributor_nodes(response)
 }
 
 async function fetch_supporters(
@@ -80,7 +93,7 @@ async function fetch_supporters(
 ): Promise<Array<OpenCollectiveMember>> {
 	const response = await fetch_function(GRAPHQL_ENDPOINT, {
 		method: 'POST',
-		headers: { [HTTP_HEADERS.CONTENT_TYPE]: 'application/json' },
+		headers: { [HTTP_HEADERS.CONTENT_TYPE]: CONTENT_TYPE_JSON },
 		body: JSON.stringify({
 			query: CONTRIBUTORS_QUERY,
 			variables: { slug: OPENCOLLECTIVE.SLUG, limit: CONTRIBUTORS_LIMIT },
