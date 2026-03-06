@@ -7,7 +7,7 @@
 	}>()
 </script>
 
-<div class="grid gap-8 sm:grid-cols-2">
+<div class="grid gap-8 lg:grid-cols-2">
 	{#each projects as project (project.title)}
 		<ProjectCard {project} />
 	{/each}
