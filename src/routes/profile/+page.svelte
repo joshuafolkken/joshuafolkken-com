@@ -7,7 +7,7 @@
 	import PageSection from '$lib/components/PageSection.svelte'
 	import SupportBox from '$lib/components/SupportBox.svelte'
 	import TechStack from '$lib/components/TechStack.svelte'
-	import { LINK_BASE_DEFAULT_CLASS } from '$lib/constants/layout'
+	import { BLOCKQUOTE_CLASS, LINK_BASE_DEFAULT_CLASS } from '$lib/constants/layout'
 	import { PAGES } from '$lib/types/page'
 
 	const title = `${PAGES.PROFILE.title} - ${AUTHOR.NAME}`
@@ -77,7 +77,7 @@
 
 	<!-- Philosophy -->
 	<PageSection title="🌈 Philosophy">
-		<blockquote class="border-l-4 border-white/30 pl-4 italic">
+		<blockquote class={BLOCKQUOTE_CLASS}>
 			"Small thoughts from each individual support today's children and tomorrow's society."
 		</blockquote>
 		<p class="mt-4">
@@ -110,7 +110,7 @@
 				<li>🏗️ Infrastructure development and new technology research</li>
 				<li>🐛 Software bug fixes and manual improvements</li>
 			</ul>
-			<blockquote class="mt-4 border-l-4 border-white/30 pl-4 italic">
+			<blockquote class="mt-4 {BLOCKQUOTE_CLASS}">
 				<strong>"{APP.DESCRIPTION}"</strong> - 私達はゲームやツールの制作を通して、子どもたちの明るい笑顔を支える社会貢献を行います
 			</blockquote>
 		</div>

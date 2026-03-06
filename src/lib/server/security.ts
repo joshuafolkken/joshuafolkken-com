@@ -23,7 +23,7 @@ interface LimitData {
 
 const ip_limits = new Map<string, LimitData>()
 
-const cleanup_interval = setInterval(() => {
+function cleanup_expired_limits(): void {
 	const now = Date.now()
 
 	for (const [ip, data] of ip_limits.entries()) {
@@ -31,15 +31,10 @@ const cleanup_interval = setInterval(() => {
 			ip_limits.delete(ip)
 		}
 	}
-}, LIMIT_WINDOW)
-
-if (typeof process !== 'undefined') {
-	process.on('exit', () => {
-		clearInterval(cleanup_interval)
-	})
 }
 
 function check_rate_limit(ip: string): boolean {
+	cleanup_expired_limits()
 	const now = Date.now()
 	let limit_data = ip_limits.get(ip)
 

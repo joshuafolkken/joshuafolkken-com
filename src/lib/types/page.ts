@@ -28,6 +28,7 @@ type PageKey =
 const TOP: Page = {
 	title: AUTHOR.NAME,
 	description: APP.DESCRIPTION,
+	link: '/',
 }
 
 const TALK: Page = {

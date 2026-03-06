@@ -1,9 +1,11 @@
 <script lang="ts">
+	import BaseIcon from '$lib/icons/BaseIcon.svelte'
+
 	const {
 		size = '1.5rem',
 		title = 'Privacy Policy',
 		aria_label,
-		class: class_name,
+		class: class_name = '',
 	} = $props<{
 		size?: string
 		title?: string
@@ -12,21 +14,8 @@
 	}>()
 </script>
 
-<svg
-	viewBox="0 0 24 24"
-	width={size}
-	height={size}
-	class={class_name}
-	role="img"
-	aria-label={aria_label}
-	fill="none"
-	stroke="currentColor"
-	stroke-width="2"
-	stroke-linecap="round"
-	stroke-linejoin="round"
->
-	<title>{title}</title>
+<BaseIcon {size} {title} {aria_label} class={class_name}>
 	<!-- Shield with checkmark -->
 	<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
 	<path d="M9 12l2 2 4-4"></path>
-</svg>
+</BaseIcon>

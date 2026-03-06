@@ -1,19 +1,26 @@
 import { PAGES, type Page } from '$lib/types/page'
 
-const PATH_TO_PAGE: Record<string, Page> = {
-	'/': PAGES.TOP,
-	'/projects': PAGES.PROJECTS,
-	'/profile': PAGES.PROFILE,
-	'/blog': PAGES.BLOG,
-	'/privacy-policy': PAGES.PRIVACY_POLICY,
+function build_path_to_page(): Record<string, Page> {
+	const mapping: Record<string, Page> = {}
+
+	for (const page of Object.values(PAGES)) {
+		if (page.link?.startsWith('/')) {
+			mapping[page.link] = page
+		}
+	}
+
+	return mapping
 }
 
+const PATH_TO_PAGE: Record<string, Page> = build_path_to_page()
+
 function get_page_from_path(pathname: string): Page {
-	const page = PATH_TO_PAGE[pathname]
+	const fixed_page = PATH_TO_PAGE[pathname]
+	if (fixed_page) return fixed_page
 
-	if (page) return page
+	const blog_link = PAGES.BLOG.link
 
-	if (pathname.startsWith('/blog/')) {
+	if (blog_link && pathname.startsWith(`${blog_link}/`)) {
 		return PAGES.BLOG
 	}
 

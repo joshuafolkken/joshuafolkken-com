@@ -1,4 +1,4 @@
-version: '0.2'
+version: "0.2"
 language: en
 ignorePaths:
   - .vscode/**
@@ -6,12 +6,12 @@ ignorePaths:
   - build/**
   - .svelte-kit/**
   - dist/**
-  - '**/*.d.ts'
-  - '**/*.map'
-  - '**/*.min.js'
+  - "**/*.d.ts"
+  - "**/*.map"
+  - "**/*.min.js"
   - .git/**/*
   - .gitignore
-  - '**/*.svg'
+  - "**/*.svg"
   - pnpm-lock.yaml
   - .env*
   - src/lib/posts/*.md
@@ -48,6 +48,7 @@ words:
   - gsub
   - Hotspots
   - ianvs
+  - imagetools
   - joshuafolkken
   - joshuastudio
   - Kaku

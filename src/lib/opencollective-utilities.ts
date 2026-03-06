@@ -1,4 +1,5 @@
 import type { OpenCollectiveMember } from '$lib/types/opencollective'
+import { path_utilities } from '$lib/utils/path-utilities'
 
 const OPENCOLLECTIVE_DOMAIN = 'opencollective.com'
 const OPENCOLLECTIVE_IMAGES_BASE = `https://images.${OPENCOLLECTIVE_DOMAIN}`
@@ -22,7 +23,7 @@ function get_avatar_url(member: OpenCollectiveMember): string {
 		return member.image
 	}
 
-	const slug = member.profile.split('/').pop() ?? DEFAULT_AVATAR_SLUG
+	const slug = path_utilities.get_last_segment(member.profile) || DEFAULT_AVATAR_SLUG
 	return `${OPENCOLLECTIVE_IMAGES_BASE}/${slug}/avatar.png`
 }
 

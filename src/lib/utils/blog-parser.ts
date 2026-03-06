@@ -1,4 +1,5 @@
 import type { BlogMetadata, Post } from '$lib/types/blog'
+import { path_utilities } from '$lib/utils/path-utilities'
 import { slug_validator } from '$lib/utils/slug-validator'
 
 interface MdsvexMetadata {
@@ -37,7 +38,8 @@ function has_valid_metadata(metadata: MdsvexMetadata): metadata is BlogMetadata 
 }
 
 function get_raw_slug_from_path(path: string): string | undefined {
-	return path.split('/').pop()?.replace('.md', '')
+	const slug = path_utilities.get_basename_without_extension(path)
+	return slug || undefined
 }
 
 function is_safe_cover_image_path(path: string | undefined): path is string {
