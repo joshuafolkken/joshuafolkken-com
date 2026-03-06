@@ -11,7 +11,8 @@ export default defineConfig({
 	},
 	plugins: [
 		imagetools({
-			defaultDirectives: () => new URLSearchParams({ format: 'webp' }),
+			defaultDirectives: () =>
+				new URLSearchParams({ format: 'webp', w: '1344', h: '2016', fit: 'inside' }),
 		}),
 		tailwindcss(),
 		sveltekit(),
