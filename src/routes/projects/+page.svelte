@@ -16,10 +16,12 @@
 	<meta name="description" content={PAGES.PROJECTS.description} />
 </svelte:head>
 
-<PageLayout>
+<PageLayout max_width="4xl">
 	<PageHeader page={PAGES.PROJECTS} />
 
-	<ProjectList projects={PROJECTS} />
+	<section class="my-6">
+		<ProjectList projects={PROJECTS} />
+	</section>
 
 	<SupportBox />
 	<EngagementButtons slug="page:projects" {title} />

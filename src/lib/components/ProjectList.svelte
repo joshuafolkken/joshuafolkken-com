@@ -1,24 +1,14 @@
 <script lang="ts">
 	import type { Project } from '$lib/types/project'
-	import ContentCard from './ContentCard.svelte'
-	import ProjectLinks from './ProjectLinks.svelte'
+	import ProjectCard from './ProjectCard.svelte'
 
 	const { projects } = $props<{
 		projects: Array<Project>
 	}>()
 </script>
 
-{#each projects as project (project.title)}
-	<div class="my-6">
-		<ContentCard
-			icon={project.icon}
-			title={project.title}
-			subtitle={project.subtitle}
-			description={project.description}
-		/>
-		<ProjectLinks links={project.links} />
-		{#if project.image}
-			<img src={project.image} alt={project.title} class="mt-3 h-auto w-full rounded-xl" />
-		{/if}
-	</div>
-{/each}
+<div class="grid gap-8 sm:grid-cols-2">
+	{#each projects as project (project.title)}
+		<ProjectCard {project} />
+	{/each}
+</div>
