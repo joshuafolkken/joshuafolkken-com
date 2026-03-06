@@ -2,7 +2,7 @@
 	import { app, LINK_REL, LINK_TARGET } from '$lib/app'
 	import { ICON_SIZE_SM } from '$lib/constants/layout'
 	import GitHubIcon from '$lib/icons/GitHubIcon.svelte'
-	import type { Project } from '$lib/types/project'
+	import type { Project, ProjectLink } from '$lib/types/project'
 	import { project_utilities } from '$lib/utils/project-utilities'
 	import ProjectCardContent from './ProjectCardContent.svelte'
 
@@ -15,7 +15,7 @@
 		' hover:-translate-y-1 hover:border-white/10 hover:bg-slate-800/80'
 
 	const demo_href = $derived(project_utilities.get_demo_href(project))
-	const github_link = $derived(project.links.find((link) => link.type === 'github'))
+	const github_link = $derived(project.links.find((link: ProjectLink) => link.type === 'github'))
 	const has_github_link = $derived(Boolean(github_link))
 </script>
 
