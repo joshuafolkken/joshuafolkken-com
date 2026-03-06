@@ -1,20 +1,20 @@
 <script lang="ts">
 	import { LINK_REL, LINK_TARGET } from '$lib/app'
+	import CardImage from '$lib/components/CardImage.svelte'
 	import HeroSection from '$lib/components/HeroSection.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import RevealSection from '$lib/components/RevealSection.svelte'
+	import {
+		CARD_BASE_CLASS,
+		CARD_DESCRIPTION_CLASS,
+		CARD_TITLE_CLASS,
+		CARD_WRAPPER_CLASS,
+	} from '$lib/constants/card-styles'
 	import { ICON_SIZE_2XL, MAIN_CONTENT_ID } from '$lib/constants/layout'
 	import { FEATURED_PROJECT_COUNT, PROJECTS } from '$lib/data/projects'
 	import { MAIN_NAV_PAGES, PAGES } from '$lib/types/page'
 	import { link_utilities } from '$lib/utils/link-utilities'
 	import { project_utilities } from '$lib/utils/project-utilities'
-
-	const CARD_BASE_CLASS =
-		'group rounded-2xl border border-white/5 bg-slate-900/50 transition-all duration-300' +
-		' hover:-translate-y-1 hover:border-white/10 hover:bg-slate-800/80'
-	const CARD_TITLE_CLASS = 'text-white/70 transition-colors duration-300 group-hover:text-white'
-	const CARD_DESCRIPTION_CLASS =
-		'text-sm text-white/50 transition-colors duration-300 group-hover:text-white/80'
 
 	const featured_projects = $derived(
 		PROJECTS.filter((proj) => proj.image).slice(0, FEATURED_PROJECT_COUNT),
@@ -23,7 +23,7 @@
 
 <HeroSection />
 
-<PageLayout max_width="4xl">
+<PageLayout max_width="6xl">
 	<div id={MAIN_CONTENT_ID} class="scroll-mt-20"></div>
 
 	<!-- Featured Projects -->
@@ -43,25 +43,16 @@
 			</a>
 		</div>
 
-		<div class="grid gap-8 sm:grid-cols-2">
+		<div class="grid gap-8 lg:grid-cols-2">
 			{#each featured_projects as project (project.title)}
 				<a
 					href={project_utilities.get_primary_href(project)}
 					target={LINK_TARGET}
 					rel={LINK_REL}
-					class="relative flex flex-col overflow-hidden {CARD_BASE_CLASS}"
+					class={CARD_WRAPPER_CLASS}
 				>
 					{#if project.image}
-						<div class="relative aspect-video w-full overflow-hidden">
-							<img
-								src={project.image}
-								alt={project.title}
-								class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-							/>
-							<div
-								class="absolute inset-0 bg-linear-to-t from-slate-950/80 via-transparent to-transparent opacity-60"
-							></div>
-						</div>
+						<CardImage src={project.image} alt={project.title} />
 					{/if}
 					<div class="p-6">
 						<h3 class="text-lg font-semibold">
@@ -81,7 +72,7 @@
 	<!-- Quick Navigation -->
 	<RevealSection>
 		<h2 class="mb-12 text-center text-3xl font-bold tracking-tight text-white">Discover</h2>
-		<div class="grid gap-6 sm:grid-cols-3">
+		<div class="grid gap-6 lg:grid-cols-3">
 			{#each MAIN_NAV_PAGES as p (p.title)}
 				<a
 					href={link_utilities.get_href(p.link) ?? '#'}

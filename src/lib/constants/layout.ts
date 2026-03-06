@@ -1,4 +1,4 @@
-type MaxWidthKey = 'sm' | '2xl' | '3xl' | '4xl'
+type MaxWidthKey = 'sm' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl'
 
 /* eslint-disable @typescript-eslint/naming-convention -- Tailwind width keys */
 const MAX_WIDTH_CLASS_MAP: Record<MaxWidthKey, string> = {
@@ -6,6 +6,8 @@ const MAX_WIDTH_CLASS_MAP: Record<MaxWidthKey, string> = {
 	'2xl': 'max-w-2xl',
 	'3xl': 'max-w-3xl',
 	'4xl': 'max-w-4xl',
+	'5xl': 'max-w-5xl',
+	'6xl': 'max-w-6xl',
 }
 /* eslint-enable @typescript-eslint/naming-convention */
 

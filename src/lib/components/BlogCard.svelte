@@ -1,6 +1,12 @@
 <script lang="ts">
 	import { resolve } from '$app/paths'
+	import CardImage from '$lib/components/CardImage.svelte'
 	import DateDisplay from '$lib/components/DateDisplay.svelte'
+	import {
+		CARD_DESCRIPTION_CLASS,
+		CARD_TITLE_CLASS,
+		CARD_WRAPPER_CLASS,
+	} from '$lib/constants/card-styles'
 	import { blog_images } from '$lib/data/blog-images'
 	import type { Post } from '$lib/types/blog'
 
@@ -8,29 +14,25 @@
 	const cover_image_source = $derived(blog_images.get_cover_image_url(post.cover_image))
 </script>
 
-<li
-	class="group overflow-hidden rounded-lg border border-slate-300/50 transition duration-300 hover:border-slate-300 hover:bg-slate-800/60 hover:text-white"
->
-	<a href={resolve('/blog/[slug]', { slug: post.slug })} class="block">
+<div class={CARD_WRAPPER_CLASS}>
+	<a href={resolve('/blog/[slug]', { slug: post.slug })} class="flex flex-1 flex-col">
 		{#if cover_image_source}
-			<div class="overflow-hidden">
-				<img
-					src={cover_image_source}
-					alt={post.title}
-					class="h-48 w-full object-cover transition-transform duration-1000 group-hover:scale-120"
-				/>
-			</div>
+			<CardImage src={cover_image_source} alt={post.title} />
 		{/if}
-		<div class="p-4">
-			<h2 class="text-lg font-semibold">{post.title}</h2>
-			<p class="my-2 text-sm leading-relaxed text-gray-400 group-hover:text-gray-300">
+		<div class="flex flex-1 flex-col p-6 pb-16">
+			<h3 class="flex items-center gap-2 text-lg font-semibold">
+				<span class={CARD_TITLE_CLASS}>
+					{post.title}
+				</span>
+			</h3>
+			<p class="mt-2 line-clamp-2 {CARD_DESCRIPTION_CLASS}">
 				{post.excerpt}
 			</p>
 			<DateDisplay
 				date={post.date}
 				updated={post.updated}
-				class="text-gray-500 group-hover:text-gray-400"
+				class="absolute right-6 bottom-6 text-white/40 transition-colors duration-300 group-hover:text-white/60"
 			/>
 		</div>
 	</a>
-</li>
+</div>

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { APP, AUTHOR } from '$lib/app'
+	import LogoWithGlow from '$lib/components/LogoWithGlow.svelte'
 	import { MAIN_CONTENT_ID } from '$lib/constants/layout'
 	import { static_images } from '$lib/data/static-images'
-	import LogoIcon from '$lib/icons/LogoIcon.svelte'
 	import { PAGES } from '$lib/types/page'
 	import { link_utilities } from '$lib/utils/link-utilities'
 
@@ -29,8 +29,8 @@
 	</div>
 
 	<div class="relative z-10 flex flex-col items-center justify-center px-4 text-center">
-		<div class="mb-8 scale-110 drop-shadow-[0_0_15px_rgba(56,189,248,0.5)]">
-			<LogoIcon />
+		<div class="cyber-glow-hover group mb-8 scale-110 cursor-default">
+			<LogoWithGlow />
 		</div>
 		<h1 class="animate-title font-display text-5xl font-bold tracking-tight text-white md:text-7xl">
 			{AUTHOR.NAME}

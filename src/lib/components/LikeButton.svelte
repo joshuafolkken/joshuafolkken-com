@@ -12,32 +12,28 @@
 
 	const button_class = $derived(
 		[
-			'group relative flex items-center gap-3 rounded-full border px-6 py-3 transition-all',
-			'active:scale-95 disabled:cursor-default disabled:active:scale-100 cursor-pointer',
+			'group relative flex items-center gap-3 rounded-full border px-6 py-3 transition-all duration-300',
+			'hover:scale-105 active:scale-95 disabled:cursor-default disabled:active:scale-100 cursor-pointer',
 			is_liked
-				? 'border-red-200 bg-red-50 text-red-500 dark:border-red-900/30 dark:bg-red-900/10'
-				: 'border-neutral-200 hover:border-red-200 hover:bg-red-50 border-white/10 dark:hover:border-red-900/30 dark:hover:bg-red-900/10',
+				? 'border-red-900/40 bg-red-900/10 text-red-400'
+				: 'border-white/10 bg-white/5 text-white/50 hover:border-red-900/30 hover:bg-red-900/10 hover:text-red-400',
 		].join(' '),
 	)
 
 	const icon_class = $derived(
 		[
 			'h-6 w-6 transition-transform duration-300',
-			is_liked
-				? 'fill-red-500 text-red-500'
-				: 'text-neutral-400 group-hover:scale-110 group-hover:text-red-400',
+			is_liked ? 'fill-red-400 text-red-400' : 'group-hover:scale-110 group-hover:text-red-400',
 			is_animating ? 'scale-125' : '',
 		].join(' '),
 	)
 
-	const text_class = $derived(`font-medium ${is_liked ? 'text-red-600 dark:text-red-400' : ''}`)
+	const text_class = $derived(`font-medium ${is_liked ? 'text-red-400' : ''}`)
 
 	const count_container_class = $derived(
 		[
 			'border-l pl-3 text-sm',
-			is_liked
-				? 'border-red-200 text-red-600/80 dark:border-red-800/30 dark:text-red-400/80'
-				: 'border-neutral-200 text-neutral-500 dark:border-neutral-700',
+			is_liked ? 'border-red-900/30 text-red-400/80' : 'border-white/10 text-white/40',
 		].join(' '),
 	)
 </script>
