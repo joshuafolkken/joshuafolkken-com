@@ -25,13 +25,20 @@ const ICON_SIZE_2XL = '2.5rem'
 const LINK_BASE_CLASS = 'link-base'
 const LINK_BASE_DEFAULT_CLASS = `${LINK_BASE_CLASS} text-white/80`
 
+const BLOCKQUOTE_CLASS = 'border-l-4 border-white/30 pl-4 italic'
+
+/** ID of the main content anchor for scroll links (e.g. from hero). */
+const MAIN_CONTENT_ID = 'main-content'
+
 function get_max_width_class(max_width: MaxWidthKey = '2xl'): string {
 	return MAX_WIDTH_CLASS_MAP[max_width]
 }
 
 export type { MaxWidthKey }
 export {
+	BLOCKQUOTE_CLASS,
 	CONTENT_EDGE_SPACING_CLASS,
+	MAIN_CONTENT_ID,
 	get_max_width_class,
 	ICON_LABEL_ROW_CENTER_CLASS,
 	ICON_SIZE_2XL,

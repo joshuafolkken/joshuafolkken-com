@@ -1,19 +1,21 @@
 <script lang="ts">
 	import { resolve } from '$app/paths'
 	import DateDisplay from '$lib/components/DateDisplay.svelte'
+	import { blog_images } from '$lib/data/blog-images'
 	import type { Post } from '$lib/types/blog'
 
 	const { post }: { post: Post } = $props()
+	const cover_image_source = $derived(blog_images.get_cover_image_url(post.cover_image))
 </script>
 
 <li
 	class="group overflow-hidden rounded-lg border border-slate-300/50 transition duration-300 hover:border-slate-300 hover:bg-slate-800/60 hover:text-white"
 >
 	<a href={resolve('/blog/[slug]', { slug: post.slug })} class="block">
-		{#if post.cover_image}
+		{#if cover_image_source}
 			<div class="overflow-hidden">
 				<img
-					src={post.cover_image}
+					src={cover_image_source}
 					alt={post.title}
 					class="h-48 w-full object-cover transition-transform duration-1000 group-hover:scale-120"
 				/>

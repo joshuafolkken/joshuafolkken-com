@@ -1,8 +1,12 @@
 <script lang="ts">
 	import { APP, AUTHOR } from '$lib/app'
+	import { MAIN_CONTENT_ID } from '$lib/constants/layout'
+	import { static_images } from '$lib/data/static-images'
 	import LogoIcon from '$lib/icons/LogoIcon.svelte'
 	import { PAGES } from '$lib/types/page'
 	import { link_utilities } from '$lib/utils/link-utilities'
+
+	const main_content_href = `#${MAIN_CONTENT_ID}`
 </script>
 
 <!-- Hero: full width, extends under sticky header -->
@@ -13,7 +17,7 @@
 	<!-- Modern Background Layer -->
 	<div class="absolute inset-0 bg-slate-950">
 		<img
-			src="/images/hero-bg.png"
+			src={static_images.hero_bg}
 			alt=""
 			class="animate-image-slow h-full w-full object-cover opacity-40 mix-blend-screen"
 			role="presentation"
@@ -37,7 +41,7 @@
 
 		<div class="animate-btns mt-10 flex gap-4">
 			<a
-				href="#main-content"
+				href={main_content_href}
 				class="rounded-full bg-white px-8 py-3 text-sm font-semibold text-slate-950 transition-all hover:bg-sky-400 hover:text-white hover:shadow-[0_0_20px_rgba(56,189,248,0.4)]"
 			>
 				Explore Work
@@ -51,17 +55,32 @@
 		</div>
 	</div>
 
-	<a href="#main-content" class="scroll-prompt" aria-label="Scroll to content">
+	<a href={main_content_href} class="scroll-prompt" aria-label="Scroll to content">
 		<div class="flex flex-col items-center gap-2">
 			<span class="text-[10px] tracking-[0.3em] text-white/40 uppercase">Scroll</span>
-			<div class="h-12 w-[1px] bg-linear-to-b from-white/40 to-transparent"></div>
+			<div class="h-12 w-px bg-linear-to-b from-white/40 to-transparent"></div>
 		</div>
 	</a>
 </header>
 
 <style>
+	/* Animation timing constants (single source of truth) */
+	#hero {
+		--hero-image-pan-duration: 26.67s;
+		--hero-aurora-blur: 60px;
+		--hero-aurora-1-duration: 8s;
+		--hero-aurora-2-duration: 10s;
+		--hero-aurora-3-duration: 6.67s;
+		--hero-scroll-prompt-bottom: 2rem;
+		--hero-fade-dur: 0.8s;
+		--hero-fade-delay-title: 0.2s;
+		--hero-fade-delay-desc: 0.4s;
+		--hero-fade-delay-btns: 0.6s;
+		--hero-fade-up-center-delay: 1.2s;
+	}
+
 	.animate-image-slow {
-		animation: image-pan 26.67s ease-in-out infinite alternate;
+		animation: image-pan var(--hero-image-pan-duration) ease-in-out infinite alternate;
 	}
 
 	@keyframes image-pan {
@@ -76,7 +95,7 @@
 	.aurora {
 		position: absolute;
 		border-radius: 50%;
-		filter: blur(60px);
+		filter: blur(var(--hero-aurora-blur));
 		opacity: 0.75;
 		mix-blend-mode: screen;
 		pointer-events: none;
@@ -93,7 +112,7 @@
 			rgba(56, 189, 248, 0.25) 40%,
 			transparent 65%
 		);
-		animation: aurora-move-1 8s ease-in-out infinite alternate;
+		animation: aurora-move-1 var(--hero-aurora-1-duration) ease-in-out infinite alternate;
 	}
 
 	.aurora-2 {
@@ -107,7 +126,7 @@
 			rgba(99, 102, 241, 0.2) 40%,
 			transparent 65%
 		);
-		animation: aurora-move-2 10s ease-in-out infinite alternate-reverse;
+		animation: aurora-move-2 var(--hero-aurora-2-duration) ease-in-out infinite alternate-reverse;
 	}
 
 	.aurora-3 {
@@ -121,7 +140,7 @@
 			rgba(232, 121, 249, 0.15) 40%,
 			transparent 65%
 		);
-		animation: aurora-move-3 6.67s ease-in-out infinite alternate;
+		animation: aurora-move-3 var(--hero-aurora-3-duration) ease-in-out infinite alternate;
 	}
 
 	@keyframes aurora-move-1 {
@@ -172,7 +191,7 @@
 	.scroll-prompt {
 		position: absolute;
 		z-index: 20;
-		bottom: 2rem;
+		bottom: var(--hero-scroll-prompt-bottom);
 		left: 50%;
 		transform: translate(-50%);
 		display: flex;
@@ -181,20 +200,20 @@
 		color: rgb(255 255 255 / 0.98);
 		cursor: pointer;
 		transition: color 0.2s;
-		animation: fade-in-up-center 1s ease-out 1.2s both;
+		animation: fade-in-up-center 1s ease-out var(--hero-fade-up-center-delay) both;
 	}
 	.scroll-prompt:hover {
 		color: white;
 	}
 
 	.animate-title {
-		animation: fade-in-up 0.8s ease-out 0.2s both;
+		animation: fade-in-up var(--hero-fade-dur) ease-out var(--hero-fade-delay-title) both;
 	}
 	.animate-desc {
-		animation: fade-in-up 0.8s ease-out 0.4s both;
+		animation: fade-in-up var(--hero-fade-dur) ease-out var(--hero-fade-delay-desc) both;
 	}
 	.animate-btns {
-		animation: fade-in-up 0.8s ease-out 0.6s both;
+		animation: fade-in-up var(--hero-fade-dur) ease-out var(--hero-fade-delay-btns) both;
 	}
 
 	@keyframes fade-in-up {
