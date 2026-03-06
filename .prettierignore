@@ -6,6 +6,7 @@ bun.lock
 bun.lockb
 
 # Miscellaneous
+cspell.config.yaml
 /static/
 .pnpm-store/
 .fast-check/

@@ -3,11 +3,18 @@
 	import HeroSection from '$lib/components/HeroSection.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import RevealSection from '$lib/components/RevealSection.svelte'
-	import { ICON_SIZE_2XL } from '$lib/constants/layout'
+	import { ICON_SIZE_2XL, MAIN_CONTENT_ID } from '$lib/constants/layout'
 	import { FEATURED_PROJECT_COUNT, PROJECTS } from '$lib/data/projects'
 	import { MAIN_NAV_PAGES, PAGES } from '$lib/types/page'
 	import { link_utilities } from '$lib/utils/link-utilities'
 	import { project_utilities } from '$lib/utils/project-utilities'
+
+	const CARD_BASE_CLASS =
+		'group rounded-2xl border border-white/5 bg-slate-900/50 transition-all duration-300' +
+		' hover:-translate-y-1 hover:border-white/10 hover:bg-slate-800/80'
+	const CARD_TITLE_CLASS = 'text-white/70 transition-colors duration-300 group-hover:text-white'
+	const CARD_DESCRIPTION_CLASS =
+		'text-sm text-white/50 transition-colors duration-300 group-hover:text-white/80'
 
 	const featured_projects = $derived(
 		PROJECTS.filter((proj) => proj.image).slice(0, FEATURED_PROJECT_COUNT),
@@ -17,7 +24,7 @@
 <HeroSection />
 
 <PageLayout max_width="4xl">
-	<div id="main-content" class="scroll-mt-20"></div>
+	<div id={MAIN_CONTENT_ID} class="scroll-mt-20"></div>
 
 	<!-- Featured Projects -->
 	<RevealSection>
@@ -42,7 +49,7 @@
 					href={project_utilities.get_primary_href(project)}
 					target={LINK_TARGET}
 					rel={LINK_REL}
-					class="group relative flex flex-col overflow-hidden rounded-2xl border border-white/5 bg-slate-900/50 transition-all duration-300 hover:-translate-y-1 hover:border-white/10 hover:bg-slate-800/80"
+					class="relative flex flex-col overflow-hidden {CARD_BASE_CLASS}"
 				>
 					{#if project.image}
 						<div class="relative aspect-video w-full overflow-hidden">
@@ -58,13 +65,11 @@
 					{/if}
 					<div class="p-6">
 						<h3 class="text-lg font-semibold">
-							<span class="text-white/70 transition-colors duration-300 group-hover:text-white">
+							<span class={CARD_TITLE_CLASS}>
 								{project.title}
 							</span>
 						</h3>
-						<p
-							class="mt-2 line-clamp-2 text-sm text-white/50 transition-colors duration-300 group-hover:text-white/80"
-						>
+						<p class="mt-2 line-clamp-2 {CARD_DESCRIPTION_CLASS}">
 							{project.subtitle}
 						</p>
 					</div>
@@ -80,7 +85,7 @@
 			{#each MAIN_NAV_PAGES as p (p.title)}
 				<a
 					href={link_utilities.get_href(p.link) ?? '#'}
-					class="group flex flex-col items-center justify-center rounded-2xl border border-white/5 bg-slate-900/50 p-10 text-center transition-all duration-300 hover:-translate-y-1 hover:border-white/10 hover:bg-slate-800/80"
+					class="flex flex-col items-center justify-center p-10 text-center {CARD_BASE_CLASS}"
 				>
 					{#if p.icon}
 						<!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
@@ -92,13 +97,11 @@
 						</div>
 					{/if}
 					<h3 class="text-xl font-semibold">
-						<span class="text-white/70 transition-colors duration-300 group-hover:text-white">
+						<span class={CARD_TITLE_CLASS}>
 							{p.title}
 						</span>
 					</h3>
-					<p
-						class="mt-3 text-sm text-white/50 transition-colors duration-300 group-hover:text-white/80"
-					>
+					<p class="mt-3 {CARD_DESCRIPTION_CLASS}">
 						{p.description}
 					</p>
 				</a>

@@ -1,9 +1,11 @@
 <script lang="ts">
+	import BaseIcon from '$lib/icons/BaseIcon.svelte'
+
 	const {
 		size = '1.5rem',
 		title = 'User',
 		aria_label,
-		class: class_name,
+		class: class_name = '',
 	} = $props<{
 		size?: string
 		title?: string
@@ -12,21 +14,8 @@
 	}>()
 </script>
 
-<svg
-	viewBox="0 0 24 24"
-	width={size}
-	height={size}
-	class={class_name}
-	role="img"
-	aria-label={aria_label}
-	fill="none"
-	stroke="currentColor"
-	stroke-width="2"
-	stroke-linecap="round"
-	stroke-linejoin="round"
->
-	<title>{title}</title>
+<BaseIcon {size} {title} {aria_label} class={class_name}>
 	<!-- User/Person icon -->
 	<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
 	<circle cx="12" cy="7" r="4"></circle>
-</svg>
+</BaseIcon>

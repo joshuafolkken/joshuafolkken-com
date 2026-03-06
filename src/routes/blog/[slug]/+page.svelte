@@ -6,11 +6,13 @@
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import SupportBox from '$lib/components/SupportBox.svelte'
+	import { blog_images } from '$lib/data/blog-images'
 	import { PAGES } from '$lib/types/page'
 	import type { PageData } from './$types'
 
 	const { data }: { data: PageData } = $props()
-	const image_url = $derived(`${APP.URL}${data.meta.cover_image ?? ''}`)
+	const cover_image_source = $derived(blog_images.get_cover_image_url(data.meta.cover_image))
+	const image_url = $derived(cover_image_source ? `${APP.URL}${cover_image_source}` : '')
 	const blog_title = $derived(data.meta.title)
 	const page_title = $derived(`${blog_title} - ${AUTHOR.NAME}`)
 </script>
@@ -34,9 +36,9 @@
 		<h1 class="mb-1">{blog_title}</h1>
 		<DateDisplay date={data.meta.date} updated={data.meta.updated} />
 
-		{#if data.meta.cover_image}
+		{#if cover_image_source}
 			<div class="-mx-4 overflow-hidden">
-				<img src={data.meta.cover_image} alt={blog_title} class="mb-0 h-auto w-full" />
+				<img src={cover_image_source} alt={blog_title} class="mb-0 h-auto w-full" />
 			</div>
 		{/if}
 
