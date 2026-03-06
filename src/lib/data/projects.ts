@@ -1,6 +1,6 @@
 import { SUBTITLE_DEVELOPMENT_TOOL, URLS } from '$lib/app'
 import godot_2d_platformer from '$lib/assets/images/projects/godot-2d-platformer.png'
-import godot_multiplayer from '$lib/assets/images/projects/godot-multiplayer.webp'
+import godot_multiplayer from '$lib/assets/images/projects/godot-multiplayer-v2.png'
 import godot_project_template from '$lib/assets/images/projects/godot-project-template.png'
 import pong from '$lib/assets/images/projects/pong.png'
 import talk from '$lib/assets/images/projects/talk.png'

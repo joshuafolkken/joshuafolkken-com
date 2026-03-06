@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state'
 	import { LINK_REL, LINK_TARGET } from '$lib/app'
+	import { CARD_BASE_CLASS } from '$lib/constants/card-styles'
 	import { opencollective_utilities } from '$lib/opencollective-utilities'
 	import type { OpenCollectiveMember } from '$lib/types/opencollective'
 	import { PAGES } from '$lib/types/page'
@@ -9,13 +10,13 @@
 </script>
 
 {#if supporters.length}
-	<div class="grid gap-4 sm:grid-cols-3">
+	<div class="grid gap-4 lg:grid-cols-3">
 		{#each supporters as supporter, index (supporter.MemberId)}
 			<a
 				href={PAGES.DONATIONS.link}
 				target={LINK_TARGET}
 				rel={LINK_REL}
-				class="group flex items-center gap-4 rounded-2xl border border-white/5 bg-slate-900/50 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-white/10 hover:bg-slate-800/80"
+				class="flex items-center gap-4 p-5 {CARD_BASE_CLASS}"
 			>
 				<img
 					src={opencollective_utilities.get_avatar_url(supporter)}
@@ -25,7 +26,7 @@
 				/>
 				<div class="flex min-w-0 flex-col items-start gap-0.5">
 					<span
-						class="shrink-0 text-sm font-bold text-white/70 transition duration-300 group-hover:text-white/100"
+						class="shrink-0 text-sm font-bold text-white/70 transition duration-300 group-hover:text-white"
 					>
 						{index + 1}.
 					</span>

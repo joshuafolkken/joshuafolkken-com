@@ -25,8 +25,21 @@ a:focus-visible {
 	@apply rounded outline-2 outline-offset-2 outline-white/50;
 }
 
-a.link-base {
-	@apply underline-offset-4 transition duration-300 hover:text-white;
+a.link-base,
+.prose a {
+	@apply underline-offset-4 hover:text-white;
+	transition:
+		filter 0.3s ease-out,
+		color 0.3s ease-out,
+		transform 0.3s ease-out,
+		translate 0.3s ease-out,
+		scale 0.3s ease-out;
+}
+
+a.link-base:hover,
+.prose a:hover {
+	filter: drop-shadow(0 0 4px rgb(56 189 248 / 0.6)) drop-shadow(0 0 12px rgb(56 189 248 / 0.4))
+		drop-shadow(0 0 24px rgb(56 189 248 / 0.2));
 }
 
 .prose h1 {
@@ -61,10 +74,6 @@ a.link-base {
 	opacity: 0.8;
 }
 
-.prose a {
-	@apply underline-offset-4;
-}
-
 .prose p {
 	@apply leading-[1.8] text-white/75;
 }
@@ -96,4 +105,47 @@ code {
 	opacity: 1;
 	transform: translateY(0);
 	filter: blur(0);
+}
+
+/* Cyber-style card: glowing border and overflow halo on hover */
+.cyber-card {
+	transition:
+		transform 0.3s ease,
+		translate 0.3s ease,
+		box-shadow 0.3s ease,
+		border-color 0.3s ease,
+		background-color 0.3s ease;
+}
+
+.cyber-card:hover {
+	box-shadow:
+		0 0 0 1px rgb(56 189 248 / 0.5),
+		0 0 20px 4px rgb(56 189 248 / 0.2),
+		0 0 40px 12px rgb(56 189 248 / 0.12),
+		0 0 60px 20px rgb(56 189 248 / 0.06);
+}
+
+/* Cyber glow for header links (logo, nav items) — glow on SVG/text itself */
+.cyber-glow-hover {
+	transition:
+		filter 0.3s ease-out,
+		color 0.3s ease-out,
+		transform 0.3s ease-out,
+		translate 0.3s ease-out,
+		scale 0.3s ease-out;
+}
+
+.cyber-glow-hover * {
+	transition:
+		color 0.3s ease-out,
+		fill 0.3s ease-out,
+		filter 0.3s ease-out,
+		transform 0.3s ease-out,
+		translate 0.3s ease-out,
+		scale 0.3s ease-out;
+}
+
+.cyber-glow-hover:hover {
+	filter: drop-shadow(0 0 4px rgb(56 189 248 / 0.6)) drop-shadow(0 0 12px rgb(56 189 248 / 0.4))
+		drop-shadow(0 0 24px rgb(56 189 248 / 0.2));
 }

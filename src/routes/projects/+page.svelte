@@ -16,7 +16,7 @@
 	<meta name="description" content={PAGES.PROJECTS.description} />
 </svelte:head>
 
-<PageLayout max_width="4xl">
+<PageLayout max_width="6xl">
 	<PageHeader page={PAGES.PROJECTS} />
 
 	<section class="my-6">

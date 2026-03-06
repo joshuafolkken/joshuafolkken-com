@@ -4,7 +4,7 @@
 	import PageFooter from './PageFooter.svelte'
 	import PageFooterLine from './PageFooterLine.svelte'
 
-	const { max_width = '2xl', children } = $props<{
+	const { max_width = '6xl', children } = $props<{
 		max_width?: MaxWidthKey
 		children: Snippet
 	}>()

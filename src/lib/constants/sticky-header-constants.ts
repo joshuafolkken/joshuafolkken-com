@@ -9,7 +9,7 @@ const HEADER_HEIGHT = '4rem'
 const NAV_ICON_SIZE = '1.25rem'
 
 const MENU_NAV_DESKTOP_BASE =
-	'group relative flex items-center gap-2 px-3 py-2 text-base font-medium transition-colors'
+	'cyber-glow-hover group relative flex items-center gap-2 rounded-lg px-3 py-2 text-base font-medium'
 const MENU_NAV_MOBILE_BASE =
 	'group -mx-4 flex items-center gap-3 rounded-none border-l-2 px-4 py-3 text-base transition-colors duration-300 hover:bg-white/10'
 const MENU_NAV_ACTIVE_DESKTOP = 'text-sky-400'
@@ -19,26 +19,26 @@ const MENU_NAV_ACTIVE_MOBILE =
 const MENU_NAV_INACTIVE_MOBILE =
 	'border-transparent text-white/70 hover:text-white [&_svg]:text-inherit'
 
-const MENU_NAV_ICON_DESKTOP = 'transition-transform group-hover:-translate-y-0.5'
-const MENU_NAV_ICON_MOBILE = 'transition-transform group-hover:translate-x-1'
+const MENU_NAV_ICON_DESKTOP = 'transition-all duration-300 ease-out group-hover:-translate-y-0.5'
+const MENU_NAV_ICON_MOBILE = 'transition-all duration-300 ease-out group-hover:translate-x-1'
 
 const HEADER_LOGO_GLOW_CLASS =
-	'drop-shadow-[0_0_8px_rgba(56,189,248,0.4)] transition-all group-hover:drop-shadow-[0_0_12px_rgba(56,189,248,0.6)]'
+	'drop-shadow-[0_0_8px_rgba(56,189,248,0.4)] group-hover:drop-shadow-[0_0_12px_rgba(56,189,248,0.6)]'
 
 const ICON_BUTTON_BASE =
-	'flex h-9 w-9 items-center justify-center rounded-xl bg-white/0 text-white/50 transition-all hover:bg-white/5 hover:text-white'
+	'flex h-9 w-9 items-center justify-center rounded-xl text-white/50 hover:text-white'
 
-const SOCIAL_LINK_DESKTOP_CLASSES = `${ICON_BUTTON_BASE} hover:scale-110 active:scale-95`
+const SOCIAL_LINK_DESKTOP_CLASSES = `cyber-glow-hover ${ICON_BUTTON_BASE} hover:scale-110 active:scale-95`
 
-const MENU_TOGGLE_BUTTON_CLASSES = `${ICON_BUTTON_BASE} md:hidden`
+const MENU_TOGGLE_BUTTON_CLASSES = `cyber-glow-hover ${ICON_BUTTON_BASE} md:hidden hover:scale-110 active:scale-95`
 const SOCIAL_LINK_MOBILE_CLASSES =
-	'flex h-10 w-10 items-center justify-center rounded-full text-white/70 transition-colors duration-300 hover:bg-white/10 hover:text-white'
+	'cyber-glow-hover flex h-10 w-10 items-center justify-center rounded-full text-white/70 hover:text-white hover:scale-110 active:scale-95'
 const SOCIAL_LINK_CONTAINER_DESKTOP = 'hidden items-center gap-2 md:flex'
 const SOCIAL_LINK_CONTAINER_MOBILE = 'mt-4 flex gap-2 p-4 pt-0 md:hidden'
 
 const HEADER_PAGE_LINK_BASE =
 	'flex shrink-0 items-center gap-2 truncate text-base font-medium text-white/80 md:hidden [&_svg]:text-inherit'
-const HEADER_PAGE_LINK_ACTIVE = `${HEADER_PAGE_LINK_BASE} transition-colors hover:text-white hover:[&_svg]:text-white`
+const HEADER_PAGE_LINK_ACTIVE = `cyber-glow-hover rounded-lg px-2 py-1 ${HEADER_PAGE_LINK_BASE} hover:text-white hover:[&_svg]:text-white`
 
 const MENU_DRAWER_CLASSES =
 	'fixed right-0 z-50 h-full overflow-y-auto border-l border-white/5 bg-slate-950/70 shadow-2xl backdrop-blur-md transition-transform duration-300 ease-in-out'
