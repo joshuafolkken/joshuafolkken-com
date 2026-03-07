@@ -3,6 +3,7 @@
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import ProjectCard from '$lib/components/ProjectCard.svelte'
 	import RevealSection from '$lib/components/RevealSection.svelte'
+	import SkillsSection from '$lib/components/SkillsSection.svelte'
 	import {
 		CARD_BASE_CLASS,
 		CARD_DESCRIPTION_CLASS,
@@ -45,6 +46,11 @@
 				<ProjectCard {project} />
 			{/each}
 		</div>
+	</RevealSection>
+
+	<!-- Skills -->
+	<RevealSection>
+		<SkillsSection />
 	</RevealSection>
 
 	<!-- Quick Navigation -->

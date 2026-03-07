@@ -1,24 +1,5 @@
 <script module lang="ts">
-	const TAG_COLORS = new Map<string, string>([
-		['SvelteKit', '#ff3e00'],
-		['TypeScript', '#3178c6'],
-		['Better Auth', '#38bdf8'],
-		['Drizzle', '#4ade80'],
-		['Cloudflare Workers', '#f97316'],
-		['Cloudflare D1', '#fb923c'],
-		['Cloudflare KV', '#fdba74'],
-		['Cloudflare R2', '#fcd34d'],
-		['TailwindCSS', '#06b6d4'],
-		['GDScript', '#7c3aed'],
-		['GL Compatibility', '#10b981'],
-		['Web Export', '#6366f1'],
-		['WebSockets', '#22c55e'],
-	])
-
-	function tag_color(tag: string): string {
-		if (/^Godot \d+\.\d+$/u.test(tag)) return '#478cbf'
-		return TAG_COLORS.get(tag) ?? '#64748b'
-	}
+	import { tech_colors } from '$lib/data/tech-colors'
 </script>
 
 <script lang="ts">
@@ -60,7 +41,7 @@
 	{#if project.tags?.length}
 		<div class="mt-3 flex flex-wrap gap-x-1.5 gap-y-2">
 			{#each project.tags as tag (tag)}
-				{@const color = tag_color(tag)}
+				{@const color = tech_colors.get(tag)}
 				<span
 					class="rounded-full border px-3 py-1 font-mono text-xs"
 					style:border-color="{color}40"

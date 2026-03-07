@@ -5,6 +5,7 @@
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import PageSection from '$lib/components/PageSection.svelte'
+	import SkillsSection from '$lib/components/SkillsSection.svelte'
 	import SupportBox from '$lib/components/SupportBox.svelte'
 	import TechStack from '$lib/components/TechStack.svelte'
 	import { BLOCKQUOTE_CLASS, LINK_BASE_DEFAULT_CLASS } from '$lib/constants/layout'
@@ -71,6 +72,10 @@
 				</ul>
 			</div>
 		</div>
+	</PageSection>
+
+	<PageSection>
+		<SkillsSection />
 	</PageSection>
 
 	<TechStack />
