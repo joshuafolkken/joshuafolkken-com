@@ -42,13 +42,13 @@
 		<div class="animate-btns mt-10 flex gap-4">
 			<a
 				href={main_content_href}
-				class="rounded-full bg-white px-8 py-3 text-sm font-semibold text-slate-950 transition-all hover:bg-sky-400 hover:text-white hover:shadow-[0_0_20px_rgba(56,189,248,0.4)]"
+				class="cyber-glow-hover rounded-full bg-white px-8 py-3 text-sm font-semibold text-slate-950 transition-all duration-300 hover:scale-110 hover:bg-sky-400 hover:text-white active:scale-95"
 			>
 				Explore Work
 			</a>
 			<a
 				href={link_utilities.get_href(PAGES.PROFILE.link) ?? '#'}
-				class="rounded-full border border-white/10 bg-white/5 px-8 py-3 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/10"
+				class="cyber-glow-hover rounded-full border border-white/30 bg-white/5 px-8 py-3 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:border-white hover:bg-white/10 hover:shadow-[0_0_20px_4px_rgb(56_189_248/0.2),0_0_40px_12px_rgb(56_189_248/0.12),0_0_60px_20px_rgb(56_189_248/0.06)] active:scale-95"
 			>
 				About Me
 			</a>

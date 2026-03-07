@@ -130,6 +130,9 @@ code {
 	transition:
 		filter 0.3s ease-out,
 		color 0.3s ease-out,
+		background-color 0.3s ease-out,
+		border-color 0.3s ease-out,
+		box-shadow 0.3s ease-out,
 		transform 0.3s ease-out,
 		translate 0.3s ease-out,
 		scale 0.3s ease-out;

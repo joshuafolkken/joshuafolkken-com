@@ -1,28 +1,6 @@
-<script module lang="ts">
-	const TAG_COLORS = new Map<string, string>([
-		['SvelteKit', '#ff3e00'],
-		['TypeScript', '#3178c6'],
-		['Better Auth', '#38bdf8'],
-		['Drizzle', '#4ade80'],
-		['Cloudflare Workers', '#f97316'],
-		['Cloudflare D1', '#fb923c'],
-		['Cloudflare KV', '#fdba74'],
-		['Cloudflare R2', '#fcd34d'],
-		['TailwindCSS', '#06b6d4'],
-		['GDScript', '#7c3aed'],
-		['GL Compatibility', '#10b981'],
-		['Web Export', '#6366f1'],
-		['WebSockets', '#22c55e'],
-	])
-
-	function tag_color(tag: string): string {
-		if (/^Godot \d+\.\d+$/u.test(tag)) return '#478cbf'
-		return TAG_COLORS.get(tag) ?? '#64748b'
-	}
-</script>
-
 <script lang="ts">
 	import CardImage from '$lib/components/CardImage.svelte'
+	import TechPill from '$lib/components/TechPill.svelte'
 	import { CARD_DESCRIPTION_CLASS, CARD_TITLE_CLASS } from '$lib/constants/card-styles'
 	import { ICON_SIZE_LG } from '$lib/constants/layout'
 	import type { Project } from '$lib/types/project'
@@ -60,13 +38,7 @@
 	{#if project.tags?.length}
 		<div class="mt-3 flex flex-wrap gap-x-1.5 gap-y-2">
 			{#each project.tags as tag (tag)}
-				{@const color = tag_color(tag)}
-				<span
-					class="rounded-full border px-3 py-1 font-mono text-xs"
-					style:border-color="{color}40"
-					style:color
-					style:background-color="{color}10">{tag}</span
-				>
+				<TechPill name={tag} />
 			{/each}
 		</div>
 	{/if}
