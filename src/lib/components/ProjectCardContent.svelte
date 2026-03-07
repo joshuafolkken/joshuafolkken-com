@@ -1,9 +1,6 @@
-<script module lang="ts">
-	import { tech_colors } from '$lib/data/tech-colors'
-</script>
-
 <script lang="ts">
 	import CardImage from '$lib/components/CardImage.svelte'
+	import TechPill from '$lib/components/TechPill.svelte'
 	import { CARD_DESCRIPTION_CLASS, CARD_TITLE_CLASS } from '$lib/constants/card-styles'
 	import { ICON_SIZE_LG } from '$lib/constants/layout'
 	import type { Project } from '$lib/types/project'
@@ -41,13 +38,7 @@
 	{#if project.tags?.length}
 		<div class="mt-3 flex flex-wrap gap-x-1.5 gap-y-2">
 			{#each project.tags as tag (tag)}
-				{@const color = tech_colors.get(tag)}
-				<span
-					class="rounded-full border px-3 py-1 font-mono text-xs"
-					style:border-color="{color}40"
-					style:color
-					style:background-color="{color}10">{tag}</span
-				>
+				<TechPill name={tag} />
 			{/each}
 		</div>
 	{/if}

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { intersection_observer } from '$lib/actions/intersection-observer'
-	import { tech_colors } from '$lib/data/tech-colors'
+	import TechPill from '$lib/components/TechPill.svelte'
+	import { tech_colors, type TechColorKey } from '$lib/data/tech-colors'
 	import { SvelteSet } from 'svelte/reactivity'
 
 	const SKILLS = [
@@ -16,7 +17,7 @@
 		{ name: 'Community Building', percent: 60 },
 		{ name: 'Rust', percent: 50 },
 		{ name: 'Game Design', percent: 30 },
-	]
+	] satisfies Array<{ name: TechColorKey; percent: number }>
 
 	const revealed = new SvelteSet<number>()
 </script>
@@ -30,12 +31,7 @@
 			{@const color = tech_colors.get(skill.name)}
 			<div use:intersection_observer.intersect={() => revealed.add(index)}>
 				<div class="mb-2 flex items-baseline justify-between">
-					<span
-						class="rounded-full border px-3 py-1 font-mono text-xs"
-						style:border-color="{color}40"
-						style:color
-						style:background-color="{color}10">{skill.name}</span
-					>
+					<TechPill name={skill.name} />
 					<span class="font-mono text-xs" style:color>{skill.percent}%</span>
 				</div>
 				<div class="h-1 rounded-full bg-white/5">
@@ -83,6 +79,16 @@
 		}
 		100% {
 			left: 110%;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.skill-bar {
+			transition: none;
+		}
+
+		.skill-bar::after {
+			animation: none;
 		}
 	}
 </style>
