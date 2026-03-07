@@ -24,7 +24,7 @@
 
 <section>
 	<h2 class="mb-2 text-3xl font-bold tracking-tight text-white">Skills</h2>
-	<p class="mb-10 text-white/50">Proficiency across my primary technologies.</p>
+	<p class="mb-10 text-white/50">Technical and beyond.</p>
 
 	<div class="grid gap-x-8 gap-y-6 sm:grid-cols-2">
 		{#each SKILLS as skill, index (skill.name)}
