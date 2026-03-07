@@ -12,4 +12,5 @@ export interface Project {
 	description: string
 	links: Array<ProjectLink>
 	image?: string
+	tags?: Array<string>
 }
