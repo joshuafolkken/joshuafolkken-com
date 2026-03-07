@@ -3,19 +3,16 @@
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import ProjectCard from '$lib/components/ProjectCard.svelte'
 	import RevealSection from '$lib/components/RevealSection.svelte'
+	import SkillsSection from '$lib/components/SkillsSection.svelte'
 	import {
 		CARD_BASE_CLASS,
 		CARD_DESCRIPTION_CLASS,
 		CARD_TITLE_CLASS,
 	} from '$lib/constants/card-styles'
 	import { ICON_SIZE_2XL, MAIN_CONTENT_ID } from '$lib/constants/layout'
-	import { FEATURED_PROJECT_COUNT, PROJECTS } from '$lib/data/projects'
+	import { FEATURED_PROJECTS } from '$lib/data/projects'
 	import { MAIN_NAV_PAGES, PAGES } from '$lib/types/page'
 	import { link_utilities } from '$lib/utils/link-utilities'
-
-	const featured_projects = $derived(
-		PROJECTS.filter((proj) => proj.image).slice(0, FEATURED_PROJECT_COUNT),
-	)
 </script>
 
 <HeroSection />
@@ -41,10 +38,15 @@
 		</div>
 
 		<div class="grid gap-8 lg:grid-cols-2">
-			{#each featured_projects as project (project.title)}
+			{#each FEATURED_PROJECTS as project (project.title)}
 				<ProjectCard {project} />
 			{/each}
 		</div>
+	</RevealSection>
+
+	<!-- Skills -->
+	<RevealSection>
+		<SkillsSection />
 	</RevealSection>
 
 	<!-- Quick Navigation -->

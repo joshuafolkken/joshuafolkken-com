@@ -17,7 +17,13 @@ import TennisIcon from '$lib/icons/TennisIcon.svelte'
 import ToolIcon from '$lib/icons/ToolIcon.svelte'
 import type { Project } from '$lib/types/project'
 
-export const FEATURED_PROJECT_COUNT = 4
+const CLOUDFLARE_WORKERS = 'Cloudflare Workers'
+const CLOUDFLARE_D1 = 'Cloudflare D1'
+const GODOT = 'Godot'
+const GDSCRIPT = 'GDScript'
+const WEB_EXPORT = 'Web Export'
+
+const FEATURED_COUNT = 4
 
 export const PROJECTS: Array<Project> = [
 	{
@@ -31,11 +37,9 @@ export const PROJECTS: Array<Project> = [
 		tags: [
 			'SvelteKit',
 			'TypeScript',
-			// eslint-disable-next-line sonarjs/no-duplicate-string
-			'Cloudflare Workers',
+			CLOUDFLARE_WORKERS,
 			'Cloudflare KV',
-			// eslint-disable-next-line sonarjs/no-duplicate-string
-			'Cloudflare D1',
+			CLOUDFLARE_D1,
 			'Drizzle',
 			'TailwindCSS',
 		],
@@ -51,14 +55,7 @@ export const PROJECTS: Array<Project> = [
 			{ href: `${URLS.GITHUB}/tasks`, type: 'github' },
 		],
 		image: tasks,
-		tags: [
-			'SvelteKit',
-			'TypeScript',
-			'Better Auth',
-			'Cloudflare Workers',
-			'Cloudflare D1',
-			'Drizzle',
-		],
+		tags: ['SvelteKit', 'TypeScript', 'Better Auth', CLOUDFLARE_WORKERS, CLOUDFLARE_D1, 'Drizzle'],
 	},
 	{
 		icon: TalkIcon,
@@ -70,7 +67,7 @@ export const PROJECTS: Array<Project> = [
 			{ href: `${URLS.GITHUB}/talk-svelte`, type: 'github' },
 		],
 		image: talk,
-		tags: ['SvelteKit', 'TypeScript', 'Cloudflare Workers', 'Cloudflare R2'],
+		tags: ['SvelteKit', 'TypeScript', CLOUDFLARE_WORKERS, 'Cloudflare R2'],
 	},
 	{
 		icon: RunningIcon,
@@ -82,8 +79,7 @@ export const PROJECTS: Array<Project> = [
 			{ href: `${URLS.GITHUB}/godot-2d-platformer`, type: 'github' },
 		],
 		image: godot_2d_platformer,
-		// eslint-disable-next-line sonarjs/no-duplicate-string
-		tags: ['Godot 4.5', 'GDScript', 'Web Export'],
+		tags: [GODOT, GDSCRIPT, WEB_EXPORT],
 	},
 	{
 		icon: FilmIcon,
@@ -95,7 +91,7 @@ export const PROJECTS: Array<Project> = [
 			{ href: `${URLS.GITHUB}/tic-tac-toe`, type: 'github' },
 		],
 		image: tic_tac_toe,
-		tags: ['Godot 4.4', 'GDScript', 'GL Compatibility', 'Web Export'],
+		tags: [GODOT, GDSCRIPT, 'GL Compatibility', WEB_EXPORT],
 	},
 	{
 		icon: TennisIcon,
@@ -107,7 +103,7 @@ export const PROJECTS: Array<Project> = [
 			{ href: `${URLS.GITHUB}/pong`, type: 'github' },
 		],
 		image: pong,
-		tags: ['Godot 4.3', 'GDScript', 'Web Export'],
+		tags: [GODOT, GDSCRIPT, WEB_EXPORT],
 	},
 	{
 		icon: ToolIcon,
@@ -119,7 +115,7 @@ export const PROJECTS: Array<Project> = [
 			{ href: `${URLS.GITHUB_PAGE}/godot-project-template`, type: 'demo' },
 		],
 		image: godot_project_template,
-		tags: ['Godot 4.5', 'GDScript', 'Web Export'],
+		tags: [GODOT, GDSCRIPT, WEB_EXPORT],
 	},
 	{
 		icon: GlobeIcon,
@@ -128,6 +124,10 @@ export const PROJECTS: Array<Project> = [
 		description: 'Exploring multiplayer game development with Godot',
 		links: [{ href: `${URLS.GITHUB}/godot-multiplayer`, type: 'github' }],
 		image: godot_multiplayer,
-		tags: ['Godot 4.4', 'GDScript', 'WebSockets', 'Web Export'],
+		tags: [GODOT, GDSCRIPT, 'WebSockets', WEB_EXPORT],
 	},
 ]
+
+export const FEATURED_PROJECTS = PROJECTS.filter(
+	(proj): proj is Project & { image: NonNullable<Project['image']> } => proj.image !== undefined,
+).slice(0, FEATURED_COUNT)
