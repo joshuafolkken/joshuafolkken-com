@@ -1,20 +1,17 @@
 <script lang="ts">
-	import { LINK_REL, LINK_TARGET } from '$lib/app'
-	import CardImage from '$lib/components/CardImage.svelte'
 	import HeroSection from '$lib/components/HeroSection.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
+	import ProjectCard from '$lib/components/ProjectCard.svelte'
 	import RevealSection from '$lib/components/RevealSection.svelte'
 	import {
 		CARD_BASE_CLASS,
 		CARD_DESCRIPTION_CLASS,
 		CARD_TITLE_CLASS,
-		CARD_WRAPPER_CLASS,
 	} from '$lib/constants/card-styles'
 	import { ICON_SIZE_2XL, MAIN_CONTENT_ID } from '$lib/constants/layout'
 	import { FEATURED_PROJECT_COUNT, PROJECTS } from '$lib/data/projects'
 	import { MAIN_NAV_PAGES, PAGES } from '$lib/types/page'
 	import { link_utilities } from '$lib/utils/link-utilities'
-	import { project_utilities } from '$lib/utils/project-utilities'
 
 	const featured_projects = $derived(
 		PROJECTS.filter((proj) => proj.image).slice(0, FEATURED_PROJECT_COUNT),
@@ -45,26 +42,7 @@
 
 		<div class="grid gap-8 lg:grid-cols-2">
 			{#each featured_projects as project (project.title)}
-				<a
-					href={project_utilities.get_primary_href(project)}
-					target={LINK_TARGET}
-					rel={LINK_REL}
-					class={CARD_WRAPPER_CLASS}
-				>
-					{#if project.image}
-						<CardImage src={project.image} alt={project.title} />
-					{/if}
-					<div class="p-6">
-						<h3 class="text-lg font-semibold">
-							<span class={CARD_TITLE_CLASS}>
-								{project.title}
-							</span>
-						</h3>
-						<p class="mt-2 line-clamp-2 {CARD_DESCRIPTION_CLASS}">
-							{project.subtitle}
-						</p>
-					</div>
-				</a>
+				<ProjectCard {project} />
 			{/each}
 		</div>
 	</RevealSection>

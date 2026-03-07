@@ -18,6 +18,7 @@ const AUTHOR = {
 
 const URLS = {
 	TALK: 'https://talk.joshuafolkken.com',
+	TASKS: 'https://tasks.joshuafolkken.com',
 	GITHUB: 'https://github.com/joshuafolkken',
 	GITHUB_PRS: 'https://github.com/joshuafolkken/joshuafolkken-com/pulls?q=is%3Apr+is%3Aclosed',
 	GITHUB_PAGE: 'https://joshuafolkken.github.io',
