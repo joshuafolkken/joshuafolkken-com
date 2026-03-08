@@ -91,7 +91,7 @@ export const PROJECTS: Array<Project> = [
 			{ href: `${URLS.GITHUB}/tic-tac-toe`, type: 'github' },
 		],
 		image: tic_tac_toe,
-		tags: [GODOT, GDSCRIPT, 'GL Compatibility', WEB_EXPORT],
+		tags: [GODOT, GDSCRIPT, WEB_EXPORT],
 	},
 	{
 		icon: TennisIcon,
