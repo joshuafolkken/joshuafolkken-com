@@ -21,7 +21,6 @@ const TECH_COLOR_ENTRIES = [
 	['Godot / GDScript', '#478cbf'],
 	['GDShader', '#7c3aed'],
 	['GDUnit4', '#478cbf'],
-	['GL Compatibility', '#10b981'],
 	['Web Export', '#6366f1'],
 	['WebSockets', '#22c55e'],
 	['WebSocket', '#22c55e'],

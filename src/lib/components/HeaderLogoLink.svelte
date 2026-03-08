@@ -2,7 +2,14 @@
 	import { resolve } from '$app/paths'
 	import { AUTHOR } from '$lib/app'
 	import LogoWithGlow from '$lib/components/LogoWithGlow.svelte'
-	import { HEADER_ICON_SIZE, HEADER_LOGO_GLOW_CLASS } from '$lib/constants/sticky-header-constants'
+	import {
+		HEADER_ICON_SIZE,
+		HEADER_LOGO_GLOW_CLASS,
+		HEADER_LOGO_TEXT_HIDDEN,
+		HEADER_LOGO_TEXT_VISIBLE,
+	} from '$lib/constants/sticky-header-constants'
+
+	const { is_text_hidden = false }: { is_text_hidden?: boolean } = $props()
 </script>
 
 <a
@@ -12,7 +19,9 @@
 >
 	<LogoWithGlow size={HEADER_ICON_SIZE} />
 	<span
-		class="text-xl font-medium tracking-tight text-white/90 {HEADER_LOGO_GLOW_CLASS} group-hover:text-white"
+		class="overflow-hidden text-xl font-medium tracking-tight whitespace-nowrap text-white/90 {HEADER_LOGO_GLOW_CLASS} group-hover:text-white {is_text_hidden
+			? HEADER_LOGO_TEXT_HIDDEN
+			: HEADER_LOGO_TEXT_VISIBLE}"
 	>
 		{AUTHOR.NAME}
 	</span>
