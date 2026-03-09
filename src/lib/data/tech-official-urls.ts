@@ -5,7 +5,7 @@ const CLOUDFLARE_DEV_URL = 'https://developers.cloudflare.com'
 const ANDROID_DEV_URL = 'https://developer.android.com'
 const MDN_URL = 'https://developer.mozilla.org/en-US/docs'
 
-const TECH_URL_ENTRIES: ReadonlyArray<readonly [string, string]> = [
+const TECH_URL_ENTRIES = [
 	// AI Coding
 	['Claude Code', 'https://claude.ai'],
 	['CodeRabbit', 'https://coderabbit.ai'],
@@ -104,7 +104,7 @@ const TECH_URL_ENTRIES: ReadonlyArray<readonly [string, string]> = [
 	['Drizzle ORM', DRIZZLE_URL],
 	['WebSocket', `${MDN_URL}/Web/API/WebSocket`],
 	['Godot / GDScript', GODOT_URL],
-]
+] as const satisfies ReadonlyArray<readonly [string, string]>
 
 const TECH_URL_MAP = new Map<string, string>(TECH_URL_ENTRIES)
 

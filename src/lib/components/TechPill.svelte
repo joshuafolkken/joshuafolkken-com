@@ -5,7 +5,7 @@
 	import { tech_colors } from '$lib/data/tech-colors'
 	import { tech_official_urls } from '$lib/data/tech-official-urls'
 
-	const { name, logo = '' } = $props<{ name: string; logo?: string }>()
+	const { name, logo = '' }: { name: string; logo?: string } = $props()
 
 	const color = $derived(tech_colors.get(name))
 	const logo_slug = $derived(logo || (TECH_NAME_TO_LOGO.get(name) ?? ''))

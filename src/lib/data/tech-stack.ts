@@ -1,8 +1,8 @@
 import type { LogoSlug } from '$lib/data/si-icons'
-import { TECH_STACK_LOGO } from '$lib/data/tech-stack-logos'
+import { TECH_STACK_LOGO, type TechStackName } from '$lib/data/tech-stack-logos'
 import type { Category } from '$lib/types/tech-stack'
 
-type CategoryInput = readonly [title: string, names: ReadonlyArray<string>]
+type CategoryInput = readonly [title: string, names: ReadonlyArray<TechStackName>]
 
 const CATEGORIES: ReadonlyArray<CategoryInput> = [
 	['AI Coding', ['Claude Code', 'CodeRabbit', 'Cursor', 'Antigravity']],
@@ -70,7 +70,7 @@ const CATEGORIES: ReadonlyArray<CategoryInput> = [
 	],
 ]
 
-function to_badge(name: string): { name: string; logo: LogoSlug } {
+function to_badge(name: TechStackName): { name: string; logo: LogoSlug } {
 	const logo = TECH_STACK_LOGO.get(name)
 
 	if (logo === undefined) {

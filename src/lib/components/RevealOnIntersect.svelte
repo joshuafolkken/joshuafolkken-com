@@ -27,6 +27,8 @@
 	let is_visible = $state(false)
 
 	function handle_intersect(): void {
+		if (is_visible) return
+
 		is_visible = true
 		on_visible?.()
 	}

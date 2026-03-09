@@ -211,7 +211,7 @@ const ALL_ICONS_MAP = new Map<string, TechIcon>([
 	...CUSTOM_ICON_ENTRIES,
 ])
 
-const TECH_NAME_TO_LOGO_ENTRIES: ReadonlyArray<readonly [string, string]> = [
+const TECH_NAME_TO_LOGO_ENTRIES = [
 	['SvelteKit', 'svelte'],
 	['TypeScript', 'typescript'],
 	['Cloudflare Workers / D1 / KV / R2', 'cloudflare'],
@@ -246,7 +246,7 @@ const TECH_NAME_TO_LOGO_ENTRIES: ReadonlyArray<readonly [string, string]> = [
 	['VB.NET', 'dotnet'],
 	['LibSQL', 'sqlite'],
 	['VPS', 'vps'],
-]
+] as const satisfies ReadonlyArray<readonly [string, string]>
 
 const TECH_NAME_TO_LOGO_MAP = new Map<string, string>(TECH_NAME_TO_LOGO_ENTRIES)
 

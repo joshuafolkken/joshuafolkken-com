@@ -1,7 +1,6 @@
 import type { LogoSlug } from '$lib/data/si-icons'
 
-/** Maps tech display names to logo slugs for the tech stack section. */
-const TECH_STACK_LOGO_ENTRIES: ReadonlyArray<readonly [string, LogoSlug]> = [
+const TECH_STACK_LOGO_ENTRIES = [
 	['Claude Code', 'claude'],
 	['CodeRabbit', 'coderabbit'],
 	['Cursor', 'cursor'],
@@ -82,6 +81,10 @@ const TECH_STACK_LOGO_ENTRIES: ReadonlyArray<readonly [string, LogoSlug]> = [
 	['Caddy', 'caddy'],
 	['ngrok', 'ngrok'],
 	["Let's Encrypt", 'letsencrypt'],
-]
+] as const satisfies ReadonlyArray<readonly [string, LogoSlug]>
 
-export const TECH_STACK_LOGO = new Map<string, LogoSlug>(TECH_STACK_LOGO_ENTRIES)
+export type TechStackName = (typeof TECH_STACK_LOGO_ENTRIES)[number][0]
+
+export const TECH_STACK_LOGO: ReadonlyMap<TechStackName, LogoSlug> = new Map(
+	TECH_STACK_LOGO_ENTRIES,
+)
