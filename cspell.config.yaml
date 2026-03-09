@@ -25,6 +25,9 @@ ignorePaths:
 words:
   - aboutads
   - aikidosec
+  - amazonwebservices
+  - androidstudio
+  - betterauth
   - apos
   - appleboy
   - autoincrement
@@ -36,6 +39,8 @@ words:
   - cooldown
   - Csvg
   - darkmode
+  - devicon
+  - eclipseide
   - EDITMSG
   - elif
   - esbuild
@@ -45,18 +50,22 @@ words:
   - Frontmatter
   - GHSA
   - Ghsas
+  - godotengine
   - gsub
   - Hotspots
   - ianvs
   - imagetools
+  - intellijidea
   - joshuafolkken
   - joshuastudio
   - Kaku
   - KAWAII
   - lefthook
+  - letsencrypt
   - libsql
   - Mdsvex
   - mischeck
+  - nodedotjs
   - noopener
   - noreferrer
   - nosniff
@@ -72,14 +81,18 @@ words:
   - sonarcloud
   - sonarjs
   - sonarqube
+  - sonarqubecloud
+  - socketdotio
   - Stylesheet
   - Supabase
   - TERE
   - trycloudflare
   - tsgo
   - turso
+  - udemy
   - unrs
   - upscayl
+  - vuedotjs
   - vite
   - Vitest
   - webp

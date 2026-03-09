@@ -1,6 +1,6 @@
 export interface Badge {
 	name: string
-	url: string
+	logo: string
 }
 
 export interface Category {
