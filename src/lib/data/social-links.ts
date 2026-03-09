@@ -12,28 +12,11 @@ interface SocialLink {
 	label?: string
 }
 
-const github_link: SocialLink = {
-	href: URLS.GITHUB,
-	aria_label: 'GitHub',
-	icon: GitHubIcon,
-	is_external: true,
-}
-
-const x_link: SocialLink = {
-	href: URLS.X,
-	aria_label: 'X',
-	icon: XIcon,
-	is_external: true,
-}
-
-const youtube_link: SocialLink = {
-	href: URLS.YOUTUBE,
-	aria_label: 'YouTube',
-	icon: YouTubeIcon,
-	is_external: true,
-}
-
-const HEADER_SOCIAL_LINKS: Array<SocialLink> = [github_link, x_link, youtube_link]
+const HEADER_SOCIAL_LINKS: Array<SocialLink> = [
+	{ href: URLS.GITHUB, aria_label: 'GitHub', icon: GitHubIcon, is_external: true },
+	{ href: URLS.X, aria_label: 'X', icon: XIcon, is_external: true },
+	{ href: URLS.YOUTUBE, aria_label: 'YouTube', icon: YouTubeIcon, is_external: true },
+]
 
 export type { SocialLink }
 export { HEADER_SOCIAL_LINKS }
