@@ -1,6 +1,8 @@
+import type { LogoSlug } from '$lib/data/si-icons'
+
 export interface Badge {
 	name: string
-	url: string
+	logo: LogoSlug
 }
 
 export interface Category {
