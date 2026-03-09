@@ -1,149 +1,122 @@
+import type { LogoSlug } from '$lib/data/si-icons'
 import type { Category } from '$lib/types/tech-stack'
 
-type BadgeData = [name: string, logo: string]
+type BadgeData = [name: string, logo: LogoSlug]
 type CategoryData = [title: string, badges: Array<BadgeData>]
 
+function badge(name: string, logo: LogoSlug): BadgeData {
+	return [name, logo]
+}
+
+function category(title: string, badges: Array<BadgeData>): CategoryData {
+	return [title, badges]
+}
+
 const tech_stack_data: Array<CategoryData> = [
-	[
-		'AI Coding',
-		[
-			['Claude Code', 'claude'],
-			['CodeRabbit', 'coderabbit'],
-			['Cursor', 'cursor'],
-			['Antigravity', 'google'],
-		],
-	],
-	[
-		'Code Quality & Testing',
-		[
-			['SonarCloud', 'sonarqubecloud'],
-			['Prettier', 'prettier'],
-			['ESLint', 'eslint'],
-			['Vitest', 'vitest'],
-			['Playwright', 'playwright'],
-		],
-	],
-	[
-		'Cloud & Edge',
-		[
-			['Cloudflare Workers', 'cloudflare'],
-			['Cloudflare KV', 'cloudflare'],
-			['Cloudflare D1', 'cloudflare'],
-			['Cloudflare R2', 'cloudflare'],
-			['AWS', 'amazonwebservices'],
-			['Vercel', 'vercel'],
-		],
-	],
-	[
-		'Web Technologies',
-		[
-			['Better Auth', 'betterauth'],
-			['Svelte', 'svelte'],
-			['HTML5', 'html5'],
-			['CSS3', 'css'],
-			['Tailwind CSS', 'tailwindcss'],
-			['Node.js', 'nodedotjs'],
-			['Vue.js', 'vuedotjs'],
-			['.NET', 'dotnet'],
-			['Angular', 'angular'],
-			['Bootstrap', 'bootstrap'],
-			['Vite', 'vite'],
-		],
-	],
-	[
-		'Development Tools',
-		[
-			['Lefthook', 'lefthook'],
-			['pnpm', 'pnpm'],
-			['GitHub', 'github'],
-			['npm', 'npm'],
-			['Git', 'git'],
-			['tsx', 'typescript'],
-			['Sharp', 'sharp'],
-			['Markdown', 'markdown'],
-			['mdsvex', 'markdown'],
-		],
-	],
-	[
-		'Programming Languages',
-		[
-			['TypeScript', 'typescript'],
-			['JavaScript', 'javascript'],
-			['Rust', 'rust'],
-			['Dart', 'dart'],
-			['Kotlin', 'kotlin'],
-			['Swift', 'swift'],
-			['Java', 'openjdk'],
-			['C#', 'csharp'],
-			['VB.NET', 'dotnet'],
-			['PHP', 'php'],
-			['Python', 'python'],
-			['C', 'c'],
-		],
-	],
-	[
-		'Databases & ORM',
-		[
-			['TURSO', 'turso'],
-			['Drizzle', 'drizzle'],
-			['LibSQL', 'sqlite'],
-			['SQLite', 'sqlite'],
-			['PostgreSQL', 'postgresql'],
-			['MySQL', 'mysql'],
-			['Redis', 'redis'],
-		],
-	],
-	[
-		'Game Development',
-		[
-			['Godot', 'godotengine'],
-			['GDScript', 'godotengine'],
-			['Unity', 'unity'],
-		],
-	],
-	[
-		'Mobile Development',
-		[
-			['Android', 'android'],
-			['iOS', 'ios'],
-			['Flutter', 'flutter'],
-			['Android Studio', 'androidstudio'],
-			['Xcode', 'xcode'],
-		],
-	],
-	[
-		'Desktop Development',
-		[
-			['Windows', 'windows'],
-			['macOS', 'macos'],
-			['Linux', 'linux'],
-		],
-	],
-	[
-		'IDEs & Editors',
-		[
-			['VS Code', 'vscode'],
-			['Visual Studio', 'visualstudio'],
-			['IntelliJ IDEA', 'intellijidea'],
-			['PhpStorm', 'phpstorm'],
-			['Eclipse', 'eclipseide'],
-		],
-	],
-	[
-		'Infrastructure',
-		[
-			['PM2', 'pm2'],
-			['VPS', 'vps'],
-			['Ubuntu', 'ubuntu'],
-			['CentOS', 'centos'],
-			['Nginx', 'nginx'],
-			['Apache', 'apache'],
-			['AWS EC2', 'amazonwebservices'],
-			['Caddy', 'caddy'],
-			['ngrok', 'ngrok'],
-			["Let's Encrypt", 'letsencrypt'],
-		],
-	],
+	category('AI Coding', [
+		badge('Claude Code', 'claude'),
+		badge('CodeRabbit', 'coderabbit'),
+		badge('Cursor', 'cursor'),
+		badge('Antigravity', 'google'),
+	]),
+	category('Code Quality & Testing', [
+		badge('SonarCloud', 'sonarqubecloud'),
+		badge('Prettier', 'prettier'),
+		badge('ESLint', 'eslint'),
+		badge('Vitest', 'vitest'),
+		badge('Playwright', 'playwright'),
+	]),
+	category('Cloud & Edge', [
+		badge('Cloudflare Workers', 'cloudflare'),
+		badge('Cloudflare KV', 'cloudflare'),
+		badge('Cloudflare D1', 'cloudflare'),
+		badge('Cloudflare R2', 'cloudflare'),
+		badge('AWS', 'amazonwebservices'),
+		badge('Vercel', 'vercel'),
+	]),
+	category('Web Technologies', [
+		badge('Better Auth', 'betterauth'),
+		badge('Svelte', 'svelte'),
+		badge('HTML5', 'html5'),
+		badge('CSS3', 'css'),
+		badge('Tailwind CSS', 'tailwindcss'),
+		badge('Node.js', 'nodedotjs'),
+		badge('Vue.js', 'vuedotjs'),
+		badge('.NET', 'dotnet'),
+		badge('Angular', 'angular'),
+		badge('Bootstrap', 'bootstrap'),
+		badge('Vite', 'vite'),
+	]),
+	category('Development Tools', [
+		badge('Lefthook', 'lefthook'),
+		badge('pnpm', 'pnpm'),
+		badge('GitHub', 'github'),
+		badge('npm', 'npm'),
+		badge('Git', 'git'),
+		badge('tsx', 'typescript'),
+		badge('Sharp', 'sharp'),
+		badge('Markdown', 'markdown'),
+		badge('mdsvex', 'markdown'),
+	]),
+	category('Programming Languages', [
+		badge('TypeScript', 'typescript'),
+		badge('JavaScript', 'javascript'),
+		badge('Rust', 'rust'),
+		badge('Dart', 'dart'),
+		badge('Kotlin', 'kotlin'),
+		badge('Swift', 'swift'),
+		badge('Java', 'openjdk'),
+		badge('C#', 'csharp'),
+		badge('VB.NET', 'dotnet'),
+		badge('PHP', 'php'),
+		badge('Python', 'python'),
+		badge('C', 'c'),
+	]),
+	category('Databases & ORM', [
+		badge('TURSO', 'turso'),
+		badge('Drizzle', 'drizzle'),
+		badge('LibSQL', 'sqlite'),
+		badge('SQLite', 'sqlite'),
+		badge('PostgreSQL', 'postgresql'),
+		badge('MySQL', 'mysql'),
+		badge('Redis', 'redis'),
+	]),
+	category('Game Development', [
+		badge('Godot', 'godotengine'),
+		badge('GDScript', 'godotengine'),
+		badge('Unity', 'unity'),
+	]),
+	category('Mobile Development', [
+		badge('Android', 'android'),
+		badge('iOS', 'ios'),
+		badge('Flutter', 'flutter'),
+		badge('Android Studio', 'androidstudio'),
+		badge('Xcode', 'xcode'),
+	]),
+	category('Desktop Development', [
+		badge('Windows', 'windows'),
+		badge('macOS', 'macos'),
+		badge('Linux', 'linux'),
+	]),
+	category('IDEs & Editors', [
+		badge('VS Code', 'vscode'),
+		badge('Visual Studio', 'visualstudio'),
+		badge('IntelliJ IDEA', 'intellijidea'),
+		badge('PhpStorm', 'phpstorm'),
+		badge('Eclipse', 'eclipseide'),
+	]),
+	category('Infrastructure', [
+		badge('PM2', 'pm2'),
+		badge('VPS', 'vps'),
+		badge('Ubuntu', 'ubuntu'),
+		badge('CentOS', 'centos'),
+		badge('Nginx', 'nginx'),
+		badge('Apache', 'apache'),
+		badge('AWS EC2', 'amazonwebservices'),
+		badge('Caddy', 'caddy'),
+		badge('ngrok', 'ngrok'),
+		badge("Let's Encrypt", 'letsencrypt'),
+	]),
 ]
 
 function transform_to_categories(data: Array<CategoryData>): Array<Category> {

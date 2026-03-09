@@ -78,7 +78,7 @@ interface TechIcon {
 const SI_VIEW_BOX = '0 0 24 24'
 const DEVICON_VIEW_BOX = '0 0 128 128'
 
-const SI_ICON_ENTRIES: ReadonlyArray<readonly [string, SimpleIcon]> = [
+const SI_ICON_ENTRIES = [
 	['typescript', siTypescript],
 	['javascript', siJavascript],
 	['rust', siRust],
@@ -147,9 +147,9 @@ const SI_ICON_ENTRIES: ReadonlyArray<readonly [string, SimpleIcon]> = [
 	['socketdotio', siSocketdotio],
 	['discord', siDiscord],
 	['udemy', siUdemy],
-]
+] as const satisfies ReadonlyArray<readonly [string, SimpleIcon]>
 
-const CUSTOM_ICON_ENTRIES: ReadonlyArray<readonly [string, TechIcon]> = [
+const CUSTOM_ICON_ENTRIES = [
 	[
 		'csharp',
 		{
@@ -192,7 +192,14 @@ const CUSTOM_ICON_ENTRIES: ReadonlyArray<readonly [string, TechIcon]> = [
 			view_box: DEVICON_VIEW_BOX,
 		},
 	],
-]
+	[
+		'vps',
+		{
+			path: 'M24 16h80v96H24V16zm8 20h64v8H32v-8zm0 20h64v8H32v-8zm0 20h64v8H32v-8z',
+			view_box: DEVICON_VIEW_BOX,
+		},
+	],
+] as const satisfies ReadonlyArray<readonly [string, TechIcon]>
 
 function to_tech_icon_entry(entry: readonly [string, SimpleIcon]): [string, TechIcon] {
 	const [slug, icon] = entry
@@ -237,10 +244,13 @@ const TECH_NAME_TO_LOGO_ENTRIES: ReadonlyArray<readonly [string, string]> = [
 	['Visual Studio', 'visualstudio'],
 	['Playwright', 'playwright'],
 	['VB.NET', 'dotnet'],
-	['LibSQL', 'turso'],
+	['LibSQL', 'sqlite'],
+	['VPS', 'vps'],
 ]
 
 const TECH_NAME_TO_LOGO_MAP = new Map<string, string>(TECH_NAME_TO_LOGO_ENTRIES)
+
+export type LogoSlug = (typeof SI_ICON_ENTRIES)[number][0] | (typeof CUSTOM_ICON_ENTRIES)[number][0]
 
 export type { TechIcon }
 export { ALL_ICONS_MAP as ALL_ICONS, TECH_NAME_TO_LOGO_MAP as TECH_NAME_TO_LOGO }

@@ -6,7 +6,7 @@
 	import { tech_colors } from '$lib/data/tech-colors'
 	import { SvelteSet } from 'svelte/reactivity'
 
-	const revealed = new SvelteSet<number>()
+	const revealed = new SvelteSet<string>()
 
 	const SKILL_BAR_GLOW_BLUR_PX = 8
 	const SKILL_BAR_GLOW_SPREAD_PX = 2
@@ -17,9 +17,9 @@
 	<p class="mb-10 text-white/50">Technical and beyond.</p>
 
 	<div class="grid gap-x-8 gap-y-6 sm:grid-cols-2">
-		{#each SKILLS as skill, index (skill.name)}
+		{#each SKILLS as skill (skill.name)}
 			{@const color = tech_colors.get(skill.name)}
-			<RevealOnIntersect is_always_render on_visible={() => revealed.add(index)}>
+			<RevealOnIntersect is_always_render on_visible={() => revealed.add(skill.name)}>
 				<div class="mb-2 flex items-baseline justify-between">
 					<div class="{TECH_PILL_LIFT_CLASS} inline-block">
 						<TechPill name={skill.name} />
@@ -29,7 +29,7 @@
 				<div class="h-1 rounded-full bg-white/5">
 					<div
 						class="skill-bar h-full rounded-full"
-						style:width={revealed.has(index) ? `${String(skill.percent)}%` : '0%'}
+						style:width={revealed.has(skill.name) ? `${String(skill.percent)}%` : '0%'}
 						style:background-color={color}
 						style:box-shadow="0 0 {SKILL_BAR_GLOW_BLUR_PX}px {SKILL_BAR_GLOW_SPREAD_PX}px {color}50"
 					></div>

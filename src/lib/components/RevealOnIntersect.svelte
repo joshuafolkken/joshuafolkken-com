@@ -40,7 +40,6 @@
 	{#if is_always_render || is_visible}
 		{#if is_fly_transition && is_visible}
 			<div
-				class={class_name}
 				in:fly={{
 					y: FLY_OFFSET_Y_PX,
 					duration: ANIMATION_DURATION_MS,
