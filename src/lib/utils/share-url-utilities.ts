@@ -9,6 +9,7 @@ function build_twitter_share_url(url: string, text: string): string {
 		url,
 		text,
 	})
+
 	return `${URLS.SHARE_TWITTER}?${parameters.toString()}`
 }
 

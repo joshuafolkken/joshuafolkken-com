@@ -14,6 +14,7 @@ async function current(): Promise<string> {
 	const config: AnimationOptions<string> = {
 		error_message: 'Failed to get current branch',
 	}
+
 	return await animation_helpers.execute_with_animation(
 		'Getting current branch...',
 		git_command.branch,
@@ -23,10 +24,12 @@ async function current(): Promise<string> {
 
 async function create(branch_name: string): Promise<void> {
 	const config = create_branch_operation_config('Failed to create branch')
+
 	await animation_helpers.execute_with_animation(
 		`Creating branch: ${branch_name}...`,
 		async () => {
 			await git_command.checkout_b(branch_name)
+
 			return `Branch created: ${branch_name}`
 		},
 		config,
@@ -35,10 +38,12 @@ async function create(branch_name: string): Promise<void> {
 
 async function switch_to(branch_name: string): Promise<void> {
 	const config = create_branch_operation_config('Failed to switch branch')
+
 	await animation_helpers.execute_with_animation(
 		`Switching to branch: ${branch_name}...`,
 		async () => {
 			await git_command.checkout(branch_name)
+
 			return `Switched to branch: ${branch_name}`
 		},
 		config,
@@ -50,6 +55,7 @@ async function exists(branch_name: string): Promise<boolean> {
 		error_message: 'Failed to check branch existence',
 		result_formatter: (is_exists: boolean) => (is_exists ? 'Exists' : 'Not found'),
 	}
+
 	return await animation_helpers.execute_with_animation(
 		'Checking if branch exists...',
 		async () => {
@@ -61,6 +67,7 @@ async function exists(branch_name: string): Promise<boolean> {
 
 async function handle_main_branch(target_branch_name: string): Promise<void> {
 	const is_branch_exists: boolean = await exists(target_branch_name)
+
 	await (is_branch_exists ? switch_to(target_branch_name) : create(target_branch_name))
 }
 
@@ -70,6 +77,7 @@ async function check_and_create_branch(
 ): Promise<void> {
 	if (current_branch === 'main') {
 		await handle_main_branch(target_branch_name)
+
 		return
 	}
 

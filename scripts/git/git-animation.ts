@@ -15,6 +15,7 @@ function create_pause_function(interval_id: NodeJS.Timeout, message: string): ()
 	return () => {
 		clearInterval(interval_id)
 		const clear_length = message.length + CLEAR_PADDING
+
 		process.stdout.write(`\r${' '.repeat(clear_length)}\r`)
 		process.stdout.write('\n')
 	}
@@ -26,12 +27,15 @@ function create_stop_function(interval_id: NodeJS.Timeout, message: string): Ani
 
 		if (result === undefined) {
 			const clear_length = message.length + CLEAR_PADDING
+
 			process.stdout.write(`\r${' '.repeat(clear_length)}\r`)
+
 			return
 		}
 
 		const display_icon = icon ?? SUCCESS_ICON
 		const icon_without_space = display_icon.trimEnd()
+
 		process.stdout.write(`\r${icon_without_space} ${message} ${result}\n`)
 	}
 }
@@ -54,6 +58,7 @@ function create_animation(message: string): AnimationController {
 
 	let frame_index = 0
 	const first_frame = SPINNER_FRAMES[0] ?? ''
+
 	console.info('')
 	process.stdout.write(`\r${first_frame} ${message}`)
 
@@ -61,6 +66,7 @@ function create_animation(message: string): AnimationController {
 		frame_index += 1
 		const frame_index_modulo = get_next_frame_index(frame_index, SPINNER_FRAMES.length)
 		const frame = SPINNER_FRAMES[frame_index_modulo] ?? ''
+
 		process.stdout.write(`\r${frame} ${message}`)
 	}, ANIMATION_INTERVAL_MS)
 

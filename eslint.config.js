@@ -3,7 +3,7 @@ import { includeIgnoreFile } from '@eslint/compat'
 import js from '@eslint/js'
 import stylistic from '@stylistic/eslint-plugin'
 import prettier from 'eslint-config-prettier'
-import importPlugin from 'eslint-plugin-import'
+import importPlugin from 'eslint-plugin-import-x'
 import promise from 'eslint-plugin-promise'
 import sonarjs from 'eslint-plugin-sonarjs'
 import svelte from 'eslint-plugin-svelte'
@@ -53,10 +53,16 @@ export default defineConfig(
 	{
 		// tsconfig に含まれないファイルを明示的に除外
 		ignores: [
+			'node_modules/**',
 			'src/app.d.ts',
 			'*.config.{ts,js,cjs,mjs}',
-			'src/routes/**/+layout.svelte',
-			'src/routes/**/+layout.ts',
+			'env.d.ts',
+			'src/service-worker.ts',
+			'.storybook/**',
+			'src/routes/demo/**',
+			'src/lib/server/db/**',
+			'src/lib/paraglide/**',
+			'src/stories/**',
 		],
 	},
 	js.configs.recommended,
@@ -78,13 +84,19 @@ export default defineConfig(
 	},
 	importPlugin.flatConfigs.recommended,
 	{
+		plugins: {
+			import: importPlugin,
+		},
 		settings: {
+			'import/ignore': ['src/lib/paraglide'],
 			'import/resolver': {
 				typescript: {
 					alwaysTryTypes: true,
 				},
 				node: true,
 			},
+			// node_modules 内の Svelte 5 の非標準構文を含むファイルのパースエラーを回避
+			'import-x/ignore': ['node_modules'],
 		},
 	},
 	{

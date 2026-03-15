@@ -13,9 +13,15 @@ export const formatting_rules = {
 		},
 		{
 			blankLine: BLANK_LINE_ALWAYS,
+			prev: ['const', 'let', 'var'],
+			next: 'expression',
+		},
+		{
+			blankLine: BLANK_LINE_ALWAYS,
 			prev: '*',
 			next: ['class', 'function'],
 		},
+		{ blankLine: BLANK_LINE_ALWAYS, prev: '*', next: 'return' },
 	],
 
 	// @stylistic プラグインを使用して interface の前後に空行を追加

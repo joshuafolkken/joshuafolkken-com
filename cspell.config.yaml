@@ -27,11 +27,11 @@ words:
   - aikidosec
   - amazonwebservices
   - androidstudio
-  - betterauth
   - apos
   - appleboy
   - autoincrement
   - autorestart
+  - betterauth
   - bttf
   - Caddyfile
   - CCPA
@@ -71,6 +71,7 @@ words:
   - nosniff
   - octocat
   - opencollective
+  - paraglide
   - phpstorm
   - Platformer
   - Platformers
@@ -78,11 +79,11 @@ words:
   - redir
   - SAMEORIGIN
   - Shippori
+  - socketdotio
   - sonarcloud
   - sonarjs
   - sonarqube
   - sonarqubecloud
-  - socketdotio
   - Stylesheet
   - Supabase
   - TERE
@@ -92,9 +93,9 @@ words:
   - udemy
   - unrs
   - upscayl
-  - vuedotjs
   - vite
   - Vitest
+  - vuedotjs
   - webp
   - workerd
   - zstd

@@ -17,6 +17,7 @@ export const load: LayoutServerLoad = async ({ fetch, platform }) => {
 		}
 	} catch (error) {
 		logger.error('[layout.server] Error fetching supporters:', error)
+
 		return {
 			supporters: [],
 		}

@@ -9,5 +9,6 @@ export const handle: Handle = async ({ event, resolve }) => {
 	})
 
 	security.add_security_headers(response)
+
 	return response
 }

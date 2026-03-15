@@ -54,6 +54,7 @@ class InMemoryCache {
 
 	private get_ttl_for_key(key: string): number {
 		const matched_config = TTL_CONFIGS.find((config) => this.matches_config(key, config))
+
 		return matched_config?.ttl_ms ?? DEFAULT_TTL_MS
 	}
 
@@ -87,6 +88,7 @@ class InMemoryCache {
 
 	private set_cached_value(key: string, value: unknown, now: number): void {
 		const ttl_ms = this.get_ttl_for_key(key)
+
 		this.cache.set(key, { value, timestamp: now, ttl_ms })
 	}
 
@@ -104,11 +106,13 @@ class InMemoryCache {
 
 		if (this.is_entry_valid(entry, now)) {
 			logger.debug(`Cache hit for ${key}`)
+
 			return entry.value
 		}
 
 		this.cache.delete(key)
 		logger.debug(`Cache expired for ${key}`)
+
 		return undefined
 	}
 

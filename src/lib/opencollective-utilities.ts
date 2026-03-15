@@ -12,6 +12,7 @@ const DEFAULT_AVATAR_SLUG = 'guest'
 function is_allowed_image_url(url: string): boolean {
 	try {
 		const { origin } = new URL(url)
+
 		return ALLOWED_IMAGE_ORIGINS.has(origin)
 	} catch {
 		return false
@@ -24,6 +25,7 @@ function get_avatar_url(member: OpenCollectiveMember): string {
 	}
 
 	const slug = path_utilities.get_last_segment(member.profile) || DEFAULT_AVATAR_SLUG
+
 	return `${OPENCOLLECTIVE_IMAGES_BASE}/${slug}/avatar.png`
 }
 

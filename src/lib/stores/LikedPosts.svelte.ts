@@ -47,6 +47,7 @@ class LikedPostsStore {
 
 				if (!is_initialized) {
 					is_initialized = true
+
 					return
 				}
 

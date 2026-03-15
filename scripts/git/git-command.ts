@@ -10,6 +10,7 @@ async function exec_git_command(command: string): Promise<string> {
 		stdout: string
 		stderr: string
 	}
+
 	return stdout.trimEnd()
 }
 
@@ -17,7 +18,9 @@ function create_spawn_error(command: string, exit_code: number | null): Error {
 	const exit_code_string = exit_code === null ? 'unknown' : String(exit_code)
 	const error_message = `git ${command} exited with code ${exit_code_string}`
 	const error = new Error(error_message)
+
 	error.cause = { exit_code: exit_code_string }
+
 	return error
 }
 
@@ -26,6 +29,7 @@ async function exec_git_command_with_output(
 	arguments_list: Array<string>,
 ): Promise<void> {
 	const git_command: string = git_utilities.get_git_command_for_spawn()
+
 	await new Promise<void>((resolve, reject) => {
 		const child = spawn(git_command, [command, ...arguments_list], {
 			stdio: 'inherit',
@@ -72,6 +76,7 @@ async function checkout(branch_name: string): Promise<string> {
 
 async function commit(message: string): Promise<void> {
 	const safe_message = JSON.stringify(message)
+
 	await exec_git_command_with_output('commit', ['-m', safe_message])
 }
 
@@ -81,6 +86,7 @@ function is_upstream_not_set_error(error: unknown): boolean {
 	}
 
 	const cause = error.cause as { exit_code?: string }
+
 	return cause.exit_code === '128'
 }
 
@@ -94,7 +100,9 @@ async function push(): Promise<void> {
 	} catch (error) {
 		if (is_upstream_not_set_error(error)) {
 			const current_branch = await branch()
+
 			await push_with_upstream(current_branch)
+
 			return
 		}
 
@@ -105,6 +113,7 @@ async function push(): Promise<void> {
 async function branch_exists(branch_name: string): Promise<boolean> {
 	try {
 		const output: string = await exec_git_command(`branch --list ${branch_name}`)
+
 		return output.trim().length > 0
 	} catch {
 		return false

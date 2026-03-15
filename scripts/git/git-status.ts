@@ -43,6 +43,7 @@ function is_staged_file(line: string): boolean {
 	}
 
 	const [staged_status] = line
+
 	return staged_status !== ' '
 }
 
@@ -66,12 +67,14 @@ function extract_filename(line: string): string {
 
 function is_package_json_staged(status_output: string): boolean {
 	const lines = parse_status_lines(status_output)
+
 	return lines.some((line) => {
 		if (!is_staged_file(line)) {
 			return false
 		}
 
 		const filename = extract_filename(line)
+
 		return filename === PACKAGE_JSON_FILE
 	})
 }
@@ -90,6 +93,7 @@ function create_status_check_config(
 
 function is_version_updated_in_diff(diff_output: string): boolean {
 	const version_pattern = /^[+-].*"version"\s*:/u
+
 	return diff_output.split(/\r?\n/u).some((line) => version_pattern.test(line))
 }
 
@@ -99,10 +103,12 @@ async function check_unstaged(): Promise<boolean> {
 		'Failed to check unstaged files',
 		(has_unstaged) => (has_unstaged ? 'Found' : 'None'),
 	)
+
 	return await animation_helpers.execute_with_animation(
 		'Checking unstaged files...',
 		async () => {
 			const status_output = await git_command.status()
+
 			return has_unstaged_files(status_output)
 		},
 		config,
@@ -115,10 +121,12 @@ async function check_all_staged(): Promise<boolean> {
 		'Failed to check staged files',
 		(all_staged) => (all_staged ? 'All staged' : 'Not all staged'),
 	)
+
 	return await animation_helpers.execute_with_animation(
 		'Checking if all files are staged...',
 		async () => {
 			const status_output = await git_command.status()
+
 			return has_all_files_staged(status_output)
 		},
 		config,
@@ -131,10 +139,12 @@ async function check_package_json_staged(): Promise<boolean> {
 		'Failed to check package.json staging status',
 		(is_staged) => (is_staged ? 'Staged' : 'Not staged'),
 	)
+
 	return await animation_helpers.execute_with_animation(
 		'Checking if package.json is staged...',
 		async () => {
 			const status_output = await git_command.status()
+
 			return is_package_json_staged(status_output)
 		},
 		config,
@@ -147,10 +157,12 @@ async function check_package_json_version(): Promise<boolean> {
 		'Failed to check package.json version update',
 		(is_updated) => (is_updated ? 'Updated' : 'Not updated'),
 	)
+
 	return await animation_helpers.execute_with_animation(
 		'Checking if package.json version is updated...',
 		async () => {
 			const diff_output: string = await git_command.diff_cached(PACKAGE_JSON_FILE)
+
 			return is_version_updated_in_diff(diff_output)
 		},
 		config,

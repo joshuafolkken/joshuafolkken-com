@@ -12,6 +12,7 @@ const DANGEROUS_PROTOCOLS: ReadonlyArray<string> = [
 
 function is_dangerous_href(href: string): boolean {
 	const normalized = href.trim().toLowerCase()
+
 	return DANGEROUS_PROTOCOLS.some((protocol) => normalized.startsWith(protocol))
 }
 

@@ -21,6 +21,7 @@ function handle_animation_success<T>(
 ): void {
 	const icon = options?.icon_selector?.(result)
 	const display_result = get_display_result(result, options?.result_formatter)
+
 	animation.stop(display_result, icon)
 }
 
@@ -55,7 +56,9 @@ async function execute_with_animation<T>(
 		const result = await command_executor(() => {
 			animation.pause()
 		})
+
 		handle_animation_success(animation, result, options)
+
 		return result
 	} catch (error) {
 		return handle_animation_error(animation, error, options?.error_message)

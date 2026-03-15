@@ -48,6 +48,7 @@ function check_rate_limit(ip: string): boolean {
 	}
 
 	limit_data.count += 1
+
 	return true
 }
 
@@ -60,6 +61,7 @@ type ValidationResult = Response | undefined
 function validate_rate_limit(ip: string): ValidationResult {
 	if (!check_rate_limit(ip)) {
 		logger.warn(`[RateLimit] Blocked request from ${ip}`)
+
 		return json_error(ERROR_MESSAGES.TOO_MANY_REQUESTS, HTTP_STATUS.TOO_MANY_REQUESTS)
 	}
 
@@ -71,6 +73,7 @@ function validate_custom_header(request: Request): ValidationResult {
 
 	if (client_header !== APP.ID) {
 		logger.warn(`[HeaderCheck] Blocked request with invalid header: ${client_header ?? 'null'}`)
+
 		return json_error(ERROR_MESSAGES.FORBIDDEN, HTTP_STATUS.FORBIDDEN)
 	}
 
@@ -101,6 +104,7 @@ function is_origin_mismatch(origin_url: URL, url: URL): boolean {
 
 function block_origin(origin: string): ValidationResult {
 	logger.warn(`[OriginCheck] Blocked request from origin: ${origin}`)
+
 	return json_error(ERROR_MESSAGES.FORBIDDEN, HTTP_STATUS.FORBIDDEN)
 }
 
