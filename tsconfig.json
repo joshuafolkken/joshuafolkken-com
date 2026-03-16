@@ -15,18 +15,27 @@
 		"types": ["./worker-configuration.d.ts"],
 
 		// Strictness
-		"noUncheckedIndexedAccess": true,
-		"noImplicitOverride": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
-		"exactOptionalPropertyTypes": true,
-		"noFallthroughCasesInSwitch": true,
-		"noImplicitReturns": true,
-		"noPropertyAccessFromIndexSignature": true,
+
 		"allowUnusedLabels": false,
 		"allowUnreachableCode": false,
-		"isolatedModules": true
-		// "noUncheckedSideEffectImports": true // TypeScript 5.10+ // SonarCube Warning
+
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitReturns": true,
+
+		"isolatedModules": true,
+		"noImplicitOverride": true,
+
+		"exactOptionalPropertyTypes": true,
+		"noUncheckedIndexedAccess": true,
+		"noPropertyAccessFromIndexSignature": true,
+
+		"verbatimModuleSyntax": true,
+		"noEmitOnError": true,
+		"useDefineForClassFields": true,
+
+		"noUncheckedSideEffectImports": true
 	},
 	"include": [
 		"./.svelte-kit/ambient.d.ts",
