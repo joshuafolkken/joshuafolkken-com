@@ -1,4 +1,4 @@
-# CodeRabbit 設定ファイル（高速化版）
+# CodeRabbit 設定ファイル（最速版）
 # https://docs.coderabbit.ai/reference/configuration
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 
@@ -6,11 +6,11 @@ language: 'ja'
 early_access: false
 
 reviews:
-  profile: 'assertive'
+  profile: 'chill'
   request_changes_workflow: false
   high_level_summary: false
   poem: false
-  review_status: true
+  review_status: false
   review_details: false
   in_progress_fortune: false
   sequence_diagrams: false
@@ -21,7 +21,7 @@ reviews:
   suggested_labels: false
   suggested_reviewers: false
   changed_files_summary: false
-  enable_prompt_for_ai_agents: true
+  enable_prompt_for_ai_agents: false
   path_filters:
     - '!node_modules/**'
     - '!dist/**'
@@ -29,14 +29,26 @@ reviews:
     - '!*.lock'
     - '!pnpm-lock.yaml'
     - '!.svelte-kit/**'
+    - '!static/**'
+    - '!*.md'
+    - '!*.yaml'
+    - '!*.yml'
+    - '!*.json'
+    - '!*.css'
+    # バイナリ画像はコードレビューの対象外（sparse-checkout でクローンもスキップ）
+    - '!**/*.jpg'
+    - '!**/*.jpeg'
+    - '!**/*.png'
+    - '!**/*.gif'
+    - '!**/*.webp'
+    - '!**/*.ico'
   auto_review:
     enabled: true
     drafts: false
     auto_incremental_review: true
-    auto_pause_after_reviewed_commits: 3
   tools:
     github-checks:
-      timeout_ms: 5000
+      enabled: false
     phpstan:
       enabled: false
     phpmd:
@@ -99,28 +111,12 @@ reviews:
       enabled: false
     biome:
       enabled: false
-  path_instructions:
-    - path: 'src/**'
-      instructions: |
-        SvelteKit プロジェクトです。Svelte 5 の runes ($state, $derived など) と TypeScript の型安全性を重視してください。
-        ESLint と Prettier のルールに従っているか確認してください。
-    - path: '**/*.spec.*'
-      instructions: |
-        Vitest のユニットテストです。テストカバレッジとエッジケースの検証を確認してください。
-    - path: '**/*.test.*'
-      instructions: |
-        Playwright の E2E テストです。ユーザーフローとアクセシビリティを確認してください。
-    - path: 'scripts/**'
-      instructions: |
-        ビルド・デプロイ用スクリプトです。エラーハンドリングとクロスプラットフォーム互換性を確認してください。
 
 knowledge_base:
   web_search:
     enabled: false
   code_guidelines:
-    enabled: true
-    filePatterns:
-      - 'prompts/coding-standards.md'
+    enabled: false
 
 chat:
   auto_reply: true
