@@ -4,6 +4,7 @@ function get_last_segment(path: string): string {
 
 function get_basename_without_extension(path_or_key: string): string {
 	const filename = get_last_segment(path_or_key)
+
 	return filename.replace(/\.[^.]+$/u, '')
 }
 

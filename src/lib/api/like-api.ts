@@ -11,6 +11,7 @@ function validate_like_response(data: unknown): data is LikeResponse {
 	if (typeof data !== 'object' || data === null) return false
 
 	const candidate = data as { likes?: unknown }
+
 	return 'likes' in data && typeof candidate.likes === 'number'
 }
 

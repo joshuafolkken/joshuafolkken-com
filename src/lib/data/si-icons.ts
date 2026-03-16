@@ -203,6 +203,7 @@ const CUSTOM_ICON_ENTRIES = [
 
 function to_tech_icon_entry(entry: readonly [string, SimpleIcon]): [string, TechIcon] {
 	const [slug, icon] = entry
+
 	return [slug, { path: icon.path, view_box: SI_VIEW_BOX }]
 }
 

@@ -2,6 +2,12 @@
 
 このプロジェクトで AI がコードを生成・変更する際に従うルールです。Cursor、Antigravity、CodeRabbit など、各種 AI ツールから参照されます。
 
+## Project Configuration
+
+- **Language**: TypeScript
+- **Package Manager**: pnpm
+- **Add-ons**: prettier, eslint, vitest, playwright, tailwindcss, sveltekit-adapter, devtools-json, drizzle, better-auth, paraglide, mcp
+
 ## Coding Standards
 
 - **Prompt Reference**: When generating or modifying any code, ALWAYS read and follow the instructions in `prompts/coding-standards.md` before starting.
@@ -30,9 +36,11 @@ Whenever modifying, adding, or deleting any code:
 - **No Commits**: DO NOT commit changes unless explicitly requested by the user.
 - **Workflow Awareness**: Use `scripts/git-workflow.ts` (via `pnpm git`) when the user asks for git operations.
 
-## MCP Tools (Svelte)
+---
 
 You are able to use the Svelte MCP server, where you have access to comprehensive Svelte 5 and SvelteKit documentation. Here's how to use the available tools effectively:
+
+## Available MCP Tools:
 
 ### 1. list-sections
 

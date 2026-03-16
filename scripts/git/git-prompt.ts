@@ -33,10 +33,12 @@ async function ask_yes_no_internal(
 
 	if (!is_valid_yes_no_answer(answer)) {
 		git_prompt_display.display_invalid_answer_message()
+
 		return await ask_yes_no_internal(prompt, question, false)
 	}
 
 	git_prompt_display.display_end_separator()
+
 	return answer === 'y'
 }
 
@@ -50,6 +52,7 @@ async function ask_yes_no_simple(prompt: Interface, question: string): Promise<b
 
 	if (!is_valid_yes_no_answer(answer)) {
 		git_prompt_display.display_invalid_answer_message()
+
 		return await ask_yes_no_simple(prompt, question)
 	}
 
@@ -139,7 +142,9 @@ async function ask_issue_info(prompt: Interface, question: string): Promise<stri
 	git_prompt_display.display_start_separator()
 	const raw_answer: unknown = await prompt.question(question)
 	const answer = String(raw_answer)
+
 	git_prompt_display.display_end_separator()
+
 	return answer.trim()
 }
 
@@ -149,6 +154,7 @@ async function get_issue_info(): Promise<string> {
 			prompt,
 			'💬 Enter issue title and number (e.g., "title #52"): ',
 		)
+
 		return result
 	})
 }
@@ -161,6 +167,7 @@ interface WorkflowConfirmations {
 
 async function confirm_workflow_steps(): Promise<WorkflowConfirmations> {
 	const fallback: WorkflowConfirmations = { commit: false, push: false, pr: false }
+
 	return await with_prompt(async (prompt) => {
 		git_prompt_display.display_start_separator()
 		console.info('💬 Confirm workflow steps:')

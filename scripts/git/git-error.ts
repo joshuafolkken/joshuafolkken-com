@@ -10,6 +10,7 @@ function get_stderr_from_error(cause: Error): string | undefined {
 	}
 
 	const stderr = exec_error.stderr.trim()
+
 	return stderr.length > 0 ? stderr : undefined
 }
 
@@ -46,6 +47,7 @@ function display_error_details(cause: unknown): void {
 
 function handle(error: unknown): void {
 	const error_message = get_error_message(error)
+
 	console.error('')
 	console.error('❌ Error:', error_message)
 

@@ -75,6 +75,7 @@ function get_from_memory(key: string, now: number): unknown {
 
 	if (memory_entry && memory_entry.expires > now) {
 		log_cache_event('HIT', key, { source: 'memory', value: memory_entry.value, started_at: now })
+
 		return memory_entry.value
 	}
 
@@ -92,6 +93,7 @@ function parse_and_validate_kv_entry(
 	try {
 		const kv_entry = JSON.parse(kv_entry_string) as CacheEntry<unknown>
 		if (is_kv_entry_expired(kv_entry.expires, now)) return undefined
+
 		return kv_entry
 	} catch {
 		return undefined
@@ -107,6 +109,7 @@ async function get_from_kv(key: string, kv: KVNamespace, now: number): Promise<u
 
 	set_to_memory(key, kv_entry.value, now)
 	log_cache_event('HIT', key, { source: 'kv', value: kv_entry.value, started_at: now })
+
 	return kv_entry.value
 }
 
@@ -121,12 +124,12 @@ async function save_to_cache(
 
 	try {
 		await kv.put(key, JSON.stringify(cache_entry), {
-			/* eslint-disable-next-line @typescript-eslint/naming-convention -- Cloudflare KV API contract */
 			expirationTtl: KV_TTL_SECONDS,
 		})
 		log_cache_event('SAVE', key, { source: 'kv' })
 	} catch (error) {
 		const duration = cache_log_utilities.format_elapsed_ms(now)
+
 		logger.error(`${LOG_PREFIX} Failed to save to KV ${duration} ${key}:`, error)
 		throw error
 	}
@@ -140,8 +143,10 @@ async function fetch_and_save<T>(
 ): Promise<T> {
 	log_cache_event('MISS', key)
 	const fresh = await fetcher()
+
 	log_cache_event('FETCH', key, { source: 'remote', value: fresh, started_at: now })
 	await save_to_cache(key, fresh, now, kv)
+
 	return fresh
 }
 

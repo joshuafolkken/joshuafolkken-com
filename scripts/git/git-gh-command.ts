@@ -7,6 +7,7 @@ function build_error_message(error: unknown): string {
 	const exec_error = error as { stderr?: string; stdout?: string; message?: string }
 	const error_message = exec_error.message ?? String(error)
 	const stderr = exec_error.stderr ?? ''
+
 	return stderr.length > 0 ? `${error_message}\n${stderr}` : error_message
 }
 
@@ -16,9 +17,10 @@ async function exec_gh_command(command: string): Promise<string> {
 			stdout: string
 			stderr: string
 		}
+
 		return stdout.trimEnd()
 	} catch (error) {
-		throw new Error(build_error_message(error))
+		throw new Error(build_error_message(error), { cause: error })
 	}
 }
 
@@ -70,7 +72,7 @@ async function pr_checks(branch_name: string): Promise<string> {
 		const exec_error = error as { stderr?: string; stdout?: string }
 
 		if (exec_error.stderr !== undefined && exec_error.stderr.length > 0) {
-			throw new Error(exec_error.stderr)
+			throw new Error(exec_error.stderr, { cause: error })
 		}
 
 		throw error
@@ -94,6 +96,7 @@ async function pr_checks_watch(branch_name: string): Promise<void> {
 				resolve()
 			} else {
 				const exit_code = code === null ? 'unknown' : String(code)
+
 				reject(new Error(`gh pr checks --watch exited with code ${exit_code}`))
 			}
 		})
@@ -103,6 +106,7 @@ async function pr_checks_watch(branch_name: string): Promise<void> {
 async function pr_exists(branch_name: string): Promise<boolean> {
 	try {
 		await exec_gh_command(`pr view ${branch_name}`)
+
 		return true
 	} catch {
 		return false
@@ -129,6 +133,7 @@ async function pr_get_url(branch_name: string): Promise<string | undefined> {
 		}
 
 		const without_quotes = trimmed.replaceAll(/(?:^")|(?:"$)/gu, '')
+
 		return without_quotes.length > 0 ? without_quotes : undefined
 	} catch {
 		return undefined
@@ -143,12 +148,14 @@ function parse_pr_state_string(result: string): string | undefined {
 	}
 
 	const without_quotes = trimmed.replaceAll(/(?:^")|(?:"$)/gu, '')
+
 	return without_quotes.length > 0 ? without_quotes : undefined
 }
 
 async function pr_get_state(branch_name: string): Promise<string | undefined> {
 	try {
 		const result: string = await exec_gh_command(`pr view ${branch_name} --json state --jq .state`)
+
 		return parse_pr_state_string(result)
 	} catch {
 		return undefined

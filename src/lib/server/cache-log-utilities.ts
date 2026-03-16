@@ -28,6 +28,7 @@ function stringify_base(value: unknown, object_handler: (target_object: object) 
 	if (is_function(value)) return FUNCTION_STRING
 	if (typeof value === 'object') return object_handler(value)
 	if (is_primitive(value)) return stringify_primitive(value)
+
 	return 'unknown'
 }
 
@@ -56,6 +57,7 @@ function format_value_for_log(value: unknown): string {
 
 function format_elapsed_ms(started_at: number): string {
 	const duration = Date.now() - started_at
+
 	return `${String(duration)}ms`
 }
 

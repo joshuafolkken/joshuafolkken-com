@@ -7,6 +7,7 @@ const ISO_DATE_WITH_MS_LENGTH = 23
 function get_timestamp(): string {
 	const now = new Date()
 	const jst_now = new Date(now.getTime() + time_conversion.hours_to_milliseconds(JST_OFFSET_HOURS))
+
 	return jst_now.toISOString().replace('T', ' ').slice(0, ISO_DATE_WITH_MS_LENGTH)
 }
 

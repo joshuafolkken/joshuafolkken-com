@@ -22,6 +22,7 @@ function is_merge_state_blocked(merge_state_status: string | null | undefined): 
 	}
 
 	const normalized = merge_state_status.toLowerCase()
+
 	return normalized === MERGE_STATE_DIRTY || normalized === MERGE_STATE_BLOCKED
 }
 
@@ -41,6 +42,7 @@ function get_pr_properties(pr_info: Record<string, unknown>): {
 	const is_mergeable = (pr_info['mergeable'] as MergeableValue) ?? undefined
 	// eslint-disable-next-line dot-notation
 	const merge_state_status = (pr_info['mergeStateStatus'] as string | null | undefined) ?? undefined
+
 	return { is_mergeable, merge_state_status }
 }
 
@@ -63,6 +65,7 @@ function has_conflicts(pr_info_json: string): boolean {
 	}
 
 	const { is_mergeable, merge_state_status } = get_pr_properties(pr_info)
+
 	return check_conflict_conditions(is_mergeable, merge_state_status)
 }
 
@@ -79,6 +82,7 @@ function display_conflict_warning(): void {
 async function get_pr_info_safe(branch_name: string): Promise<string | undefined> {
 	try {
 		const pr_info_json = await git_gh_command.pr_view(branch_name)
+
 		return pr_info_json.length > 0 ? pr_info_json : undefined
 	} catch {
 		return undefined
@@ -94,6 +98,7 @@ async function check_pr_status_for_errors(branch_name: string): Promise<boolean>
 
 	if (has_conflicts(pr_info_json)) {
 		display_conflict_warning()
+
 		return true
 	}
 

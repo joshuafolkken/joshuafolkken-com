@@ -1,4 +1,4 @@
-import { database } from './db/index.js'
+import { database } from './db'
 
 /* eslint-disable @typescript-eslint/no-unnecessary-type-parameters -- Generic K required for type-safe return */
 function get_platform_binding<K>(

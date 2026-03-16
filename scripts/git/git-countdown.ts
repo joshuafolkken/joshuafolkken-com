@@ -4,6 +4,7 @@ const COUNTDOWN_PADDING = 20
 
 function clear_countdown_line(message_length: number): void {
 	const clear_length = message_length + COUNTDOWN_PADDING
+
 	process.stdout.write(`\r${' '.repeat(clear_length)}\r`)
 }
 
@@ -13,6 +14,7 @@ function update_countdown_display(message: string, remaining: number): void {
 
 function create_countdown_interval(message: string, total_seconds: number): NodeJS.Timeout {
 	let remaining_seconds = total_seconds
+
 	update_countdown_display(message, remaining_seconds)
 
 	return setInterval(() => {
@@ -31,6 +33,7 @@ async function wait_for_seconds(seconds: number, countdown_message?: string): Pr
 		await new Promise((resolve) => {
 			setTimeout(resolve, seconds * SECONDS_TO_MILLISECONDS)
 		})
+
 		return
 	}
 

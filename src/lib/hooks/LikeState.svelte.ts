@@ -28,6 +28,7 @@ export class LikeState {
 	async #fetch_likes(): Promise<void> {
 		try {
 			const data = await like_api.get(this.#slug)
+
 			this.count = data.likes
 		} catch (error) {
 			logger.error(ERROR_MESSAGES.FAILED_TO_GET_LIKES, error)
@@ -51,6 +52,7 @@ export class LikeState {
 
 		try {
 			const data = await like_api.increment(this.#slug)
+
 			this.count = data.likes
 		} catch (error) {
 			logger.error(ERROR_MESSAGES.FAILED_TO_INCREMENT_LIKES, error)

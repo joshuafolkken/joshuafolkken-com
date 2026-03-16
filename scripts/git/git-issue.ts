@@ -43,6 +43,7 @@ function normalize_title_for_branch(title: string): string {
 
 function create_branch_name(issue_number: string, title: string): string {
 	const kebab_title = normalize_title_for_branch(title)
+
 	return `${issue_number}-${kebab_title}`
 }
 
@@ -75,7 +76,9 @@ function display_issue_info(issue_info: IssueInfo): void {
 async function get_and_display(cli_input?: string): Promise<IssueInfo> {
 	const input = cli_input ?? (await git_prompt.get_issue_info())
 	const issue_info = parse_issue_input(input)
+
 	display_issue_info(issue_info)
+
 	return issue_info
 }
 

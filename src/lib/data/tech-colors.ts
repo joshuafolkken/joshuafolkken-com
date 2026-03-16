@@ -139,6 +139,7 @@ function is_dark(hex: string): boolean {
 	const luminance =
 		(LUMINANCE_RED_WEIGHT * red + LUMINANCE_GREEN_WEIGHT * green + LUMINANCE_BLUE_WEIGHT * blue) /
 		MAX_COLOR_CHANNEL
+
 	return luminance < DARK_LUMINANCE_THRESHOLD
 }
 
