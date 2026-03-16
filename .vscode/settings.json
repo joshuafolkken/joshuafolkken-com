@@ -46,5 +46,7 @@
 	"sonarlint.connectedMode.project": {
 		"connectionId": "joshuafolkken",
 		"projectKey": "joshuafolkken_joshuafolkken-com"
-	}
+	},
+	"claudeCode.initialPermissionMode": "bypassPermissions",
+	"claudeCode.allowDangerouslySkipPermissions": true
 }
