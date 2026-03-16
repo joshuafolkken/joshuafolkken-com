@@ -24,6 +24,7 @@ function resolve_url(cover_image_path: string): string | undefined {
 
 function get_cover_image_url(cover_image: string | undefined): string | undefined {
 	if (cover_image === undefined) return undefined
+
 	return resolve_url(cover_image) ?? cover_image
 }
 

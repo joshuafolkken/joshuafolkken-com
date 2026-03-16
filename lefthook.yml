@@ -20,6 +20,10 @@ pre-commit:
       glob: '*.{js,jsx,ts,tsx,mjs,cjs,svelte}'
       run: pnpm exec eslint --quiet --cache --cache-strategy content {staged_files}
 
+    type-check:
+      glob: '*.{svelte,ts,js,mjs,cjs,yml}'
+      run: pnpm run check
+
   fail_text: |
     🚫 Commit blocked due to quality checks failure
     Please fix the issues above and try again.
@@ -37,10 +41,6 @@ commit-msg:
 pre-push:
   parallel: true
   commands:
-    type-check:
-      glob: '*.{svelte,ts,js,mjs,cjs}'
-      run: pnpm run check
-
     test-unit:
       # glob: '*.{svelte,ts,js,css}'
       run: pnpm run test:unit --run

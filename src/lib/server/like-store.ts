@@ -69,6 +69,7 @@ async function get(slug: string, platform: App.Platform | undefined): Promise<nu
 		)
 	} catch (error) {
 		logger.error('Failed to fetch likes from DB:', error)
+
 		return INITIAL_COUNT
 	}
 }
@@ -79,9 +80,11 @@ async function increment(slug: string, platform: App.Platform | undefined): Prom
 	try {
 		const count = await update_likes_in_database(slug, platform)
 		const cache_key = get_cache_key(slug)
+
 		await kv_cache.delete(cache_key, platform)
 
 		logger.debug(`[like-store] New count after increment: ${String(count)}`)
+
 		return count
 	} catch (error) {
 		logger.error('Failed to increment likes:', error)

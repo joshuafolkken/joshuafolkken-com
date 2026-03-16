@@ -10,6 +10,7 @@ interface CheckResult {
 function get_current_branch(): string {
 	try {
 		const git_command = git_utilities.get_git_command()
+
 		return execSync(`${git_command} rev-parse --abbrev-ref HEAD`, { encoding: 'utf8' }).trim() // eslint-disable-line sonarjs/os-command
 	} catch (error) {
 		throw new Error('Failed to get current branch', { cause: error })
@@ -18,6 +19,7 @@ function get_current_branch(): string {
 
 function execute_check(check_function: () => CheckResult): void {
 	const result = check_function()
+
 	console.info(result.message)
 
 	if (!result.success) {

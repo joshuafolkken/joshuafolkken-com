@@ -75,6 +75,7 @@ function throw_if_graphql_errors(response: GraphqlResponse): void {
 
 function get_contributor_nodes(response: GraphqlResponse): Array<GraphqlContributor> {
 	const nodes = response.data?.account?.contributors?.nodes
+
 	return nodes ?? []
 }
 
@@ -84,7 +85,9 @@ function parse_graphql_response(json: unknown): Array<GraphqlContributor> {
 	}
 
 	const response = json as GraphqlResponse
+
 	throw_if_graphql_errors(response)
+
 	return get_contributor_nodes(response)
 }
 
@@ -104,6 +107,7 @@ async function fetch_supporters(
 
 	const json: unknown = await response.json()
 	const nodes = parse_graphql_response(json)
+
 	return map_contributors_to_supporters(nodes)
 }
 

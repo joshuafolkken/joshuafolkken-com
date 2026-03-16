@@ -8,7 +8,7 @@ early_access: false
 reviews:
   profile: 'assertive'
   request_changes_workflow: false
-  high_level_summary: true
+  high_level_summary: false
   poem: false
   review_status: true
   review_details: false
@@ -17,7 +17,7 @@ reviews:
   estimate_code_review_effort: false
   related_issues: false
   related_prs: false
-  assess_linked_issues: true
+  assess_linked_issues: false
   suggested_labels: false
   suggested_reviewers: false
   changed_files_summary: false
@@ -36,7 +36,7 @@ reviews:
     auto_pause_after_reviewed_commits: 3
   tools:
     github-checks:
-      timeout_ms: 30000
+      timeout_ms: 5000
     phpstan:
       enabled: false
     phpmd:
@@ -90,7 +90,7 @@ reviews:
     luacheck:
       enabled: false
     oxc:
-      enabled: true
+      enabled: false
     semgrep:
       enabled: false
     opengrep:
@@ -120,12 +120,7 @@ knowledge_base:
   code_guidelines:
     enabled: true
     filePatterns:
-      - '**/.cursorrules'
-      - '**/AGENTS.md'
-      - '**/GEMINI.md'
-      - 'prompts/agent-rules.md'
       - 'prompts/coding-standards.md'
-      - 'prompts/refactoring.md'
 
 chat:
   auto_reply: true

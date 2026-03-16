@@ -12,6 +12,7 @@ interface LikeRequestBody {
 
 function is_json_content_type(request: Request): boolean {
 	const content_type = request.headers.get(HTTP_HEADERS.CONTENT_TYPE)
+
 	return content_type?.startsWith(CONTENT_TYPE_JSON) ?? false
 }
 
@@ -23,6 +24,7 @@ async function get_valid_slug(request: Request): Promise<string | undefined> {
 	try {
 		/* eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- request.json() returns unknown */
 		const body = (await request.json()) as LikeRequestBody
+
 		return slug_validator.parse_slug(body.slug)
 	} catch {
 		return undefined
@@ -43,9 +45,11 @@ async function process_like_operation(
 ): Promise<Response> {
 	try {
 		const likes = await operation(slug, platform)
+
 		return json_likes(likes)
 	} catch (error) {
 		logger.error(error)
+
 		return security.json_error(error_message, HTTP_STATUS.INTERNAL_SERVER_ERROR)
 	}
 }

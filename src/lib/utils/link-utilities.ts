@@ -32,6 +32,7 @@ function get_link_info(link: string | undefined): LinkInfo {
 	const href = get_href(link)
 	const is_internal = Boolean(href && is_internal_link(link))
 	const is_external = Boolean(href && !is_internal)
+
 	return {
 		href,
 		is_link: is_internal,

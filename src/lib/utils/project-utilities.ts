@@ -4,6 +4,7 @@ const FALLBACK_HREF = '#'
 
 function get_demo_href(project: Project): string | undefined {
 	const demo_link = project.links.find((link) => link.type === 'demo')
+
 	return demo_link?.href
 }
 

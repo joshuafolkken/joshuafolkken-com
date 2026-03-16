@@ -20,6 +20,7 @@ async function create_pr(title: string, body: string): Promise<void> {
 			'Creating pull request...',
 			async () => {
 				await git_gh_command.pr_create(title, body)
+
 				return 'PR created.'
 			},
 			config,
@@ -27,6 +28,7 @@ async function create_pr(title: string, body: string): Promise<void> {
 	} catch (error) {
 		if (git_pr_error.is_pr_already_exists_error(error)) {
 			git_pr_messages.display_pr_exists_message()
+
 			return
 		}
 
@@ -99,6 +101,7 @@ async function create_and_check_status(
 function parse_pr_state(pr_info_json: string): string | undefined {
 	try {
 		const pr_info = JSON.parse(pr_info_json) as Record<string, unknown>
+
 		// eslint-disable-next-line dot-notation
 		return (pr_info['state'] as string | undefined) ?? undefined
 	} catch {
@@ -133,12 +136,14 @@ async function handle_existing_pr(title: string, body: string, branch_name: stri
 
 	if (is_pr_state_undefined(pr_state_result)) {
 		await wait_and_check_status(branch_name)
+
 		return
 	}
 
 	if (is_pr_state_merged(pr_state_result)) {
 		git_pr_messages.display_merged_pr_message()
 		await create_and_check_status(title, body, branch_name)
+
 		return
 	}
 
@@ -150,6 +155,7 @@ async function create(title: string, body: string, branch_name: string): Promise
 
 	if (!has_pr) {
 		await create_and_check_status(title, body, branch_name)
+
 		return
 	}
 
@@ -167,6 +173,7 @@ function build_body(issue_info: IssueInfo): string {
 async function create_with_issue_info(issue_info: IssueInfo): Promise<void> {
 	const title = build_title(issue_info)
 	const body = build_body(issue_info)
+
 	await create(title, body, issue_info.branch_name)
 }
 

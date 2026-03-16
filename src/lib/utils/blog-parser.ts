@@ -39,11 +39,13 @@ function has_valid_metadata(metadata: MdsvexMetadata): metadata is BlogMetadata 
 
 function get_raw_slug_from_path(path: string): string | undefined {
 	const slug = path_utilities.get_basename_without_extension(path)
+
 	return slug || undefined
 }
 
 function is_safe_cover_image_path(path: string | undefined): path is string {
 	if (!path || typeof path !== 'string') return false
+
 	return path.startsWith('/') && !path.includes('//')
 }
 
