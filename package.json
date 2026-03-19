@@ -1,7 +1,7 @@
 {
 	"name": "joshuafolkken-com",
 	"private": true,
-	"version": "0.137.0",
+	"version": "0.138.0",
 	"type": "module",
 	"packageManager": "pnpm@10.32.1",
 	"engines": {
@@ -11,7 +11,7 @@
 		"packageManager": {
 			"name": "pnpm",
 			"version": ">=10.32.1",
-			"onFail": "warn"
+			"onFail": "error"
 		}
 	},
 	"pnpm": {
@@ -21,15 +21,15 @@
 			"cookie": ">=0.7.0"
 		},
 		"onlyBuiltDependencies": [
-			"better-sqlite3",
 			"esbuild",
-			"lefthook"
+			"sharp",
+			"unrs-resolver",
+			"workerd"
 		]
 	},
 	"scripts": {
-		"preinstall": "npx only-allow pnpm && pnpm dlx @aikidosec/safe-chain@1.4.4 setup-ci",
+		"preinstall": "pnpm dlx @aikidosec/safe-chain setup-ci",
 		"postinstall": "lefthook install",
-		"setup:security": "safe-chain setup",
 		"dev": "vite dev",
 		"dev:cloudflare": "pnpm build && wrangler dev --remote",
 		"build": "vite build",
@@ -66,14 +66,15 @@
 		"db:push": "drizzle-kit push",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
-		"version:minor": "pnpm version minor --no-git-tag-version --loglevel=error",
 		"update:latest": "pnpm update --latest",
 		"update:corepack": "corepack use pnpm@latest",
 		"cspell:dot": "pnpm cspell . --dot",
-		"db:studio": "export LOCAL_DB_PATH=$(find .wrangler/state/v3/d1 -name '*.sqlite' -type f 2>/dev/null | head -1) && drizzle-kit studio"
+		"db:studio": "export LOCAL_DB_PATH=$(find .wrangler/state/v3/d1 -name '*.sqlite' -type f 2>/dev/null | head -1) && drizzle-kit studio",
+		"version:minor": "tsx scripts/bump-version.ts minor",
+		"version:major": "tsx scripts/bump-version.ts major",
+		"version:patch": "tsx scripts/bump-version.ts patch"
 	},
 	"devDependencies": {
-		"@aikidosec/safe-chain": "^1.4.4",
 		"@eslint/compat": "^2.0.3",
 		"@eslint/js": "^10.0.1",
 		"@ianvs/prettier-plugin-sort-imports": "^4.7.1",
@@ -89,7 +90,7 @@
 		"@vitest/browser-playwright": "^4.1.0",
 		"better-sqlite3": "^12.8.0",
 		"cspell": "^9.7.0",
-		"drizzle-kit": "^0.31.9",
+		"drizzle-kit": "^0.31.10",
 		"eslint": "^10.0.3",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-import-resolver-typescript": "^4.4.4",
@@ -106,23 +107,23 @@
 		"prettier": "^3.8.1",
 		"prettier-plugin-svelte": "^3.5.1",
 		"prettier-plugin-tailwindcss": "^0.7.2",
-		"svelte": "^5.53.11",
+		"svelte": "^5.54.0",
 		"svelte-check": "^4.4.5",
 		"svelte-fast-check": "^0.4.5",
 		"tailwindcss": "^4.2.1",
 		"tsx": "^4.21.0",
 		"typescript": "^5.9.3",
-		"typescript-eslint": "^8.57.0",
+		"typescript-eslint": "^8.57.1",
 		"vite": "^8.0.0",
 		"vite-imagetools": "^10.0.0",
 		"vitest": "^4.1.0",
 		"vitest-browser-svelte": "^2.1.0",
-		"wrangler": "^4.73.0"
+		"wrangler": "^4.75.0"
 	},
 	"dependencies": {
 		"dotenv": "^17.3.1",
 		"drizzle-orm": "^0.45.1",
 		"sharp": "^0.34.5",
-		"simple-icons": "^16.11.0"
+		"simple-icons": "^16.12.0"
 	}
 }
