@@ -75,9 +75,7 @@ async function checkout(branch_name: string): Promise<string> {
 }
 
 async function commit(message: string): Promise<void> {
-	const safe_message = JSON.stringify(message)
-
-	await exec_git_command_with_output('commit', ['-m', safe_message])
+	await exec_git_command_with_output('commit', ['-m', message])
 }
 
 function is_upstream_not_set_error(error: unknown): boolean {
