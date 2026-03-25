@@ -1,5 +1,6 @@
 const SLUG_MAX_LENGTH = 200
-const SLUG_PATTERN = /^[\w-]+$/u
+// Word chars, hyphens, and colons (e.g. page:projects for static-page likes).
+const SLUG_PATTERN = /^[\w:-]+$/u
 
 function parse_slug(value: unknown): string | undefined {
 	if (typeof value !== 'string' || value.trim().length === 0) {
