@@ -1,20 +1,33 @@
 <script lang="ts">
 	import CardImage from '$lib/components/CardImage.svelte'
-	import TechPill from '$lib/components/TechPill.svelte'
 	import { CARD_DESCRIPTION_CLASS, CARD_TITLE_CLASS } from '$lib/constants/card-styles'
 	import { ICON_SIZE_LG } from '$lib/constants/layout'
 	import type { Project } from '$lib/types/project'
+	import { get_card_body_padding } from '$lib/utils/project-card-layout'
+	import ProjectCardTags from './ProjectCardTags.svelte'
 
-	const { project, has_github_link = false } = $props<{
+	const {
+		project,
+		has_github_link = false,
+		should_include_tags = true,
+	} = $props<{
 		project: Project
 		has_github_link?: boolean
+		/** When false (demo link wraps the body), tags render outside the `<a>` in `ProjectCard`. */
+		should_include_tags?: boolean
 	}>()
+
+	const has_tag_list = $derived(Boolean(project.tags?.length))
+
+	const body_bottom_class = $derived(
+		get_card_body_padding(should_include_tags, has_github_link, has_tag_list),
+	)
 </script>
 
 {#if project.image}
 	<CardImage src={project.image} alt={project.title} />
 {/if}
-<div class="flex flex-1 flex-col p-6 {has_github_link ? 'pb-16' : ''}">
+<div class="flex flex-1 flex-col p-6 {body_bottom_class}">
 	<h3 class="flex items-center gap-2 text-lg font-semibold">
 		{#if project.icon}
 			<!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
@@ -35,11 +48,7 @@
 	<p class="mt-2 {CARD_DESCRIPTION_CLASS}">
 		{project.description}
 	</p>
-	{#if project.tags?.length}
-		<div class="mt-3 flex flex-wrap gap-x-1.5 gap-y-2">
-			{#each project.tags as tag (tag)}
-				<TechPill name={tag} />
-			{/each}
-		</div>
+	{#if should_include_tags}
+		<ProjectCardTags tags={project.tags ?? []} />
 	{/if}
 </div>

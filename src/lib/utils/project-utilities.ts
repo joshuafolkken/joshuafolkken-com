@@ -1,4 +1,4 @@
-import type { Project } from '$lib/types/project'
+import type { Project, ProjectLink } from '$lib/types/project'
 
 const FALLBACK_HREF = '#'
 
@@ -18,8 +18,13 @@ function get_primary_href(project: Project): string {
 	return FALLBACK_HREF
 }
 
+function get_github_link(project: Project): ProjectLink | undefined {
+	return project.links.find((link) => link.type === 'github')
+}
+
 const project_utilities = {
 	get_demo_href,
+	get_github_link,
 	get_primary_href,
 }
 
