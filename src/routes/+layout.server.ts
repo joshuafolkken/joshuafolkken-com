@@ -4,7 +4,9 @@ import { cache_keys } from '$lib/server/cache-keys'
 import { kv_cache } from '$lib/server/kv-cache'
 import type { LayoutServerLoad } from './$types'
 
-export const load: LayoutServerLoad = async ({ fetch, platform }) => {
+export const load: LayoutServerLoad = async ({ fetch, platform, route }) => {
+	if (!route.id) return { supporters: [] }
+
 	try {
 		const supporters = await kv_cache.get(
 			cache_keys.SUPPORTERS,
