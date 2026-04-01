@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { SECTION_HEADING_LIGHT_SM_CLASS } from '$lib/constants/typography'
 	import type { Snippet } from 'svelte'
 
 	const {
@@ -20,7 +21,7 @@
 		: ''} {class_name}"
 >
 	{#if title}
-		<h2 class="mb-4 text-2xl font-light tracking-tight text-white/90">{title}</h2>
+		<h2 class="mb-4 {SECTION_HEADING_LIGHT_SM_CLASS}">{title}</h2>
 	{/if}
 	{@render children()}
 </section>

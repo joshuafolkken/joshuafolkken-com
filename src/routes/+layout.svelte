@@ -5,6 +5,11 @@
 	import { APP, AUTHOR } from '$lib/app'
 	import favicon from '$lib/assets/logo.svg'
 	import StickyHeader from '$lib/components/StickyHeader.svelte'
+	import {
+		PROGRESS_BAR_SETTLE_MS,
+		PROGRESS_BAR_THRESHOLD_MS,
+		PROGRESS_BAR_Z_INDEX,
+	} from '$lib/constants/navigation-progress'
 	import type { Snippet } from 'svelte'
 
 	interface Props {
@@ -12,12 +17,6 @@
 	}
 
 	const { children }: Props = $props()
-
-	/** StickyHeader uses z-50; keep the bar above it during client navigations. */
-	const progress_bar_z_index = 100
-	/** 0 = show on every client navigation (no minimum before the bar appears). */
-	const bar_show_threshold_ms = 0
-	const bar_settle_ms = 200
 </script>
 
 <svelte:head>
@@ -28,9 +27,9 @@
 
 <ProgressBar
 	class="text-sky-400"
-	displayThresholdMs={bar_show_threshold_ms}
-	settleTime={bar_settle_ms}
-	zIndex={progress_bar_z_index}
+	displayThresholdMs={PROGRESS_BAR_THRESHOLD_MS}
+	settleTime={PROGRESS_BAR_SETTLE_MS}
+	zIndex={PROGRESS_BAR_Z_INDEX}
 />
 <StickyHeader />
 <main class="pt-16">
