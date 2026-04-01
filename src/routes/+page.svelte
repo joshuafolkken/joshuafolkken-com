@@ -10,6 +10,7 @@
 		CARD_TITLE_CLASS,
 	} from '$lib/constants/card-styles'
 	import { ICON_SIZE_2XL, MAIN_CONTENT_ID } from '$lib/constants/layout'
+	import { SECTION_HEADING_PRIMARY_CLASS } from '$lib/constants/typography'
 	import { FEATURED_PROJECTS } from '$lib/data/projects'
 	import { MAIN_NAV_PAGES, PAGES } from '$lib/types/page'
 	import { link_utilities } from '$lib/utils/link-utilities'
@@ -24,7 +25,7 @@
 	<RevealSection>
 		<div class="mb-12 flex items-end justify-between">
 			<div>
-				<h2 class="text-3xl font-bold tracking-tight text-white">Featured Projects</h2>
+				<h2 class={SECTION_HEADING_PRIMARY_CLASS}>Featured Projects</h2>
 				<p class="mt-2 text-white/50">A selection of my recent work and experiments.</p>
 			</div>
 			<a
@@ -51,7 +52,7 @@
 
 	<!-- Quick Navigation -->
 	<RevealSection>
-		<h2 class="mb-12 text-center text-3xl font-bold tracking-tight text-white">Discover</h2>
+		<h2 class="mb-12 text-center {SECTION_HEADING_PRIMARY_CLASS}">Discover</h2>
 		<div class="grid gap-6 lg:grid-cols-3">
 			{#each MAIN_NAV_PAGES as p (p.title)}
 				<a
