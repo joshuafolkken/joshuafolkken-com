@@ -3,6 +3,7 @@
 	import TechPill from '$lib/components/TechPill.svelte'
 	import { CARD_BASE_CLASS } from '$lib/constants/card-styles'
 	import { TECH_PILL_LIFT_CLASS } from '$lib/constants/hover-styles'
+	import { SECTION_HEADING_LIGHT_LG_CLASS } from '$lib/constants/typography'
 	import { TECH_STACK } from '$lib/data/tech-stack'
 	import ToolIcon from '$lib/icons/ToolIcon.svelte'
 
@@ -17,7 +18,7 @@
 		<div class={SECTION_ICON_WRAPPER_CLASS}>
 			<ToolIcon size={SECTION_ICON_SIZE} />
 		</div>
-		<h2 class="text-3xl font-light tracking-tight text-white/90">Tech Stack</h2>
+		<h2 class={SECTION_HEADING_LIGHT_LG_CLASS}>Tech Stack</h2>
 	</div>
 
 	<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

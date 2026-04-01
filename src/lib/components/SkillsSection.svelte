@@ -2,6 +2,7 @@
 	import RevealOnIntersect from '$lib/components/RevealOnIntersect.svelte'
 	import TechPill from '$lib/components/TechPill.svelte'
 	import { TECH_PILL_LIFT_CLASS } from '$lib/constants/hover-styles'
+	import { SECTION_HEADING_PRIMARY_CLASS } from '$lib/constants/typography'
 	import { SKILLS } from '$lib/data/skills'
 	import { tech_colors } from '$lib/data/tech-colors'
 	import { SvelteSet } from 'svelte/reactivity'
@@ -13,7 +14,7 @@
 </script>
 
 <section>
-	<h2 class="mb-2 text-3xl font-bold tracking-tight text-white">Skills</h2>
+	<h2 class="mb-2 {SECTION_HEADING_PRIMARY_CLASS}">Skills</h2>
 	<p class="mb-10 text-white/50">Technical and beyond.</p>
 
 	<div class="grid gap-x-8 gap-y-6 sm:grid-cols-2">
