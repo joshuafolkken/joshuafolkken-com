@@ -52,11 +52,10 @@ function push_if_present(target: Array<string>, value: string | undefined): void
 	if (value !== undefined && value.length > 0) target.push(value)
 }
 
-function build_header_block(input: TelegramSendInput): string {
+function build_title_block(input: TelegramSendInput): string {
 	const lines: Array<string> = [build_header(input.task_type, input.repo_name)]
 
 	push_if_present(lines, input.issue_title)
-	push_if_present(lines, input.body)
 
 	return lines.join('\n')
 }
@@ -74,8 +73,17 @@ function build_url_parts(input: TelegramSendInput): Array<string> {
 	return parts
 }
 
+function build_blocks(input: TelegramSendInput): Array<string> {
+	const blocks: Array<string> = [build_title_block(input)]
+
+	push_if_present(blocks, input.body)
+	blocks.push(...build_url_parts(input))
+
+	return blocks
+}
+
 function build_text(input: TelegramSendInput): string {
-	return [build_header_block(input), ...build_url_parts(input)].join('\n\n')
+	return build_blocks(input).join('\n\n')
 }
 
 async function post_message(config: TelegramConfig, text: string): Promise<void> {

@@ -1,13 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-	build_failure_body,
-	build_telegram_input,
-	parse_repo_name,
-	type TelegramContext,
-} from './git-pr-followup'
-
-const FAILURE_MESSAGE = 'Required check X failed'
-const FAILURE_BODY = `CI check failed:\n${FAILURE_MESSAGE}`
+import { build_telegram_input, parse_repo_name, type TelegramContext } from './git-pr-followup'
 
 const CONTEXT: TelegramContext = {
 	repo_name: 'joshuafolkken-com',
@@ -44,26 +36,5 @@ describe('build_telegram_input', () => {
 			issue_url: CONTEXT.issue_url,
 			pr_url: CONTEXT.pr_url,
 		})
-	})
-
-	it('applies failure task_type with a provided body', () => {
-		const result = build_telegram_input({
-			task_type: 'failure',
-			context: CONTEXT,
-			body: FAILURE_BODY,
-		})
-
-		expect(result.task_type).toBe('failure')
-		expect(result.body).toBe(FAILURE_BODY)
-	})
-})
-
-describe('build_failure_body', () => {
-	it('prefixes Error messages with "CI check failed:"', () => {
-		expect(build_failure_body(new Error(FAILURE_MESSAGE))).toBe(FAILURE_BODY)
-	})
-
-	it('stringifies non-Error values', () => {
-		expect(build_failure_body('boom')).toBe('CI check failed:\nboom')
 	})
 })

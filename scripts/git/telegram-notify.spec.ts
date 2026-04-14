@@ -52,13 +52,13 @@ describe('build_text — kickoff_retry header', () => {
 })
 
 describe('build_text — body and URL blocks', () => {
-	it('appends body below issue title, URLs as separated blocks', () => {
+	it('separates body from issue title with a blank line, URLs as separated blocks', () => {
 		const result = build_text(
 			make_base({ task_type: 'planning', body: BODY, issue_url: ISSUE_URL, pr_url: PR_URL }),
 		)
 
 		expect(result).toBe(
-			`📋 ${REPO_NAME}: Planning\n${ISSUE_TITLE}\n${BODY}\n\nIssue: ${ISSUE_URL}\n\nPR: ${PR_URL}`,
+			`📋 ${REPO_NAME}: Planning\n${ISSUE_TITLE}\n\n${BODY}\n\nIssue: ${ISSUE_URL}\n\nPR: ${PR_URL}`,
 		)
 	})
 
@@ -66,6 +66,15 @@ describe('build_text — body and URL blocks', () => {
 		const result = build_text(make_base({ task_type: 'completion', pr_url: PR_URL }))
 
 		expect(result).toBe(`✅ ${REPO_NAME}: Completion\n${ISSUE_TITLE}\n\nPR: ${PR_URL}`)
+	})
+})
+
+describe('build_text — failure report layout', () => {
+	it('separates the failure body from the issue title with a blank line', () => {
+		const failure_body = 'CI check failed:\nRequired check X failed'
+		const result = build_text(make_base({ task_type: 'failure', body: failure_body }))
+
+		expect(result).toBe(`❌ ${REPO_NAME}: Failure\n${ISSUE_TITLE}\n\n${failure_body}`)
 	})
 })
 

@@ -124,7 +124,8 @@ pnpm git -y "<issue-title> #<issue-number>"
 - Cloudflare / CodeRabbit / SonarQube の結果確認（Required チェックのみ待機。CodeQL 等の non-required チェックは待たない）
 - CodeRabbit 指摘の未対応検出（必要なら理由コメント投稿）
 - Issue への完了通知投稿（Issue body が空なら body を編集、既にあればコメント追加）
-- Telegram 通知: 成功時は `task_type=completion`（✅）、CI 失敗や例外発生時は `task_type=failure`（❌）を送信し、失敗時は元エラーを re-throw する
+- Telegram 通知: 成功時のみ `task_type=completion`（✅）を自動送信する。CI 失敗や例外は単に再スローされるだけで、Telegram 通知は出さない
+- 失敗の Telegram 通知は AI ツールが **最終的に復旧を諦めた** と判断したときに限り、手動で 1 回だけ送る: `pnpm telegram:test --task-type failure --issue-url "<issue-url>" --body "<理由と未解決点>"`（再試行ごとに送らない）
 
 主なオプション:
 

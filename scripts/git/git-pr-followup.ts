@@ -217,38 +217,10 @@ async function fetch_telegram_context(input: {
 	return { repo_name, issue_title, issue_url, pr_url }
 }
 
-function build_failure_body(error: unknown): string {
-	const message = error instanceof Error ? error.message : String(error)
-
-	return `CI check failed:\n${message}`
-}
-
-async function notify_failure(input: { context: TelegramContext; error: unknown }): Promise<void> {
-	await telegram_notify.send(
-		build_telegram_input({
-			task_type: 'failure',
-			context: input.context,
-			body: build_failure_body(input.error),
-		}),
-	)
-}
-
 async function notify_completion(context: TelegramContext): Promise<void> {
 	await telegram_notify.send(
 		build_telegram_input({ task_type: 'completion', context, body: undefined }),
 	)
-}
-
-async function run_with_failure_notification(input: {
-	context: TelegramContext
-	action: () => Promise<void>
-}): Promise<void> {
-	try {
-		await input.action()
-	} catch (error) {
-		await notify_failure({ context: input.context, error })
-		throw error
-	}
 }
 
 async function run(input: FollowupInput): Promise<void> {
@@ -257,15 +229,10 @@ async function run(input: FollowupInput): Promise<void> {
 		issue_number: input.issue_number,
 	})
 
-	await run_with_failure_notification({
-		context,
-		action: async () => {
-			await run_checks({ branch_name: input.branch_name, is_skip_watch: input.is_skip_watch })
-			await handle_coderabbit_findings({
-				branch_name: input.branch_name,
-				ignore_reason: input.coderabbit_ignore_reason,
-			})
-		},
+	await run_checks({ branch_name: input.branch_name, is_skip_watch: input.is_skip_watch })
+	await handle_coderabbit_findings({
+		branch_name: input.branch_name,
+		ignore_reason: input.coderabbit_ignore_reason,
 	})
 
 	await notify_completion(context)
@@ -286,9 +253,6 @@ export {
 	parse_repo_name,
 	is_blank_issue_body,
 	post_notify_issue,
-	build_failure_body,
 	build_telegram_input,
-	run_with_failure_notification,
-	notify_failure,
 }
 export type { FollowupInput, TelegramContext }
