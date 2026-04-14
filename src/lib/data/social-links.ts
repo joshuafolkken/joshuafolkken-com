@@ -18,5 +18,17 @@ const HEADER_SOCIAL_LINKS: Array<SocialLink> = [
 	{ href: URLS.YOUTUBE, aria_label: 'YouTube', icon: YouTubeIcon, is_external: true },
 ]
 
+const CONTACT_SOCIAL_LINKS: Array<SocialLink> = [
+	{ href: URLS.X, aria_label: 'X', icon: XIcon, is_external: true, label: 'X (Twitter)' },
+	{ href: URLS.GITHUB, aria_label: 'GitHub', icon: GitHubIcon, is_external: true, label: 'GitHub' },
+	{
+		href: URLS.YOUTUBE,
+		aria_label: 'YouTube',
+		icon: YouTubeIcon,
+		is_external: true,
+		label: 'YouTube',
+	},
+]
+
 export type { SocialLink }
-export { HEADER_SOCIAL_LINKS }
+export { CONTACT_SOCIAL_LINKS, HEADER_SOCIAL_LINKS }
