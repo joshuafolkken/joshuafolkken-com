@@ -25,12 +25,14 @@ describe('package.json pnpm.overrides', () => {
 
 	it('uses range-keyed format for esbuild', () => {
 		expect(overrides['esbuild@<=0.24.2']).toBe('>=0.25.0')
-		expect(overrides.esbuild).toBeUndefined()
+		// eslint-disable-next-line dot-notation -- TS strict mode (noPropertyAccessFromIndexSignature) forbids dot access
+		expect(overrides['esbuild']).toBeUndefined()
 	})
 
 	it('uses range-keyed format for cookie', () => {
 		expect(overrides['cookie@<0.7.0']).toBe('>=0.7.0')
-		expect(overrides.cookie).toBeUndefined()
+		// eslint-disable-next-line dot-notation -- TS strict mode (noPropertyAccessFromIndexSignature) forbids dot access
+		expect(overrides['cookie']).toBeUndefined()
 	})
 
 	it('pins drizzle-orm to a safe floor', () => {
@@ -42,7 +44,8 @@ describe('package.json pnpm.overrides', () => {
 	})
 
 	it('keeps the project-specific undici override', () => {
-		expect(overrides.undici).toBe('>=7.24.0')
+		// eslint-disable-next-line dot-notation -- TS strict mode (noPropertyAccessFromIndexSignature) forbids dot access
+		expect(overrides['undici']).toBe('>=7.24.0')
 	})
 })
 
