@@ -62,6 +62,7 @@ test.describe('Contact page', () => {
 
 	test('reveals the email address and mailto link after clicking reveal', async ({ page }) => {
 		await page.goto(CONTACT_PATH)
+		await page.waitForLoadState('networkidle')
 
 		await page.getByRole(BUTTON_ROLE, { name: REVEAL_BUTTON_NAME }).click()
 
