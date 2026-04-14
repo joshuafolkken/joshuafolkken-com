@@ -5,6 +5,7 @@ import OpenCollectiveIcon from '$lib/icons/OpenCollectiveIcon.svelte'
 import PrivacyPolicyIcon from '$lib/icons/PrivacyPolicyIcon.svelte'
 import ProjectsIcon from '$lib/icons/ProjectsIcon.svelte'
 import TalkIcon from '$lib/icons/TalkIcon.svelte'
+import TermsIcon from '$lib/icons/TermsIcon.svelte'
 import UserIcon from '$lib/icons/UserIcon.svelte'
 import type { Component } from 'svelte'
 
@@ -22,6 +23,7 @@ type PageKey =
 	| 'PROFILE'
 	| 'SOCIAL_LINKS'
 	| 'PRIVACY_POLICY'
+	| 'TERMS_OF_SERVICE'
 	| 'DONATIONS'
 	| 'BLOG'
 
@@ -62,7 +64,14 @@ const PRIVACY_POLICY: Page = {
 	icon: PrivacyPolicyIcon,
 	title: 'Privacy Policy',
 	description: 'Your privacy matters to us',
-	link: '/privacy-policy',
+	link: '/privacy',
+}
+
+const TERMS_OF_SERVICE: Page = {
+	icon: TermsIcon,
+	title: 'Terms of Service',
+	description: 'Rules for using this site',
+	link: '/terms',
 }
 
 const DONATIONS: Page = {
@@ -86,6 +95,7 @@ const PAGES: Record<PageKey, Page> = {
 	PROFILE,
 	SOCIAL_LINKS,
 	PRIVACY_POLICY,
+	TERMS_OF_SERVICE,
 	DONATIONS,
 	BLOG,
 }
