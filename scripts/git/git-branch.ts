@@ -65,7 +65,22 @@ async function exists(branch_name: string): Promise<boolean> {
 	)
 }
 
+async function pull_latest(): Promise<void> {
+	const config = create_branch_operation_config('Failed to pull latest from remote')
+
+	await animation_helpers.execute_with_animation(
+		'Pulling latest from remote...',
+		async () => {
+			await git_command.pull()
+
+			return 'Pulled latest from remote'
+		},
+		config,
+	)
+}
+
 async function handle_main_branch(target_branch_name: string): Promise<void> {
+	await pull_latest()
 	const is_branch_exists: boolean = await exists(target_branch_name)
 
 	await (is_branch_exists ? switch_to(target_branch_name) : create(target_branch_name))

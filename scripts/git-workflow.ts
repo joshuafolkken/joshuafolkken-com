@@ -20,11 +20,13 @@ function display_help(): void {
 🚀 Git Workflow Script
 
 Usage:
-  pnpm git [issue] [options]
+  pnpm git [issue] [suffix] [options]
 
 Arguments:
   issue             Title and issue number (e.g., "feat: add login #42")
                     If provided, the script runs in non-interactive mode.
+  suffix            Optional text to append to the commit message.
+                    Multiple words are joined with spaces.
 
 Options:
   --skip-commit     Skip the commit step.
@@ -35,6 +37,7 @@ Options:
 
 Examples:
   pnpm git "fix: bug #12" --skip-pr
+  pnpm git "better auth #67" "fix ci"   # commit: "better auth #67 fix ci"
   pnpm git -h
 	`)
 }
@@ -72,8 +75,11 @@ async function execute_pr_step(
 async function run_workflow_steps(
 	issue_info: IssueInfo,
 	confirmations: WorkflowConfirmations,
+	commit_message_override?: string,
 ): Promise<void> {
-	await execute_commit_step(issue_info.commit_message, confirmations)
+	const commit_message = commit_message_override ?? issue_info.commit_message
+
+	await execute_commit_step(commit_message, confirmations)
 	await execute_push_step(confirmations)
 	await execute_pr_step(issue_info, confirmations)
 }
@@ -100,7 +106,6 @@ function parse_cli_arguments(): CliArguments {
 			yes: { type: 'boolean', short: 'y' },
 			help: { type: 'boolean', short: 'h' },
 		},
-
 		allowPositionals: true,
 	})
 }
@@ -118,6 +123,20 @@ async function get_workflow_confirmations(
 	}
 
 	return await git_prompt.confirm_workflow_steps()
+}
+
+function parse_positionals(positionals: Array<string>): {
+	cli_issue_input: string | undefined
+	is_auto_mode: boolean
+	commit_suffix: string | undefined
+} {
+	const [cli_issue_input, ...suffix_parts] = positionals
+
+	return {
+		cli_issue_input,
+		is_auto_mode: cli_issue_input !== undefined,
+		commit_suffix: suffix_parts.length > 0 ? suffix_parts.join(' ').trim() : undefined,
+	}
 }
 
 async function prepare_issue_info(cli_issue_input?: string): Promise<IssueInfo> {
@@ -138,15 +157,19 @@ async function main(): Promise<void> {
 		return
 	}
 
-	const [cli_issue_input] = positionals
-	const is_auto_mode = cli_issue_input !== undefined
+	const { cli_issue_input, is_auto_mode, commit_suffix } = parse_positionals(positionals)
 
 	await git_staging.check_and_confirm_staging(values.yes === true)
 
 	const issue_info = await prepare_issue_info(cli_issue_input)
 	const confirmations = await get_workflow_confirmations(is_auto_mode, values)
 
-	await run_workflow_steps(issue_info, confirmations)
+	const commit_message =
+		commit_suffix !== undefined && commit_suffix.length > 0
+			? `${issue_info.commit_message} ${commit_suffix}`
+			: undefined
+
+	await run_workflow_steps(issue_info, confirmations, commit_message)
 }
 
 try {

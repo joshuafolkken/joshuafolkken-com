@@ -22,6 +22,7 @@
 		"matthewpi.caddyfile-support",
 		"vincaslt.highlight-matching-tag",
 		"eamodio.gitlens",
-		"sonarsource.sonarlint-vscode"
+		"sonarsource.sonarlint-vscode",
+		"moshfeu.compare-folders"
 	]
 }
