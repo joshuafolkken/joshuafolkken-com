@@ -1,7 +1,7 @@
 {
 	"name": "joshuafolkken-com",
 	"private": true,
-	"version": "0.146.0",
+	"version": "0.147.0",
 	"type": "module",
 	"packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319",
 	"engines": {
@@ -16,12 +16,17 @@
 	"pnpm": {
 		"overrides": {
 			"undici": ">=7.24.0",
-			"esbuild": ">=0.25.0",
-			"cookie": ">=0.7.0"
+			"esbuild@<=0.24.2": ">=0.25.0",
+			"cookie@<0.7.0": ">=0.7.0",
+			"drizzle-orm@<0.45.2": ">=0.45.2",
+			"@sveltejs/kit@<=2.57.0": ">=2.57.1"
 		},
 		"onlyBuiltDependencies": [
 			"better-sqlite3",
 			"esbuild",
+			"workerd"
+		],
+		"ignoredBuiltDependencies": [
 			"lefthook"
 		]
 	},
@@ -57,7 +62,6 @@
 		"lefthook:push": "lefthook run pre-push",
 		"check-commit-message": "tsx scripts/check-commit-message.ts",
 		"prevent-main-commit": "tsx scripts/prevent-main-commit.ts",
-		"git": "tsx scripts/git-workflow.ts",
 		"main:sync": "git checkout main && git pull",
 		"main:merge": "git pull origin main",
 		"start:pm2": "pm2 restart joshuafolkken-com || pm2 start ecosystem.config.cjs",
@@ -71,8 +75,22 @@
 		"version:patch": "tsx scripts/bump-version.ts patch",
 		"latest": "pnpm latest:corepack && pnpm latest:update && pnpm audit",
 		"latest:corepack": "corepack use pnpm@latest",
-		"latest:update": "pnpm update --latest"
+		"latest:update": "pnpm update --latest",
+		"prep": "tsx scripts/prep.ts",
+		"overrides:check": "tsx scripts/overrides-check.ts",
+		"check:upstream": "tsx scripts/check-upstream-drift.ts",
+		"issue:prep": "tsx scripts/issue-prep.ts",
+		"git": "tsx scripts/git-workflow.ts",
+		"git:followup": "tsx --env-file=.env scripts/git-followup-workflow.ts",
+		"telegram:test": "tsx --env-file=.env scripts/telegram-test.ts",
+		"size-limit": "size-limit"
 	},
+	"size-limit": [
+		{
+			"path": ".svelte-kit/output/client/_app/immutable/**/*.js",
+			"limit": "500 kB"
+		}
+	],
 	"devDependencies": {
 		"@eslint/compat": "^2.0.5",
 		"@eslint/js": "^10.0.1",
@@ -102,11 +120,14 @@
 		"globals": "^17.5.0",
 		"kill-port": "^2.0.1",
 		"lefthook": "2.1.5",
+		"neverthrow": "^8.2.0",
 		"mdsvex": "^0.12.7",
 		"playwright": "^1.59.1",
 		"prettier": "^3.8.2",
 		"prettier-plugin-svelte": "^3.5.1",
 		"prettier-plugin-tailwindcss": "^0.7.2",
+		"rollup-plugin-visualizer": "^7.0.1",
+		"size-limit": "^12.0.1",
 		"svelte": "^5.55.3",
 		"svelte-check": "^4.4.6",
 		"svelte-fast-check": "^0.4.5",
@@ -116,6 +137,7 @@
 		"typescript-eslint": "^8.58.1",
 		"vite": "^8.0.8",
 		"vite-imagetools": "^10.0.0",
+		"vite-plugin-devtools-json": "^1.0.0",
 		"vitest": "^4.1.4",
 		"vitest-browser-svelte": "^2.1.0",
 		"wrangler": "^4.81.1"
@@ -124,6 +146,7 @@
 		"dotenv": "^17.4.2",
 		"drizzle-orm": "^0.45.2",
 		"sharp": "^0.34.5",
-		"simple-icons": "^16.16.0"
+		"simple-icons": "^16.16.0",
+		"zod": "^4.3.6"
 	}
 }

@@ -25,6 +25,13 @@ ignorePaths:
 words:
   - aboutads
   - aikidosec
+  - arrowdown
+  - COLLAB
+  - cursorrules
+  - fullrun
+  - inlang
+  - Mcpjson
+  - reassignable
   - amazonwebservices
   - androidstudio
   - apos
@@ -66,6 +73,7 @@ words:
   - Mdsvex
   - mischeck
   - navigations
+  - neverthrow
   - nodedotjs
   - noopener
   - noreferrer

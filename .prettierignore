@@ -1,3 +1,6 @@
+# Claude Code
+.claude/
+
 # Package Managers
 package-lock.json
 pnpm-lock.yaml
@@ -6,7 +9,12 @@ bun.lock
 bun.lockb
 
 # Miscellaneous
-cspell.config.yaml
 /static/
+/drizzle/
+
+cspell.config.yaml
 .pnpm-store/
+/project.inlang/
+**/paraglide/
 .fast-check/
+e2e/.auth/
