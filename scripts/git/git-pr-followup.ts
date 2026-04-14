@@ -1,14 +1,13 @@
 import { git_gh_command } from './git-gh-command'
 import { git_notify, type GitNotifyConfig } from './git-notify'
 import { git_pr_checks } from './git-pr-checks'
-import { telegram_notify } from './telegram-notify'
+import { telegram_notify, type TelegramSendInput, type TelegramTaskType } from './telegram-notify'
 
 // cspell:words coderabbit coderabbitai
 
 const CODERABBIT_AUTHOR = 'coderabbitai[bot]'
 const CODERABBIT_FLAG = '_⚠️ Potential issue_'
 const CODERABBIT_RESOLVED = '✅ Addressed in commit'
-const TELEGRAM_DEFAULT_MESSAGE = 'PR followup completed.'
 const GITHUB_PULL_URL_PATTERN = /^(https:\/\/github\.com\/[^/]+\/[^/]+)\/pull\/\d+$/u
 const REPO_NAME_SEPARATOR = '/'
 
@@ -19,15 +18,26 @@ function parse_repo_name(name_with_owner: string | undefined): string | undefine
 	return parts.at(-1)
 }
 
-function build_telegram_message(input: {
+interface TelegramContext {
 	repo_name: string | undefined
 	issue_title: string | undefined
-}): string {
-	if (input.repo_name === undefined || input.issue_title === undefined) {
-		return TELEGRAM_DEFAULT_MESSAGE
-	}
+	issue_url: string | undefined
+	pr_url: string | undefined
+}
 
-	return `${input.repo_name}\n${input.issue_title}`
+function build_telegram_input(input: {
+	task_type: TelegramTaskType
+	context: TelegramContext
+	body: string | undefined
+}): TelegramSendInput {
+	return {
+		task_type: input.task_type,
+		repo_name: input.context.repo_name,
+		issue_title: input.context.issue_title,
+		body: input.body,
+		issue_url: input.context.issue_url,
+		pr_url: input.context.pr_url,
+	}
 }
 
 function build_issue_url(
@@ -191,34 +201,46 @@ async function run_checks(input: { branch_name: string; is_skip_watch: boolean }
 	git_pr_checks.assert_required_checks_passed(checks)
 }
 
-async function fetch_telegram_message(issue_number: string | undefined): Promise<string> {
+async function fetch_telegram_context(input: {
+	branch_name: string
+	issue_number: string | undefined
+}): Promise<TelegramContext> {
 	const name_with_owner = await git_gh_command.repo_get_name_with_owner()
 	const repo_name = parse_repo_name(name_with_owner)
 	const issue_title =
-		issue_number === undefined ? undefined : await git_gh_command.issue_get_title(issue_number)
+		input.issue_number === undefined
+			? undefined
+			: await git_gh_command.issue_get_title(input.issue_number)
+	const pr_url = await git_gh_command.pr_get_url(input.branch_name)
+	const issue_url = build_issue_url(pr_url, input.issue_number)
 
-	return build_telegram_message({ repo_name, issue_title })
+	return { repo_name, issue_title, issue_url, pr_url }
+}
+
+async function notify_completion(context: TelegramContext): Promise<void> {
+	await telegram_notify.send(
+		build_telegram_input({ task_type: 'completion', context, body: undefined }),
+	)
 }
 
 async function run(input: FollowupInput): Promise<void> {
+	const context = await fetch_telegram_context({
+		branch_name: input.branch_name,
+		issue_number: input.issue_number,
+	})
+
 	await run_checks({ branch_name: input.branch_name, is_skip_watch: input.is_skip_watch })
 	await handle_coderabbit_findings({
 		branch_name: input.branch_name,
 		ignore_reason: input.coderabbit_ignore_reason,
 	})
-	const pr_url = await git_gh_command.pr_get_url(input.branch_name)
-	const telegram_message = await fetch_telegram_message(input.issue_number)
 
-	await telegram_notify.send({
-		message: telegram_message,
-		issue_url: build_issue_url(pr_url, input.issue_number),
-		pr_url,
-	})
+	await notify_completion(context)
 	await post_completion_notification({
 		branch_name: input.branch_name,
 		issue_number: input.issue_number,
 		notify_config: input.notify_config,
-		pr_url,
+		pr_url: context.pr_url,
 	})
 }
 
@@ -228,9 +250,9 @@ const git_pr_followup = {
 
 export {
 	git_pr_followup,
-	build_telegram_message,
 	parse_repo_name,
 	is_blank_issue_body,
 	post_notify_issue,
+	build_telegram_input,
 }
-export type { FollowupInput }
+export type { FollowupInput, TelegramContext }

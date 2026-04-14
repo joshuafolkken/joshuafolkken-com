@@ -1,7 +1,12 @@
 const TELEGRAM_API_BASE = 'https://api.telegram.org'
 
+type TelegramTaskType = 'planning' | 'completion' | 'failure' | 'kickoff_retry'
+
 interface TelegramSendInput {
-	message: string
+	task_type: TelegramTaskType
+	repo_name: string | undefined
+	issue_title: string | undefined
+	body: string | undefined
 	issue_url: string | undefined
 	pr_url: string | undefined
 }
@@ -9,6 +14,18 @@ interface TelegramSendInput {
 interface TelegramConfig {
 	bot_token: string
 	chat_id: string
+}
+
+interface TaskDefinition {
+	icon: string
+	label: string
+}
+
+const TASK_DEFINITIONS: Record<TelegramTaskType, TaskDefinition> = {
+	planning: { icon: '📋', label: 'Planning' },
+	completion: { icon: '✅', label: 'Completion' },
+	failure: { icon: '❌', label: 'Failure' },
+	kickoff_retry: { icon: '🔄', label: 'Kickoff retry' },
 }
 
 function get_environment(name: string): string | undefined {
@@ -24,25 +41,49 @@ function load_config(): TelegramConfig | undefined {
 	return { bot_token, chat_id }
 }
 
-function append_if_present(parts: Array<string>, label: string, value: string | undefined): void {
+function build_header(task_type: TelegramTaskType, repo_name: string | undefined): string {
+	const { icon, label } = TASK_DEFINITIONS[task_type]
+	if (repo_name === undefined || repo_name.length === 0) return `${icon} ${label}`
+
+	return `${icon} ${repo_name}: ${label}`
+}
+
+function push_if_present(target: Array<string>, value: string | undefined): void {
+	if (value !== undefined && value.length > 0) target.push(value)
+}
+
+function build_title_block(input: TelegramSendInput): string {
+	const lines: Array<string> = [build_header(input.task_type, input.repo_name)]
+
+	push_if_present(lines, input.issue_title)
+
+	return lines.join('\n')
+}
+
+function append_url(parts: Array<string>, label: string, value: string | undefined): void {
 	if (value !== undefined && value.length > 0) parts.push(`${label}: ${value}`)
 }
 
 function build_url_parts(input: TelegramSendInput): Array<string> {
 	const parts: Array<string> = []
 
-	append_if_present(parts, 'Issue', input.issue_url)
-	append_if_present(parts, 'PR', input.pr_url)
+	append_url(parts, 'Issue', input.issue_url)
+	append_url(parts, 'PR', input.pr_url)
 
 	return parts
 }
 
-function build_text(input: TelegramSendInput): string {
-	const [raw_title = '', ...bullets] = input.message.split('\n')
-	const header = [`✅ ${raw_title}`, ...bullets].join('\n')
-	const url_parts = build_url_parts(input)
+function build_blocks(input: TelegramSendInput): Array<string> {
+	const blocks: Array<string> = [build_title_block(input)]
 
-	return [header, ...url_parts].join('\n\n')
+	push_if_present(blocks, input.body)
+	blocks.push(...build_url_parts(input))
+
+	return blocks
+}
+
+function build_text(input: TelegramSendInput): string {
+	return build_blocks(input).join('\n\n')
 }
 
 async function post_message(config: TelegramConfig, text: string): Promise<void> {
@@ -87,5 +128,5 @@ const telegram_notify = {
 	send,
 }
 
-export { telegram_notify, build_text }
-export type { TelegramSendInput }
+export { telegram_notify, build_text, TASK_DEFINITIONS }
+export type { TelegramSendInput, TelegramTaskType }
