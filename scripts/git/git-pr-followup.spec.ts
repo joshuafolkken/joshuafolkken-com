@@ -1,8 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { build_telegram_message, parse_repo_name } from './git-pr-followup'
+import { build_telegram_input, parse_repo_name, type TelegramContext } from './git-pr-followup'
 
-const DEFAULT_MESSAGE = 'PR followup completed.'
-const ISSUE_TITLE = 'Fix the bug'
+const CONTEXT: TelegramContext = {
+	repo_name: 'joshuafolkken-com',
+	issue_title: 'Fix bug',
+	issue_url: 'https://github.com/owner/repo/issues/1',
+	pr_url: 'https://github.com/owner/repo/pull/2',
+}
 
 describe('parse_repo_name', () => {
 	it('returns the repo name from owner/repo format', () => {
@@ -16,22 +20,21 @@ describe('parse_repo_name', () => {
 	})
 })
 
-describe('build_telegram_message', () => {
-	it('returns repo name and issue title joined by newline', () => {
-		expect(build_telegram_message({ repo_name: 'tasks', issue_title: ISSUE_TITLE })).toBe(
-			`tasks\n${ISSUE_TITLE}`,
-		)
-	})
+describe('build_telegram_input', () => {
+	it('forwards context fields and task_type onto the send input', () => {
+		const result = build_telegram_input({
+			task_type: 'completion',
+			context: CONTEXT,
+			body: undefined,
+		})
 
-	it('returns default message when repo_name is undefined', () => {
-		expect(build_telegram_message({ repo_name: undefined, issue_title: ISSUE_TITLE })).toBe(
-			DEFAULT_MESSAGE,
-		)
-	})
-
-	it('returns default message when issue_title is undefined', () => {
-		expect(build_telegram_message({ repo_name: 'tasks', issue_title: undefined })).toBe(
-			DEFAULT_MESSAGE,
-		)
+		expect(result).toStrictEqual({
+			task_type: 'completion',
+			repo_name: CONTEXT.repo_name,
+			issue_title: CONTEXT.issue_title,
+			body: undefined,
+			issue_url: CONTEXT.issue_url,
+			pr_url: CONTEXT.pr_url,
+		})
 	})
 })
