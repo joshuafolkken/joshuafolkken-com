@@ -134,6 +134,10 @@ async function add_tracked(): Promise<void> {
 	await exec_git_command('add -u')
 }
 
+async function add_path(file_path: string): Promise<void> {
+	await exec_git_command_with_output('add', ['--', file_path])
+}
+
 const git_command = {
 	branch,
 	status,
@@ -146,6 +150,7 @@ const git_command = {
 	pull,
 	branch_exists,
 	add_tracked,
+	add_path,
 }
 
 export { git_command }

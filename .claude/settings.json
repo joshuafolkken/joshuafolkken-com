@@ -1,6 +1,14 @@
 {
 	"permissions": {
-		"defaultMode": "bypassPermissions"
+		"defaultMode": "bypassPermissions",
+		"allow": ["Bash(*)"],
+		"deny": [
+			"Bash(rm -rf *)",
+			"Bash(rm -rf /*)",
+			"Bash(git push --force*)",
+			"Bash(git push -f*)",
+			"Bash(sudo *)"
+		]
 	},
 	"hooks": {
 		"SessionStart": [

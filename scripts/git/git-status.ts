@@ -188,12 +188,19 @@ async function check_branch_version(): Promise<boolean> {
 	)
 }
 
+function list_untracked_files(status_output: string): Array<string> {
+	return parse_status_lines(status_output)
+		.filter((line) => is_untracked_file(line))
+		.map((line) => extract_filename(line))
+}
+
 const git_status = {
 	check_unstaged,
 	check_all_staged,
 	check_package_json_staged,
 	check_package_json_version,
 	check_branch_version,
+	list_untracked_files,
 }
 
 export { git_status }
