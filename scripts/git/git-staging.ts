@@ -50,9 +50,24 @@ async function check_and_confirm_package_json(force = false): Promise<void> {
 	}
 }
 
+async function stage_untracked_files(files: ReadonlyArray<string>): Promise<void> {
+	if (files.length === 0) return
+
+	for (const file of files) {
+		await git_command.add_path(file)
+	}
+
+	console.info(`💡 Auto-staged ${String(files.length)} untracked non-ignored file(s):`)
+	for (const file of files) console.info(`   + ${file}`)
+}
+
 async function stage_tracked_files(): Promise<void> {
+	const status_output = await git_command.status()
+	const untracked = git_status.list_untracked_files(status_output)
+
 	await git_command.add_tracked()
 	console.info('💡 Auto-staged tracked modified files (git add -u).')
+	await stage_untracked_files(untracked)
 }
 
 async function check_and_confirm_staging(force = false): Promise<void> {

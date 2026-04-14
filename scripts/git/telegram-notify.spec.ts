@@ -51,6 +51,14 @@ describe('build_text — kickoff_retry header', () => {
 	})
 })
 
+describe('build_text — confirmation header', () => {
+	it('uses ⏸️ + Confirmation required label', () => {
+		const result = build_text(make_base({ task_type: 'confirmation' }))
+
+		expect(result).toBe(`⏸️ ${REPO_NAME}: Confirmation required\n${ISSUE_TITLE}`)
+	})
+})
+
 describe('build_text — body and URL blocks', () => {
 	it('separates body from issue title with a blank line, URLs as separated blocks', () => {
 		const result = build_text(
