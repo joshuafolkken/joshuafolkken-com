@@ -1,6 +1,6 @@
 const TELEGRAM_API_BASE = 'https://api.telegram.org'
 
-type TelegramTaskType = 'planning' | 'completion' | 'failure' | 'kickoff_retry'
+type TelegramTaskType = 'planning' | 'completion' | 'failure' | 'kickoff_retry' | 'confirmation'
 
 interface TelegramSendInput {
 	task_type: TelegramTaskType
@@ -26,6 +26,7 @@ const TASK_DEFINITIONS: Record<TelegramTaskType, TaskDefinition> = {
 	completion: { icon: '✅', label: 'Completion' },
 	failure: { icon: '❌', label: 'Failure' },
 	kickoff_retry: { icon: '🔄', label: 'Kickoff retry' },
+	confirmation: { icon: '⏸️', label: 'Confirmation required' },
 }
 
 function get_environment(name: string): string | undefined {

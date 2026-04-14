@@ -86,7 +86,7 @@ Issue: <issue-url>
    pnpm telegram:test --task-type planning --issue-url "<issue-url>" --body "- <bullet1>\n- <bullet2>"
    ```
 
-   - `--task-type` はヘッダーのアイコンを決める（`planning` 📋 / `completion` ✅ / `failure` ❌ / `kickoff_retry` 🔄）
+   - `--task-type` はヘッダーのアイコンを決める（`planning` 📋 / `completion` ✅ / `failure` ❌ / `kickoff_retry` 🔄 / `confirmation` ⏸️）
    - `--repo-name` と `--issue-title` は未指定なら `gh` から自動取得される
    - Issue URL を必ず含める
    - 箇条書きの間に改行を入れて読みやすくする
@@ -167,6 +167,18 @@ pnpm git:followup "<issue-title> #<issue-number>" \
 - 修正できた場合: 修正内容を `--notify-message` に含める
 - 修正できなかった場合: `--notify-message` に失敗チェック名・原因・未解決である旨を記載する。**完了コメントに失敗を隠してはならない**
 - ユーザーへの報告も失敗の事実を正直に伝える（「成功」として扱わない）
+
+### 確認待ちで停止するときの Telegram 通知（`confirmation`）
+
+`kickoff` / `fullrun` 実行中に AI ツールがユーザーの確認・承認・指示待ちで停止するときは、停止の **直前に** Telegram 通知を 1 回送る。これにより、画面を見ていなくてもユーザーが応答すべきタイミングに気付ける。
+
+```bash
+pnpm telegram:test --task-type confirmation --issue-url "<issue-url>" --body=$'<停止理由>\n<ユーザーに求める判断>'
+```
+
+- 本文が `-` で始まる場合は `--body=...` の形式（1 トークン）で渡す。スペース区切りでは `parseArgs` がエラーになる
+- 同一の停止に対して通知は 1 回のみ。再評価のたびに送らない
+- ユーザー自身がそのターンで停止を指示した場合は通知しない（既に把握しているため）
 
 ### `pnpm.overrides` の保護
 

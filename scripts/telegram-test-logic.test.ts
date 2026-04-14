@@ -22,6 +22,7 @@ describe('telegram_test_logic.parse_task_type', () => {
 		expect(telegram_test_logic.parse_task_type('completion')).toBe('completion')
 		expect(telegram_test_logic.parse_task_type('failure')).toBe('failure')
 		expect(telegram_test_logic.parse_task_type('kickoff_retry')).toBe('kickoff_retry')
+		expect(telegram_test_logic.parse_task_type('confirmation')).toBe('confirmation')
 	})
 
 	it('throws for invalid task types', () => {
