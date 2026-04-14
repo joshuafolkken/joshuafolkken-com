@@ -1,13 +1,16 @@
 <script lang="ts">
 	/* eslint-disable max-len */
+	import { resolve } from '$app/paths'
 	import { APP, AUTHOR, LAST_UPDATED } from '$lib/app'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import PageSection from '$lib/components/PageSection.svelte'
 	import PrivacyPolicyTrackingSection from '$lib/components/privacy-policy/PrivacyPolicyTrackingSection.svelte'
+	import { LINK_BASE_CLASS } from '$lib/constants/layout'
 	import { PAGES } from '$lib/types/page'
 
 	const last_updated = LAST_UPDATED.PRIVACY_POLICY
+	const terms_href = resolve('/terms')
 </script>
 
 <svelte:head>
@@ -27,6 +30,10 @@
 			Welcome to {APP.NAME} ("we," "our," or "us"). We are committed to protecting your privacy and ensuring
 			transparency about how we collect, use, and safeguard your information. This Privacy Policy explains
 			our practices regarding data collection and usage when you visit our website.
+		</p>
+		<p class="mt-2">
+			For the rules governing your use of this website, please also review our
+			<a href={terms_href} class={LINK_BASE_CLASS}>Terms of Service</a>.
 		</p>
 	</PageSection>
 
