@@ -45,6 +45,8 @@ The following files differ from upstream on purpose; `check:upstream` excludes t
 | `messages/`                                                                  | Project-local i18n placeholder (Paraglide not in use)                                                |
 | `scripts/caddy-logs.sh`, `scripts/svg-to-png.ts`                             | Project-only utilities                                                                               |
 | `.cursor/rules/`                                                             | Project-specific Cursor rules                                                                        |
+| `sonar-project.properties`                                                   | Project-local; excludes `.claude/**` and `scripts/**` from SonarCloud scan (upstream-synced infra)   |
+| `prompts/sonar-hotspot-handling.md`                                          | Project-local extension doc for SonarCloud hotspot handling (not in upstream)                        |
 
 ## Resync workflow
 
