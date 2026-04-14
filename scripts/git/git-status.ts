@@ -5,6 +5,7 @@ import { git_command } from './git-command'
 const WARNING_ICON = '🔔'
 const PACKAGE_JSON_FILE = 'package.json'
 const STATUS_PREFIX_LENGTH = 2
+const VERSION_NOT_UPDATED = 'Not updated'
 
 function is_untracked_file(line: string): boolean {
 	return line.startsWith(UNTRACKED_FILE_PREFIX)
@@ -155,7 +156,7 @@ async function check_package_json_version(): Promise<boolean> {
 	const config = create_status_check_config(
 		(is_updated) => !is_updated,
 		'Failed to check package.json version update',
-		(is_updated) => (is_updated ? 'Updated' : 'Not updated'),
+		(is_updated) => (is_updated ? 'Updated' : VERSION_NOT_UPDATED),
 	)
 
 	return await animation_helpers.execute_with_animation(
@@ -169,11 +170,30 @@ async function check_package_json_version(): Promise<boolean> {
 	)
 }
 
+async function check_branch_version(): Promise<boolean> {
+	const config = create_status_check_config(
+		(is_updated) => !is_updated,
+		'Failed to check branch version update',
+		(is_updated) => (is_updated ? 'Already updated' : VERSION_NOT_UPDATED),
+	)
+
+	return await animation_helpers.execute_with_animation(
+		'Checking if version is already updated on this branch...',
+		async () => {
+			const diff_output: string = await git_command.diff_main(PACKAGE_JSON_FILE)
+
+			return is_version_updated_in_diff(diff_output)
+		},
+		config,
+	)
+}
+
 const git_status = {
 	check_unstaged,
 	check_all_staged,
 	check_package_json_staged,
 	check_package_json_version,
+	check_branch_version,
 }
 
 export { git_status }

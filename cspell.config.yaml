@@ -25,6 +25,17 @@ ignorePaths:
 words:
   - aboutads
   - aikidosec
+  - arrowdown
+  - COLLAB
+  - cursorrules
+  - fullrun
+  - hotspot
+  - Hotspot
+  - hotspots
+  - Hotspots
+  - inlang
+  - Mcpjson
+  - reassignable
   - amazonwebservices
   - androidstudio
   - apos
@@ -66,6 +77,7 @@ words:
   - Mdsvex
   - mischeck
   - navigations
+  - neverthrow
   - nodedotjs
   - noopener
   - noreferrer
