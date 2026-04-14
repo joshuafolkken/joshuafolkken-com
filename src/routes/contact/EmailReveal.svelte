@@ -10,7 +10,7 @@
 	const MAILTO_HREF = `mailto:${EMAIL_VALUE}`
 
 	const BUTTON_CLASS =
-		'group inline-flex items-center gap-2 rounded-lg border border-white/15 bg-slate-800/40 px-4 py-2 text-white/80 transition hover:border-white/30 hover:bg-slate-800/70 hover:text-white'
+		'group inline-flex cursor-pointer items-center gap-2 rounded-lg border border-white/15 bg-slate-800/40 px-4 py-2 text-white/80 transition hover:border-white/30 hover:bg-slate-800/70 hover:text-white'
 	const ICON_DEFAULT_CLASS = 'pointer-events-none inline-flex group-hover:hidden'
 	const ICON_HOVER_CLASS = 'pointer-events-none hidden group-hover:inline-flex'
 

@@ -72,7 +72,16 @@ test.describe('Contact page', () => {
 	})
 })
 
-test.describe('Reveal button hover icon', () => {
+test.describe('Reveal button hover affordance', () => {
+	test('uses a pointer cursor', async ({ page }) => {
+		await page.goto(CONTACT_PATH)
+
+		await expect(page.getByRole(BUTTON_ROLE, { name: REVEAL_BUTTON_NAME })).toHaveCSS(
+			'cursor',
+			'pointer',
+		)
+	})
+
 	test('swaps the icon on hover', async ({ page }) => {
 		await page.goto(CONTACT_PATH)
 
