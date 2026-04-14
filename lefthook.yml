@@ -10,7 +10,7 @@ pre-commit:
 
     cspell:
       glob: '*.{ts,tsx,js,jsx,svelte,md,mdx,html,css,scss,yml,yaml}'
-      run: pnpm exec cspell --no-must-find-files {staged_files}
+      run: pnpm exec cspell lint --no-must-find-files --no-progress {staged_files}
 
     prettier:
       glob: '*.{js,jsx,ts,tsx,mjs,cjs,svelte,html,css,scss,md,mdx,json,jsonc,yaml,yml}'
@@ -39,7 +39,7 @@ commit-msg:
       run: pnpm run check-commit-message {1}
 
 pre-push:
-  parallel: true
+  parallel: false
   commands:
     test-unit:
       # glob: '*.{svelte,ts,js,css}'

@@ -1,122 +1,50 @@
-# CodeRabbit 設定ファイル（最速版）
-# https://docs.coderabbit.ai/reference/configuration
-# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
-
-language: 'ja'
-early_access: false
+language: en-US
 
 reviews:
-  profile: 'chill'
-  request_changes_workflow: false
+  profile: chill
   high_level_summary: false
-  poem: false
-  review_status: false
-  review_details: false
-  in_progress_fortune: false
-  sequence_diagrams: false
-  estimate_code_review_effort: false
-  related_issues: false
-  related_prs: false
-  assess_linked_issues: false
-  suggested_labels: false
-  suggested_reviewers: false
   changed_files_summary: false
-  enable_prompt_for_ai_agents: false
-  path_filters:
-    - '!node_modules/**'
-    - '!dist/**'
-    - '!build/**'
-    - '!*.lock'
-    - '!pnpm-lock.yaml'
-    - '!.svelte-kit/**'
-    - '!static/**'
-    - '!*.md'
-    - '!*.yaml'
-    - '!*.yml'
-    - '!*.json'
-    - '!*.css'
-    # バイナリ画像はコードレビューの対象外（sparse-checkout でクローンもスキップ）
-    - '!**/*.jpg'
-    - '!**/*.jpeg'
-    - '!**/*.png'
-    - '!**/*.gif'
-    - '!**/*.webp'
-    - '!**/*.ico'
+  sequence_diagrams: false
+  poem: false
   auto_review:
     enabled: true
     drafts: false
-    auto_incremental_review: true
-  tools:
-    github-checks:
+
+  finishing_touches:
+    docstrings:
       enabled: false
-    phpstan:
+    unit_tests:
       enabled: false
-    phpmd:
-      enabled: false
-    phpcs:
-      enabled: false
-    golangci-lint:
-      enabled: false
-    rubocop:
-      enabled: false
-    ruff:
-      enabled: false
-    flake8:
-      enabled: false
-    pylint:
-      enabled: false
-    hadolint:
-      enabled: false
-    checkov:
-      enabled: false
-    tflint:
-      enabled: false
-    trivy:
-      enabled: false
-    circleci:
-      enabled: false
-    clippy:
-      enabled: false
-    sqlfluff:
-      enabled: false
-    pmd:
-      enabled: false
-    clang:
-      enabled: false
-    cppcheck:
-      enabled: false
-    buf:
-      enabled: false
-    regal:
-      enabled: false
-    checkmake:
-      enabled: false
-    brakeman:
-      enabled: false
-    swiftlint:
-      enabled: false
-    detekt:
-      enabled: false
-    shopifyThemeCheck:
-      enabled: false
-    luacheck:
-      enabled: false
-    oxc:
-      enabled: false
-    semgrep:
-      enabled: false
-    opengrep:
-      enabled: false
-    languagetool:
-      enabled: false
-    biome:
-      enabled: false
+
+  path_filters:
+    - '!src/lib/paraglide/**'
+    - '!messages/**'
+    - '!pnpm-lock.yaml'
+    - '!worker-configuration.d.ts'
+    - '!**/*.d.ts'
+    - '!drizzle/**'
+    - '!static/**'
+    - '!*.config.*'
 
 knowledge_base:
-  web_search:
-    enabled: false
-  code_guidelines:
-    enabled: false
+  opt_out: true
 
-chat:
-  auto_reply: true
+tools:
+  github-checks:
+    enabled: false
+  languagetool:
+    enabled: false
+  shellcheck:
+    enabled: false
+  markdownlint:
+    enabled: false
+  ast-grep:
+    essential_rules: false
+  biome:
+    enabled: false
+  gitleaks:
+    enabled: false
+  hadolint:
+    enabled: false
+  yamllint:
+    enabled: false

@@ -1,5 +1,37 @@
 {
 	"permissions": {
-		"allow": ["WebFetch(domain:www.pexels.com)", "WebFetch(domain:unsplash.com)", "WebSearch"]
+		"defaultMode": "bypassPermissions",
+		"allow": ["Bash(*)"],
+		"deny": [
+			"Bash(rm -rf *)",
+			"Bash(rm -rf /*)",
+			"Bash(git push --force*)",
+			"Bash(git push -f*)",
+			"Bash(sudo *)"
+		]
+	},
+	"hooks": {
+		"SessionStart": [
+			{
+				"matcher": "",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bash .claude/remote-setup.sh"
+					}
+				]
+			}
+		],
+		"UserPromptSubmit": [
+			{
+				"matcher": "",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "echo 'MANDATORY: Before writing any implementation code, declare every change and its test (see Code Change Rules Step 0 in CLAUDE.md). Tests are required for ALL changes — including bug fixes, timing fixes, and refactors. Zero tests without explicit user approval is a policy violation.'"
+					}
+				]
+			}
+		]
 	}
 }

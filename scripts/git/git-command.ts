@@ -66,6 +66,14 @@ async function diff_cached(file_path: string): Promise<string> {
 	}
 }
 
+async function diff_main(file_path: string): Promise<string> {
+	try {
+		return await exec_git_command(`diff main -- ${file_path}`)
+	} catch {
+		return ''
+	}
+}
+
 async function checkout_b(branch_name: string): Promise<string> {
 	return await exec_git_command(`checkout -b ${branch_name}`)
 }
@@ -108,6 +116,10 @@ async function push(): Promise<void> {
 	}
 }
 
+async function pull(): Promise<void> {
+	await exec_git_command_with_output('pull', [])
+}
+
 async function branch_exists(branch_name: string): Promise<boolean> {
 	try {
 		const output: string = await exec_git_command(`branch --list ${branch_name}`)
@@ -118,15 +130,27 @@ async function branch_exists(branch_name: string): Promise<boolean> {
 	}
 }
 
+async function add_tracked(): Promise<void> {
+	await exec_git_command('add -u')
+}
+
+async function add_path(file_path: string): Promise<void> {
+	await exec_git_command_with_output('add', ['--', file_path])
+}
+
 const git_command = {
 	branch,
 	status,
 	diff_cached,
+	diff_main,
 	checkout_b,
 	checkout,
 	commit,
 	push,
+	pull,
 	branch_exists,
+	add_tracked,
+	add_path,
 }
 
 export { git_command }
