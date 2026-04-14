@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 
 const PRIVACY_PATH = '/privacy'
 const TERMS_PATH = '/terms'
@@ -7,6 +7,8 @@ const LEGACY_PRIVACY_PATH = '/privacy-policy'
 const PRIVACY_TITLE = 'Privacy Policy'
 const TERMS_TITLE = 'Terms of Service'
 const INTRODUCTION_HEADING = 'Introduction'
+const CONTACT_US_HEADING = 'Contact Us'
+const CONTACT_PAGE_LINK_NAME = 'Contact page'
 
 const HEADING_ROLE = 'heading'
 const LINK_ROLE = 'link'
@@ -17,8 +19,27 @@ const LEVEL_2 = 2
 const LAST_UPDATED_PATTERN = /Last Updated:/u
 const PRIVACY_URL_PATTERN = /\/privacy$/u
 const TERMS_URL_PATTERN = /\/terms$/u
+const CONTACT_URL_PATTERN = /\/contact$/u
+
+const PLAINTEXT_EMAIL = 'joshuafolkken@gmail.com'
 
 const RENDERS_H1_AND_LAST_UPDATED = 'renders h1 and Last Updated'
+const CONTACT_SECTION_TEST_NAME = 'Contact Us section links to /contact and hides plaintext email'
+
+async function assert_contact_us_cross_link(page: Page, path: string): Promise<void> {
+	await page.goto(path)
+
+	const contact_heading = page.getByRole(HEADING_ROLE, {
+		level: LEVEL_2,
+		name: CONTACT_US_HEADING,
+	})
+	const contact_section = contact_heading.locator('..')
+	const contact_link = contact_section.getByRole(LINK_ROLE, { name: CONTACT_PAGE_LINK_NAME })
+
+	await expect(contact_link).toBeVisible()
+	await expect(contact_link).toHaveAttribute('href', CONTACT_URL_PATTERN)
+	expect(await page.content()).not.toContain(PLAINTEXT_EMAIL)
+}
 
 test.describe('Privacy Policy page', () => {
 	test(RENDERS_H1_AND_LAST_UPDATED, async ({ page }) => {
@@ -63,7 +84,7 @@ test.describe('Terms of Service page', () => {
 			'Disclaimers',
 			'Limitation of Liability',
 			'Governing Law and Jurisdiction',
-			'Contact Us',
+			CONTACT_US_HEADING,
 		]
 
 		for (const title of section_titles) {
@@ -83,6 +104,16 @@ test.describe('Terms of Service page', () => {
 
 		await expect(privacy_link).toBeVisible()
 		await expect(privacy_link).toHaveAttribute('href', PRIVACY_URL_PATTERN)
+	})
+})
+
+test.describe('Contact Us cross-links on legal pages', () => {
+	test(`Privacy: ${CONTACT_SECTION_TEST_NAME}`, async ({ page }) => {
+		await assert_contact_us_cross_link(page, PRIVACY_PATH)
+	})
+
+	test(`Terms: ${CONTACT_SECTION_TEST_NAME}`, async ({ page }) => {
+		await assert_contact_us_cross_link(page, TERMS_PATH)
 	})
 })
 

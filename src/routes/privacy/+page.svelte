@@ -11,6 +11,7 @@
 
 	const last_updated = LAST_UPDATED.PRIVACY_POLICY
 	const terms_href = resolve('/terms')
+	const contact_href = resolve('/contact')
 </script>
 
 <svelte:head>
@@ -185,8 +186,8 @@
 			</li>
 		</ul>
 		<p class="mt-2">
-			To exercise these rights, please contact us using the information provided in the "Contact Us"
-			section below.
+			To exercise these rights, please reach out via our
+			<a href={contact_href} class={LINK_BASE_CLASS}>Contact page</a>.
 		</p>
 	</PageSection>
 
@@ -246,19 +247,10 @@
 	</PageSection>
 
 	<PageSection title="Contact Us">
-		<p class="mb-2">
+		<p>
 			If you have any questions, concerns, or requests regarding this Privacy Policy or our data
-			practices, please contact us at:
+			practices, please reach out via our
+			<a href={contact_href} class={LINK_BASE_CLASS}>Contact page</a>.
 		</p>
-		<div class="space-y-1">
-			<p>
-				<strong>Email:</strong>
-				{AUTHOR.EMAIL}
-			</p>
-			<p>
-				<strong>Website:</strong>
-				{APP.URL}
-			</p>
-		</div>
 	</PageSection>
 </PageLayout>

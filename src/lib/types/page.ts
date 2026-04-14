@@ -1,6 +1,7 @@
 import { APP, AUTHOR, OPENCOLLECTIVE, URLS } from '$lib/app'
 import BlogIcon from '$lib/icons/BlogIcon.svelte'
 import LinkIcon from '$lib/icons/LinkIcon.svelte'
+import MailIcon from '$lib/icons/MailIcon.svelte'
 import OpenCollectiveIcon from '$lib/icons/OpenCollectiveIcon.svelte'
 import PrivacyPolicyIcon from '$lib/icons/PrivacyPolicyIcon.svelte'
 import ProjectsIcon from '$lib/icons/ProjectsIcon.svelte'
@@ -22,6 +23,7 @@ type PageKey =
 	| 'PROJECTS'
 	| 'PROFILE'
 	| 'SOCIAL_LINKS'
+	| 'CONTACT'
 	| 'PRIVACY_POLICY'
 	| 'TERMS_OF_SERVICE'
 	| 'DONATIONS'
@@ -60,6 +62,13 @@ const SOCIAL_LINKS: Page = {
 	description: 'Connect with me',
 }
 
+const CONTACT: Page = {
+	icon: MailIcon,
+	title: 'Contact',
+	description: 'Get in touch',
+	link: '/contact',
+}
+
 const PRIVACY_POLICY: Page = {
 	icon: PrivacyPolicyIcon,
 	title: 'Privacy Policy',
@@ -94,6 +103,7 @@ const PAGES: Record<PageKey, Page> = {
 	PROJECTS,
 	PROFILE,
 	SOCIAL_LINKS,
+	CONTACT,
 	PRIVACY_POLICY,
 	TERMS_OF_SERVICE,
 	DONATIONS,

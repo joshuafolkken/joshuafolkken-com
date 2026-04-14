@@ -10,6 +10,7 @@
 
 	const last_updated = LAST_UPDATED.TERMS_OF_SERVICE
 	const privacy_href = resolve('/privacy')
+	const contact_href = resolve('/contact')
 </script>
 
 <svelte:head>
@@ -84,8 +85,8 @@
 		<p>
 			By submitting content, you grant us a worldwide, non-exclusive, royalty-free license to use,
 			reproduce, adapt, and display that content in connection with operating and improving the
-			Site. You can revoke this license by asking us to remove your content; see the "Contact Us"
-			section.
+			Site. You can revoke this license by asking us to remove your content via our
+			<a href={contact_href} class={LINK_BASE_CLASS}>Contact page</a>.
 		</p>
 	</PageSection>
 
@@ -159,16 +160,9 @@
 	</PageSection>
 
 	<PageSection title="Contact Us">
-		<p class="mb-2">If you have questions about these Terms, please contact us at:</p>
-		<div class="space-y-1">
-			<p>
-				<strong>Email:</strong>
-				{AUTHOR.EMAIL}
-			</p>
-			<p>
-				<strong>Website:</strong>
-				{APP.URL}
-			</p>
-		</div>
+		<p>
+			If you have questions about these Terms, please reach out via our
+			<a href={contact_href} class={LINK_BASE_CLASS}>Contact page</a>.
+		</p>
 	</PageSection>
 </PageLayout>
