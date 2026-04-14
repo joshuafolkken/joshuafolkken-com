@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { is_blank_issue_body, post_notify_issue } from './git-pr-followup'
+import {
+	is_blank_issue_body,
+	post_notify_issue,
+	run_with_failure_notification,
+	type TelegramContext,
+} from './git-pr-followup'
 
 vi.mock('./git-gh-command', () => ({
 	git_gh_command: {
@@ -9,10 +14,25 @@ vi.mock('./git-gh-command', () => ({
 	},
 }))
 
+vi.mock('./telegram-notify', () => ({
+	telegram_notify: {
+		send: vi.fn(),
+	},
+}))
+
 const { git_gh_command } = await import('./git-gh-command')
+const { telegram_notify } = await import('./telegram-notify')
 const mocked_get_body = vi.mocked(git_gh_command.issue_get_body)
 const mocked_edit_body = vi.mocked(git_gh_command.issue_edit_body)
 const mocked_comment = vi.mocked(git_gh_command.issue_comment)
+const mocked_telegram_send = vi.mocked(telegram_notify.send)
+
+const FAILURE_CONTEXT: TelegramContext = {
+	repo_name: 'joshuafolkken-com',
+	issue_title: 'Fix bug',
+	issue_url: 'https://github.com/owner/repo/issues/1',
+	pr_url: 'https://github.com/owner/repo/pull/2',
+}
 
 describe('is_blank_issue_body', () => {
 	it('returns true for undefined', () => {
@@ -80,5 +100,40 @@ describe('post_notify_issue — blank body uses edit, non-blank uses comment', (
 		await expect(post_notify_issue({ issue_number: undefined, body: NOTIFY_BODY })).rejects.toThrow(
 			'Issue number is required for issue notification.',
 		)
+	})
+})
+
+describe('run_with_failure_notification — failure path sends failure telegram and rethrows', () => {
+	beforeEach(() => {
+		vi.clearAllMocks()
+	})
+
+	it('invokes telegram_notify.send with task_type=failure before propagating the error', async () => {
+		const boom = new Error('Required check X failed')
+		const failing_action = vi.fn(async () => {
+			await Promise.resolve()
+			throw boom
+		})
+
+		await expect(
+			run_with_failure_notification({ context: FAILURE_CONTEXT, action: failing_action }),
+		).rejects.toBe(boom)
+
+		expect(mocked_telegram_send).toHaveBeenCalledTimes(1)
+		const sent = mocked_telegram_send.mock.calls[0]?.[0]
+
+		expect(sent?.task_type).toBe('failure')
+		expect(sent?.repo_name).toBe(FAILURE_CONTEXT.repo_name)
+		expect(sent?.body).toBe('CI check failed:\nRequired check X failed')
+	})
+
+	it('skips telegram notification when action succeeds', async () => {
+		const succeeding_action = vi.fn(async () => {
+			await Promise.resolve()
+		})
+
+		await run_with_failure_notification({ context: FAILURE_CONTEXT, action: succeeding_action })
+
+		expect(mocked_telegram_send).not.toHaveBeenCalled()
 	})
 })

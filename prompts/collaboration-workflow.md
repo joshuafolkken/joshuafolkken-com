@@ -83,9 +83,11 @@ Issue: <issue-url>
 3. Telegram で計画開始を通知する:
 
    ```bash
-   pnpm telegram:test --message "📋 Planning: <title>\n- <bullet1>\n- <bullet2>" --issue-url "<issue-url>"
+   pnpm telegram:test --task-type planning --issue-url "<issue-url>" --body "- <bullet1>\n- <bullet2>"
    ```
 
+   - `--task-type` はヘッダーのアイコンを決める（`planning` 📋 / `completion` ✅ / `failure` ❌ / `kickoff_retry` 🔄）
+   - `--repo-name` と `--issue-title` は未指定なら `gh` から自動取得される
    - Issue URL を必ず含める
    - 箇条書きの間に改行を入れて読みやすくする
    - `kickoff` コマンドの場合はここで **停止** する（実装に進まない）
@@ -122,6 +124,7 @@ pnpm git -y "<issue-title> #<issue-number>"
 - Cloudflare / CodeRabbit / SonarQube の結果確認（Required チェックのみ待機。CodeQL 等の non-required チェックは待たない）
 - CodeRabbit 指摘の未対応検出（必要なら理由コメント投稿）
 - Issue への完了通知投稿（Issue body が空なら body を編集、既にあればコメント追加）
+- Telegram 通知: 成功時は `task_type=completion`（✅）、CI 失敗や例外発生時は `task_type=failure`（❌）を送信し、失敗時は元エラーを re-throw する
 
 主なオプション:
 
