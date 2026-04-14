@@ -19,6 +19,9 @@ const MAILTO_PATTERN = /^mailto:joshuafolkken@gmail\.com$/u
 const SOCIAL_HEADING = 'Connect on social'
 const REVEAL_BUTTON_NAME = /Reveal email address/u
 
+const ICON_DEFAULT_TESTID = 'contact-email-reveal-icon-default'
+const ICON_HOVER_TESTID = 'contact-email-reveal-icon-hover'
+
 const X_HREF = 'https://x.com/joshuafolkken'
 const GITHUB_HREF = 'https://github.com/joshuafolkken'
 const YOUTUBE_HREF = 'https://www.youtube.com/@Joshuafolkken-studio'
@@ -66,6 +69,23 @@ test.describe('Contact page', () => {
 
 		await expect(mailto_link).toBeVisible()
 		await expect(mailto_link).toHaveAttribute('href', MAILTO_PATTERN)
+	})
+})
+
+test.describe('Reveal button hover icon', () => {
+	test('swaps the icon on hover', async ({ page }) => {
+		await page.goto(CONTACT_PATH)
+
+		const default_icon = page.getByTestId(ICON_DEFAULT_TESTID)
+		const hover_icon = page.getByTestId(ICON_HOVER_TESTID)
+
+		await expect(default_icon).toBeVisible()
+		await expect(hover_icon).toBeHidden()
+
+		await page.getByRole(BUTTON_ROLE, { name: REVEAL_BUTTON_NAME }).hover()
+
+		await expect(default_icon).toBeHidden()
+		await expect(hover_icon).toBeVisible()
 	})
 })
 
