@@ -3,7 +3,7 @@ import { LINK_REL, LINK_TARGET } from '$lib/app'
 
 const PROTOCOL_HTTP_PREFIX = 'http'
 
-type InternalPath = '/' | '/blog' | '/projects' | '/profile' | '/privacy' | '/terms'
+type InternalPath = '/' | '/blog' | '/projects' | '/about' | '/privacy' | '/terms'
 
 function is_external_link(link: string | undefined): boolean {
 	return Boolean(link?.startsWith(PROTOCOL_HTTP_PREFIX))

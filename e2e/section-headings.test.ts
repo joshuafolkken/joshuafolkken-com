@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 const HOME_PATH = '/'
-const PROFILE_PATH = '/profile'
+const ABOUT_PATH = '/about'
 
 const HEADING_ROLE = 'heading'
 const LEVEL_2 = 2
@@ -13,7 +13,7 @@ const DISCOVER = 'Discover'
 const TOP_SUPPORTERS = 'Top Supporters'
 
 const UNIFIED_HEADINGS: ReadonlyArray<{ name: string; path: string }> = [
-	{ name: TECH_STACK, path: PROFILE_PATH },
+	{ name: TECH_STACK, path: ABOUT_PATH },
 	{ name: FEATURED_PROJECTS, path: HOME_PATH },
 	{ name: SKILLS, path: HOME_PATH },
 	{ name: DISCOVER, path: HOME_PATH },
