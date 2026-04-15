@@ -169,6 +169,31 @@ pnpm git:followup "<issue-title> #<issue-number>" \
 - 修正できなかった場合: `--notify-message` に失敗チェック名・原因・未解決である旨を記載する。**完了コメントに失敗を隠してはならない**
 - ユーザーへの報告も失敗の事実を正直に伝える（「成功」として扱わない）
 
+### Auto-merge（default for `fullrun`）
+
+`fullrun` / `fullrun new` の既定動作として、`pnpm git:followup` 完了・失敗チェック報告・AI レビュー指摘対応の後に PR を直接マージする。ユーザーが `fullrun` を実行した時点で、マージまで含めて承認されたものとみなす（追加キーワードは不要）。
+
+```bash
+gh pr merge <pr-number> --merge
+```
+
+- **マージ前に AI レビュー指摘を必ず解消する**: マージ直前に `gh pr view <pr-number> --json reviews,comments,reviewDecision` で CodeRabbit / Claude Review / SonarQube / 人間のレビューコメントを確認する。対応すべき指摘が残っていれば同一ブランチへ追加コミットで修正し、再度完了ゲート（lint/check/cspell/test）を通してからマージする。**CI がオールグリーンでも、未対応の AI レビュー指摘があるならマージしない**
+- **CodeRabbit のレート制限はマージを止めない**: CodeRabbit のコメントが rate limit 警告のみ（本文に `rate limited by coderabbit.ai` または `Rate limit exceeded` を含む）で実体のあるレビューが無い場合、または最新 commit に対して CodeRabbit のコメントが一切無い場合は、**レート制限切れとみなしてマージへ進む**。`@coderabbitai review` を手動で打ち込んだり、枠が復活するのを待ったりしない（これはインフラ都合であってコードの指摘ではないため）
+- **`--auto` フラグは使わない**: `pnpm git:followup` 完了時点で Required チェックは既にグリーンなので、GitHub の auto-merge 機能（`--auto`）は不要。直接マージの `--merge` だけで十分であり、`allow_auto_merge: true` の repo 設定も不要
+- **マージ戦略**: 既定は `--merge`（merge commit）。リポジトリが `allow_squash_merge` / `allow_rebase_merge` のみを許可している場合はそれに合わせる（`gh api repos/<owner>/<repo> --jq '{allow_merge_commit, allow_squash_merge, allow_rebase_merge}'` で確認）
+- **ブランチ削除**: `--delete-branch` は既定で付けない。ブランチ削除は別途ユーザーが指示する
+- **失敗時の対応**: branch protection 未達・コンフリクトなどでマージが拒否された場合は、原因を報告して停止する。フラグを変えて再試行したり保護をバイパスしたりしない
+- **マージをスキップしたい場合**: `kickoff`（planning のみ）を使うか、同じターンで明示的に "do not merge" / "do not auto-merge" と伝える。`fullrun` の外では勝手に `gh pr merge` を実行してはならない
+
+### 指示されていない行動は取らない
+
+PR マージ・ブランチ削除・force push・共有ブランチへの push・外部通知の追加送信・リポジトリ設定の変更など、**共有状態に影響する操作はその場でユーザーに明示指示されたものだけ実行する**。
+
+- `fullrun` の auto-merge は上記のとおり `fullrun` の指示自体に含まれるため許可される。それ以外の状況で勝手にマージしてはならない
+- `kickoff` / `pnpm git:followup` 単独実行は文書化されたスコープで終了する。PR が OPEN のまま完了したら状態を報告して停止する
+- 「チェックが全部 green だから次のステップに進む」は承認ではない
+- 迷ったら確認する。確認のコストは低いが、意図しない操作の巻き戻しは高コスト
+
 ### 確認待ちで停止するときの Telegram 通知（`confirmation`）
 
 `kickoff` / `fullrun` 実行中に AI ツールがユーザーの確認・承認・指示待ちで停止するときは、停止の **直前に** Telegram 通知を 1 回送る。これにより、画面を見ていなくてもユーザーが応答すべきタイミングに気付ける。
