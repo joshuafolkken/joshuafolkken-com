@@ -171,17 +171,18 @@ pnpm git:followup "<issue-title> #<issue-number>" \
 
 ### Auto-merge（default for `fullrun`）
 
-`fullrun` / `fullrun new` の既定動作として、`pnpm git:followup` 完了かつ失敗チェック報告の後に auto-merge を有効化する。ユーザーが `fullrun` を実行した時点で、auto-merge まで含めて承認されたものとみなす（追加キーワードは不要）。
+`fullrun` / `fullrun new` の既定動作として、`pnpm git:followup` 完了・失敗チェック報告・AI レビュー指摘対応の後に PR を直接マージする。ユーザーが `fullrun` を実行した時点で、マージまで含めて承認されたものとみなす（追加キーワードは不要）。
 
 ```bash
-gh pr merge <pr-number> --auto --merge
+gh pr merge <pr-number> --merge
 ```
 
-- **前提**: リポジトリ側で `allow_auto_merge: true` が設定されている必要がある。`gh api repos/<owner>/<repo> --jq '.allow_auto_merge'` で確認し、`false` なら `gh api repos/<owner>/<repo> -X PATCH -f allow_auto_merge=true` で有効化する前にユーザーへ確認する
+- **マージ前に AI レビュー指摘を必ず解消する**: マージ直前に `gh pr view <pr-number> --json reviews,comments,reviewDecision` で CodeRabbit / Claude Review / SonarQube / 人間のレビューコメントを確認する。対応すべき指摘が残っていれば同一ブランチへ追加コミットで修正し、再度完了ゲート（lint/check/cspell/test）を通してからマージする。**CI がオールグリーンでも、未対応の AI レビュー指摘があるならマージしない**
+- **`--auto` フラグは使わない**: `pnpm git:followup` 完了時点で Required チェックは既にグリーンなので、GitHub の auto-merge 機能（`--auto`）は不要。直接マージの `--merge` だけで十分であり、`allow_auto_merge: true` の repo 設定も不要
 - **マージ戦略**: 既定は `--merge`（merge commit）。リポジトリが `allow_squash_merge` / `allow_rebase_merge` のみを許可している場合はそれに合わせる（`gh api repos/<owner>/<repo> --jq '{allow_merge_commit, allow_squash_merge, allow_rebase_merge}'` で確認）
 - **ブランチ削除**: `--delete-branch` は既定で付けない。ブランチ削除は別途ユーザーが指示する
-- **失敗時の対応**: branch protection 未達・コンフリクトなどで auto-merge が拒否された場合は、原因を報告して停止する。フラグを変えて再試行したり保護をバイパスしたりしない
-- **auto-merge を回避したい場合**: `kickoff`（planning のみ）を使うか、同じターンで明示的に "do not auto-merge" と伝える。`fullrun` の外では勝手に `gh pr merge` を実行してはならない
+- **失敗時の対応**: branch protection 未達・コンフリクトなどでマージが拒否された場合は、原因を報告して停止する。フラグを変えて再試行したり保護をバイパスしたりしない
+- **マージをスキップしたい場合**: `kickoff`（planning のみ）を使うか、同じターンで明示的に "do not merge" / "do not auto-merge" と伝える。`fullrun` の外では勝手に `gh pr merge` を実行してはならない
 
 ### 指示されていない行動は取らない
 
