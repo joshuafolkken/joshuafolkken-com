@@ -125,7 +125,7 @@ pnpm git -y "<issue-title> #<issue-number>"
 - Cloudflare / CodeRabbit / SonarQube の結果確認（Required チェックのみ待機。CodeQL 等の non-required チェックは待たない）
 - CodeRabbit 指摘の未対応検出（必要なら理由コメント投稿）
 - Issue への完了通知投稿（Issue body が空なら body を編集、既にあればコメント追加）
-- Telegram 通知: 成功時のみ `task_type=completion`（✅）を自動送信する。CI 失敗や例外は単に再スローされるだけで、Telegram 通知は出さない
+- Telegram 通知: 成功時のみ `task_type=completion`（✅）を自動送信する。CI 失敗や例外は単に再スローされるだけで、Telegram 通知は出さない。**`completion` 通知は必ずこの自動送信経路を使うこと。`pnpm telegram:test --task-type completion ...` を手動で呼び出してはならない**（詳細は下記「`completion` 通知は `pnpm git:followup` 経由のみ」を参照）
 - 失敗の Telegram 通知は AI ツールが **最終的に復旧を諦めた** と判断したときに限り、手動で 1 回だけ送る: `pnpm telegram:test --task-type failure --issue-url "<issue-url>" --body "<理由と未解決点>"`（再試行ごとに送らない）
 
 主なオプション:
@@ -193,6 +193,14 @@ PR マージ・ブランチ削除・force push・共有ブランチへの push�
 - `kickoff` / `pnpm git:followup` 単独実行は文書化されたスコープで終了する。PR が OPEN のまま完了したら状態を報告して停止する
 - 「チェックが全部 green だから次のステップに進む」は承認ではない
 - 迷ったら確認する。確認のコストは低いが、意図しない操作の巻き戻しは高コスト
+
+### `completion` 通知は `pnpm git:followup` 経由のみ
+
+`task_type=completion`（✅）の Telegram 通知は `pnpm git:followup` が自動送信する経路のみを使う。`pnpm telegram:test --task-type completion ...` を手動で実行してはならない。
+
+- 理由: 手動 CLI では `--pr-url` を明示しない限り PR URL が欠落する。`pnpm git:followup` は内部で `gh pr view <branch> --json url` から PR URL を取得して必ず付与するため、通知から PR リンクが消える事故を防げる
+- 初回 PR 作成時・フォローアップコミット（CodeRabbit 指摘対応や再レビュー対応）・ブランチ再 push のいずれでも、完了を通知したいときは `pnpm git:followup "<title> #<issue-number>" --notify-message "Implemented <title>:\n- <change1>\n- <change2>\n..."` を再実行する
+- `pnpm telegram:test` は `planning` / `confirmation` / `kickoff_retry` / `failure` の 4 タスクタイプ専用。`completion` には使わない
 
 ### 確認待ちで停止するときの Telegram 通知（`confirmation`）
 

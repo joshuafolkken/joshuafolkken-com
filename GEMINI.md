@@ -115,6 +115,13 @@ If you changed **only** docs or config that does not affect tests, still run lin
 
 - `fullrun #<N>`: Post the agreed plan to Issue #N (if the Issue body is blank, use `gh issue edit <N> --body "<plan>"` to fill the body; otherwise use `gh issue comment <N> --body "<plan>"`) → implement → `pnpm version:minor` → `pnpm git -y` → `pnpm git:followup` (full run from Step 3 onward in `prompts/collaboration-workflow.md`). Issue plan comments MUST be written in English. When running `pnpm git:followup`, compose an implementation summary in English and pass it via `--notify-message`. Format: `"<title>\n- <change1>\n- <change2>\n..."` (one bullet per meaningful change — what was added, changed, or fixed).
 
+#### Completion notifications: always via `pnpm git:followup`
+
+Never send `completion` Telegram notifications manually with `pnpm telegram:test --task-type completion ...`. Always use `pnpm git:followup` — it fetches the PR URL via `gh pr view <branch> --json url` and always includes it, whereas the manual CLI does not auto-populate `--pr-url` and will produce a Telegram message missing the PR link.
+
+- Applies to the initial PR and every follow-up commit (CodeRabbit fixes, re-review iterations, merges from main, etc.) — re-run `pnpm git:followup "<title> #<N>" --notify-message "<title>\n- <change1>\n- <change2>\n..."` each time you want to notify completion.
+- `pnpm telegram:test` remains the right tool for `planning`, `confirmation`, `kickoff_retry`, and `failure` notifications (no automated alternative exists for those).
+
 #### Mid-workflow stop notification (`confirmation`)
 
 Whenever the AI tool pauses a `kickoff`/`fullrun` mid-execution to wait for user confirmation (approval, clarification, scope decision, etc.), it MUST send a Telegram notification **before** stopping so the user is alerted off-screen:
