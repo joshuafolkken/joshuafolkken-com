@@ -278,6 +278,14 @@ async function pr_get_review_comments(branch_name: string): Promise<string> {
 	}
 }
 
+async function pr_get_comments(branch_name: string): Promise<string> {
+	try {
+		return await exec_gh_command(`pr view ${branch_name} --json comments --jq .comments`)
+	} catch {
+		return '[]'
+	}
+}
+
 async function pr_comment(branch_name: string, body: string): Promise<string> {
 	return await exec_gh_command_with_stdin({
 		args: ['pr', 'comment', branch_name, BODY_FILE_FLAG, BODY_FROM_STDIN],
@@ -326,6 +334,7 @@ const git_gh_command = {
 	issue_edit_body,
 	repo_get_name_with_owner,
 	pr_get_review_comments,
+	pr_get_comments,
 	pr_comment,
 	issue_comment,
 }

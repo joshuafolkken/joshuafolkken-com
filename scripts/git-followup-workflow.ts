@@ -16,6 +16,7 @@ interface CliArguments {
 		'notify-message'?: string
 		'notify-mentions'?: string
 		'coderabbit-ignore-reason'?: string
+		'ai-review-ignore-reason'?: string
 		'skip-watch'?: boolean
 		help?: boolean
 	}
@@ -37,6 +38,8 @@ Options:
   --notify-message             Completion message header
   --notify-mentions            Comma-separated mentions (user,org/team)
   --coderabbit-ignore-reason   Reason text when keeping CodeRabbit findings unresolved
+  --ai-review-ignore-reason    Reason text when keeping AI reviewer (Claude Review / CodeRabbit
+                               summary) findings unresolved
   --skip-watch                 Skip "gh pr checks --watch" and only evaluate latest status
   -h, --help                   Show this help
 	`)
@@ -51,6 +54,7 @@ function parse_cli_arguments(): CliArguments {
 			'notify-message': { type: 'string' },
 			'notify-mentions': { type: 'string' },
 			'coderabbit-ignore-reason': { type: 'string' },
+			'ai-review-ignore-reason': { type: 'string' },
 			'skip-watch': { type: 'boolean' },
 			help: { type: 'boolean', short: 'h' },
 		},
@@ -97,6 +101,7 @@ async function main(): Promise<void> {
 			cli.values['issue-number'] ?? parse_issue_number_from_text(cli.positionals[0] ?? undefined),
 		notify_config: build_notify_config(cli.values),
 		coderabbit_ignore_reason: cli.values['coderabbit-ignore-reason'],
+		ai_review_ignore_reason: cli.values['ai-review-ignore-reason'],
 		is_skip_watch: cli.values['skip-watch'] === true,
 	})
 	console.info('')
