@@ -1,6 +1,7 @@
 ---
 title: 「これ、なんかダサくない？」デザインの「引き算」で、サイトをシンプルにした話
 date: '2025-11-25 00:00'
+author: 'Joshua Folkken'
 updated: '2025-11-25 14:20'
 cover_image: /images/blog/hal-gatewood-tZc3vjPCk-Q-unsplash.webp
 excerpt: サイトを見回してたら、横線が目についてしまった。全部で 17箇所 から横線を削除。フォントサイズやスタイルも統一して、デザインの「引き算」でシンプルに。

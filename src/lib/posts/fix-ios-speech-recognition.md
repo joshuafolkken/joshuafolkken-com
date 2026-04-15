@@ -1,6 +1,7 @@
 ---
 title: iOS Safari の音声認識が不安定すぎて諦めかけたけど、Web Audio API で解決した話
 date: '2025-12-03 00:00'
+author: 'Joshua Folkken'
 cover_image: /images/blog/pexels-pixabay-209449.webp
 excerpt: Web Speech API を使った音声認識が iOS Safari だけ不安定になる問題を、HTMLAudioElement から Web Audio API への変更で解決しました。iPhone 実機でのテストの大変さや、試行錯誤の過程も含めて紹介します。
 ---
