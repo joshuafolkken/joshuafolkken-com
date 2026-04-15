@@ -25,6 +25,7 @@ test('returns an empty array for an empty array input', () => {
 })
 
 test('logs parse errors so corrupted storage is observable', () => {
+	expect.assertions(1)
 	const error_spy = vi.spyOn(logger, 'error')
 
 	try {
