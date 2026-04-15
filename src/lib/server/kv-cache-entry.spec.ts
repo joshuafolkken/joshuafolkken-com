@@ -20,6 +20,12 @@ test('returns undefined when the entry is already expired', () => {
 	expect(kv_cache_entry.parse_and_validate(raw, NOW)).toBeUndefined()
 })
 
+test('returns undefined when expires equals now exactly (boundary)', () => {
+	const raw = JSON.stringify({ value: 'data', expires: NOW })
+
+	expect(kv_cache_entry.parse_and_validate(raw, NOW)).toBeUndefined()
+})
+
 test('returns undefined when expires is not a number', () => {
 	const raw = JSON.stringify({ value: 'data', expires: 'not-a-number' })
 
