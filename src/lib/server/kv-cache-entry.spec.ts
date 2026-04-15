@@ -48,3 +48,8 @@ test('is_cache_entry_shape narrows well-formed and rejects malformed inputs', ()
 	expect(kv_cache_entry.is_cache_entry_shape('string')).toBe(false)
 	expect(kv_cache_entry.is_cache_entry_shape(42)).toBe(false)
 })
+
+test('is_cache_entry_shape rejects non-finite expires values so entries cannot live forever', () => {
+	expect(kv_cache_entry.is_cache_entry_shape({ value: 1, expires: Infinity })).toBe(false)
+	expect(kv_cache_entry.is_cache_entry_shape({ value: 1, expires: -Infinity })).toBe(false)
+})

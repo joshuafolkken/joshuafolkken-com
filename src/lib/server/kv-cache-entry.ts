@@ -8,7 +8,7 @@ function is_object(value: unknown): value is object {
 }
 
 function is_finite_number(value: unknown): value is number {
-	return typeof value === 'number' && !Number.isNaN(value)
+	return Number.isFinite(value)
 }
 
 function is_cache_entry_shape(candidate: unknown): candidate is CacheEntry<unknown> {

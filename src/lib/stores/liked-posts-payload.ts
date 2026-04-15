@@ -9,4 +9,6 @@ function parse(raw: string): Array<string> {
 	}
 }
 
-export const liked_posts_payload = { parse }
+const liked_posts_payload = { parse }
+
+export { liked_posts_payload }
