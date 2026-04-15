@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { external_links } from '$lib/actions/external-links'
 	import { APP, AUTHOR } from '$lib/app'
+	import AdSenseScript from '$lib/components/AdSenseScript.svelte'
 	import DateDisplay from '$lib/components/DateDisplay.svelte'
 	import EngagementButtons from '$lib/components/EngagementButtons.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
@@ -28,6 +29,8 @@
 	<meta name="twitter:image" content={image_url} />
 	<meta name="twitter:site" content="@{AUTHOR.X_USERNAME}" />
 </svelte:head>
+
+<AdSenseScript />
 
 <PageLayout>
 	<PageHeader page={PAGES.BLOG} />
