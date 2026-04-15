@@ -1,0 +1,46 @@
+name: Claude Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    name: Claude Review
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Claude Code Review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Review this pull request and post a single summary comment on the PR.
+
+            Focus areas:
+            - Bug risks and logic errors in the diff
+            - Security issues (injection, auth, secret handling, XSS, etc.)
+            - Performance concerns (obvious hotspots, wasteful re-renders / queries)
+            - Violations of project conventions documented in CLAUDE.md and AGENTS.md
+              (naming, `function` syntax over arrow, namespace-object exports, file-name casing,
+               complexity limits, magic-number extraction, i18n keys for user-visible strings,
+               English-only comments and test titles)
+
+            Keep the review concise. Cite file_path:line_number when flagging issues.
+            Skip generic praise; only comment where there is concrete feedback.
