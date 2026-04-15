@@ -68,25 +68,8 @@ describe('parse_repo_name_from_package', () => {
 })
 
 describe('evaluate_pr_state — success paths', () => {
-	it('success when merge state is CLEAN and required rollup entries all pass', () => {
+	it('success when merge state is CLEAN and every required rollup entry passes', () => {
 		expect(evaluate_pr_state(make_snapshot())).toBe('success')
-	})
-
-	it('success when merge state is CLEAN even if the aggregator rollup still lags', () => {
-		const snapshot = make_snapshot({
-			rollup: [
-				{ name: WORKERS_BUILDS_FOR_THIS_REPO, status: 'pass' },
-				{ name: CODE_RABBIT, status: 'pending' },
-			],
-		})
-
-		expect(evaluate_pr_state(snapshot)).toBe('success')
-	})
-
-	it('success when aggregator is pending but every required check is green', () => {
-		const snapshot = make_snapshot({ merge_state_status: 'UNKNOWN' })
-
-		expect(evaluate_pr_state(snapshot)).toBe('success')
 	})
 
 	it('success when a non-required check is pending but required checks pass and merge is CLEAN', () => {
@@ -98,7 +81,7 @@ describe('evaluate_pr_state — success paths', () => {
 	})
 })
 
-describe('evaluate_pr_state — failure and pending paths', () => {
+describe('evaluate_pr_state — failure paths', () => {
 	it('failure when a required check has failed', () => {
 		const snapshot = make_snapshot({
 			rollup: [
@@ -111,13 +94,48 @@ describe('evaluate_pr_state — failure and pending paths', () => {
 		expect(evaluate_pr_state(snapshot)).toBe('failure')
 	})
 
-	it('failure when the review decision is CHANGES_REQUESTED', () => {
+	it('failure when the review decision is CHANGES_REQUESTED even with a CLEAN merge', () => {
 		expect(evaluate_pr_state(make_snapshot({ review_decision: 'CHANGES_REQUESTED' }))).toBe(
 			'failure',
 		)
 	})
+})
 
-	it('pending when merge state is unknown and a required check is still pending', () => {
+describe('evaluate_pr_state — pending: CLEAN merge but rollup incomplete', () => {
+	it('pending when a required rollup entry is still pending', () => {
+		const snapshot = make_snapshot({
+			rollup: [
+				{ name: WORKERS_BUILDS_FOR_THIS_REPO, status: 'pass' },
+				{ name: CODE_RABBIT, status: 'pending' },
+				{ name: SONAR_QUBE, status: 'pass' },
+			],
+		})
+
+		expect(evaluate_pr_state(snapshot)).toBe('pending')
+	})
+
+	it('pending when a required rollup entry is missing', () => {
+		const snapshot = make_snapshot({
+			rollup: [
+				{ name: WORKERS_BUILDS_FOR_THIS_REPO, status: 'pass' },
+				{ name: CODE_RABBIT, status: 'pass' },
+			],
+		})
+
+		expect(evaluate_pr_state(snapshot)).toBe('pending')
+	})
+})
+
+describe('evaluate_pr_state — pending: merge state not CLEAN', () => {
+	it('pending when aggregator is UNKNOWN even if every required check is green', () => {
+		expect(evaluate_pr_state(make_snapshot({ merge_state_status: 'UNKNOWN' }))).toBe('pending')
+	})
+
+	it('pending when merge state is BLOCKED and required checks are all green', () => {
+		expect(evaluate_pr_state(make_snapshot({ merge_state_status: 'BLOCKED' }))).toBe('pending')
+	})
+
+	it('pending when merge state is UNKNOWN and a required check is still pending', () => {
 		const snapshot = make_snapshot({
 			merge_state_status: 'UNKNOWN',
 			rollup: [

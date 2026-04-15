@@ -235,13 +235,9 @@ async function pr_get_number(branch_name: string): Promise<number | undefined> {
 }
 
 async function pr_get_state_snapshot(branch_name: string): Promise<string> {
-	try {
-		return await exec_gh_command(
-			`pr view ${branch_name} --json mergeStateStatus,reviewDecision,statusCheckRollup`,
-		)
-	} catch {
-		return ''
-	}
+	return await exec_gh_command(
+		`pr view ${branch_name} --json mergeStateStatus,reviewDecision,statusCheckRollup`,
+	)
 }
 
 async function issue_get_title(issue_number: string): Promise<string | undefined> {

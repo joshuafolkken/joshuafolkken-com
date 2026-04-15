@@ -172,9 +172,12 @@ function evaluate_pr_state(snapshot: PrStateSnapshot): PrEvaluation {
 		review_decision: snapshot.review_decision,
 		statuses,
 	})
+
 	if (failure !== undefined) return failure
-	if (is_merge_state_clean(snapshot.merge_state_status)) return 'success'
-	if (are_required_all_passing(statuses)) return 'success'
+
+	if (is_merge_state_clean(snapshot.merge_state_status) && are_required_all_passing(statuses)) {
+		return 'success'
+	}
 
 	return 'pending'
 }
@@ -222,20 +225,35 @@ function classify_poll_result(input: {
 	}
 }
 
+async function attempt_pr_success_poll(input: {
+	options: WaitForPrSuccessOptions
+	stable_count: number
+	attempt: number
+}): Promise<{ snapshot?: PrStateSnapshot; next_stable_count: number }> {
+	const snapshot = await input.options.fetcher(input.options.branch_name)
+	const classification = classify_poll_result({
+		snapshot,
+		stable_count: input.stable_count,
+		required_stable_reads: input.options.required_stable_reads,
+	})
+
+	if (classification.is_done) return { snapshot, next_stable_count: 0 }
+
+	if (input.attempt < input.options.max_attempts - 1) {
+		await sleep(input.options.interval_ms)
+	}
+
+	return { next_stable_count: classification.next_stable_count }
+}
+
 async function wait_for_pr_success(options: WaitForPrSuccessOptions): Promise<PrStateSnapshot> {
 	let stable_count = 0
 
 	for (let attempt = 0; attempt < options.max_attempts; attempt += 1) {
-		const snapshot = await options.fetcher(options.branch_name)
-		const classification = classify_poll_result({
-			snapshot,
-			stable_count,
-			required_stable_reads: options.required_stable_reads,
-		})
+		const result = await attempt_pr_success_poll({ options, stable_count, attempt })
 
-		if (classification.is_done) return snapshot
-		stable_count = classification.next_stable_count
-		await sleep(options.interval_ms)
+		if (result.snapshot !== undefined) return result.snapshot
+		stable_count = result.next_stable_count
 	}
 
 	throw new Error('Timed out while waiting for PR checks to complete.')
