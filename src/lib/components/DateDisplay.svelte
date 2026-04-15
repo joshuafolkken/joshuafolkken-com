@@ -23,7 +23,7 @@
 	{#if author}
 		<span class="flex items-center gap-1">
 			<UserIcon size={ICON_SIZE_SM} />
-			{author}
+			<span class="sr-only">Author: </span>{author}
 		</span>
 	{/if}
 	<time datetime={date} class="flex items-center gap-1" title="Published">
