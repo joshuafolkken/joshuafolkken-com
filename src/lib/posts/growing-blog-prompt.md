@@ -1,6 +1,7 @@
 ---
 title: AI は「指示」するより「指導」する方が面白い。ブログ執筆が 9割 自動化できた話
 date: '2025-11-25 16:30'
+author: 'Joshua Folkken'
 updated: '2025-11-26 00:00'
 cover_image: /images/blog/growtika-nGoCBxiaRO0-unsplash.webp
 excerpt: AI にブログを書かせるのは簡単。でも、「自分らしい」記事を書かせるのは難しい。僕が実践している、Git の差分から「事実」を拾い、育てたプロンプトで「個性」を吹き込む。そんなブログ執筆の裏側を公開します。

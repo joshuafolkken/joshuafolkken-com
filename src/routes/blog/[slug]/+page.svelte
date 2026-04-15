@@ -36,8 +36,8 @@
 	<PageHeader page={PAGES.BLOG} />
 
 	<article class="prose mt-6 mb-6 max-w-none prose-invert" use:external_links>
-		<h1 class="mb-1">{blog_title}</h1>
-		<DateDisplay date={data.meta.date} updated={data.meta.updated} />
+		<h1 class="mb-3">{blog_title}</h1>
+		<DateDisplay date={data.meta.date} updated={data.meta.updated} author={data.meta.author} />
 
 		{#if cover_image_source}
 			<div class="-mx-4 overflow-hidden">
