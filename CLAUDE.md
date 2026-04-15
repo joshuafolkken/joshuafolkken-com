@@ -159,6 +159,13 @@ gh pr merge <pr-number> --merge
 
 See `prompts/collaboration-workflow.md` → "Auto-merge（default for `fullrun`）" for the portable, cross-AI version of this rule.
 
+#### Completion notifications: always via `pnpm git:followup`
+
+Never send `completion` Telegram notifications manually with `pnpm telegram:test --task-type completion ...`. Always use `pnpm git:followup` — it fetches the PR URL via `gh pr view <branch> --json url` and always includes it, whereas the manual CLI does not auto-populate `--pr-url` and will produce a Telegram message missing the PR link.
+
+- Applies to the initial PR and every follow-up commit (CodeRabbit fixes, re-review iterations, merges from main, etc.) — re-run `pnpm git:followup "<title> #<N>" --notify-message "Implemented <title>:\n- <change1>\n- <change2>\n..."` each time you want to notify completion.
+- `pnpm telegram:test` remains the right tool for `planning`, `confirmation`, `kickoff_retry`, and `failure` notifications (no automated alternative exists for those).
+
 #### Mid-workflow stop notification (`confirmation`)
 
 Whenever Claude pauses a `kickoff`/`fullrun` mid-execution to wait for user confirmation (approval, clarification, scope decision, etc.), it MUST send a Telegram notification **before** stopping so the user is alerted off-screen:
