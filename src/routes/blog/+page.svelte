@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { AUTHOR } from '$lib/app'
+	import AdSenseScript from '$lib/components/AdSenseScript.svelte'
 	import BlogList from '$lib/components/BlogList.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
@@ -13,6 +14,8 @@
 	<title>{PAGES.BLOG.title} - {AUTHOR.NAME}</title>
 	<meta name="description" content={PAGES.BLOG.description} />
 </svelte:head>
+
+<AdSenseScript />
 
 <PageLayout max_width="6xl">
 	<PageHeader page={PAGES.BLOG} />
