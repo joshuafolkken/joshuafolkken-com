@@ -1,18 +1,57 @@
 import { describe, expect, it } from 'vitest'
-import { git_pr_checks, parse_repo_name_from_package, type RollupCheck } from './git-pr-checks'
+import {
+	DEFAULT_STABLE_READS,
+	evaluate_pr_state,
+	parse_pr_state_snapshot,
+	parse_repo_name_from_package,
+	wait_for_pr_success,
+	type PrStateSnapshot,
+	type RollupCheck,
+} from './git-pr-checks'
 
 const REPO_NAME = 'joshuafolkken-com'
 const WORKERS_BUILDS_FOR_THIS_REPO = `Workers Builds: ${REPO_NAME}`
 const CODE_RABBIT = 'CodeRabbit'
 const SONAR_QUBE = 'SonarQube'
-const WORKERS_BUILDS_NAME_PATTERN = /Workers Builds: joshuafolkken-com/u
-const CODE_RABBIT_NAME_PATTERN = /CodeRabbit/u
+const NO_SNAPSHOT_ERROR = 'No snapshot available for test.'
 
 const PASSING_ROLLUP: ReadonlyArray<RollupCheck> = [
 	{ name: WORKERS_BUILDS_FOR_THIS_REPO, status: 'pass' },
 	{ name: CODE_RABBIT, status: 'pass' },
 	{ name: SONAR_QUBE, status: 'pass' },
 ]
+
+function make_snapshot(overrides: Partial<PrStateSnapshot> = {}): PrStateSnapshot {
+	return {
+		rollup: [...PASSING_ROLLUP],
+		merge_state_status: 'CLEAN',
+		review_decision: 'APPROVED',
+		...overrides,
+	}
+}
+
+function pending_rollup_snapshot(): PrStateSnapshot {
+	return make_snapshot({ merge_state_status: 'UNKNOWN', rollup: [] })
+}
+
+function make_sequence_fetcher(snapshots: ReadonlyArray<PrStateSnapshot>): {
+	count: () => number
+	fetch: () => Promise<PrStateSnapshot>
+} {
+	let index = 0
+
+	async function fetch(): Promise<PrStateSnapshot> {
+		const snapshot = snapshots[index] ?? snapshots.at(-1)
+
+		index += 1
+
+		if (snapshot === undefined) throw new Error(NO_SNAPSHOT_ERROR)
+
+		return await Promise.resolve(snapshot)
+	}
+
+	return { count: () => index, fetch }
+}
 
 describe('parse_repo_name_from_package', () => {
 	it('returns the name field from package.json content', () => {
@@ -28,34 +67,180 @@ describe('parse_repo_name_from_package', () => {
 	})
 })
 
-describe('git_pr_checks.assert_required_checks_passed', () => {
-	it('does not throw when all required checks pass for this repo', () => {
-		expect(() => {
-			git_pr_checks.assert_required_checks_passed(PASSING_ROLLUP)
-		}).not.toThrow()
+describe('evaluate_pr_state — success paths', () => {
+	it('success when merge state is CLEAN and required rollup entries all pass', () => {
+		expect(evaluate_pr_state(make_snapshot())).toBe('success')
 	})
 
-	it('throws when the Workers Builds check carries a stale project suffix', () => {
-		const stale_rollup: ReadonlyArray<RollupCheck> = [
-			{ name: 'Workers Builds: tasks', status: 'pass' },
-			{ name: CODE_RABBIT, status: 'pass' },
-			{ name: SONAR_QUBE, status: 'pass' },
-		]
+	it('success when merge state is CLEAN even if the aggregator rollup still lags', () => {
+		const snapshot = make_snapshot({
+			rollup: [
+				{ name: WORKERS_BUILDS_FOR_THIS_REPO, status: 'pass' },
+				{ name: CODE_RABBIT, status: 'pending' },
+			],
+		})
 
-		expect(() => {
-			git_pr_checks.assert_required_checks_passed(stale_rollup)
-		}).toThrow(WORKERS_BUILDS_NAME_PATTERN)
+		expect(evaluate_pr_state(snapshot)).toBe('success')
 	})
 
-	it('throws when a required check has not passed', () => {
-		const pending_rollup: ReadonlyArray<RollupCheck> = [
-			{ name: WORKERS_BUILDS_FOR_THIS_REPO, status: 'pass' },
-			{ name: CODE_RABBIT, status: 'pending' },
-			{ name: SONAR_QUBE, status: 'pass' },
-		]
+	it('success when aggregator is pending but every required check is green', () => {
+		const snapshot = make_snapshot({ merge_state_status: 'UNKNOWN' })
 
-		expect(() => {
-			git_pr_checks.assert_required_checks_passed(pending_rollup)
-		}).toThrow(CODE_RABBIT_NAME_PATTERN)
+		expect(evaluate_pr_state(snapshot)).toBe('success')
+	})
+
+	it('success when a non-required check is pending but required checks pass and merge is CLEAN', () => {
+		const snapshot = make_snapshot({
+			rollup: [...PASSING_ROLLUP, { name: 'Lighthouse', status: 'pending' }],
+		})
+
+		expect(evaluate_pr_state(snapshot)).toBe('success')
+	})
+})
+
+describe('evaluate_pr_state — failure and pending paths', () => {
+	it('failure when a required check has failed', () => {
+		const snapshot = make_snapshot({
+			rollup: [
+				{ name: WORKERS_BUILDS_FOR_THIS_REPO, status: 'pass' },
+				{ name: CODE_RABBIT, status: 'fail' },
+				{ name: SONAR_QUBE, status: 'pass' },
+			],
+		})
+
+		expect(evaluate_pr_state(snapshot)).toBe('failure')
+	})
+
+	it('failure when the review decision is CHANGES_REQUESTED', () => {
+		expect(evaluate_pr_state(make_snapshot({ review_decision: 'CHANGES_REQUESTED' }))).toBe(
+			'failure',
+		)
+	})
+
+	it('pending when merge state is unknown and a required check is still pending', () => {
+		const snapshot = make_snapshot({
+			merge_state_status: 'UNKNOWN',
+			rollup: [
+				{ name: WORKERS_BUILDS_FOR_THIS_REPO, status: 'pending' },
+				{ name: CODE_RABBIT, status: 'pass' },
+				{ name: SONAR_QUBE, status: 'pass' },
+			],
+		})
+
+		expect(evaluate_pr_state(snapshot)).toBe('pending')
+	})
+})
+
+function check_run(name: string): Record<string, string> {
+	return {
+		// eslint-disable-next-line @typescript-eslint/naming-convention -- GitHub API uses `__typename` as the discriminator
+		__typename: 'CheckRun',
+		name,
+		status: 'completed',
+		conclusion: 'success',
+	}
+}
+
+describe('parse_pr_state_snapshot', () => {
+	it('parses mergeStateStatus, reviewDecision, and rollup from a gh pr view JSON payload', () => {
+		const raw = JSON.stringify({
+			mergeStateStatus: 'CLEAN',
+			reviewDecision: 'APPROVED',
+			statusCheckRollup: [
+				check_run(WORKERS_BUILDS_FOR_THIS_REPO),
+				check_run(CODE_RABBIT),
+				check_run(SONAR_QUBE),
+			],
+		})
+
+		expect(parse_pr_state_snapshot(raw)).toStrictEqual({
+			rollup: [
+				{ name: WORKERS_BUILDS_FOR_THIS_REPO, status: 'pass' },
+				{ name: CODE_RABBIT, status: 'pass' },
+				{ name: SONAR_QUBE, status: 'pass' },
+			],
+			merge_state_status: 'CLEAN',
+			review_decision: 'APPROVED',
+		})
+	})
+
+	it('returns undefined fields when JSON is empty', () => {
+		expect(parse_pr_state_snapshot('')).toStrictEqual({
+			rollup: [],
+			merge_state_status: undefined,
+			review_decision: undefined,
+		})
+	})
+})
+
+describe('wait_for_pr_success — stable-read window', () => {
+	it('returns only after two consecutive success reads', async () => {
+		const sequence = make_sequence_fetcher([
+			pending_rollup_snapshot(),
+			make_snapshot(),
+			make_snapshot(),
+		])
+
+		const result = await wait_for_pr_success({
+			branch_name: 'feature/x',
+			fetcher: sequence.fetch,
+			interval_ms: 0,
+			max_attempts: 10,
+			required_stable_reads: DEFAULT_STABLE_READS,
+		})
+
+		expect(result.merge_state_status).toBe('CLEAN')
+		expect(sequence.count()).toBe(3)
+	})
+
+	it('resets the stable counter when a pending read interrupts the run', async () => {
+		const sequence = make_sequence_fetcher([
+			make_snapshot(),
+			pending_rollup_snapshot(),
+			make_snapshot(),
+			make_snapshot(),
+		])
+
+		await wait_for_pr_success({
+			branch_name: 'feature/x',
+			fetcher: sequence.fetch,
+			interval_ms: 0,
+			max_attempts: 10,
+			required_stable_reads: DEFAULT_STABLE_READS,
+		})
+
+		expect(sequence.count()).toBe(4)
+	})
+})
+
+describe('wait_for_pr_success — failure and timeout', () => {
+	it('throws immediately when the evaluator reports failure', async () => {
+		const sequence = make_sequence_fetcher([
+			make_snapshot({ review_decision: 'CHANGES_REQUESTED' }),
+		])
+
+		await expect(
+			wait_for_pr_success({
+				branch_name: 'feature/x',
+				fetcher: sequence.fetch,
+				interval_ms: 0,
+				max_attempts: 5,
+				required_stable_reads: DEFAULT_STABLE_READS,
+			}),
+		).rejects.toThrow(/failed|CHANGES/u)
+	})
+
+	it('throws when max_attempts is exhausted while the state remains pending', async () => {
+		const sequence = make_sequence_fetcher([pending_rollup_snapshot()])
+
+		await expect(
+			wait_for_pr_success({
+				branch_name: 'feature/x',
+				fetcher: sequence.fetch,
+				interval_ms: 0,
+				max_attempts: 3,
+				required_stable_reads: DEFAULT_STABLE_READS,
+			}),
+		).rejects.toThrow(/Timed out/u)
 	})
 })

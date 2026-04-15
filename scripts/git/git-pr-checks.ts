@@ -6,9 +6,15 @@ import { git_gh_command } from './git-gh-command'
 const CHECK_STATUS_PASS = 'pass'
 const CHECK_STATUS_PENDING = 'pending'
 const CHECK_STATUS_FAIL = 'fail'
+const CHECK_STATUS_MISSING = 'missing'
 const PACKAGE_JSON_PATH = 'package.json'
 const CHECK_WAIT_INTERVAL_MS = 10_000
 const CHECK_MAX_ATTEMPTS = 18
+const DEFAULT_STABLE_READS = 2
+const MERGE_STATE_CLEAN = 'CLEAN'
+const REVIEW_CHANGES_REQUESTED = 'CHANGES_REQUESTED'
+const KEY_MERGE_STATE_STATUS = 'mergeStateStatus'
+const KEY_REVIEW_DECISION = 'reviewDecision'
 
 function parse_repo_name_from_package(package_json_content: string): string {
 	const { name } = JSON.parse(package_json_content) as { name?: unknown }
@@ -112,61 +118,155 @@ async function sleep(ms: number): Promise<void> {
 	})
 }
 
-function has_all_required_checks(checks: ReadonlyArray<RollupCheck>): boolean {
-	return REQUIRED_CHECKS.every((name) => checks.some((check) => check.name === name))
+type PrEvaluation = 'success' | 'pending' | 'failure'
+
+interface PrStateSnapshot {
+	rollup: Array<RollupCheck>
+	merge_state_status: string | undefined
+	review_decision: string | undefined
 }
 
-function has_pending_required_check(checks: ReadonlyArray<RollupCheck>): boolean {
-	const required = checks.filter((check) => REQUIRED_CHECKS.includes(check.name))
+type PrStateFetcher = (branch_name: string) => Promise<PrStateSnapshot>
 
-	return required.some((check) => check.status === CHECK_STATUS_PENDING)
+interface WaitForPrSuccessOptions {
+	branch_name: string
+	fetcher: PrStateFetcher
+	interval_ms: number
+	max_attempts: number
+	required_stable_reads: number
 }
 
-function is_checks_settled(checks: ReadonlyArray<RollupCheck>): boolean {
-	return !has_pending_required_check(checks) && has_all_required_checks(checks)
+function read_required_statuses(checks: ReadonlyArray<RollupCheck>): Array<string> {
+	return REQUIRED_CHECKS.map((name) => {
+		const match = checks.find((check) => check.name === name)
+
+		return match?.status ?? CHECK_STATUS_MISSING
+	})
 }
 
-async function wait_checks_completed(branch_name: string): Promise<Array<RollupCheck>> {
-	for (let attempt = 0; attempt < CHECK_MAX_ATTEMPTS; attempt += 1) {
-		const rollup_json = await git_gh_command.pr_get_status_rollup(branch_name)
-		const checks = parse_rollup_checks(rollup_json)
-		if (is_checks_settled(checks)) return checks
+function is_review_blocked(review_decision: string | undefined): boolean {
+	return review_decision === REVIEW_CHANGES_REQUESTED
+}
 
-		await sleep(CHECK_WAIT_INTERVAL_MS)
+function evaluate_failure_state(input: {
+	review_decision: string | undefined
+	statuses: ReadonlyArray<string>
+}): PrEvaluation | undefined {
+	if (is_review_blocked(input.review_decision)) return 'failure'
+	if (input.statuses.includes(CHECK_STATUS_FAIL)) return 'failure'
+
+	return undefined
+}
+
+function is_merge_state_clean(merge_state_status: string | undefined): boolean {
+	return merge_state_status === MERGE_STATE_CLEAN
+}
+
+function are_required_all_passing(statuses: ReadonlyArray<string>): boolean {
+	return statuses.every((status) => status === CHECK_STATUS_PASS)
+}
+
+function evaluate_pr_state(snapshot: PrStateSnapshot): PrEvaluation {
+	const statuses = read_required_statuses(snapshot.rollup)
+	const failure = evaluate_failure_state({
+		review_decision: snapshot.review_decision,
+		statuses,
+	})
+	if (failure !== undefined) return failure
+	if (is_merge_state_clean(snapshot.merge_state_status)) return 'success'
+	if (are_required_all_passing(statuses)) return 'success'
+
+	return 'pending'
+}
+
+function read_merge_state(parsed: Record<string, unknown>): string | undefined {
+	return read_string(parsed[KEY_MERGE_STATE_STATUS])
+}
+
+function read_review_decision(parsed: Record<string, unknown>): string | undefined {
+	return read_string(parsed[KEY_REVIEW_DECISION])
+}
+
+function parse_pr_state_snapshot(raw_json: string): PrStateSnapshot {
+	const parsed = parse_json_safe(raw_json)
+	const parsed_record =
+		typeof parsed === 'object' && parsed !== null ? (parsed as Record<string, unknown>) : {}
+
+	return {
+		rollup: parse_rollup_checks(raw_json),
+		merge_state_status: read_merge_state(parsed_record),
+		review_decision: read_review_decision(parsed_record),
+	}
+}
+
+function advance_stable_count(previous: number, state: PrEvaluation): number {
+	return state === 'success' ? previous + 1 : 0
+}
+
+function classify_poll_result(input: {
+	snapshot: PrStateSnapshot
+	stable_count: number
+	required_stable_reads: number
+}): { is_done: boolean; next_stable_count: number } {
+	const state = evaluate_pr_state(input.snapshot)
+
+	if (state === 'failure') {
+		throw new Error('PR checks failed (required check failed or review requested changes).')
+	}
+
+	const next_stable_count = advance_stable_count(input.stable_count, state)
+
+	return {
+		is_done: next_stable_count >= input.required_stable_reads,
+		next_stable_count,
+	}
+}
+
+async function wait_for_pr_success(options: WaitForPrSuccessOptions): Promise<PrStateSnapshot> {
+	let stable_count = 0
+
+	for (let attempt = 0; attempt < options.max_attempts; attempt += 1) {
+		const snapshot = await options.fetcher(options.branch_name)
+		const classification = classify_poll_result({
+			snapshot,
+			stable_count,
+			required_stable_reads: options.required_stable_reads,
+		})
+
+		if (classification.is_done) return snapshot
+		stable_count = classification.next_stable_count
+		await sleep(options.interval_ms)
 	}
 
 	throw new Error('Timed out while waiting for PR checks to complete.')
 }
 
-function find_required_check(
-	checks: ReadonlyArray<RollupCheck>,
-	required_name: string,
-): RollupCheck | undefined {
-	return checks.find((check) => check.name === required_name)
+async function default_fetch_pr_state(branch_name: string): Promise<PrStateSnapshot> {
+	const raw_json = await git_gh_command.pr_get_state_snapshot(branch_name)
+
+	return parse_pr_state_snapshot(raw_json)
 }
 
-function assert_required_check_status(input: {
-	required_name: string
-	matched: RollupCheck | undefined
-}): void {
-	if (input.matched === undefined) throw new Error(`Required check missing: ${input.required_name}`)
-	if (input.matched.status === CHECK_STATUS_PASS) return
-
-	throw new Error(`Required check not passed: ${input.required_name} (${input.matched.status})`)
-}
-
-function assert_required_checks_passed(checks: ReadonlyArray<RollupCheck>): void {
-	for (const required_name of REQUIRED_CHECKS) {
-		const matched = find_required_check(checks, required_name)
-
-		assert_required_check_status({ required_name, matched })
-	}
+async function wait_for_pr_success_default(branch_name: string): Promise<PrStateSnapshot> {
+	return await wait_for_pr_success({
+		branch_name,
+		fetcher: default_fetch_pr_state,
+		interval_ms: CHECK_WAIT_INTERVAL_MS,
+		max_attempts: CHECK_MAX_ATTEMPTS,
+		required_stable_reads: DEFAULT_STABLE_READS,
+	})
 }
 
 const git_pr_checks = {
-	wait_checks_completed,
-	assert_required_checks_passed,
+	wait_for_pr_success: wait_for_pr_success_default,
 }
 
-export { git_pr_checks, parse_repo_name_from_package }
-export type { RollupCheck }
+export {
+	git_pr_checks,
+	parse_repo_name_from_package,
+	evaluate_pr_state,
+	parse_pr_state_snapshot,
+	wait_for_pr_success,
+	DEFAULT_STABLE_READS,
+}
+export type { RollupCheck, PrEvaluation, PrStateSnapshot, PrStateFetcher }
