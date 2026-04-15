@@ -84,6 +84,8 @@ words:
   - noreferrer
   - nosniff
   - octocat
+  - osv
+  - ghcr
   - opencollective
   - paraglide
   - pexels
