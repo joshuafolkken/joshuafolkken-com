@@ -234,12 +234,10 @@ async function pr_get_number(branch_name: string): Promise<number | undefined> {
 	}
 }
 
-async function pr_get_status_rollup(branch_name: string): Promise<string> {
-	try {
-		return await exec_gh_command(`pr view ${branch_name} --json statusCheckRollup --jq .`)
-	} catch {
-		return ''
-	}
+async function pr_get_state_snapshot(branch_name: string): Promise<string> {
+	return await exec_gh_command(
+		`pr view ${branch_name} --json mergeStateStatus,reviewDecision,statusCheckRollup`,
+	)
 }
 
 async function issue_get_title(issue_number: string): Promise<string | undefined> {
@@ -328,7 +326,7 @@ const git_gh_command = {
 	pr_get_state,
 	pr_get_url,
 	pr_get_number,
-	pr_get_status_rollup,
+	pr_get_state_snapshot,
 	issue_get_title,
 	issue_get_body,
 	issue_edit_body,
