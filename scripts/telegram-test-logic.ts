@@ -52,12 +52,18 @@ function coalesce(primary: string | undefined, fallback: string | undefined): st
 	return fallback
 }
 
+function normalize_body(raw: string | undefined): string | undefined {
+	if (raw === undefined) return undefined
+
+	return raw.replaceAll(String.raw`\n`, '\n')
+}
+
 function build_input(input: { values: CliValues; context: ResolvedContext }): TelegramSendInput {
 	return {
 		task_type: parse_task_type(input.values['task-type']),
 		repo_name: coalesce(input.values['repo-name'], input.context.repo_name),
 		issue_title: coalesce(input.values['issue-title'], input.context.issue_title),
-		body: input.values.body,
+		body: normalize_body(input.values.body),
 		issue_url: input.values['issue-url'],
 		pr_url: input.values['pr-url'],
 	}

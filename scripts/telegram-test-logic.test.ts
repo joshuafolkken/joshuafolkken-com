@@ -76,6 +76,23 @@ describe('telegram_test_logic.build_input — explicit flags win', () => {
 	})
 })
 
+describe('telegram_test_logic.build_input — body normalization', () => {
+	it('converts escaped newline sequences in body to real newlines', () => {
+		const result = telegram_test_logic.build_input({
+			values: { body: String.raw`- step 1\n- step 2\n- step 3` },
+			context: EMPTY_CONTEXT,
+		})
+
+		expect(result.body).toBe(`- step 1\n- step 2\n- step 3`)
+	})
+
+	it('leaves body undefined when not provided', () => {
+		const result = telegram_test_logic.build_input({ values: {}, context: EMPTY_CONTEXT })
+
+		expect(result.body).toBeUndefined()
+	})
+})
+
 describe('telegram_test_logic.build_input — resolved context fallback', () => {
 	it('falls back to resolved context when flags are missing', () => {
 		const result = telegram_test_logic.build_input({
