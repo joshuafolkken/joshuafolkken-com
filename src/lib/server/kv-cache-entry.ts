@@ -3,7 +3,7 @@ interface CacheEntry<T> {
 	expires: number
 }
 
-function is_record(value: unknown): value is Record<string, unknown> {
+function is_object(value: unknown): value is object {
 	return typeof value === 'object' && value !== null
 }
 
@@ -12,8 +12,8 @@ function is_finite_number(value: unknown): value is number {
 }
 
 function is_cache_entry_shape(candidate: unknown): candidate is CacheEntry<unknown> {
-	if (!is_record(candidate)) return false
-	if (!('value' in candidate)) return false
+	if (!is_object(candidate)) return false
+	if (!('value' in candidate) || !('expires' in candidate)) return false
 
 	return is_finite_number(candidate.expires)
 }
