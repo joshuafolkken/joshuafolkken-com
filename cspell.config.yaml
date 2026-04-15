@@ -24,6 +24,12 @@ ignorePaths:
   - .fast-check/**
 words:
   - aboutads
+  - adsbygoogle
+  - domcontentloaded
+  - ADSENSE
+  - adsense
+  - googlesyndication
+  - pagead
   - aikidosec
   - anthropics
   - arrowdown
