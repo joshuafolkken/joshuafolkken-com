@@ -98,14 +98,25 @@ Run the full verification set **in order**. **Do not** skip or reorder steps. **
 3. `pnpm run check`
 4. `pnpm cspell:dot`
 5. `pnpm test:unit --run`
-6. **IDE feedback**: zero **errors** on every file you changed (warnings only when documented as an allowed exception).
-7. **E2E**: Ask the user to run `pnpm test` and share the output. Fix any failures, then ask again.
+6. **Self-review** — follow `prompts/review.md` on the staged diff (and `git diff main...HEAD` before opening a PR). Produce the full categorized output, resolve all high/medium findings, and iterate until clean.
+7. **IDE feedback**: zero **errors** on every file you changed (warnings only when documented as an allowed exception).
+8. **E2E**: Ask the user to run `pnpm test` and share the output. Fix any failures, then ask again.
 
 If you changed **only** docs or config that does not affect tests, still run lint + check + cspell; run unit tests when there is any chance of impact.
 
 ## Refactoring Rules
 
 - When performing any refactoring, ALWAYS read and follow `prompts/refactoring.md` before starting.
+
+## Pre-commit Self-Review (mandatory)
+
+Before every `git commit` — including follow-up commits on the same branch — perform a self-review against `prompts/review.md`.
+
+- Scope: the staged diff (`git diff --staged`). Before opening or updating a PR, also review the cumulative branch diff (`git diff main...HEAD`).
+- Produce the full categorized output defined in `prompts/review.md`. Every category must have an explicit verdict (findings or `No issues`).
+- Resolve **all high and medium findings** before committing. Low findings may be skipped with a one-line reason.
+- If a fix introduces new code, re-run the self-review on the updated diff. Iterate until no high/medium findings remain.
+- CI no longer runs a Claude review — the pre-commit self-review is the authoritative pass, so do not rely on a CI safety net.
 
 ## Git Rules
 
