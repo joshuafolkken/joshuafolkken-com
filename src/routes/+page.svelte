@@ -3,6 +3,7 @@
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import ProjectCard from '$lib/components/ProjectCard.svelte'
 	import RevealSection from '$lib/components/RevealSection.svelte'
+	import SectionHeading from '$lib/components/SectionHeading.svelte'
 	import SkillsSection from '$lib/components/SkillsSection.svelte'
 	import {
 		CARD_BASE_CLASS,
@@ -10,8 +11,9 @@
 		CARD_TITLE_CLASS,
 	} from '$lib/constants/card-styles'
 	import { ICON_SIZE_2XL, MAIN_CONTENT_ID } from '$lib/constants/layout'
-	import { SECTION_HEADING_PRIMARY_CLASS } from '$lib/constants/typography'
 	import { FEATURED_PROJECTS } from '$lib/data/projects'
+	import BriefcaseIcon from '$lib/icons/BriefcaseIcon.svelte'
+	import CompassIcon from '$lib/icons/CompassIcon.svelte'
 	import { MAIN_NAV_PAGES, PAGES } from '$lib/types/page'
 	import { link_utilities } from '$lib/utils/link-utilities'
 </script>
@@ -25,8 +27,11 @@
 	<RevealSection>
 		<div class="mb-12 flex items-end justify-between">
 			<div>
-				<h2 class={SECTION_HEADING_PRIMARY_CLASS}>Featured Projects</h2>
-				<p class="mt-2 text-white/50">A selection of my recent work and experiments.</p>
+				<SectionHeading
+					icon={BriefcaseIcon}
+					title="Featured Projects"
+					subtitle="A selection of my recent work and experiments."
+				/>
 			</div>
 			<a
 				href={link_utilities.get_href(PAGES.PROJECTS.link)}
@@ -52,7 +57,7 @@
 
 	<!-- Quick Navigation -->
 	<RevealSection>
-		<h2 class="mb-12 text-center {SECTION_HEADING_PRIMARY_CLASS}">Discover</h2>
+		<SectionHeading icon={CompassIcon} title="Discover" class="mb-12" />
 		<div class="grid gap-6 lg:grid-cols-3">
 			{#each MAIN_NAV_PAGES as p (p.title)}
 				<a

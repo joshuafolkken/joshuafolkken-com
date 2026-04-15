@@ -1,10 +1,11 @@
 <script lang="ts">
 	import RevealOnIntersect from '$lib/components/RevealOnIntersect.svelte'
+	import SectionHeading from '$lib/components/SectionHeading.svelte'
 	import TechPill from '$lib/components/TechPill.svelte'
 	import { TECH_PILL_LIFT_CLASS } from '$lib/constants/hover-styles'
-	import { SECTION_HEADING_PRIMARY_CLASS } from '$lib/constants/typography'
 	import { SKILLS } from '$lib/data/skills'
 	import { tech_colors } from '$lib/data/tech-colors'
+	import SparklesIcon from '$lib/icons/SparklesIcon.svelte'
 	import { SvelteSet } from 'svelte/reactivity'
 
 	const revealed = new SvelteSet<string>()
@@ -14,8 +15,12 @@
 </script>
 
 <section>
-	<h2 class="mb-2 {SECTION_HEADING_PRIMARY_CLASS}">Skills</h2>
-	<p class="mb-10 text-white/50">Technical and beyond.</p>
+	<SectionHeading
+		icon={SparklesIcon}
+		title="Skills"
+		subtitle="Technical and beyond."
+		class="mb-10"
+	/>
 
 	<div class="grid gap-x-8 gap-y-6 sm:grid-cols-2">
 		{#each SKILLS as skill (skill.name)}
