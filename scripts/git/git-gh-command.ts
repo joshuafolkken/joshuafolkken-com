@@ -291,6 +291,10 @@ async function pr_comment(branch_name: string, body: string): Promise<string> {
 	})
 }
 
+async function pr_merge(branch_name: string): Promise<void> {
+	await exec_gh_command(`pr merge ${branch_name} --merge`)
+}
+
 async function issue_get_body(issue_number: string): Promise<string | undefined> {
 	try {
 		const result: string = await exec_gh_command(
@@ -334,6 +338,7 @@ const git_gh_command = {
 	pr_get_review_comments,
 	pr_get_comments,
 	pr_comment,
+	pr_merge,
 	issue_comment,
 }
 

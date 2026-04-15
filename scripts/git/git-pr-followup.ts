@@ -60,6 +60,7 @@ interface FollowupInput {
 	coderabbit_ignore_reason: string | undefined
 	ai_review_ignore_reason: string | undefined
 	is_skip_watch: boolean
+	should_merge: boolean
 }
 
 function parse_pull_comments(raw_json: string): Array<PullComment> {
@@ -216,12 +217,7 @@ async function notify_completion(context: TelegramContext): Promise<void> {
 	)
 }
 
-async function run(input: FollowupInput): Promise<void> {
-	const context = await fetch_telegram_context({
-		branch_name: input.branch_name,
-		issue_number: input.issue_number,
-	})
-
+async function run_review_checks(input: FollowupInput, context: TelegramContext): Promise<void> {
 	await run_checks({ branch_name: input.branch_name, is_skip_watch: input.is_skip_watch })
 	await handle_coderabbit_findings({
 		branch_name: input.branch_name,
@@ -232,8 +228,21 @@ async function run(input: FollowupInput): Promise<void> {
 		ignore_reason: input.ai_review_ignore_reason,
 		context,
 	})
+}
 
+async function run(input: FollowupInput): Promise<void> {
+	const context = await fetch_telegram_context({
+		branch_name: input.branch_name,
+		issue_number: input.issue_number,
+	})
+
+	await run_review_checks(input, context)
 	await notify_completion(context)
+
+	if (input.should_merge) {
+		await git_gh_command.pr_merge(input.branch_name)
+	}
+
 	await post_completion_notification({
 		branch_name: input.branch_name,
 		issue_number: input.issue_number,
