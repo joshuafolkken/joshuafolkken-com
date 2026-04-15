@@ -1,5 +1,6 @@
 import { git_gh_command } from './git-gh-command'
 import { git_notify, type GitNotifyConfig } from './git-notify'
+import { git_pr_ai_review, type TelegramContext } from './git-pr-ai-review'
 import { git_pr_checks } from './git-pr-checks'
 import { telegram_notify, type TelegramSendInput, type TelegramTaskType } from './telegram-notify'
 
@@ -16,13 +17,6 @@ function parse_repo_name(name_with_owner: string | undefined): string | undefine
 	const parts = name_with_owner.split(REPO_NAME_SEPARATOR)
 
 	return parts.at(-1)
-}
-
-interface TelegramContext {
-	repo_name: string | undefined
-	issue_title: string | undefined
-	issue_url: string | undefined
-	pr_url: string | undefined
 }
 
 function build_telegram_input(input: {
@@ -64,6 +58,7 @@ interface FollowupInput {
 	issue_number: string | undefined
 	notify_config: GitNotifyConfig | undefined
 	coderabbit_ignore_reason: string | undefined
+	ai_review_ignore_reason: string | undefined
 	is_skip_watch: boolean
 }
 
@@ -234,6 +229,11 @@ async function run(input: FollowupInput): Promise<void> {
 		branch_name: input.branch_name,
 		ignore_reason: input.coderabbit_ignore_reason,
 	})
+	await git_pr_ai_review.handle_ai_review_findings({
+		branch_name: input.branch_name,
+		ignore_reason: input.ai_review_ignore_reason,
+		context,
+	})
 
 	await notify_completion(context)
 	await post_completion_notification({
@@ -255,4 +255,5 @@ export {
 	post_notify_issue,
 	build_telegram_input,
 }
-export type { FollowupInput, TelegramContext }
+export type { FollowupInput }
+export type { TelegramContext } from './git-pr-ai-review'
