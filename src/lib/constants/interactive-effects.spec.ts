@@ -16,6 +16,8 @@ test('INTERACTIVE_SCALE_HOVER resolves to the shared Tailwind tokens', () => {
 	expect(INTERACTIVE_SCALE_HOVER).toBe('hover:scale-110 active:scale-95')
 })
 
-test.each(CONSUMER_CASES)('%s includes INTERACTIVE_SCALE_HOVER', (_name, value) => {
-	expect(value).toContain(INTERACTIVE_SCALE_HOVER)
+test.each(CONSUMER_CASES)('%s includes INTERACTIVE_SCALE_HOVER exactly once', (_name, value) => {
+	const occurrences = value.split(INTERACTIVE_SCALE_HOVER).length - 1
+
+	expect(occurrences).toBe(1)
 })
