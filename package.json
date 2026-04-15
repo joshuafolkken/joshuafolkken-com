@@ -1,7 +1,7 @@
 {
 	"name": "joshuafolkken-com",
 	"private": true,
-	"version": "0.156.0",
+	"version": "0.157.0",
 	"type": "module",
 	"packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319",
 	"engines": {
@@ -73,11 +73,12 @@
 		"version:minor": "tsx scripts/bump-version.ts minor",
 		"version:major": "tsx scripts/bump-version.ts major",
 		"version:patch": "tsx scripts/bump-version.ts patch",
-		"latest": "pnpm latest:corepack && pnpm latest:update && pnpm audit",
+		"latest": "pnpm latest:corepack && pnpm latest:update && pnpm audit:security",
 		"latest:corepack": "corepack use pnpm@latest",
 		"latest:update": "pnpm update --latest",
 		"prep": "tsx scripts/prep.ts",
 		"overrides:check": "tsx scripts/overrides-check.ts",
+		"audit:security": "tsx scripts/security-audit.ts",
 		"check:upstream": "tsx scripts/check-upstream-drift.ts",
 		"issue:prep": "tsx scripts/issue-prep.ts",
 		"git": "tsx scripts/git-workflow.ts",
