@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths'
-	import { APP, AUTHOR, LINK_REL, LINK_TARGET, OPENCOLLECTIVE } from '$lib/app'
+	import { APP, AUTHOR, LINK_REL, LINK_TARGET, OPENCOLLECTIVE, URLS } from '$lib/app'
 	import AdSenseScript from '$lib/components/AdSenseScript.svelte'
 	import EngagementButtons from '$lib/components/EngagementButtons.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
@@ -14,6 +14,7 @@
 
 	const title = `${PAGES.ABOUT.title} - ${AUTHOR.NAME}`
 	const contact_href = resolve('/contact')
+	const LINK_LIST_CLASS = 'ml-4 list-disc space-y-2'
 </script>
 
 <svelte:head>
@@ -89,8 +90,18 @@
 		</blockquote>
 		<p class="mt-4">
 			With 25+ years of engineering experience, I'm dedicated to nurturing the next generation of
-			developers while creating games that bring joy and learning opportunities to people of all
-			ages.
+			developers while creating games that bring joy and learning opportunities for all ages.
+		</p>
+		<p class="mt-2">
+			<a
+				href={URLS.GITHUB}
+				target={LINK_TARGET}
+				rel={LINK_REL}
+				class={LINK_BASE_DEFAULT_CLASS}
+				data-testid="about-philosophy-github-link"
+			>
+				View my engineering work on GitHub →
+			</a>
 		</p>
 	</PageSection>
 
@@ -123,6 +134,102 @@
 		</div>
 	</PageSection>
 
+	<!-- My Projects -->
+	<PageSection title="🛠️ My Projects">
+		<ul class={LINK_LIST_CLASS}>
+			<li>
+				<a
+					href={URLS.GITHUB}
+					target={LINK_TARGET}
+					rel={LINK_REL}
+					class={LINK_BASE_DEFAULT_CLASS}
+					data-testid="about-github-profile-link"
+				>
+					GitHub Profile
+				</a>
+				— open-source repositories and contributions
+			</li>
+			<li>
+				<a
+					href={URLS.GITHUB_PRS}
+					target={LINK_TARGET}
+					rel={LINK_REL}
+					class={LINK_BASE_DEFAULT_CLASS}
+					data-testid="about-github-prs-link"
+				>
+					Merged Pull Requests — joshuafolkken.com
+				</a>
+				— browse the full development history of this site
+			</li>
+			<li>
+				<a
+					href={APP.URL}
+					target={LINK_TARGET}
+					rel={LINK_REL}
+					class={LINK_BASE_DEFAULT_CLASS}
+					data-testid="about-github-page-link"
+				>
+					joshuafolkken.com
+				</a>
+				— this website, built and maintained publicly
+			</li>
+		</ul>
+	</PageSection>
+
+	<!-- Connect -->
+	<PageSection title="🔗 Connect">
+		<ul class={LINK_LIST_CLASS}>
+			<li>
+				<a
+					href={URLS.GITHUB}
+					target={LINK_TARGET}
+					rel={LINK_REL}
+					class={LINK_BASE_DEFAULT_CLASS}
+					data-testid="about-connect-github-link"
+				>
+					GitHub
+				</a>
+				— source code, issues, and open-source work
+			</li>
+			<li>
+				<a
+					href={URLS.YOUTUBE}
+					target={LINK_TARGET}
+					rel={LINK_REL}
+					class={LINK_BASE_DEFAULT_CLASS}
+					data-testid="about-connect-youtube-link"
+				>
+					YouTube
+				</a>
+				— game dev tutorials and project showcases
+			</li>
+			<li>
+				<a
+					href={URLS.X}
+					target={LINK_TARGET}
+					rel={LINK_REL}
+					class={LINK_BASE_DEFAULT_CLASS}
+					data-testid="about-connect-x-link"
+				>
+					X (Twitter)
+				</a>
+				— dev updates and community discussions
+			</li>
+			<li>
+				<a
+					href={OPENCOLLECTIVE.URL}
+					target={LINK_TARGET}
+					rel={LINK_REL}
+					class={LINK_BASE_DEFAULT_CLASS}
+					data-testid="about-connect-opencollective-link"
+				>
+					Open Collective
+				</a>
+				— support the community mission
+			</li>
+		</ul>
+	</PageSection>
+
 	<!-- Get in touch -->
 	<PageSection title="📬 Get in touch">
 		<p>
@@ -135,7 +242,19 @@
 	<!-- Footer Message -->
 	<PageSection title="⭐️ Thanks for visiting! ⭐️">
 		<div>
-			<p>Consider starring my repositories or supporting our mission through Open Collective!</p>
+			<p>
+				Consider
+				<a
+					href={URLS.GITHUB}
+					target={LINK_TARGET}
+					rel={LINK_REL}
+					class={LINK_BASE_DEFAULT_CLASS}
+					data-testid="about-star-repositories-link"
+				>
+					starring my repositories
+				</a>
+				or supporting our mission through Open Collective!
+			</p>
 			<p class="mt-4">
 				All source code is available for learning purposes. Let's build a brighter future together!
 				🌟
