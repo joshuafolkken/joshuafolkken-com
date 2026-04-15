@@ -18,6 +18,7 @@ interface CliArguments {
 		'coderabbit-ignore-reason'?: string
 		'ai-review-ignore-reason'?: string
 		'skip-watch'?: boolean
+		merge?: boolean
 		help?: boolean
 	}
 	positionals: Array<string>
@@ -41,6 +42,7 @@ Options:
   --ai-review-ignore-reason    Reason text when keeping AI reviewer (Claude Review / CodeRabbit
                                summary) findings unresolved
   --skip-watch                 Skip "gh pr checks --watch" and only evaluate latest status
+  --merge                      Merge the PR right after sending the completion notification
   -h, --help                   Show this help
 	`)
 }
@@ -56,6 +58,7 @@ function parse_cli_arguments(): CliArguments {
 			'coderabbit-ignore-reason': { type: 'string' },
 			'ai-review-ignore-reason': { type: 'string' },
 			'skip-watch': { type: 'boolean' },
+			merge: { type: 'boolean' },
 			help: { type: 'boolean', short: 'h' },
 		},
 		allowPositionals: true,
@@ -103,6 +106,7 @@ async function main(): Promise<void> {
 		coderabbit_ignore_reason: cli.values['coderabbit-ignore-reason'],
 		ai_review_ignore_reason: cli.values['ai-review-ignore-reason'],
 		is_skip_watch: cli.values['skip-watch'] === true,
+		should_merge: cli.values.merge === true,
 	})
 	console.info('')
 	console.info('✅ PR followup completed.')

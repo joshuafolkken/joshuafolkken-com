@@ -137,10 +137,11 @@ pnpm git -y "<issue-title> #<issue-number>"
 - `--ai-review-ignore-reason`: AI レビュー（Claude Review / CodeRabbit サマリ）の未対応ブロッカーを残す場合の理由コメント
 - `--issue-number`: Issue 番号（または位置引数に `"<title> #<number>"`）
 
-例1: 基本
+例1: 基本（`fullrun` ではマージも込み）
 
 ```bash
 pnpm git:followup "<issue-title> #<issue-number>" \
+  --merge \
   --notify-message "Implemented <title>:
 - Added ...
 - Changed ..."
@@ -150,6 +151,7 @@ pnpm git:followup "<issue-title> #<issue-number>" \
 
 ```bash
 pnpm git:followup "<issue-title> #<issue-number>" \
+  --merge \
   --notify-message "Implemented <title>:
 - Added ...
 - Fixed ..." \
@@ -160,10 +162,19 @@ pnpm git:followup "<issue-title> #<issue-number>" \
 
 ```bash
 pnpm git:followup "<issue-title> #<issue-number>" \
+  --merge \
   --notify-message "Implemented <title>:
 - Added ...
 - Fixed ..." \
   --ai-review-ignore-reason "該当指摘は別 Issue #123 で追跡中のため"
+```
+
+例4: マージなし（`kickoff` 後や手動マージが必要な場合）
+
+```bash
+pnpm git:followup "<issue-title> #<issue-number>" \
+  --notify-message "Implemented <title>:
+- Added ..."
 ```
 
 ### AI レビューコメントのスキャン（Claude Review / CodeRabbit サマリ）
@@ -193,19 +204,18 @@ pnpm git:followup "<issue-title> #<issue-number>" \
 
 ### Auto-merge（default for `fullrun`）
 
-`fullrun` / `fullrun new` の既定動作として、`pnpm git:followup` 完了・失敗チェック報告・AI レビュー指摘対応の後に PR を直接マージする。ユーザーが `fullrun` を実行した時点で、マージまで含めて承認されたものとみなす（追加キーワードは不要）。
+`fullrun` / `fullrun new` の既定動作として、`pnpm git:followup --merge` が CI 待機・AI レビュー確認・完了通知・マージをまとめて行う。ユーザーが `fullrun` を実行した時点で、マージまで含めて承認されたものとみなす（追加キーワードは不要）。
 
 ```bash
-gh pr merge <pr-number> --merge
+pnpm git:followup "<title> #<N>" --merge --notify-message "..."
 ```
 
-- **マージ前に AI レビュー指摘を必ず解消する**: マージ直前に `gh pr view <pr-number> --json reviews,comments,reviewDecision` で CodeRabbit / Claude Review / SonarQube / 人間のレビューコメントを確認する。対応すべき指摘が残っていれば同一ブランチへ追加コミットで修正し、再度完了ゲート（lint/check/cspell/test）を通してからマージする。**CI がオールグリーンでも、未対応の AI レビュー指摘があるならマージしない**
-- **CodeRabbit のレート制限はマージを止めない**: CodeRabbit のコメントが rate limit 警告のみ（本文に `rate limited by coderabbit.ai` または `Rate limit exceeded` を含む）で実体のあるレビューが無い場合、または最新 commit に対して CodeRabbit のコメントが一切無い場合は、**レート制限切れとみなしてマージへ進む**。`@coderabbitai review` を手動で打ち込んだり、枠が復活するのを待ったりしない（これはインフラ都合であってコードの指摘ではないため）
-- **`--auto` フラグは使わない**: `pnpm git:followup` 完了時点で Required チェックは既にグリーンなので、GitHub の auto-merge 機能（`--auto`）は不要。直接マージの `--merge` だけで十分であり、`allow_auto_merge: true` の repo 設定も不要
-- **マージ戦略**: 既定は `--merge`（merge commit）。リポジトリが `allow_squash_merge` / `allow_rebase_merge` のみを許可している場合はそれに合わせる（`gh api repos/<owner>/<repo> --jq '{allow_merge_commit, allow_squash_merge, allow_rebase_merge}'` で確認）
+- **AI レビュー指摘は自動チェック**: `pnpm git:followup --merge` は CI グリーン後に AI レビュアーの指摘をスキャンする。ブロッカーが残っていれば `confirmation` 通知を送って非ゼロで終了する（マージされない）。指摘を修正して `pnpm git:followup --merge` を再実行する。**CI がオールグリーンでも、未対応の AI レビュー指摘があるならマージしない**
+- **CodeRabbit のレート制限はマージを止めない**: CodeRabbit のコメントが rate limit 警告のみ（本文に `rate limited by coderabbit.ai` または `Rate limit exceeded` を含む）で実体のあるレビューが無い場合、または最新 commit に対して CodeRabbit のコメントが一切無い場合は、**レート制限切れとみなしてマージへ進む**
+- **マージ戦略**: 内部で `gh pr merge <branch> --merge` を実行する。既定は `--merge`（merge commit）。リポジトリが `allow_squash_merge` / `allow_rebase_merge` のみを許可している場合はそれに合わせる（`gh api repos/<owner>/<repo> --jq '{allow_merge_commit, allow_squash_merge, allow_rebase_merge}'` で確認）
 - **ブランチ削除**: `--delete-branch` は既定で付けない。ブランチ削除は別途ユーザーが指示する
 - **失敗時の対応**: branch protection 未達・コンフリクトなどでマージが拒否された場合は、原因を報告して停止する。フラグを変えて再試行したり保護をバイパスしたりしない
-- **マージをスキップしたい場合**: `kickoff`（planning のみ）を使うか、同じターンで明示的に "do not merge" / "do not auto-merge" と伝える。`fullrun` の外では勝手に `gh pr merge` を実行してはならない
+- **マージをスキップしたい場合**: `--merge` フラグを省いて `pnpm git:followup` を実行するか、`kickoff`（planning のみ）を使うか、同じターンで明示的に "do not merge" と伝える。`fullrun` の外では勝手に `gh pr merge` を実行してはならない
 
 ### 指示されていない行動は取らない
 
@@ -221,7 +231,7 @@ PR マージ・ブランチ削除・force push・共有ブランチへの push�
 `task_type=completion`（✅）の Telegram 通知は `pnpm git:followup` が自動送信する経路のみを使う。`pnpm telegram:test --task-type completion ...` を手動で実行してはならない。
 
 - 理由: 手動 CLI では `--pr-url` を明示しない限り PR URL が欠落する。`pnpm git:followup` は内部で `gh pr view <branch> --json url` から PR URL を取得して必ず付与するため、通知から PR リンクが消える事故を防げる
-- 初回 PR 作成時・フォローアップコミット（CodeRabbit 指摘対応や再レビュー対応）・ブランチ再 push のいずれでも、完了を通知したいときは `pnpm git:followup "<title> #<issue-number>" --notify-message "Implemented <title>:\n- <change1>\n- <change2>\n..."` を再実行する
+- 初回 PR 作成時・フォローアップコミット（CodeRabbit 指摘対応や再レビュー対応）・ブランチ再 push のいずれでも、完了を通知したいときは `pnpm git:followup "<title> #<issue-number>" --merge --notify-message "Implemented <title>:\n- <change1>\n- <change2>\n..."` を再実行する（通知はマージ直前に送られる）
 - `pnpm telegram:test` は `planning` / `confirmation` / `kickoff_retry` / `failure` の 4 タスクタイプ専用。`completion` には使わない
 
 ### 確認待ちで停止するときの Telegram 通知（`confirmation`）
