@@ -60,3 +60,9 @@ test('is_cache_entry_shape rejects non-finite expires values so entries cannot l
 	expect(kv_cache_entry.is_cache_entry_shape({ value: 1, expires: -Infinity })).toBe(false)
 	expect(kv_cache_entry.is_cache_entry_shape({ value: 1, expires: Number.NaN })).toBe(false)
 })
+
+test('is_cache_entry_shape rejects arrays even when they carry matching keys', () => {
+	const array_with_keys = Object.assign([], { value: 'x', expires: 1 })
+
+	expect(kv_cache_entry.is_cache_entry_shape(array_with_keys)).toBe(false)
+})

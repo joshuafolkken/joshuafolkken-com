@@ -1,3 +1,4 @@
+import { logger } from '$lib/logger'
 import { expect, test, vi } from 'vitest'
 import { liked_posts_payload } from './liked-posts-payload'
 
@@ -24,7 +25,7 @@ test('returns an empty array for an empty array input', () => {
 })
 
 test('logs parse errors so corrupted storage is observable', () => {
-	const error_spy = vi.spyOn(console, 'error')
+	const error_spy = vi.spyOn(logger, 'error')
 
 	try {
 		liked_posts_payload.parse('not json')

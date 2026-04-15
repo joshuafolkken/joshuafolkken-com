@@ -4,7 +4,7 @@ interface CacheEntry<T> {
 }
 
 function is_object(value: unknown): value is object {
-	return typeof value === 'object' && value !== null
+	return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 function is_cache_entry_shape(candidate: unknown): candidate is CacheEntry<unknown> {
