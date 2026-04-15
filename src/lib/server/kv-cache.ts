@@ -3,12 +3,8 @@
 import { logger } from '$lib/logger'
 import { time_conversion } from '$lib/time-conversion'
 import { cache_log_utilities } from './cache-log-utilities'
+import { kv_cache_entry, type CacheEntry } from './kv-cache-entry'
 import { platform_binding } from './platform-binding'
-
-interface CacheEntry<T> {
-	value: T
-	expires: number
-}
 
 const CACHE_CONFIG = {
 	memory: { minutes: 1 },
@@ -82,29 +78,11 @@ function get_from_memory(key: string, now: number): unknown {
 	return undefined
 }
 
-function is_kv_entry_expired(expires: unknown, now: number): boolean {
-	return typeof expires !== 'number' || Number.isNaN(expires) || expires <= now
-}
-
-function parse_and_validate_kv_entry(
-	kv_entry_string: string,
-	now: number,
-): CacheEntry<unknown> | undefined {
-	try {
-		const kv_entry = JSON.parse(kv_entry_string) as CacheEntry<unknown>
-		if (is_kv_entry_expired(kv_entry.expires, now)) return undefined
-
-		return kv_entry
-	} catch {
-		return undefined
-	}
-}
-
 async function get_from_kv(key: string, kv: KVNamespace, now: number): Promise<unknown> {
 	const kv_entry_string = await kv.get(key)
 	if (!kv_entry_string) return undefined
 
-	const kv_entry = parse_and_validate_kv_entry(kv_entry_string, now)
+	const kv_entry = kv_cache_entry.parse_and_validate(kv_entry_string, now)
 	if (!kv_entry) return undefined
 
 	set_to_memory(key, kv_entry.value, now)

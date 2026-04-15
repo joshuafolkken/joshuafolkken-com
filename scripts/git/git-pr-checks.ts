@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { git_gh_command } from './git-gh-command'
 
 // cspell:words coderabbit
@@ -5,9 +6,22 @@ import { git_gh_command } from './git-gh-command'
 const CHECK_STATUS_PASS = 'pass'
 const CHECK_STATUS_PENDING = 'pending'
 const CHECK_STATUS_FAIL = 'fail'
-const REQUIRED_CHECKS = ['Workers Builds: tasks', 'CodeRabbit', 'SonarQube']
+const PACKAGE_JSON_PATH = 'package.json'
 const CHECK_WAIT_INTERVAL_MS = 10_000
 const CHECK_MAX_ATTEMPTS = 18
+
+function parse_repo_name_from_package(package_json_content: string): string {
+	const { name } = JSON.parse(package_json_content) as { name?: unknown }
+
+	if (typeof name !== 'string' || name.length === 0) {
+		throw new Error('package.json name field is missing or not a non-empty string')
+	}
+
+	return name
+}
+
+const REPO_NAME = parse_repo_name_from_package(readFileSync(PACKAGE_JSON_PATH, 'utf8'))
+const REQUIRED_CHECKS = [`Workers Builds: ${REPO_NAME}`, 'CodeRabbit', 'SonarQube']
 
 const KEY_TYPE_NAME = '__typename'
 const KEY_STATE = 'state'
@@ -154,5 +168,5 @@ const git_pr_checks = {
 	assert_required_checks_passed,
 }
 
-export { git_pr_checks }
+export { git_pr_checks, parse_repo_name_from_package }
 export type { RollupCheck }
