@@ -54,6 +54,8 @@ jobs:
           go-version: stable
 
       - name: Install osv-scanner
+        # Intentionally unpinned: a vulnerability scanner should always pull the
+        # newest detector + advisory set. The determinism tradeoff is accepted.
         run: go install github.com/google/osv-scanner/v2/cmd/osv-scanner@latest
 
       - name: Run security audit
