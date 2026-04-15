@@ -48,5 +48,7 @@
 		"projectKey": "joshuafolkken_joshuafolkken-com"
 	},
 	"claudeCode.initialPermissionMode": "bypassPermissions",
-	"claudeCode.allowDangerouslySkipPermissions": true
+	"claudeCode.allowDangerouslySkipPermissions": true,
+	"claudeCode.useCtrlEnterToSend": true,
+	"claudeCode.enableNewConversationShortcut": true
 }
