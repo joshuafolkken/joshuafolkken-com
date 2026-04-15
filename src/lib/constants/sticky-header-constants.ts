@@ -1,3 +1,5 @@
+import { INTERACTIVE_SCALE_HOVER } from './interactive-effects'
+
 const MENU_WIDTH = 280
 const HEADER_ICON_SIZE = 24
 const HEADER_FADE_DURATION_MS = 300
@@ -30,11 +32,10 @@ const HEADER_LOGO_GLOW_CLASS =
 const ICON_BUTTON_BASE =
 	'flex h-9 w-9 items-center justify-center rounded-xl text-white/50 hover:text-white'
 
-const SOCIAL_LINK_DESKTOP_CLASSES = `cyber-glow-hover ${ICON_BUTTON_BASE} hover:scale-110 active:scale-95`
+const SOCIAL_LINK_DESKTOP_CLASSES = `cyber-glow-hover ${ICON_BUTTON_BASE} ${INTERACTIVE_SCALE_HOVER}`
 
-const MENU_TOGGLE_BUTTON_CLASSES = `cyber-glow-hover ${ICON_BUTTON_BASE} md:hidden hover:scale-110 active:scale-95`
-const SOCIAL_LINK_MOBILE_CLASSES =
-	'cyber-glow-hover flex h-10 w-10 items-center justify-center rounded-full text-white/70 hover:text-white hover:scale-110 active:scale-95'
+const MENU_TOGGLE_BUTTON_CLASSES = `cyber-glow-hover ${ICON_BUTTON_BASE} md:hidden ${INTERACTIVE_SCALE_HOVER}`
+const SOCIAL_LINK_MOBILE_CLASSES = `cyber-glow-hover flex h-10 w-10 items-center justify-center rounded-full text-white/70 hover:text-white ${INTERACTIVE_SCALE_HOVER}`
 const SOCIAL_LINK_CONTAINER_DESKTOP = 'hidden items-center gap-2 md:flex'
 const SOCIAL_LINK_CONTAINER_MOBILE = 'mt-4 flex gap-2 p-4 pt-0 md:hidden'
 
