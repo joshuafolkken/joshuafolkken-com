@@ -13,7 +13,7 @@ const NAV_ICON_SIZE = '1.25rem'
 const MENU_NAV_DESKTOP_BASE =
 	'cyber-glow-hover group relative flex items-center gap-2 rounded-lg px-3 py-2 text-base font-medium'
 const MENU_NAV_MOBILE_BASE =
-	'group -mx-4 flex items-center gap-3 rounded-none border-l-2 px-4 py-3 text-base transition-colors duration-300 hover:bg-white/10'
+	'cyber-glow-hover group -mx-4 flex items-center gap-3 rounded-none border-l-2 px-4 py-3 text-base transition-colors duration-300 hover:bg-white/10'
 const MENU_NAV_ACTIVE_DESKTOP = 'text-sky-400'
 const MENU_NAV_INACTIVE_DESKTOP = 'text-white/60 hover:text-white'
 const MENU_NAV_ACTIVE_MOBILE =
