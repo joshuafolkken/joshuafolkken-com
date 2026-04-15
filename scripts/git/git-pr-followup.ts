@@ -191,9 +191,7 @@ async function run_checks(input: { branch_name: string; is_skip_watch: boolean }
 		await git_gh_command.pr_checks_watch(input.branch_name)
 	}
 
-	const checks = await git_pr_checks.wait_checks_completed(input.branch_name)
-
-	git_pr_checks.assert_required_checks_passed(checks)
+	await git_pr_checks.wait_for_pr_success(input.branch_name)
 }
 
 async function fetch_telegram_context(input: {

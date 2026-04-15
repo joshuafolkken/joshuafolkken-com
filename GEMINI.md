@@ -66,7 +66,7 @@ For every code modification, follow this order exactly:
 1. **Refactor first** _(mandatory before lint or tests)_: apply high/medium-priority refactoring to all new/modified code — see `prompts/refactoring.md`. Do not proceed until no high/medium items remain.
 2. **Tests**: add/update unit tests (Vitest) + E2E tests (Playwright) for all behavior changes — see `prompts/testing-guide.md`
    - **E2E cleanup / leaked data**: When fixing issues where E2E leaves database or UI artifacts, follow the **Regression fix workflow** in `prompts/testing-guide.md` (add a failing guard → fix → confirm green). Prefer stable selectors (`data-testid`) over locale-dependent strings for teardown.
-3. **Lint**: run `pnpm run lint` then `pnpm run check`; fix all errors before reporting done
+3. **Lint**: run `pnpm run lint` then `pnpm run check:ci`; fix all errors before reporting done. `pnpm run check:ci` matches CI's strict type-check — a green local run implies a green CI type-check. Do not substitute `pnpm run check` (incremental / fast) at gate time.
 4. **Spell check**: `pnpm cspell:dot`; add legitimate project terms to `cspell.config.yaml`
 5. **IDE feedback**: check IDE lint output — often more current than terminal
 6. Never say "it should pass" without running commands. Never finish while errors exist.
@@ -82,7 +82,7 @@ Run the full verification set **in order**. **Do not** skip or reorder steps. **
 
 1. **Refactor** — read and execute `prompts/refactoring.md` on all changed files. Converge until no high/medium items remain. **Do not proceed to step 2 until complete.**
 2. `pnpm run lint`
-3. `pnpm run check`
+3. `pnpm run check:ci` — strict type-check matching CI (uses `svelte-check`, not the incremental fast variant). A green local run must imply a green CI type-check; do not substitute `pnpm run check`.
 4. `pnpm cspell:dot`
 5. `pnpm test:unit --run`
 6. **IDE feedback**: zero **errors** on every file you changed (warnings only when documented as an allowed exception).
