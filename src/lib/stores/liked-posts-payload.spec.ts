@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 import { liked_posts_payload } from './liked-posts-payload'
 
 test('returns an empty array when the JSON root is not an array', () => {
@@ -21,4 +21,13 @@ test('filters out non-string elements while keeping strings', () => {
 
 test('returns an empty array for an empty array input', () => {
 	expect(liked_posts_payload.parse('[]')).toStrictEqual([])
+})
+
+test('logs parse errors so corrupted storage is observable', () => {
+	const error_spy = vi.spyOn(console, 'error').mockImplementation(vi.fn())
+
+	liked_posts_payload.parse('not json')
+
+	expect(error_spy).toHaveBeenCalled()
+	error_spy.mockRestore()
 })
