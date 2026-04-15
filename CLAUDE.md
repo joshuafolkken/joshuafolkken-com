@@ -68,7 +68,12 @@ For every code modification, follow this order exactly:
    - UI / animation / timing fix → E2E test for the observable behavior change
    - Logic / utility change → unit test
    - **Refactoring → write unit/E2E tests that verify existing behavior BEFORE making any structural changes** — see `prompts/refactoring.md`
-   - If a test is genuinely infeasible, state the reason explicitly and obtain user approval before proceeding.
+   - **Non-runtime updates (pre-approved manual-only exception)**: Changes that do not add or modify any executable runtime code path may proceed with manual verification only — no automated test and no per-task approval required. Declare the change in Step 0, state why no runtime code is affected, and describe the manual verification plan. This covers:
+     - `.vscode/`, `.editorconfig`, and other editor / IDE preference files
+     - Documentation-only files (`*.md`, `prompts/*`, `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`)
+     - Non-executable config (`cspell.config.yaml`, `.gitignore`, `.prettierignore`, etc.)
+     - Purely cosmetic asset swaps with no code-side selector / path change
+   - If a test is genuinely infeasible for a change that **does** affect runtime code, state the reason explicitly and obtain user approval before proceeding.
 
 1. **Refactor first** _(mandatory before lint or tests)_: apply high/medium-priority refactoring to all new/modified code — see `prompts/refactoring.md`. Do not proceed until no high/medium items remain.
 2. **Tests**: implement the tests declared in Step 0. See `prompts/testing-guide.md`.
@@ -87,7 +92,7 @@ Run the full verification set **in order**. **Do not** skip or reorder steps. **
 
 **E2E:** The user runs `pnpm test` and shares the full output. Do **not** claim completion until the user confirms E2E passed or explicitly scopes it out.
 
-0. **Test gate** — Count (a) code changes made and (b) tests added/updated. If b = 0 and no infeasibility was approved by the user, **stop** — go back to Code Change Rules Step 0 and add tests before continuing.
+0. **Test gate** — Count (a) code changes made and (b) tests added/updated. If b = 0, allow the run to continue **only** when every change falls under the pre-approved non-runtime exception (see Code Change Rules Step 0) or the user has explicitly approved the infeasibility. Otherwise **stop** — go back to Code Change Rules Step 0 and add tests before continuing.
 1. **Refactor** — read and execute `prompts/refactoring.md` on all changed files. Converge until no high/medium items remain. **Do not proceed to step 2 until complete.**
 2. `pnpm run lint`
 3. `pnpm run check`
@@ -106,6 +111,7 @@ If you changed **only** docs or config that does not affect tests, still run lin
 
 - **No commits** unless explicitly requested by the user
 - For git operations: use `scripts/git-workflow.ts` via `pnpm git`
+- **Start-of-conversation git status is a stale snapshot.** The `gitStatus` block in the environment preamble is captured once at session start and never refreshes. Before acting on any assumption about working-tree / index / stash / branch state (including "there are uncommitted changes", "staged files remain", "branch is behind"), run `git status` (and `git stash list` if relevant) live first. Never report state, propose a stash/checkout/reset plan, or ask the user to confirm cleanup based on the snapshot alone.
 
 ## Collaboration Workflow
 
