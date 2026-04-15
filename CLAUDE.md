@@ -150,6 +150,7 @@ gh pr merge <pr-number> --merge
 ```
 
 - **Address AI review findings first.** Before merging, inspect `gh pr view <pr-number> --json reviews,comments,reviewDecision` for CodeRabbit / Claude Review / SonarQube / human review comments. If any actionable findings exist, fix them in new commits on the same branch, re-run the completion gate, and only then merge. **Green CI is not authorization to merge while AI review findings are open.**
+- **CodeRabbit rate-limit is not a finding.** If the only CodeRabbit comment is a rate-limit warning (body contains `rate limited by coderabbit.ai` or `Rate limit exceeded`) and there is no substantive review, treat it as "no findings" and proceed to merge. Do **not** trigger `@coderabbitai review` or wait for the quota to refill — the rate limit is an infra condition, not a code issue. The same applies if CodeRabbit produced no comment at all on the latest commit.
 - Use direct merge (`--merge`), not GitHub's `--auto` flag. All required checks are already green by this point (followup waits for them), so direct merge is sufficient and avoids the `allow_auto_merge: true` repo prerequisite.
 - Use the merge strategy the repo allows (`--merge` / `--squash` / `--rebase`). Default to `--merge`. Inspect with `gh api repos/<owner>/<repo> --jq '{allow_merge_commit, allow_squash_merge, allow_rebase_merge}'` when unsure.
 - Do **not** pass `--delete-branch` unless the user asks. Branch cleanup is a separate explicit instruction.

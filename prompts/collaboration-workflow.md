@@ -178,6 +178,7 @@ gh pr merge <pr-number> --merge
 ```
 
 - **マージ前に AI レビュー指摘を必ず解消する**: マージ直前に `gh pr view <pr-number> --json reviews,comments,reviewDecision` で CodeRabbit / Claude Review / SonarQube / 人間のレビューコメントを確認する。対応すべき指摘が残っていれば同一ブランチへ追加コミットで修正し、再度完了ゲート（lint/check/cspell/test）を通してからマージする。**CI がオールグリーンでも、未対応の AI レビュー指摘があるならマージしない**
+- **CodeRabbit のレート制限はマージを止めない**: CodeRabbit のコメントが rate limit 警告のみ（本文に `rate limited by coderabbit.ai` または `Rate limit exceeded` を含む）で実体のあるレビューが無い場合、または最新 commit に対して CodeRabbit のコメントが一切無い場合は、**レート制限切れとみなしてマージへ進む**。`@coderabbitai review` を手動で打ち込んだり、枠が復活するのを待ったりしない（これはインフラ都合であってコードの指摘ではないため）
 - **`--auto` フラグは使わない**: `pnpm git:followup` 完了時点で Required チェックは既にグリーンなので、GitHub の auto-merge 機能（`--auto`）は不要。直接マージの `--merge` だけで十分であり、`allow_auto_merge: true` の repo 設定も不要
 - **マージ戦略**: 既定は `--merge`（merge commit）。リポジトリが `allow_squash_merge` / `allow_rebase_merge` のみを許可している場合はそれに合わせる（`gh api repos/<owner>/<repo> --jq '{allow_merge_commit, allow_squash_merge, allow_rebase_merge}'` で確認）
 - **ブランチ削除**: `--delete-branch` は既定で付けない。ブランチ削除は別途ユーザーが指示する
