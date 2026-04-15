@@ -25,6 +25,7 @@ ignorePaths:
 words:
   - aboutads
   - adsbygoogle
+  - domcontentloaded
   - ADSENSE
   - adsense
   - googlesyndication

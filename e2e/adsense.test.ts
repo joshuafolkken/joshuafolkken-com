@@ -23,32 +23,32 @@ async function has_adsense_script(page: Page): Promise<boolean> {
 
 test.describe('AdSense script placement', () => {
 	test('present on /about', async ({ page }) => {
-		await page.goto(ABOUT_PATH)
+		await page.goto(ABOUT_PATH, { waitUntil: 'domcontentloaded' })
 		expect(await has_adsense_script(page)).toBe(true)
 	})
 
 	test('present on /blog list', async ({ page }) => {
-		await page.goto(BLOG_PATH)
+		await page.goto(BLOG_PATH, { waitUntil: 'domcontentloaded' })
 		expect(await has_adsense_script(page)).toBe(true)
 	})
 
 	test('present on /blog/[slug]', async ({ page }) => {
-		await page.goto(BLOG_POST_PATH)
+		await page.goto(BLOG_POST_PATH, { waitUntil: 'domcontentloaded' })
 		expect(await has_adsense_script(page)).toBe(true)
 	})
 
 	test('absent on /', async ({ page }) => {
-		await page.goto(HOME_PATH)
+		await page.goto(HOME_PATH, { waitUntil: 'domcontentloaded' })
 		expect(await has_adsense_script(page)).toBe(false)
 	})
 
 	test('absent on /projects', async ({ page }) => {
-		await page.goto(PROJECTS_PATH)
+		await page.goto(PROJECTS_PATH, { waitUntil: 'domcontentloaded' })
 		expect(await has_adsense_script(page)).toBe(false)
 	})
 
 	test('absent on /contact', async ({ page }) => {
-		await page.goto(CONTACT_PATH)
+		await page.goto(CONTACT_PATH, { waitUntil: 'domcontentloaded' })
 		expect(await has_adsense_script(page)).toBe(false)
 	})
 })
