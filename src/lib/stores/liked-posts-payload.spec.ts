@@ -26,8 +26,10 @@ test('returns an empty array for an empty array input', () => {
 test('logs parse errors so corrupted storage is observable', () => {
 	const error_spy = vi.spyOn(console, 'error')
 
-	liked_posts_payload.parse('not json')
-
-	expect(error_spy).toHaveBeenCalled()
-	error_spy.mockRestore()
+	try {
+		liked_posts_payload.parse('not json')
+		expect(error_spy).toHaveBeenCalled()
+	} finally {
+		error_spy.mockRestore()
+	}
 })
