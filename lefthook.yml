@@ -6,7 +6,7 @@ pre-commit:
       run: pnpm run prevent-main-commit
 
     audit:
-      run: pnpm audit
+      run: pnpm audit:security
 
     cspell:
       glob: '*.{ts,tsx,js,jsx,svelte,md,mdx,html,css,scss,yml,yaml}'
