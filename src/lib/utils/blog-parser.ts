@@ -6,6 +6,7 @@ interface MdsvexMetadata {
 	title?: unknown
 	date?: unknown
 	updated?: unknown
+	author?: unknown
 	excerpt?: unknown
 	cover_image?: unknown
 }
@@ -27,12 +28,19 @@ function is_optional_string(value: unknown): boolean {
 	return value === undefined || typeof value === 'string'
 }
 
-function has_valid_metadata(metadata: MdsvexMetadata): metadata is BlogMetadata {
+function has_required_string_fields(metadata: MdsvexMetadata): boolean {
 	return (
 		typeof metadata.title === 'string' &&
 		typeof metadata.date === 'string' &&
+		typeof metadata.excerpt === 'string'
+	)
+}
+
+function has_valid_metadata(metadata: MdsvexMetadata): metadata is BlogMetadata {
+	return (
+		has_required_string_fields(metadata) &&
 		is_optional_string(metadata.updated) &&
-		typeof metadata.excerpt === 'string' &&
+		is_optional_string(metadata.author) &&
 		is_optional_string(metadata.cover_image)
 	)
 }
@@ -69,6 +77,7 @@ function parse_post(path: string, file: unknown): Post | undefined {
 		title: file.metadata.title,
 		date: file.metadata.date,
 		updated: file.metadata.updated,
+		author: file.metadata.author,
 		excerpt: file.metadata.excerpt,
 		cover_image,
 	}

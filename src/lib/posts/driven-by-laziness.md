@@ -1,6 +1,7 @@
 ---
 title: 単純作業アレルギーの僕らが、プログラミングにハマる必然的な理由
 date: '2025-11-20'
+author: 'Joshua Folkken'
 updated: '2025-11-24'
 cover_image: /images/blog/aron-visuals-BXOXnQ26B7o-unsplash.webp
 excerpt: コスパ、タイパ、大切ですよね。YouTube にも再生速度を変える機能があるじゃないですか。自分の快適だと思う速度で見てしまいますよね。

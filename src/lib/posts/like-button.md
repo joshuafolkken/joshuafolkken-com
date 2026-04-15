@@ -1,6 +1,7 @@
 ---
 title: サーバー代 0円 で「いいね機能」を実現する。TURSO × SvelteKit 最強説
 date: '2025-11-23'
+author: 'Joshua Folkken'
 updated: '2025-11-24'
 cover_image: /images/blog/yana-nikulina-1HtzdbptBr4-unsplash.webp
 excerpt: サーバー代はかけたくない、でも高速に動かしたい。そんなワガママを叶える「TURSO × SvelteKit」で、理想のいいね機能を実装しました。

@@ -1,6 +1,7 @@
 ---
 title: TechStack を大幅リニューアル！技術追加・カテゴリ整理・アニメーション実装まで
 date: '2025-11-24 20:40'
+author: 'Joshua Folkken'
 cover_image: /images/blog/christopher-gower-m_HRfLhgABo-unsplash.webp
 excerpt: プロフィールページの技術スタック一覧を大規模にアップデート。使用技術の追加、カテゴリ整理、スクロールアニメーション実装まで。データ駆動型にリファクタリングしてメンテナンス性も向上。
 ---

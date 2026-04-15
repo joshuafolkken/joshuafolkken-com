@@ -1,6 +1,7 @@
 ---
 title: SvelteKit × mdsvex × Tailwind。モダンな技術でブログをフルスクラッチした
 date: '2025-11-20'
+author: 'Joshua Folkken'
 updated: '2025-11-24'
 cover_image: /images/blog/domenico-loia-hGV2TfOh0ns-unsplash.webp
 excerpt: これからブログみたいなもんを始めていこうかと思います！WordPress のようなブログシステムみたいなものを使いたいわけではなく、かといって HTML, CSS を直接書いてページを作りたいわけでもなく。
