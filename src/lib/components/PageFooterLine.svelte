@@ -2,13 +2,7 @@
 	import { resolve } from '$app/paths'
 	import { APP, AUTHOR } from '$lib/app'
 	import { CONTENT_EDGE_SPACING_CLASS, LINK_BASE_CLASS } from '$lib/constants/layout'
-	import { PAGES } from '$lib/types/page'
-
-	const FOOTER_LINKS = [
-		{ href: resolve('/contact'), title: PAGES.CONTACT.title },
-		{ href: resolve('/privacy'), title: PAGES.PRIVACY_POLICY.title },
-		{ href: resolve('/terms'), title: PAGES.TERMS_OF_SERVICE.title },
-	]
+	import { FOOTER_LINKS } from '$lib/utils/footer-links'
 </script>
 
 <div

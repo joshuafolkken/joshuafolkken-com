@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths'
 	import { APP, AUTHOR, LINK_REL, LINK_TARGET, OPENCOLLECTIVE } from '$lib/app'
 	import AdSenseScript from '$lib/components/AdSenseScript.svelte'
 	import EngagementButtons from '$lib/components/EngagementButtons.svelte'
@@ -11,18 +12,19 @@
 	import { BLOCKQUOTE_CLASS, LINK_BASE_DEFAULT_CLASS } from '$lib/constants/layout'
 	import { PAGES } from '$lib/types/page'
 
-	const title = `${PAGES.PROFILE.title} - ${AUTHOR.NAME}`
+	const title = `${PAGES.ABOUT.title} - ${AUTHOR.NAME}`
+	const contact_href = resolve('/contact')
 </script>
 
 <svelte:head>
 	<title>{title}</title>
-	<meta name="description" content={PAGES.PROFILE.description} />
+	<meta name="description" content={PAGES.ABOUT.description} />
 </svelte:head>
 
 <AdSenseScript />
 
 <PageLayout>
-	<PageHeader page={PAGES.PROFILE} />
+	<PageHeader page={PAGES.ABOUT} />
 
 	<PageSection title="Hi there! 👋 I'm {AUTHOR.NAME}">
 		<p class="mt-4 text-lg text-white/80">
@@ -121,6 +123,15 @@
 		</div>
 	</PageSection>
 
+	<!-- Get in touch -->
+	<PageSection title="📬 Get in touch">
+		<p>
+			Questions, collaboration ideas, or just want to say hi? Head over to the
+			<a href={contact_href} class={LINK_BASE_DEFAULT_CLASS}>contact page</a>
+			— I read every message.
+		</p>
+	</PageSection>
+
 	<!-- Footer Message -->
 	<PageSection title="⭐️ Thanks for visiting! ⭐️">
 		<div>
@@ -133,5 +144,5 @@
 	</PageSection>
 
 	<SupportBox />
-	<EngagementButtons slug="page:profile" {title} />
+	<EngagementButtons slug="page:about" {title} />
 </PageLayout>
