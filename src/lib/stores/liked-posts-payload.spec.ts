@@ -30,7 +30,7 @@ test('logs parse errors so corrupted storage is observable', () => {
 
 	try {
 		liked_posts_payload.parse('not json')
-		expect(error_spy).toHaveBeenCalled()
+		expect(error_spy).toHaveBeenCalledWith('Failed to parse liked posts:', expect.any(SyntaxError))
 	} finally {
 		error_spy.mockRestore()
 	}

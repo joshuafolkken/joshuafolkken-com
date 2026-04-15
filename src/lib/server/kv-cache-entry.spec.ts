@@ -2,7 +2,8 @@ import { expect, test } from 'vitest'
 import { kv_cache_entry } from './kv-cache-entry'
 
 const NOW = 1_000_000
-const FUTURE_EXPIRES = NOW + 1000
+const FUTURE_OFFSET_MS = 1000
+const FUTURE_EXPIRES = NOW + FUTURE_OFFSET_MS
 const PAST_EXPIRES = NOW - 1
 
 test('parses a valid non-expired entry', () => {
