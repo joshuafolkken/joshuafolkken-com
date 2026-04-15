@@ -21,7 +21,7 @@ type PageKey =
 	| 'TOP'
 	| 'TALK'
 	| 'PROJECTS'
-	| 'PROFILE'
+	| 'ABOUT'
 	| 'SOCIAL_LINKS'
 	| 'CONTACT'
 	| 'PRIVACY_POLICY'
@@ -49,11 +49,11 @@ const PROJECTS: Page = {
 	link: '/projects',
 }
 
-const PROFILE: Page = {
+const ABOUT: Page = {
 	icon: UserIcon,
-	title: 'Profile',
-	description: `About me`,
-	link: '/profile',
+	title: 'About',
+	description: 'Who I am and what I build',
+	link: '/about',
 }
 
 const SOCIAL_LINKS: Page = {
@@ -101,7 +101,7 @@ const PAGES: Record<PageKey, Page> = {
 	TOP,
 	TALK,
 	PROJECTS,
-	PROFILE,
+	ABOUT,
 	SOCIAL_LINKS,
 	CONTACT,
 	PRIVACY_POLICY,
@@ -110,7 +110,7 @@ const PAGES: Record<PageKey, Page> = {
 	BLOG,
 }
 
-const MAIN_NAV_PAGES = [PAGES.PROJECTS, PAGES.BLOG, PAGES.PROFILE] as const
+const MAIN_NAV_PAGES = [PAGES.PROJECTS, PAGES.BLOG, PAGES.ABOUT] as const
 
 export { MAIN_NAV_PAGES, PAGES }
 export type { Page, PageKey }

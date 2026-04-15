@@ -53,7 +53,7 @@
 				Explore Work
 			</a>
 			<a
-				href={link_utilities.get_href(PAGES.PROFILE.link) ?? '#'}
+				href={link_utilities.get_href(PAGES.ABOUT.link) ?? '#'}
 				class="{HERO_CTA_BASE_CLASS} {HERO_CTA_SECONDARY_CLASS}"
 			>
 				About Me
