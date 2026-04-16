@@ -9,6 +9,6 @@
 </script>
 
 <div class={CARD_IMAGE_WRAPPER_CLASS}>
-	<img {src} {alt} class={CARD_IMAGE_CLASS} />
+	<img {src} {alt} class={CARD_IMAGE_CLASS} loading="lazy" />
 	<div class={CARD_IMAGE_OVERLAY_CLASS}></div>
 </div>

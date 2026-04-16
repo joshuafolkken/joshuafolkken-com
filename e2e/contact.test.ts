@@ -1,7 +1,5 @@
 import { expect, test } from '@playwright/test'
-
-const CONTACT_PATH = '/contact'
-const HOME_PATH = '/'
+import { TEST_ROUTES } from './test-routes'
 
 const CONTACT_TITLE = 'Contact'
 const EMAIL_ADDRESS = 'joshuafolkken@gmail.com'
@@ -28,7 +26,7 @@ const YOUTUBE_HREF = 'https://www.youtube.com/@Joshuafolkken-studio'
 
 test.describe('Contact page', () => {
 	test('renders h1 Contact', async ({ page }) => {
-		await page.goto(CONTACT_PATH)
+		await page.goto(TEST_ROUTES.CONTACT)
 
 		await expect(
 			page.getByRole(HEADING_ROLE, { level: LEVEL_1, name: CONTACT_TITLE }),
@@ -36,7 +34,7 @@ test.describe('Contact page', () => {
 	})
 
 	test('lists social links in X, GitHub, YouTube order with expected URLs', async ({ page }) => {
-		await page.goto(CONTACT_PATH)
+		await page.goto(TEST_ROUTES.CONTACT)
 
 		const social_heading = page.getByRole(HEADING_ROLE, {
 			level: LEVEL_2,
@@ -52,7 +50,7 @@ test.describe('Contact page', () => {
 	})
 
 	test('does not leak the full email address in the initial HTML', async ({ page }) => {
-		await page.goto(CONTACT_PATH)
+		await page.goto(TEST_ROUTES.CONTACT)
 
 		await expect(page.getByRole(BUTTON_ROLE, { name: REVEAL_BUTTON_NAME })).toBeVisible()
 
@@ -61,7 +59,7 @@ test.describe('Contact page', () => {
 	})
 
 	test('reveals the email address and mailto link after clicking reveal', async ({ page }) => {
-		await page.goto(CONTACT_PATH)
+		await page.goto(TEST_ROUTES.CONTACT)
 		await page.waitForLoadState('networkidle')
 
 		await page.getByRole(BUTTON_ROLE, { name: REVEAL_BUTTON_NAME }).click()
@@ -75,7 +73,7 @@ test.describe('Contact page', () => {
 
 test.describe('Reveal button hover affordance', () => {
 	test('uses a pointer cursor', async ({ page }) => {
-		await page.goto(CONTACT_PATH)
+		await page.goto(TEST_ROUTES.CONTACT)
 
 		await expect(page.getByRole(BUTTON_ROLE, { name: REVEAL_BUTTON_NAME })).toHaveCSS(
 			'cursor',
@@ -84,7 +82,7 @@ test.describe('Reveal button hover affordance', () => {
 	})
 
 	test('swaps the icon on hover', async ({ page }) => {
-		await page.goto(CONTACT_PATH)
+		await page.goto(TEST_ROUTES.CONTACT)
 
 		const default_icon = page.getByTestId(ICON_DEFAULT_TESTID)
 		const hover_icon = page.getByTestId(ICON_HOVER_TESTID)
@@ -101,7 +99,7 @@ test.describe('Reveal button hover affordance', () => {
 
 test.describe('Footer Contact link', () => {
 	test('home footer shows a Contact link that navigates to /contact', async ({ page }) => {
-		await page.goto(HOME_PATH)
+		await page.goto(TEST_ROUTES.HOME)
 
 		const contact_link = page.getByRole(LINK_ROLE, { name: CONTACT_TITLE }).first()
 
