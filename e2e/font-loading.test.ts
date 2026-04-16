@@ -33,12 +33,12 @@ test.describe('Font loading strategy', () => {
 	test('Google Fonts stylesheet loads with media=print for non-blocking delivery', async ({
 		page,
 	}) => {
-		await page.goto('/')
+		// Check the raw SSR HTML: onload changes media to "all" after load,
+		// so the live DOM reflects the post-load state, not the initial attribute.
+		const response = await page.goto('/')
+		const html = (await response?.text()) ?? ''
 
-		const stylesheet = page.locator(
-			`link[rel="stylesheet"][media="print"][href="${GOOGLE_FONTS_CSS_URL}"]`,
-		)
-
-		await expect(stylesheet).toHaveCount(1)
+		expect(html).toContain(`href="${GOOGLE_FONTS_CSS_URL}"`)
+		expect(html).toContain('media="print"')
 	})
 })
