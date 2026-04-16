@@ -22,11 +22,33 @@ test.describe('Font loading strategy', () => {
 		await expect(preconnect).toHaveCount(1)
 	})
 
-	test('head contains stylesheet link to Google Fonts', async ({ page }) => {
+	test('head contains preload hint for Google Fonts CSS', async ({ page }) => {
 		await page.goto('/')
 
-		const stylesheet = page.locator(`link[rel="stylesheet"][href="${GOOGLE_FONTS_CSS_URL}"]`)
+		const preload = page.locator(`link[rel="preload"][as="style"][href="${GOOGLE_FONTS_CSS_URL}"]`)
 
-		await expect(stylesheet).toHaveCount(1)
+		await expect(preload).toHaveCount(1)
+	})
+
+	test('Google Fonts stylesheet loads with media=print for non-blocking delivery', async ({
+		page,
+	}) => {
+		// Check the raw SSR HTML: onload changes media to "all" after load,
+		// so the live DOM reflects the post-load state, not the initial attribute.
+		const response = await page.goto('/')
+		const html = (await response?.text()) ?? ''
+
+		// SvelteKit SSR HTML-encodes & as &amp; in attribute values
+		expect(html).toContain(`href="${GOOGLE_FONTS_CSS_URL.replaceAll('&', '&amp;')}"`)
+		expect(html).toContain('media="print"')
+	})
+
+	test('head contains noscript fallback for browsers with JS disabled', async ({ page }) => {
+		const response = await page.goto('/')
+		const html = (await response?.text()) ?? ''
+
+		// Verify the SSR HTML contains a <noscript> fallback so fonts load without JS
+		expect(html).toContain('<noscript>')
+		expect(html).toContain(GOOGLE_FONTS_CSS_URL.replaceAll('&', '&amp;'))
 	})
 })

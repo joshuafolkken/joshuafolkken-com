@@ -16,17 +16,27 @@
 		children: Snippet
 	}
 
+	const GOOGLE_FONTS_URL =
+		'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap'
+
 	const { children }: Props = $props()
+
+	function on_font_load(event: Event): void {
+		const link = event.target as HTMLLinkElement
+
+		link.media = 'all'
+	}
 </script>
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
 	<title>{AUTHOR.NAME}</title>
 	<meta name="description" content={APP.DESCRIPTION} />
-	<link
-		rel="stylesheet"
-		href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"
-	/>
+	<link rel="preload" as="style" href={GOOGLE_FONTS_URL} />
+	<link rel="stylesheet" href={GOOGLE_FONTS_URL} media="print" onload={on_font_load} />
+	<noscript>
+		<link rel="stylesheet" href={GOOGLE_FONTS_URL} />
+	</noscript>
 </svelte:head>
 
 <ProgressBar
