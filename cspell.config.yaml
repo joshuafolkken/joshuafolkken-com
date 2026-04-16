@@ -72,6 +72,8 @@ words:
   - Ghsas
   - godotengine
   - gsub
+  - gstatic
+  - NOSONAR
   - Hotspots
   - ianvs
   - imagetools
