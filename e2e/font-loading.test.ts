@@ -42,4 +42,13 @@ test.describe('Font loading strategy', () => {
 		expect(html).toContain(`href="${GOOGLE_FONTS_CSS_URL.replaceAll('&', '&amp;')}"`)
 		expect(html).toContain('media="print"')
 	})
+
+	test('head contains noscript fallback for browsers with JS disabled', async ({ page }) => {
+		const response = await page.goto('/')
+		const html = (await response?.text()) ?? ''
+
+		// Verify the SSR HTML contains a <noscript> fallback so fonts load without JS
+		expect(html).toContain('<noscript>')
+		expect(html).toContain(GOOGLE_FONTS_CSS_URL.replaceAll('&', '&amp;'))
+	})
 })
