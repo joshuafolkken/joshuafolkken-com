@@ -38,7 +38,8 @@ test.describe('Font loading strategy', () => {
 		const response = await page.goto('/')
 		const html = (await response?.text()) ?? ''
 
-		expect(html).toContain(`href="${GOOGLE_FONTS_CSS_URL}"`)
+		// SvelteKit SSR HTML-encodes & as &amp; in attribute values
+		expect(html).toContain(`href="${GOOGLE_FONTS_CSS_URL.replaceAll('&', '&amp;')}"`)
 		expect(html).toContain('media="print"')
 	})
 })
