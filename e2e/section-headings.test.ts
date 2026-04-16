@@ -1,7 +1,5 @@
 import { expect, test } from '@playwright/test'
-
-const HOME_PATH = '/'
-const ABOUT_PATH = '/about'
+import { TEST_ROUTES } from './test-routes'
 
 const HEADING_ROLE = 'heading'
 const LEVEL_2 = 2
@@ -13,16 +11,16 @@ const DISCOVER = 'Discover'
 const TOP_SUPPORTERS = 'Top Supporters'
 
 const UNIFIED_HEADINGS: ReadonlyArray<{ name: string; path: string }> = [
-	{ name: TECH_STACK, path: ABOUT_PATH },
-	{ name: FEATURED_PROJECTS, path: HOME_PATH },
-	{ name: SKILLS, path: HOME_PATH },
-	{ name: DISCOVER, path: HOME_PATH },
-	{ name: TOP_SUPPORTERS, path: HOME_PATH },
+	{ name: TECH_STACK, path: TEST_ROUTES.ABOUT },
+	{ name: FEATURED_PROJECTS, path: TEST_ROUTES.HOME },
+	{ name: SKILLS, path: TEST_ROUTES.HOME },
+	{ name: DISCOVER, path: TEST_ROUTES.HOME },
+	{ name: TOP_SUPPORTERS, path: TEST_ROUTES.HOME },
 ]
 
 const FORMERLY_CENTERED_HEADINGS: ReadonlyArray<{ name: string; path: string }> = [
-	{ name: DISCOVER, path: HOME_PATH },
-	{ name: TOP_SUPPORTERS, path: HOME_PATH },
+	{ name: DISCOVER, path: TEST_ROUTES.HOME },
+	{ name: TOP_SUPPORTERS, path: TEST_ROUTES.HOME },
 ]
 
 test.describe('Unified section headings', () => {

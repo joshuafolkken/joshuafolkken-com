@@ -15,6 +15,10 @@
 	const main_content_href = `#${MAIN_CONTENT_ID}`
 </script>
 
+<svelte:head>
+	<link rel="preload" as="image" href={static_images.hero_bg} fetchpriority="high" />
+</svelte:head>
+
 <!-- Hero: full width, extends under sticky header -->
 <header
 	class="relative -mt-16 flex w-full flex-col items-center justify-center overflow-hidden"

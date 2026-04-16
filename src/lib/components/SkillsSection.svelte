@@ -12,6 +12,8 @@
 
 	const SKILL_BAR_GLOW_BLUR_PX = 8
 	const SKILL_BAR_GLOW_SPREAD_PX = 2
+	const SKILL_BAR_REVEALED_TRANSFORM = 'scaleX(1)'
+	const SKILL_BAR_HIDDEN_TRANSFORM = 'scaleX(0)'
 </script>
 
 <section>
@@ -35,7 +37,10 @@
 				<div class="h-1 rounded-full bg-white/5">
 					<div
 						class="skill-bar h-full rounded-full"
-						style:width={revealed.has(skill.name) ? `${String(skill.percent)}%` : '0%'}
+						style:width="{String(skill.percent)}%"
+						style:transform={revealed.has(skill.name)
+							? SKILL_BAR_REVEALED_TRANSFORM
+							: SKILL_BAR_HIDDEN_TRANSFORM}
 						style:background-color={color}
 						style:box-shadow="0 0 {SKILL_BAR_GLOW_BLUR_PX}px {SKILL_BAR_GLOW_SPREAD_PX}px {color}50"
 					></div>
@@ -55,7 +60,8 @@
 		--shimmer-opacity: 0.55;
 		position: relative;
 		overflow: hidden;
-		transition: width var(--skill-bar-transition);
+		transform-origin: left;
+		transition: transform var(--skill-bar-transition);
 	}
 
 	.skill-bar::after {
