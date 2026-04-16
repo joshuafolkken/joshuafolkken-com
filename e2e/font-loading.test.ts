@@ -22,10 +22,22 @@ test.describe('Font loading strategy', () => {
 		await expect(preconnect).toHaveCount(1)
 	})
 
-	test('head contains stylesheet link to Google Fonts', async ({ page }) => {
+	test('head contains preload hint for Google Fonts CSS', async ({ page }) => {
 		await page.goto('/')
 
-		const stylesheet = page.locator(`link[rel="stylesheet"][href="${GOOGLE_FONTS_CSS_URL}"]`)
+		const preload = page.locator(`link[rel="preload"][as="style"][href="${GOOGLE_FONTS_CSS_URL}"]`)
+
+		await expect(preload).toHaveCount(1)
+	})
+
+	test('Google Fonts stylesheet loads with media=print for non-blocking delivery', async ({
+		page,
+	}) => {
+		await page.goto('/')
+
+		const stylesheet = page.locator(
+			`link[rel="stylesheet"][media="print"][href="${GOOGLE_FONTS_CSS_URL}"]`,
+		)
 
 		await expect(stylesheet).toHaveCount(1)
 	})
