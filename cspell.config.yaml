@@ -73,6 +73,7 @@ words:
   - godotengine
   - gsub
   - gstatic
+  - NOSONAR
   - Hotspots
   - ianvs
   - imagetools
