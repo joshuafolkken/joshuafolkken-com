@@ -41,7 +41,7 @@
 
 		{#if cover_image_source}
 			<div class="-mx-4 overflow-hidden">
-				<img src={cover_image_source} alt={blog_title} class="mb-0 h-auto w-full" />
+				<img src={cover_image_source} alt={blog_title} class="mb-0 h-auto w-full" loading="lazy" />
 			</div>
 		{/if}
 

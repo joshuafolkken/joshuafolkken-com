@@ -1,13 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
+import { TEST_ROUTES } from './test-routes'
 
 const ADSENSE_SRC = 'pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'
-
-const BLOG_PATH = '/blog'
-const BLOG_POST_PATH = '/blog/driven-by-laziness'
-const ABOUT_PATH = '/about'
-const HOME_PATH = '/'
-const PROJECTS_PATH = '/projects'
-const CONTACT_PATH = '/contact'
 
 async function has_adsense_script(page: Page): Promise<boolean> {
 	const scripts = await page.locator('head script').all()
@@ -23,32 +17,32 @@ async function has_adsense_script(page: Page): Promise<boolean> {
 
 test.describe('AdSense script placement', () => {
 	test('present on /about', async ({ page }) => {
-		await page.goto(ABOUT_PATH, { waitUntil: 'domcontentloaded' })
+		await page.goto(TEST_ROUTES.ABOUT, { waitUntil: 'domcontentloaded' })
 		expect(await has_adsense_script(page)).toBe(true)
 	})
 
 	test('present on /blog list', async ({ page }) => {
-		await page.goto(BLOG_PATH, { waitUntil: 'domcontentloaded' })
+		await page.goto(TEST_ROUTES.BLOG, { waitUntil: 'domcontentloaded' })
 		expect(await has_adsense_script(page)).toBe(true)
 	})
 
 	test('present on /blog/[slug]', async ({ page }) => {
-		await page.goto(BLOG_POST_PATH, { waitUntil: 'domcontentloaded' })
+		await page.goto(TEST_ROUTES.BLOG_POST, { waitUntil: 'domcontentloaded' })
 		expect(await has_adsense_script(page)).toBe(true)
 	})
 
 	test('absent on /', async ({ page }) => {
-		await page.goto(HOME_PATH, { waitUntil: 'domcontentloaded' })
+		await page.goto(TEST_ROUTES.HOME, { waitUntil: 'domcontentloaded' })
 		expect(await has_adsense_script(page)).toBe(false)
 	})
 
 	test('absent on /projects', async ({ page }) => {
-		await page.goto(PROJECTS_PATH, { waitUntil: 'domcontentloaded' })
+		await page.goto(TEST_ROUTES.PROJECTS, { waitUntil: 'domcontentloaded' })
 		expect(await has_adsense_script(page)).toBe(false)
 	})
 
 	test('absent on /contact', async ({ page }) => {
-		await page.goto(CONTACT_PATH, { waitUntil: 'domcontentloaded' })
+		await page.goto(TEST_ROUTES.CONTACT, { waitUntil: 'domcontentloaded' })
 		expect(await has_adsense_script(page)).toBe(false)
 	})
 })

@@ -1,6 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-
-const ABOUT_PATH = '/about'
+import { TEST_ROUTES } from './test-routes'
 
 const HEADING_ROLE = 'heading'
 
@@ -49,20 +48,20 @@ async function assert_external_link(page: Page, testid: string, href: string): P
 
 test.describe('About page', () => {
 	test('renders h1 About', async ({ page }) => {
-		await page.goto(ABOUT_PATH)
+		await page.goto(TEST_ROUTES.ABOUT)
 
 		await expect(page.getByRole(HEADING_ROLE, { level: LEVEL_1, name: ABOUT_TITLE })).toBeVisible()
 	})
 
 	test('Philosophy section has a GitHub link below the bio', async ({ page }) => {
-		await page.goto(ABOUT_PATH)
+		await page.goto(TEST_ROUTES.ABOUT)
 		await assert_external_link(page, 'about-philosophy-github-link', GITHUB_URL)
 	})
 })
 
 test.describe('My Projects section', () => {
 	test(HEADING_IS_VISIBLE, async ({ page }) => {
-		await page.goto(ABOUT_PATH)
+		await page.goto(TEST_ROUTES.ABOUT)
 
 		await expect(
 			page.getByRole(HEADING_ROLE, { level: LEVEL_2, name: MY_PROJECTS_HEADING }),
@@ -71,7 +70,7 @@ test.describe('My Projects section', () => {
 
 	for (const { testid, href } of project_link_cases) {
 		test(`${testid} ${CORRECT_HREF_AND_REL}`, async ({ page }) => {
-			await page.goto(ABOUT_PATH)
+			await page.goto(TEST_ROUTES.ABOUT)
 			await assert_external_link(page, testid, href)
 		})
 	}
@@ -79,7 +78,7 @@ test.describe('My Projects section', () => {
 
 test.describe('Connect section', () => {
 	test(HEADING_IS_VISIBLE, async ({ page }) => {
-		await page.goto(ABOUT_PATH)
+		await page.goto(TEST_ROUTES.ABOUT)
 
 		await expect(
 			page.getByRole(HEADING_ROLE, { level: LEVEL_2, name: CONNECT_HEADING }),
@@ -88,7 +87,7 @@ test.describe('Connect section', () => {
 
 	for (const { testid, href } of connect_link_cases) {
 		test(`${testid} ${CORRECT_HREF_AND_REL}`, async ({ page }) => {
-			await page.goto(ABOUT_PATH)
+			await page.goto(TEST_ROUTES.ABOUT)
 			await assert_external_link(page, testid, href)
 		})
 	}
@@ -96,7 +95,7 @@ test.describe('Connect section', () => {
 
 test.describe('Thanks for visiting section', () => {
 	test('"starring my repositories" is a clickable GitHub link', async ({ page }) => {
-		await page.goto(ABOUT_PATH)
+		await page.goto(TEST_ROUTES.ABOUT)
 
 		await expect(
 			page.getByRole(HEADING_ROLE, { level: LEVEL_2, name: THANKS_HEADING }),

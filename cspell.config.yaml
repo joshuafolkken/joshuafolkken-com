@@ -23,6 +23,7 @@ ignorePaths:
   - .coderabbit.yaml
   - .fast-check/**
 words:
+  - fetchpriority
   - aboutads
   - adsbygoogle
   - domcontentloaded
