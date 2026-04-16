@@ -54,8 +54,8 @@
 	.skill-bar {
 		--skill-bar-transition: 1s cubic-bezier(0.4, 0, 0.2, 1);
 		--shimmer-width: 60%;
-		--shimmer-start: -60%;
-		--shimmer-end: 110%;
+		--shimmer-tx-start: -100%;
+		--shimmer-tx-end: 184%;
 		--shimmer-duration: 3.5s;
 		--shimmer-opacity: 0.55;
 		position: relative;
@@ -68,7 +68,7 @@
 		content: '';
 		position: absolute;
 		top: 0;
-		left: var(--shimmer-start);
+		left: 0;
 		width: var(--shimmer-width);
 		height: 100%;
 		background: linear-gradient(
@@ -77,18 +77,19 @@
 			rgba(255, 255, 255, var(--shimmer-opacity)) 50%,
 			transparent 100%
 		);
+		transform: translateX(var(--shimmer-tx-start));
 		animation: shimmer var(--shimmer-duration) ease-in-out infinite;
 	}
 
 	@keyframes shimmer {
 		0% {
-			left: var(--shimmer-start);
+			transform: translateX(var(--shimmer-tx-start));
 		}
 		35% {
-			left: var(--shimmer-end);
+			transform: translateX(var(--shimmer-tx-end));
 		}
 		100% {
-			left: var(--shimmer-end);
+			transform: translateX(var(--shimmer-tx-end));
 		}
 	}
 

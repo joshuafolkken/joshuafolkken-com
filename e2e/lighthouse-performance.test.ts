@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test'
 import { TEST_ROUTES } from './test-routes'
 
+const SKILL_BAR_SELECTOR = '.skill-bar'
+
 test('hero background image has preload hint with high fetchpriority', async ({ page }) => {
 	await page.goto(TEST_ROUTES.HOME)
 
@@ -12,7 +14,7 @@ test('hero background image has preload hint with high fetchpriority', async ({ 
 test('skill bar animates using transform instead of width', async ({ page }) => {
 	await page.goto(TEST_ROUTES.HOME)
 
-	const skill_bar = page.locator('.skill-bar').first()
+	const skill_bar = page.locator(SKILL_BAR_SELECTOR).first()
 
 	await skill_bar.scrollIntoViewIfNeeded()
 
@@ -52,4 +54,20 @@ test('blog post cover image uses loading="lazy"', async ({ page }) => {
 	const cover_img = page.locator('article img').first()
 
 	await expect(cover_img).toHaveAttribute('loading', 'lazy')
+})
+
+test('skill bar shimmer uses composited transform instead of left', async ({ page }) => {
+	await page.goto(TEST_ROUTES.HOME)
+
+	const skill_bar = page.locator(SKILL_BAR_SELECTOR).first()
+
+	await skill_bar.scrollIntoViewIfNeeded()
+
+	const shimmer_left = await skill_bar.evaluate((element) => {
+		const pseudo = getComputedStyle(element, '::after')
+
+		return pseudo.left
+	})
+
+	expect(shimmer_left).toBe('0px')
 })
