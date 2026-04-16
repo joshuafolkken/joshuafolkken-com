@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for Claude Code when reviewing the current diff before committing.
 
-The goal is to catch every concrete issue in **one pass** so that re-reviewing after each commit is unnecessary. Do not hold findings back for a later review.
+**Default hypothesis: this diff contains at least one non-trivial issue.** Your job is not to confirm the implementation is correct — it is to find the issue. Work through each category assuming the code is wrong until you can prove otherwise. Do not declare a category clean unless you have actively tried to break it.
 
 ---
 
@@ -18,14 +18,15 @@ Re-run after applying fixes until **no high or medium findings remain**. Low fin
 
 ## Review output format
 
-Output every category below with an explicit verdict. If a category has no findings, write `No issues`. Do **not** omit categories — an empty section is how we prove the category was checked.
+Output every category below with an explicit verdict. Do **not** omit categories.
 
 For each finding:
 
 - Cite `file_path:line_number`
 - State **severity** (`high` / `medium` / `low`)
 - Explain the concrete problem and the minimal fix
-- Skip generic praise; only comment where there is actionable feedback
+
+For categories with no findings, you **must** write a brief proof statement — not just `No issues`. Example: `No issues — checked null returns on X, verified Y edge case, Z is guarded by type.` A bare `No issues` is only acceptable for Security, Performance, i18n, and Comments when there is genuinely nothing to check (no auth code, no hot paths, no user strings, no comments touched).
 
 Template:
 
@@ -36,27 +37,40 @@ Template:
 
 ### Security
 
-No issues
+No issues — no auth code, no user input, no unsafe casts in diff.
 
 ### Performance
 
-- `src/bar.svelte:15` (medium) — <problem> — <fix>
+No issues — no loops, no reactive chains, no I/O on request paths.
 
 ### Project conventions
 
-No issues
+No issues — verified snake_case, no arrow functions, no magic numbers, i18n covered.
 
 ### i18n
 
-No issues
+No issues — no user-visible strings added.
 
 ### Tests
 
+- `e2e/foo.test.ts:15` (medium) — assertion does not fail if implementation is inverted — rewrite to verify X not just that code runs
+
+### Comments & content
+
 No issues
+
+### Assumptions audit
+
+1. <assumption the implementation makes> — <what breaks if violated>
+2. ...
+
+### Confidence floor
+
+<One concrete thing in this change I am least confident about, and why.>
 
 ### Summary
 
-<1-2 lines: total counts by severity and overall go/no-go>
+<total counts by severity and overall go/no-go>
 ```
 
 ---
@@ -65,9 +79,13 @@ No issues
 
 ### 1. Bug risks & logic errors
 
-- Off-by-one, nullability, promise handling, race conditions, error handling in the diff
-- Broken invariants, wrong return types, mishandled edge cases
-- Regressions: does the change break any existing behavior covered elsewhere?
+Actively try to break the changed code before concluding it is correct.
+
+- **Off-by-one, nullability, promise handling, race conditions**: for every modified function that has branching logic, trace at least one non-happy-path scenario. Write the trace explicitly: `Traced [input/state] → [result] — confirmed/flagged because [reason]`.
+- **Broken invariants, wrong return types, mishandled edge cases**
+- **Regressions**: does the change break any existing behavior covered elsewhere?
+
+`No issues` requires at least one explicit trace statement. Stating `No issues` without a trace is not allowed.
 
 ### 2. Security
 
@@ -103,12 +121,28 @@ Verify **every** rule below. These are non-standard, so call out any violation.
 - Every code change has a corresponding test (unit or E2E) per `CLAUDE.md` Code Change Rules Step 0
 - Test titles are English only
 - Test names describe behavior, not implementation
+- **Mutation check**: for the most critical test added or changed, ask: "If I inverted or removed the key assertion/condition in the implementation, would this test fail?" If the answer is no or uncertain, the test does not verify the behavior — rewrite it.
+- **Requirement check**: does the test verify the behavior described in the issue/task, or just that code executes without error?
 
 ### 7. Comments & content
 
 - Comments are English only
 - No narration comments (`// Added for issue #123`, `// TODO: refactor later`) — only comments explaining non-obvious _why_
 - No duplicated logic that should be extracted
+
+### 8. Assumptions audit
+
+List 2–3 implicit assumptions the implementation makes. For each, state what would break if the assumption were violated. This section cannot be empty or say "No assumptions."
+
+Examples of assumptions worth naming:
+
+- "The API always returns an array (not null)" — would break with a null-ref if the API changes
+- "The locale file always has this key" — would silently show a key string if a locale is missing
+- "The animation completes before the next interaction" — race condition if the user acts fast
+
+### 9. Confidence floor
+
+State the **one concrete thing** in this change you are least confident about, and explain why. This section cannot say "Nothing" or "No concerns." If genuinely nothing is uncertain, trace the exact logic path that gives you that confidence — that trace itself is the proof.
 
 ---
 
