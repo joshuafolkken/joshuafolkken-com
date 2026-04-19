@@ -38,9 +38,9 @@ Whenever modifying, adding, or deleting any code:
 
 ## Refactoring Rules
 
-- **Prompt Reference**: When performing any refactoring, ALWAYS read and follow the instructions in `prompts/refactoring.md` before starting.
+- **Prompt Reference**: When performing any refactoring, ALWAYS read and follow the instructions in `node_modules/@joshuafolkken/kit/prompts/refactoring.md` before starting.
 
 ## Git Rules
 
 - **No Commits**: DO NOT commit changes unless explicitly requested by the user.
-- **Workflow Awareness**: Use `scripts/git-workflow.ts` (via `pnpm git`) when the user asks for git operations.
+- **Workflow Awareness**: Use `pnpm josh git` when the user asks for git operations.

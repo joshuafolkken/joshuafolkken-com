@@ -1,104 +1,53 @@
 version: "0.2"
+import:
+  - "@joshuafolkken/kit/cspell"
 language: en
 ignorePaths:
-  - .vscode/**
-  - node_modules/**
-  - build/**
   - .svelte-kit/**
-  - dist/**
-  - "**/*.d.ts"
-  - "**/*.map"
-  - "**/*.min.js"
-  - .git/**/*
-  - .gitignore
-  - "**/*.svg"
-  - pnpm-lock.yaml
-  - .env*
   - src/lib/posts/*.md
   - prompts/blog-drafts/**/*.md
   - prompts/antigravity-blog-writer.md
-  - playwright-report/**
-  - .pnpm-store/**
   - .wrangler/**
   - .coderabbit.yaml
   - .fast-check/**
+  - "**/*.svg"
 words:
-  - fetchpriority
   - aboutads
   - adsbygoogle
-  - domcontentloaded
-  - ADSENSE
   - adsense
-  - googlesyndication
-  - pagead
-  - aikidosec
-  - anthropics
-  - arrowdown
-  - COLLAB
-  - cursorrules
-  - fullrun
-  - hotspot
-  - Hotspot
-  - hotspots
-  - Hotspots
-  - inlang
-  - Mcpjson
-  - networkidle
-  - reassignable
+  - ADSENSE
   - amazonwebservices
   - androidstudio
   - apos
   - appleboy
-  - autoincrement
-  - autorestart
-  - betterauth
-  - bttf
   - Caddyfile
   - CCPA
-  - coderabbit
-  - coderabbitai
-  - cooldown
   - Csvg
-  - darkmode
   - devicon
   - eclipseide
-  - EDITMSG
-  - elif
-  - esbuild
-  - eslintcache
   - fastcgi
-  - Folkken
   - Frontmatter
+  - ghcr
   - GHSA
   - Ghsas
   - godotengine
-  - gsub
+  - googlesyndication
   - gstatic
-  - NOSONAR
-  - Hotspots
-  - ianvs
-  - imagetools
+  - inlang
   - intellijidea
   - joshuafolkken
-  - joshuastudio
   - Kaku
   - KAWAII
-  - lefthook
   - letsencrypt
   - libsql
+  - Mcpjson
   - Mdsvex
-  - mischeck
   - navigations
   - neverthrow
   - nodedotjs
-  - noopener
-  - noreferrer
-  - nosniff
   - octocat
-  - osv
-  - ghcr
   - opencollective
-  - paraglide
+  - pagead
   - pexels
   - phpstorm
   - Platformer
@@ -109,23 +58,14 @@ words:
   - SAMEORIGIN
   - Shippori
   - socketdotio
-  - sonarcloud
-  - sonarjs
-  - sonarqube
-  - sonarqubecloud
   - Stylesheet
   - Supabase
+  - sveltekit
   - TERE
   - trycloudflare
   - tsgo
   - turso
   - udemy
-  - unrs
   - upscayl
   - viewports
-  - vite
-  - Vitest
   - vuedotjs
-  - webp
-  - workerd
-  - zstd

@@ -50,5 +50,8 @@
 	"claudeCode.initialPermissionMode": "bypassPermissions",
 	"claudeCode.allowDangerouslySkipPermissions": true,
 	"claudeCode.useCtrlEnterToSend": true,
-	"claudeCode.enableNewConversationShortcut": true
+	"claudeCode.enableNewConversationShortcut": true,
+	"[yaml]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	}
 }

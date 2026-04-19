@@ -37,7 +37,7 @@ jobs:
         with:
           path: |
             .eslintcache
-          key: ${{ runner.os }}-eslint-cache-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('eslint.config.js', 'eslint.config.d.ts', 'eslint/**/*.ts') }}
+          key: ${{ runner.os }}-eslint-cache-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('eslint.config.js', 'eslint/**/*.ts') }}
           restore-keys: |
             ${{ runner.os }}-eslint-cache-${{ hashFiles('pnpm-lock.yaml') }}-
             ${{ runner.os }}-eslint-cache-
@@ -48,27 +48,19 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
-      - name: Setup Go for osv-scanner
-        uses: actions/setup-go@v5
-        with:
-          go-version: stable
-
-      - name: Install osv-scanner
-        # Intentionally unpinned: a vulnerability scanner should always pull the
-        # newest detector + advisory set. The determinism tradeoff is accepted.
-        run: go install github.com/google/osv-scanner/v2/cmd/osv-scanner@latest
-
       - name: Run security audit
-        run: osv-scanner --lockfile=pnpm-lock.yaml
+        uses: google/osv-scanner-action/osv-scanner-action@v2.3.5
+        with:
+          scan-args: --lockfile=pnpm-lock.yaml
 
       - name: Run spell check
         run: pnpm exec cspell . --dot
 
       - name: Prepare
-        run: pnpm run prepare
+        run: pnpm prepare
 
       - name: Run type check
-        run: pnpm run check:ci
+        run: pnpm check:ci
 
       - name: Run prettier check
         run: pnpm exec prettier --check .
@@ -77,16 +69,37 @@ jobs:
         run: pnpm exec eslint . --cache --cache-strategy content
 
       - name: Run unit tests
-        run: pnpm run test:unit
+        run: pnpm exec vitest run
 
       - name: Build for size check
-        run: pnpm run build
+        run: pnpm build
 
       - name: Check bundle size
         run: pnpm size-limit
 
+  e2e-detect:
+    name: Detect E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      enabled: ${{ steps.check.outputs.enabled }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for Playwright config
+        id: check
+        run: |
+          if [ -f playwright.config.ts ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          fi
+
   e2e:
     name: E2E
+    needs: e2e-detect
+    if: needs.e2e-detect.outputs.enabled == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     # Playwright preview は localhost:4173。ワークフロー共通の BETTER_AUTH_URL（本番）を
@@ -126,7 +139,7 @@ jobs:
             ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-cache-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-playwright-cache-${{ hashFiles('pnpm-lock.yaml') }}-
+            ${{ runner.os }}-playwright-cache-${{ hashFiles('pnpm-lock.yaml') }}
             ${{ runner.os }}-playwright-cache-
 
       - name: Setup safe-chain
@@ -135,19 +148,20 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
+      - name: Install Playwright system dependencies
+        run: pnpm exec playwright install-deps chromium
+
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: pnpm exec playwright install chromium --with-deps
+        run: pnpm exec playwright install chromium
 
       - name: Build application
         env:
           E2E_CLEANUP_ENABLED: '1'
-        run: pnpm run build
+        run: pnpm build
 
       - name: Run E2E tests
-        env:
-          GITHUB_EVENT_NAME: ${{ github.event_name }}
-        run: pnpm run test:e2e
+        run: pnpm exec playwright test
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
