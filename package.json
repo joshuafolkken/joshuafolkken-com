@@ -63,7 +63,7 @@
 		"@eslint/compat": "^2.0.5",
 		"@eslint/js": "^10.0.1",
 		"@ianvs/prettier-plugin-sort-imports": "^4.7.1",
-		"@joshuafolkken/kit": "0.40.0",
+		"@joshuafolkken/kit": "0.42.0",
 		"@playwright/test": "^1.59.1",
 		"@prgm/sveltekit-progress-bar": "^3.0.2",
 		"@size-limit/file": "^12.1.0",
