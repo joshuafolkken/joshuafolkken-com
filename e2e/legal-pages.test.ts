@@ -6,6 +6,8 @@ const LEGACY_PRIVACY_PATH = '/privacy-policy'
 
 const PRIVACY_TITLE = 'Privacy Policy'
 const TERMS_TITLE = 'Terms of Service'
+const PRIVACY_FOOTER_LABEL = 'Privacy'
+const TERMS_FOOTER_LABEL = 'Terms'
 const INTRODUCTION_HEADING = 'Introduction'
 const CONTACT_US_HEADING = 'Contact Us'
 const CONTACT_PAGE_LINK_NAME = 'Contact page'
@@ -129,17 +131,17 @@ test.describe('Legacy /privacy-policy redirect', () => {
 })
 
 test.describe('Footer legal links', () => {
-	test('home footer shows Privacy Policy and Terms of Service', async ({ page }) => {
+	test('home footer shows Privacy and Terms links', async ({ page }) => {
 		await page.goto('/')
 
-		await expect(page.getByRole(LINK_ROLE, { name: PRIVACY_TITLE }).first()).toBeVisible()
-		await expect(page.getByRole(LINK_ROLE, { name: TERMS_TITLE }).first()).toBeVisible()
+		await expect(page.getByRole(LINK_ROLE, { name: PRIVACY_FOOTER_LABEL }).first()).toBeVisible()
+		await expect(page.getByRole(LINK_ROLE, { name: TERMS_FOOTER_LABEL }).first()).toBeVisible()
 	})
 
-	test('Terms of Service link navigates to /terms', async ({ page }) => {
+	test('Terms link navigates to /terms', async ({ page }) => {
 		await page.goto('/')
 
-		await page.getByRole(LINK_ROLE, { name: TERMS_TITLE }).first().click()
+		await page.getByRole(LINK_ROLE, { name: TERMS_FOOTER_LABEL }).first().click()
 
 		await expect(page).toHaveURL(TERMS_URL_PATTERN)
 	})
