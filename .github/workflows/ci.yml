@@ -144,7 +144,6 @@ jobs:
             ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-cache-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-playwright-cache-${{ hashFiles('pnpm-lock.yaml') }}
             ${{ runner.os }}-playwright-cache-
 
       - name: Setup safe-chain
