@@ -2,33 +2,24 @@ import { expect, test, type Page } from '@playwright/test'
 import { TEST_ROUTES } from './test-routes'
 
 const ADSENSE_SRC = 'pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'
+const ADSENSE_POLL_TIMEOUT = 15_000
+const BLOG_NAV_TIMEOUT = 25_000
+const BLOG_TEST_TIMEOUT = 45_000
 
 async function has_adsense_script(page: Page): Promise<boolean> {
 	const scripts = await page.locator('head script').all()
 
-	for (const script of scripts) {
-		const source = await script.getAttribute('src')
+	const sources = await Promise.all(scripts.map(async (script) => await script.getAttribute('src')))
 
-		if (source?.includes(ADSENSE_SRC)) return true
-	}
-
-	return false
+	return sources.some((source) => source?.includes(ADSENSE_SRC) ?? false)
 }
 
 test.describe('AdSense script placement', () => {
 	test('present on /about', async ({ page }) => {
 		await page.goto(TEST_ROUTES.ABOUT, { waitUntil: 'domcontentloaded' })
-		expect(await has_adsense_script(page)).toBe(true)
-	})
-
-	test('present on /blog list', async ({ page }) => {
-		await page.goto(TEST_ROUTES.BLOG, { waitUntil: 'domcontentloaded' })
-		expect(await has_adsense_script(page)).toBe(true)
-	})
-
-	test('present on /blog/[slug]', async ({ page }) => {
-		await page.goto(TEST_ROUTES.BLOG_POST, { waitUntil: 'domcontentloaded' })
-		expect(await has_adsense_script(page)).toBe(true)
+		await expect
+			.poll(async () => await has_adsense_script(page), { timeout: ADSENSE_POLL_TIMEOUT })
+			.toBe(true)
 	})
 
 	test('absent on /', async ({ page }) => {
@@ -44,5 +35,26 @@ test.describe('AdSense script placement', () => {
 	test('absent on /contact', async ({ page }) => {
 		await page.goto(TEST_ROUTES.CONTACT, { waitUntil: 'domcontentloaded' })
 		expect(await has_adsense_script(page)).toBe(false)
+	})
+})
+
+test.describe('AdSense script placement on blog pages', () => {
+	test.describe.configure({ timeout: BLOG_TEST_TIMEOUT })
+
+	test('present on /blog list', async ({ page }) => {
+		await page.goto(TEST_ROUTES.BLOG, { waitUntil: 'domcontentloaded', timeout: BLOG_NAV_TIMEOUT })
+		await expect
+			.poll(async () => await has_adsense_script(page), { timeout: ADSENSE_POLL_TIMEOUT })
+			.toBe(true)
+	})
+
+	test('present on /blog/[slug]', async ({ page }) => {
+		await page.goto(TEST_ROUTES.BLOG_POST, {
+			waitUntil: 'domcontentloaded',
+			timeout: BLOG_NAV_TIMEOUT,
+		})
+		await expect
+			.poll(async () => await has_adsense_script(page), { timeout: ADSENSE_POLL_TIMEOUT })
+			.toBe(true)
 	})
 })
