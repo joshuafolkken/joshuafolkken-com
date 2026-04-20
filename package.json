@@ -1,7 +1,7 @@
 {
 	"name": "joshuafolkken-com",
 	"private": true,
-	"version": "0.176.0",
+	"version": "0.177.0",
 	"type": "module",
 	"packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319",
 	"engines": {
@@ -22,8 +22,8 @@
 			"@sveltejs/kit@<=2.57.0": ">=2.57.1"
 		},
 		"onlyBuiltDependencies": [
-			"@joshuafolkken/kit",
-			"esbuild"
+			"esbuild",
+			"workerd"
 		],
 		"ignoredBuiltDependencies": [
 			"lefthook"
@@ -63,7 +63,7 @@
 		"@eslint/compat": "^2.0.5",
 		"@eslint/js": "^10.0.1",
 		"@ianvs/prettier-plugin-sort-imports": "^4.7.1",
-		"@joshuafolkken/kit": "0.42.0",
+		"@joshuafolkken/kit": "0.51.0",
 		"@playwright/test": "^1.59.1",
 		"@prgm/sveltekit-progress-bar": "^3.0.2",
 		"@size-limit/file": "^12.1.0",

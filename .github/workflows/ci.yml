@@ -1,6 +1,7 @@
 name: CI
 permissions:
   contents: read
+  packages: read
 
 on:
   push:
@@ -30,6 +31,7 @@ jobs:
         with:
           node-version: '24'
           cache: 'pnpm'
+          registry-url: 'https://npm.pkg.github.com'
 
       - name: Setup ESLint cache
         uses: actions/cache@v4
@@ -46,6 +48,8 @@ jobs:
         run: pnpm dlx @aikidosec/safe-chain setup-ci
 
       - name: Install dependencies
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Run security audit
@@ -60,7 +64,7 @@ jobs:
         run: pnpm prepare
 
       - name: Run type check
-        run: pnpm check:ci
+        run: pnpm svelte-kit sync && svelte-check --tsconfig ./tsconfig.json
 
       - name: Run prettier check
         run: pnpm exec prettier --check .
@@ -119,6 +123,7 @@ jobs:
         with:
           node-version: '24'
           cache: 'pnpm'
+          registry-url: 'https://npm.pkg.github.com'
 
       - name: Setup build cache
         uses: actions/cache@v4
@@ -146,6 +151,8 @@ jobs:
         run: pnpm dlx @aikidosec/safe-chain setup-ci
 
       - name: Install dependencies
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Install Playwright system dependencies

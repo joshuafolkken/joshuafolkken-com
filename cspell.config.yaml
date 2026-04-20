@@ -1,6 +1,6 @@
 version: "0.2"
 import:
-  - "@joshuafolkken/kit/cspell"
+  - "@joshuafolkken/kit/cspell/sveltekit"
 language: en
 ignorePaths:
   - .svelte-kit/**
@@ -35,7 +35,6 @@ words:
   - gstatic
   - inlang
   - intellijidea
-  - joshuafolkken
   - Kaku
   - KAWAII
   - letsencrypt
@@ -53,7 +52,6 @@ words:
   - Platformer
   - Platformers
   - prgm
-  - Qube
   - redir
   - SAMEORIGIN
   - Shippori
