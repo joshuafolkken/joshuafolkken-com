@@ -1,56 +1,10 @@
 {
-	"extends": "./.svelte-kit/tsconfig.json",
+	"extends": [
+		"./node_modules/@joshuafolkken/kit/tsconfig/sveltekit.jsonc",
+		"./.svelte-kit/tsconfig.json"
+	],
 	"compilerOptions": {
-		"rewriteRelativeImportExtensions": true,
-		"allowJs": true,
-		"checkJs": true,
-		"esModuleInterop": true,
-		"forceConsistentCasingInFileNames": true,
-		"resolveJsonModule": true,
-		"skipLibCheck": true,
-		"sourceMap": true,
-		"strict": true,
-		"moduleResolution": "bundler",
-
-		"types": ["./worker-configuration.d.ts"],
-
-		// Strictness
-		// 未使用のローカル変数をエラーにする
-		"noUnusedLocals": true,
-		// 未使用の関数パラメータをエラーにする
-		"noUnusedParameters": true,
-
-		// 未使用のラベル（label:）を許可しない
-		"allowUnusedLabels": false,
-		// 到達不能なコードを許可しない
-		"allowUnreachableCode": false,
-
-		// switch文でbreak忘れによるフォールスルーを禁止する
-		"noFallthroughCasesInSwitch": true,
-		// 戻り値がある関数で、すべての分岐でreturnすることを強制する
-		"noImplicitReturns": true,
-
-		// 各ファイルを単独でトランスパイル可能にする（Babel等との互換性）
-		"isolatedModules": true,
-		// オーバーライドするメソッドにoverrideキーワードを必須にする
-		"noImplicitOverride": true,
-
-		// オプショナルプロパティでundefinedと省略を厳密に区別する
-		"exactOptionalPropertyTypes": true,
-		// インデックスアクセス（obj[key]）の結果をundefinedの可能性がある型にする
-		"noUncheckedIndexedAccess": true,
-		// インデックスシグネチャを持つ型でドット記法（obj.key）を禁止する
-		"noPropertyAccessFromIndexSignature": true,
-
-		// import/exportの構文をそのまま出力に反映する（type-only importの明示を強制）
-		"verbatimModuleSyntax": true,
-		// 型エラーがある場合は出力ファイルを生成しない
-		"noEmitOnError": true,
-		// ES2022のクラスフィールド仕様に準拠する
-		"useDefineForClassFields": true,
-
-		// 副作用のみのimport（型のためだけのimport）をチェックする
-		"noUncheckedSideEffectImports": true
+		"types": ["./worker-configuration.d.ts"]
 	},
 	"include": [
 		"./.svelte-kit/ambient.d.ts",
@@ -61,10 +15,4 @@
 		"./**/*.svelte"
 	],
 	"exclude": ["node_modules", "build", "dist"]
-
-	// Path aliases are handled by https://svelte.dev/docs/kit/configuration#alias
-	// except $lib which is handled by https://svelte.dev/docs/kit/configuration#files
-	//
-	// To make changes to top-level options such as include and exclude, we recommend extending
-	// the generated config; see https://svelte.dev/docs/kit/configuration#typescript
 }

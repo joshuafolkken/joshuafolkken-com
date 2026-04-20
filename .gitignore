@@ -1,5 +1,5 @@
-test-results
 node_modules
+test-results
 
 # Output
 .output
@@ -8,6 +8,7 @@ node_modules
 .wrangler
 /.svelte-kit
 /build
+/dist
 
 # OS
 .DS_Store
@@ -37,6 +38,7 @@ project.inlang/cache/
 # SQLite
 *.db
 
+# Storybook
 *storybook.log
 storybook-static
 
@@ -60,3 +62,5 @@ e2e/.auth/chrome-profile/
 
 # Claude Code runtime artifacts
 .claude/scheduled_tasks.lock
+
+.pnpm-store
