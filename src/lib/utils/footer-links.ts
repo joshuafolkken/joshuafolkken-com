@@ -7,10 +7,10 @@ interface FooterLink {
 }
 
 const FOOTER_LINKS: ReadonlyArray<FooterLink> = [
+	{ href: resolve('/privacy'), title: 'Privacy' },
+	{ href: resolve('/terms'), title: 'Terms' },
 	{ href: resolve('/about'), title: PAGES.ABOUT.title },
 	{ href: resolve('/contact'), title: PAGES.CONTACT.title },
-	{ href: resolve('/privacy'), title: PAGES.PRIVACY_POLICY.title },
-	{ href: resolve('/terms'), title: PAGES.TERMS_OF_SERVICE.title },
 ]
 
 export { FOOTER_LINKS }
