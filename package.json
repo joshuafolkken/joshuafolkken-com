@@ -23,7 +23,8 @@
 		},
 		"onlyBuiltDependencies": [
 			"@joshuafolkken/kit",
-			"esbuild"
+			"esbuild",
+			"workerd"
 		],
 		"ignoredBuiltDependencies": [
 			"lefthook"
