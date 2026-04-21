@@ -1,9 +1,35 @@
 import { sveltekit } from '@sveltejs/kit/vite'
 import tailwindcss from '@tailwindcss/vite'
+import { visualizer } from 'rollup-plugin-visualizer'
+import { type Plugin, type ResolvedConfig } from 'vite'
 import { imagetools } from 'vite-imagetools'
 // import { playwright } from '@vitest/browser-playwright'
 import { defineConfig } from 'vitest/config'
 import pkg from './package.json'
+
+const IS_CI = Boolean(process.env['CI'])
+
+function make_stats_plugin(filename: string, is_ssr: boolean): Plugin {
+	let active = false
+	const viz = visualizer({ open: !IS_CI, filename })
+	const viz_generate = typeof viz.generateBundle === 'function' ? viz.generateBundle : null
+	const viz_close = typeof viz.closeBundle === 'function' ? viz.closeBundle : null
+
+	return {
+		name: `visualizer-${is_ssr ? 'server' : 'client'}`,
+		apply: 'build',
+		configResolved(config: ResolvedConfig) {
+			active = !!config.build.ssr === is_ssr
+		},
+		async generateBundle(options, bundle, isWrite) {
+			if (active && viz_generate)
+				await Reflect.apply(viz_generate, this, [options, bundle, isWrite])
+		},
+		async closeBundle() {
+			if (active && viz_close) await Reflect.apply(viz_close, this, [])
+		},
+	}
+}
 
 export default defineConfig({
 	define: {
@@ -16,6 +42,8 @@ export default defineConfig({
 		}),
 		tailwindcss(),
 		sveltekit(),
+		make_stats_plugin('stats-client.html', false),
+		make_stats_plugin('stats-server.html', true),
 	],
 	server: {
 		allowedHosts: ['.trycloudflare.com'],
