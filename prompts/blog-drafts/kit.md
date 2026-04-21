@@ -5,7 +5,7 @@
 ## 関連資料
 
 リポジトリ：https://github.com/joshuafolkken/kit
-ディレクトリ：/Users/iwasakishinya/Development/kit
+ディレクトリ：[ローカルの kit リポジトリ]
 関連記事：https://joshuafolkken.com/blog/ai-coding-full-delegation
 X: https://x.com/joshuafolkken
 
