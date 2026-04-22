@@ -61,10 +61,7 @@ class InMemoryCache {
 	async with_cache<T>(key: string, executor: () => Promise<T>): Promise<T> {
 		const now = Date.now()
 		const cached_value = this.get_cached_value(key, now)
-
-		if (cached_value !== undefined) {
-			return cached_value as T
-		}
+		if (cached_value !== undefined) return cached_value as T
 
 		return await this.fetch_and_cache(key, executor, now)
 	}
@@ -74,7 +71,6 @@ class InMemoryCache {
 		executor: () => Promise<T>,
 		now: number,
 	): Promise<T> {
-		// logger.debug(`Cache miss ${key}`)
 		const value = await executor()
 
 		if (this.cache.size >= this.max_size) {

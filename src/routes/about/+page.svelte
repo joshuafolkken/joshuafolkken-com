@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { APP, AUTHOR, LINK_REL, LINK_TARGET, OPENCOLLECTIVE, URLS } from '$lib/app'
+	import { APP, AUTHOR, OPENCOLLECTIVE, URLS } from '$lib/app'
 	import AdSenseScript from '$lib/components/AdSenseScript.svelte'
 	import EngagementButtons from '$lib/components/EngagementButtons.svelte'
+	import ExternalLink from '$lib/components/ExternalLink.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import PageSection from '$lib/components/PageSection.svelte'
@@ -10,7 +11,7 @@
 	import TechStack from '$lib/components/TechStack.svelte'
 	import {
 		BLOCKQUOTE_CLASS,
-		LINK_BASE_DEFAULT_CLASS,
+		LINK_BASE_CLASS,
 		LIST_DISC_CLASS,
 		LIST_DISC_LINK_CLASS,
 		SECTION_HEADING_3_CLASS,
@@ -97,15 +98,9 @@
 			developers while creating games that bring joy and learning opportunities for all ages.
 		</p>
 		<p class="mt-2">
-			<a
-				href={URLS.GITHUB}
-				target={LINK_TARGET}
-				rel={LINK_REL}
-				class={LINK_BASE_DEFAULT_CLASS}
-				data-testid="about-philosophy-github-link"
-			>
+			<ExternalLink href={URLS.GITHUB} testid="about-philosophy-github-link">
 				View my engineering work on GitHub →
-			</a>
+			</ExternalLink>
 		</p>
 	</PageSection>
 
@@ -114,14 +109,9 @@
 		<div class="space-y-4">
 			<p>
 				I believe in giving back to the community. Through
-				<a
-					href={OPENCOLLECTIVE.URL}
-					target={LINK_TARGET}
-					rel={LINK_REL}
-					class={LINK_BASE_DEFAULT_CLASS}
-				>
-					<strong>Joshua Studio on Open Collective</strong>
-				</a>
+				<ExternalLink href={OPENCOLLECTIVE.URL} class="font-bold">
+					Joshua Studio on Open Collective
+				</ExternalLink>
 				, we support:
 			</p>
 			<ul class={LIST_DISC_CLASS}>
@@ -142,39 +132,21 @@
 	<PageSection title="🛠️ My Projects">
 		<ul class={LIST_DISC_LINK_CLASS}>
 			<li>
-				<a
-					href={URLS.GITHUB}
-					target={LINK_TARGET}
-					rel={LINK_REL}
-					class={LINK_BASE_DEFAULT_CLASS}
-					data-testid="about-github-profile-link"
-				>
+				<ExternalLink href={URLS.GITHUB} testid="about-github-profile-link">
 					GitHub Profile
-				</a>
+				</ExternalLink>
 				— open-source repositories and contributions
 			</li>
 			<li>
-				<a
-					href={URLS.GITHUB_PRS}
-					target={LINK_TARGET}
-					rel={LINK_REL}
-					class={LINK_BASE_DEFAULT_CLASS}
-					data-testid="about-github-prs-link"
-				>
+				<ExternalLink href={URLS.GITHUB_PRS} testid="about-github-prs-link">
 					Merged Pull Requests — joshuafolkken.com
-				</a>
+				</ExternalLink>
 				— browse the full development history of this site
 			</li>
 			<li>
-				<a
-					href={APP.URL}
-					target={LINK_TARGET}
-					rel={LINK_REL}
-					class={LINK_BASE_DEFAULT_CLASS}
-					data-testid="about-github-page-link"
-				>
+				<ExternalLink href={APP.URL} testid="about-github-page-link">
 					joshuafolkken.com
-				</a>
+				</ExternalLink>
 				— this website, built and maintained publicly
 			</li>
 		</ul>
@@ -184,51 +156,21 @@
 	<PageSection title="🔗 Connect">
 		<ul class={LIST_DISC_LINK_CLASS}>
 			<li>
-				<a
-					href={URLS.GITHUB}
-					target={LINK_TARGET}
-					rel={LINK_REL}
-					class={LINK_BASE_DEFAULT_CLASS}
-					data-testid="about-connect-github-link"
-				>
-					GitHub
-				</a>
+				<ExternalLink href={URLS.GITHUB} testid="about-connect-github-link">GitHub</ExternalLink>
 				— source code, issues, and open-source work
 			</li>
 			<li>
-				<a
-					href={URLS.YOUTUBE}
-					target={LINK_TARGET}
-					rel={LINK_REL}
-					class={LINK_BASE_DEFAULT_CLASS}
-					data-testid="about-connect-youtube-link"
-				>
-					YouTube
-				</a>
+				<ExternalLink href={URLS.YOUTUBE} testid="about-connect-youtube-link">YouTube</ExternalLink>
 				— game dev tutorials and project showcases
 			</li>
 			<li>
-				<a
-					href={URLS.X}
-					target={LINK_TARGET}
-					rel={LINK_REL}
-					class={LINK_BASE_DEFAULT_CLASS}
-					data-testid="about-connect-x-link"
-				>
-					X (Twitter)
-				</a>
+				<ExternalLink href={URLS.X} testid="about-connect-x-link">X (Twitter)</ExternalLink>
 				— dev updates and community discussions
 			</li>
 			<li>
-				<a
-					href={OPENCOLLECTIVE.URL}
-					target={LINK_TARGET}
-					rel={LINK_REL}
-					class={LINK_BASE_DEFAULT_CLASS}
-					data-testid="about-connect-opencollective-link"
-				>
+				<ExternalLink href={OPENCOLLECTIVE.URL} testid="about-connect-opencollective-link">
 					Open Collective
-				</a>
+				</ExternalLink>
 				— support the community mission
 			</li>
 		</ul>
@@ -238,7 +180,7 @@
 	<PageSection title="📬 Get in touch">
 		<p>
 			Questions, collaboration ideas, or just want to say hi? Head over to the
-			<a href={CONTACT_HREF} class={LINK_BASE_DEFAULT_CLASS}>contact page</a>
+			<a href={CONTACT_HREF} class={LINK_BASE_CLASS}>contact page</a>
 			— I read every message.
 		</p>
 	</PageSection>
@@ -248,15 +190,9 @@
 		<div>
 			<p>
 				Consider
-				<a
-					href={URLS.GITHUB}
-					target={LINK_TARGET}
-					rel={LINK_REL}
-					class={LINK_BASE_DEFAULT_CLASS}
-					data-testid="about-star-repositories-link"
-				>
+				<ExternalLink href={URLS.GITHUB} testid="about-star-repositories-link">
 					starring my repositories
-				</a>
+				</ExternalLink>
 				or supporting our mission through Open Collective!
 			</p>
 			<p class="mt-4">
