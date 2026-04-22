@@ -1,4 +1,13 @@
 import type { LogoSlug } from '$lib/data/si-icons'
+import {
+	CLOUDFLARE_D1,
+	CLOUDFLARE_KV,
+	CLOUDFLARE_R2,
+	CLOUDFLARE_WORKERS,
+	GDSCRIPT,
+	GODOT,
+	WEB_EXPORT,
+} from '$lib/data/tech-names'
 
 const TECH_LOGO_MAP_ENTRIES = [
 	// AI Coding
@@ -16,10 +25,10 @@ const TECH_LOGO_MAP_ENTRIES = [
 	['Playwright', 'playwright'],
 	['CSpell', 'cspell'],
 	// Cloud & Edge
-	['Cloudflare Workers', 'cloudflare'],
-	['Cloudflare KV', 'cloudflare'],
-	['Cloudflare D1', 'cloudflare'],
-	['Cloudflare R2', 'cloudflare'],
+	[CLOUDFLARE_WORKERS, 'cloudflare'],
+	[CLOUDFLARE_KV, 'cloudflare'],
+	[CLOUDFLARE_D1, 'cloudflare'],
+	[CLOUDFLARE_R2, 'cloudflare'],
 	['Cloudflare Workers / D1 / KV / R2', 'cloudflare'],
 	['AWS', 'amazonwebservices'],
 	['AWS EC2', 'amazonwebservices'],
@@ -38,7 +47,7 @@ const TECH_LOGO_MAP_ENTRIES = [
 	['Angular', 'angular'],
 	['Bootstrap', 'bootstrap'],
 	['Vite', 'vite'],
-	['Web Export', 'html5'],
+	[WEB_EXPORT, 'html5'],
 	['WebSocket', 'socketdotio'],
 	['WebSockets', 'socketdotio'],
 	// Development Tools
@@ -75,8 +84,8 @@ const TECH_LOGO_MAP_ENTRIES = [
 	['MySQL', 'mysql'],
 	['Redis', 'redis'],
 	// Game Development
-	['Godot', 'godotengine'],
-	['GDScript', 'godotengine'],
+	[GODOT, 'godotengine'],
+	[GDSCRIPT, 'godotengine'],
 	['GDShader', 'godotengine'],
 	['Godot / GDScript', 'godotengine'],
 	['Game Design', 'godotengine'],

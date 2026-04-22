@@ -1,12 +1,17 @@
 <script lang="ts">
 	import ExternalLink from '$lib/components/ExternalLink.svelte'
 	import PageSection from '$lib/components/PageSection.svelte'
+	import {
+		LIST_DECIMAL_CLASS,
+		LIST_DISC_CLASS,
+		SECTION_HEADING_3_CLASS,
+	} from '$lib/constants/layout'
 </script>
 
 <PageSection title="Cookies and Tracking Technologies">
 	<div class="space-y-4">
 		<div>
-			<h3 class="mb-2 text-xl font-medium">What Are Cookies?</h3>
+			<h3 class={SECTION_HEADING_3_CLASS}>What Are Cookies?</h3>
 			<p>
 				Cookies are small text files stored on your device when you visit a website. They help
 				websites remember your preferences and improve your browsing experience.
@@ -14,8 +19,8 @@
 		</div>
 
 		<div>
-			<h3 class="mb-2 text-xl font-medium">Types of Cookies We Use</h3>
-			<ol class="ml-4 list-decimal space-y-1">
+			<h3 class={SECTION_HEADING_3_CLASS}>Types of Cookies We Use</h3>
+			<ol class={LIST_DECIMAL_CLASS}>
 				<li>
 					<strong>Essential Cookies</strong>: Required for the website to function properly
 				</li>
@@ -31,9 +36,9 @@
 		</div>
 
 		<div>
-			<h3 class="mb-2 text-xl font-medium">Third-Party Cookies</h3>
+			<h3 class={SECTION_HEADING_3_CLASS}>Third-Party Cookies</h3>
 			<p class="mb-2">We use third-party services that may set cookies on your device:</p>
-			<ul class="ml-4 list-disc space-y-1">
+			<ul class={LIST_DISC_CLASS}>
 				<li>
 					<strong>Google AdSense</strong>: We use Google AdSense to display advertisements on our
 					website. Google uses cookies to serve ads based on your prior visits to our website and
@@ -46,12 +51,12 @@
 		</div>
 
 		<div>
-			<h3 class="mb-2 text-xl font-medium">Managing Cookies</h3>
+			<h3 class={SECTION_HEADING_3_CLASS}>Managing Cookies</h3>
 			<p class="mb-2">
 				You can control and manage cookies through your browser settings. Most browsers allow you
 				to:
 			</p>
-			<ul class="ml-4 list-disc space-y-1">
+			<ul class={LIST_DISC_CLASS}>
 				<li>View and delete cookies</li>
 				<li>Block cookies from specific sites</li>
 				<li>Block all cookies</li>
@@ -70,14 +75,14 @@
 		Our website uses Google AdSense, a service provided by Google LLC ("Google") for displaying
 		advertisements. Google AdSense uses cookies and web beacons to:
 	</p>
-	<ul class="mb-4 ml-4 list-disc space-y-1">
+	<ul class="mb-4 {LIST_DISC_CLASS}">
 		<li>Display personalized advertisements based on your interests</li>
 		<li>Measure the effectiveness of advertisements</li>
 		<li>Provide aggregated reports on ad performance</li>
 	</ul>
 
 	<div>
-		<h3 class="mb-2 text-xl font-medium">Google's Use of Data</h3>
+		<h3 class={SECTION_HEADING_3_CLASS}>Google's Use of Data</h3>
 		<p class="mb-2">
 			When you visit our website, Google may collect information about your visits to this and other
 			websites to provide advertisements about goods and services that may interest you. Google's

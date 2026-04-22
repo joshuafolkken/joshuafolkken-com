@@ -27,6 +27,12 @@ const ICON_SIZE_2XL = '2.5rem'
 const LINK_BASE_CLASS = 'link-base'
 const LINK_BASE_DEFAULT_CLASS = `${LINK_BASE_CLASS} text-white/80`
 
+const LIST_DISC_CLASS = 'ml-4 list-disc space-y-1'
+const LIST_DISC_LINK_CLASS = 'ml-4 list-disc space-y-2'
+const LIST_DECIMAL_CLASS = 'ml-4 list-decimal space-y-1'
+const SECTION_HEADING_3_CLASS = 'mb-2 text-xl font-medium'
+const LAST_UPDATED_CLASS = 'text-right text-sm text-white/60'
+
 const BLOCKQUOTE_CLASS = 'border-l-4 border-white/30 pl-4 italic'
 
 /** ID of the main content anchor for scroll links (e.g. from hero). */
@@ -40,6 +46,10 @@ export type { MaxWidthKey }
 export {
 	BLOCKQUOTE_CLASS,
 	CONTENT_EDGE_SPACING_CLASS,
+	LAST_UPDATED_CLASS,
+	LIST_DECIMAL_CLASS,
+	LIST_DISC_CLASS,
+	LIST_DISC_LINK_CLASS,
 	MAIN_CONTENT_ID,
 	get_max_width_class,
 	ICON_LABEL_ROW_CENTER_CLASS,
@@ -52,4 +62,5 @@ export {
 	LINK_BASE_DEFAULT_CLASS,
 	MAX_WIDTH_CLASS_MAP,
 	PAGE_PADDING_CLASS,
+	SECTION_HEADING_3_CLASS,
 }

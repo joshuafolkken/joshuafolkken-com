@@ -2,17 +2,18 @@
 	import LiftedTechPill from '$lib/components/LiftedTechPill.svelte'
 	import RevealOnIntersect from '$lib/components/RevealOnIntersect.svelte'
 	import SectionHeading from '$lib/components/SectionHeading.svelte'
+	import {
+		SKILL_BAR_GLOW_BLUR_PX,
+		SKILL_BAR_GLOW_SPREAD_PX,
+		SKILL_BAR_HIDDEN_TRANSFORM,
+		SKILL_BAR_REVEALED_TRANSFORM,
+	} from '$lib/constants/animation'
 	import { SKILLS } from '$lib/data/skills'
 	import { tech_colors } from '$lib/data/tech-colors'
 	import SparklesIcon from '$lib/icons/SparklesIcon.svelte'
 	import { SvelteSet } from 'svelte/reactivity'
 
 	const revealed = new SvelteSet<string>()
-
-	const SKILL_BAR_GLOW_BLUR_PX = 8
-	const SKILL_BAR_GLOW_SPREAD_PX = 2
-	const SKILL_BAR_REVEALED_TRANSFORM = 'scaleX(1)'
-	const SKILL_BAR_HIDDEN_TRANSFORM = 'scaleX(0)'
 </script>
 
 <section>
