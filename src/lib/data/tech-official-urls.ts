@@ -11,12 +11,14 @@ const TECH_URL_ENTRIES = [
 	['CodeRabbit', 'https://coderabbit.ai'],
 	['Cursor', 'https://cursor.com'],
 	['Antigravity', 'https://antigravity.dev'],
+	['Gemini', 'https://gemini.google.com/app'],
 	// Code Quality & Testing
-	['SonarCloud', 'https://sonarcloud.io'],
+	['SonarQube Cloud', 'https://www.sonarsource.com/products/sonarqube/cloud/'],
 	['Prettier', 'https://prettier.io'],
 	['ESLint', 'https://eslint.org'],
 	['Vitest', 'https://vitest.dev'],
 	['Playwright', 'https://playwright.dev'],
+	['CSpell', 'https://cspell.org'],
 	// Cloud & Edge
 	['Cloudflare Workers', 'https://workers.cloudflare.com'],
 	['Cloudflare KV', `${CLOUDFLARE_DEV_URL}/kv`],
@@ -40,6 +42,7 @@ const TECH_URL_ENTRIES = [
 	['Lefthook', 'https://github.com/evilmartians/lefthook'],
 	['pnpm', 'https://pnpm.io'],
 	['GitHub', 'https://github.com'],
+	['GitHub Actions', 'https://github.com/features/actions'],
 	['npm', 'https://www.npmjs.com'],
 	['Git', 'https://git-scm.com'],
 	['tsx', 'https://github.com/privatenumber/tsx'],
