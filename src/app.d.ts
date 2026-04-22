@@ -23,4 +23,14 @@ declare module '*.md' {
 	export const metadata: Record<string, unknown>
 }
 
+declare global {
+	interface ImportMetaEnv {
+		readonly APP_VERSION: string
+	}
+
+	interface ImportMeta {
+		readonly env: ImportMetaEnv
+	}
+}
+
 export {}

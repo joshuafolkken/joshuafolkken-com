@@ -3,20 +3,37 @@ import { LINK_REL, LINK_TARGET } from '$lib/app'
 
 const PROTOCOL_HTTP_PREFIX = 'http'
 
-type InternalPath = '/' | '/blog' | '/projects' | '/about' | '/privacy' | '/terms'
+const INTERNAL_PATHS = [
+	'/',
+	'/about',
+	'/blog',
+	'/contact',
+	'/privacy',
+	'/projects',
+	'/terms',
+] as const
 
-function is_external_link(link: string | undefined): boolean {
+type InternalPath = (typeof INTERNAL_PATHS)[number]
+
+const INTERNAL_PATH_SET: ReadonlySet<string> = new Set(INTERNAL_PATHS)
+
+function is_external_link(link?: string): boolean {
 	return Boolean(link?.startsWith(PROTOCOL_HTTP_PREFIX))
 }
 
-function get_href(link: string | undefined): string | undefined {
-	if (!link) return undefined
-	if (link.startsWith(PROTOCOL_HTTP_PREFIX)) return link
-
-	return resolve(link as InternalPath)
+function is_internal_path(link: string): link is InternalPath {
+	return INTERNAL_PATH_SET.has(link)
 }
 
-function is_internal_link(link: string | undefined): boolean {
+function get_href(link?: string): string | undefined {
+	if (!link) return undefined
+	if (link.startsWith(PROTOCOL_HTTP_PREFIX)) return link
+	if (!is_internal_path(link)) return undefined
+
+	return resolve(link)
+}
+
+function is_internal_link(link?: string): boolean {
 	return Boolean(link && !is_external_link(link))
 }
 
@@ -28,7 +45,7 @@ interface LinkInfo {
 	rel?: string
 }
 
-function get_link_info(link: string | undefined): LinkInfo {
+function get_link_info(link?: string): LinkInfo {
 	const href = get_href(link)
 	const is_internal = Boolean(href && is_internal_link(link))
 	const is_external = Boolean(href && !is_internal)
@@ -46,7 +63,8 @@ const link_utilities = {
 	get_link_info,
 	is_external_link,
 	is_internal_link,
+	is_internal_path,
 }
 
 export type { LinkInfo }
-export { link_utilities }
+export { INTERNAL_PATHS, link_utilities }

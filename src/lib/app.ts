@@ -3,7 +3,7 @@ const APP = {
 	NAME: 'joshuafolkken.com',
 	DESCRIPTION: 'Creating a Brighter Future',
 	URL: 'https://joshuafolkken.com',
-	VERSION: import.meta.env['APP_VERSION'] as string,
+	VERSION: import.meta.env.APP_VERSION,
 } as const
 
 const AUTHOR = {
