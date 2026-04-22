@@ -1,3 +1,12 @@
+import {
+	CLOUDFLARE_D1,
+	CLOUDFLARE_KV,
+	CLOUDFLARE_R2,
+	CLOUDFLARE_WORKERS,
+	GDSCRIPT,
+	GODOT,
+} from '$lib/data/tech-names'
+
 const GODOT_URL = 'https://godotengine.org'
 const DOTNET_URL = 'https://dotnet.microsoft.com'
 const DRIZZLE_URL = 'https://orm.drizzle.team'
@@ -20,10 +29,10 @@ const TECH_URL_ENTRIES = [
 	['Playwright', 'https://playwright.dev'],
 	['CSpell', 'https://cspell.org'],
 	// Cloud & Edge
-	['Cloudflare Workers', 'https://workers.cloudflare.com'],
-	['Cloudflare KV', `${CLOUDFLARE_DEV_URL}/kv`],
-	['Cloudflare D1', `${CLOUDFLARE_DEV_URL}/d1`],
-	['Cloudflare R2', `${CLOUDFLARE_DEV_URL}/r2`],
+	[CLOUDFLARE_WORKERS, 'https://workers.cloudflare.com'],
+	[CLOUDFLARE_KV, `${CLOUDFLARE_DEV_URL}/kv`],
+	[CLOUDFLARE_D1, `${CLOUDFLARE_DEV_URL}/d1`],
+	[CLOUDFLARE_R2, `${CLOUDFLARE_DEV_URL}/r2`],
 	['AWS', 'https://aws.amazon.com'],
 	['Vercel', 'https://vercel.com'],
 	// Web Technologies
@@ -71,8 +80,8 @@ const TECH_URL_ENTRIES = [
 	['MySQL', 'https://www.mysql.com'],
 	['Redis', 'https://redis.io'],
 	// Game Development
-	['Godot', GODOT_URL],
-	['GDScript', GODOT_URL],
+	[GODOT, GODOT_URL],
+	[GDSCRIPT, GODOT_URL],
 	['Unity', 'https://unity.com'],
 	// Mobile Development
 	['Android', ANDROID_DEV_URL],

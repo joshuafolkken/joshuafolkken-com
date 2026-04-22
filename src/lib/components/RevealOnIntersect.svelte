@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { intersection_observer } from '$lib/actions/intersection-observer'
+	import {
+		ANIMATION_DELAY_MS,
+		ANIMATION_DURATION_MS,
+		FLY_OFFSET_Y_PX,
+	} from '$lib/constants/animation'
 	import type { Snippet } from 'svelte'
 	import { fly } from 'svelte/transition'
-
-	const ANIMATION_DURATION_MS = 500
-	const ANIMATION_DELAY_MS = 100
-	const FLY_OFFSET_Y_PX = 20
 
 	const {
 		class: class_name = '',

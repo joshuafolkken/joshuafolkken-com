@@ -1,16 +1,14 @@
 <script lang="ts">
 	/* eslint-disable max-len */
-	import { resolve } from '$app/paths'
 	import { APP, AUTHOR, LAST_UPDATED } from '$lib/app'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import PageSection from '$lib/components/PageSection.svelte'
-	import { LINK_BASE_CLASS } from '$lib/constants/layout'
+	import { LAST_UPDATED_CLASS, LINK_BASE_CLASS, LIST_DISC_CLASS } from '$lib/constants/layout'
+	import { CONTACT_HREF, PRIVACY_HREF } from '$lib/constants/page-routes'
 	import { PAGES } from '$lib/types/page'
 
 	const last_updated = LAST_UPDATED.TERMS_OF_SERVICE
-	const privacy_href = resolve('/privacy')
-	const contact_href = resolve('/contact')
 </script>
 
 <svelte:head>
@@ -22,7 +20,7 @@
 	<PageHeader page={PAGES.TERMS_OF_SERVICE} />
 
 	<PageSection>
-		<p class="text-right text-sm text-white/60">Last Updated: {last_updated}</p>
+		<p class={LAST_UPDATED_CLASS}>Last Updated: {last_updated}</p>
 	</PageSection>
 
 	<PageSection title="Introduction">
@@ -32,7 +30,7 @@
 		</p>
 		<p class="mt-2">
 			For information on how we handle your data, please see our
-			<a href={privacy_href} class={LINK_BASE_CLASS}>Privacy Policy</a>.
+			<a href={PRIVACY_HREF} class={LINK_BASE_CLASS}>Privacy Policy</a>.
 		</p>
 	</PageSection>
 
@@ -49,7 +47,7 @@
 		<p class="mb-2">
 			You agree to use the Site only for lawful purposes. In particular, you agree not to:
 		</p>
-		<ul class="ml-4 list-disc space-y-1">
+		<ul class={LIST_DISC_CLASS}>
 			<li>Interfere with or disrupt the Site or its underlying infrastructure</li>
 			<li>Attempt to gain unauthorized access to any portion of the Site</li>
 			<li>
@@ -86,7 +84,7 @@
 			By submitting content, you grant us a worldwide, non-exclusive, royalty-free license to use,
 			reproduce, adapt, and display that content in connection with operating and improving the
 			Site. You can revoke this license by asking us to remove your content via our
-			<a href={contact_href} class={LINK_BASE_CLASS}>Contact page</a>.
+			<a href={CONTACT_HREF} class={LINK_BASE_CLASS}>Contact page</a>.
 		</p>
 	</PageSection>
 
@@ -162,7 +160,7 @@
 	<PageSection title="Contact Us">
 		<p>
 			If you have questions about these Terms, please reach out via our
-			<a href={contact_href} class={LINK_BASE_CLASS}>Contact page</a>.
+			<a href={CONTACT_HREF} class={LINK_BASE_CLASS}>Contact page</a>.
 		</p>
 	</PageSection>
 </PageLayout>

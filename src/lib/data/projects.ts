@@ -8,6 +8,15 @@ import pong from '$lib/assets/images/projects/pong.png'
 import talk from '$lib/assets/images/projects/talk.png'
 import tasks from '$lib/assets/images/projects/tasks-v2.png'
 import tic_tac_toe from '$lib/assets/images/projects/tic-tac-toe.png'
+import {
+	CLOUDFLARE_D1,
+	CLOUDFLARE_KV,
+	CLOUDFLARE_R2,
+	CLOUDFLARE_WORKERS,
+	GDSCRIPT,
+	GODOT,
+	WEB_EXPORT,
+} from '$lib/data/tech-names'
 import FilmIcon from '$lib/icons/FilmIcon.svelte'
 import GlobeIcon from '$lib/icons/GlobeIcon.svelte'
 import ListIcon from '$lib/icons/ListIcon.svelte'
@@ -19,11 +28,6 @@ import TennisIcon from '$lib/icons/TennisIcon.svelte'
 import ToolIcon from '$lib/icons/ToolIcon.svelte'
 import type { Project } from '$lib/types/project'
 
-const CLOUDFLARE_WORKERS = 'Cloudflare Workers'
-const CLOUDFLARE_D1 = 'Cloudflare D1'
-const GODOT = 'Godot'
-const GDSCRIPT = 'GDScript'
-const WEB_EXPORT = 'Web Export'
 const KIT_BLOG_URL = '/blog/kit-package'
 
 const FEATURED_COUNT = 4
@@ -74,7 +78,7 @@ export const PROJECTS: Array<Project> = [
 			'SvelteKit',
 			'TypeScript',
 			CLOUDFLARE_WORKERS,
-			'Cloudflare KV',
+			CLOUDFLARE_KV,
 			CLOUDFLARE_D1,
 			'Drizzle',
 			'TailwindCSS',
@@ -103,7 +107,7 @@ export const PROJECTS: Array<Project> = [
 			{ href: `${URLS.GITHUB}/talk-svelte`, type: 'github' },
 		],
 		image: talk,
-		tags: ['SvelteKit', 'TypeScript', CLOUDFLARE_WORKERS, 'Cloudflare R2'],
+		tags: ['SvelteKit', 'TypeScript', CLOUDFLARE_WORKERS, CLOUDFLARE_R2],
 	},
 	{
 		icon: RunningIcon,
