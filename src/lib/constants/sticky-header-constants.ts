@@ -1,3 +1,4 @@
+import { ICON_SIZE_MD } from '$lib/constants/layout'
 import { INTERACTIVE_SCALE_HOVER } from './interactive-effects'
 
 const MENU_WIDTH = 280
@@ -10,7 +11,7 @@ const HEADER_LEFT_SECTION_CLASSES = 'flex min-w-0 flex-1 items-center gap-4 md:g
 const HEADER_RIGHT_SECTION_CLASSES = 'flex shrink-0 items-center gap-2'
 const HEADER_HEIGHT = '4rem'
 const HEADER_HEIGHT_PX = 64
-const NAV_ICON_SIZE = '1.25rem'
+const NAV_ICON_SIZE = ICON_SIZE_MD
 
 const MENU_NAV_DESKTOP_BASE =
 	'cyber-glow-hover group relative flex items-center gap-2 rounded-lg px-3 py-2 text-base font-medium'
