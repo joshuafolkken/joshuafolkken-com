@@ -1,20 +1,23 @@
 import { json } from '@sveltejs/kit'
 import { APP } from '$lib/app'
 import { ERROR_MESSAGES, HTTP_HEADERS, HTTP_STATUS } from '$lib/constants/http'
+import {
+	LOCALHOST_HOSTNAMES,
+	RATE_LIMIT_COUNT,
+	RATE_LIMIT_WINDOW_MS,
+} from '$lib/constants/security'
 import { logger } from '$lib/logger'
-import { time_conversion } from '$lib/time-conversion'
-
-const LIMIT_WINDOW = time_conversion.minutes_to_ms(1)
-
-const LOCALHOST_HOSTNAMES = new Set(['localhost', '127.0.0.1'])
+import {
+	validator_chain,
+	type ValidationResult,
+	type ValidatorFunction,
+} from '$lib/server/validator-chain'
 
 function add_security_headers(response: Response): void {
 	response.headers.set('X-Content-Type-Options', 'nosniff')
 	response.headers.set('X-Frame-Options', 'SAMEORIGIN')
 	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
 }
-
-const LIMIT_COUNT = 60
 
 interface LimitData {
 	count: number
@@ -39,11 +42,11 @@ function check_rate_limit(ip: string): boolean {
 	let limit_data = ip_limits.get(ip)
 
 	if (!limit_data || now > limit_data.reset_at) {
-		limit_data = { count: 0, reset_at: now + LIMIT_WINDOW }
+		limit_data = { count: 0, reset_at: now + RATE_LIMIT_WINDOW_MS }
 		ip_limits.set(ip, limit_data)
 	}
 
-	if (limit_data.count >= LIMIT_COUNT) {
+	if (limit_data.count >= RATE_LIMIT_COUNT) {
 		return false
 	}
 
@@ -56,9 +59,7 @@ function json_error(message: string, status: number): Response {
 	return json({ error: message }, { status })
 }
 
-type ValidationResult = Response | undefined
-
-function validate_rate_limit(ip: string): ValidationResult {
+function validate_rate_limit(_request: Request, _url: URL, ip: string): ValidationResult {
 	if (!check_rate_limit(ip)) {
 		logger.warn(`[RateLimit] Blocked request from ${ip}`)
 
@@ -68,7 +69,7 @@ function validate_rate_limit(ip: string): ValidationResult {
 	return undefined
 }
 
-function validate_custom_header(request: Request): ValidationResult {
+function validate_custom_header(request: Request, _url: URL, _ip: string): ValidationResult {
 	const client_header = request.headers.get(HTTP_HEADERS.X_APP_CLIENT)
 
 	if (client_header !== APP.ID) {
@@ -78,16 +79,6 @@ function validate_custom_header(request: Request): ValidationResult {
 	}
 
 	return undefined
-}
-
-function is_localhost_hostname(hostname: string): boolean {
-	return LOCALHOST_HOSTNAMES.has(hostname)
-}
-
-function check_development_localhost(origin_url: URL): boolean {
-	// Treat localhost origin as development environment (wrangler dev, Vite dev, etc.)
-	// Production typically does not receive localhost requests
-	return is_localhost_hostname(origin_url.hostname)
 }
 
 function parse_origin_url(origin: string): URL | undefined {
@@ -108,7 +99,7 @@ function block_origin(origin: string): ValidationResult {
 	return json_error(ERROR_MESSAGES.FORBIDDEN, HTTP_STATUS.FORBIDDEN)
 }
 
-function validate_origin(request: Request, url: URL): ValidationResult {
+function validate_origin(request: Request, url: URL, _ip: string): ValidationResult {
 	const origin = request.headers.get(HTTP_HEADERS.ORIGIN)
 
 	if (!origin) return undefined
@@ -116,14 +107,20 @@ function validate_origin(request: Request, url: URL): ValidationResult {
 	const origin_url = parse_origin_url(origin)
 	if (!origin_url) return block_origin(origin)
 
-	if (check_development_localhost(origin_url)) return undefined
+	if (LOCALHOST_HOSTNAMES.has(origin_url.hostname)) return undefined
 	if (is_origin_mismatch(origin_url, url)) return block_origin(origin)
 
 	return undefined
 }
 
+const VALIDATORS: ReadonlyArray<ValidatorFunction> = [
+	validate_rate_limit,
+	validate_custom_header,
+	validate_origin,
+]
+
 function validate_request_security(request: Request, url: URL, ip: string): ValidationResult {
-	return validate_rate_limit(ip) ?? validate_custom_header(request) ?? validate_origin(request, url)
+	return validator_chain.run_validators(VALIDATORS, request, url, ip)
 }
 
 export const security = {
