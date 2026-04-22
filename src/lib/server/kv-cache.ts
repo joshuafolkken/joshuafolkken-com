@@ -68,14 +68,11 @@ function set_to_memory(key: string, value: unknown, now: number): void {
 
 function get_from_memory(key: string, now: number): unknown {
 	const memory_entry = memory_cache.get(key)
+	if (!memory_entry || memory_entry.expires <= now) return undefined
 
-	if (memory_entry && memory_entry.expires > now) {
-		log_cache_event('HIT', key, { source: 'memory', value: memory_entry.value, started_at: now })
+	log_cache_event('HIT', key, { source: 'memory', value: memory_entry.value, started_at: now })
 
-		return memory_entry.value
-	}
-
-	return undefined
+	return memory_entry.value
 }
 
 async function get_from_kv(key: string, kv: KVNamespace, now: number): Promise<unknown> {
@@ -89,6 +86,13 @@ async function get_from_kv(key: string, kv: KVNamespace, now: number): Promise<u
 	log_cache_event('HIT', key, { source: 'kv', value: kv_entry.value, started_at: now })
 
 	return kv_entry.value
+}
+
+async function get_cached_value(key: string, kv: KVNamespace, now: number): Promise<unknown> {
+	const memory_hit = get_from_memory(key, now)
+	if (memory_hit !== undefined) return memory_hit
+
+	return await get_from_kv(key, kv, now)
 }
 
 async function save_to_cache(
@@ -128,29 +132,16 @@ async function fetch_and_save<T>(
 	return fresh
 }
 
-async function get<T>(
-	key: string,
-	fetcher: () => Promise<T>,
-	platform: App.Platform | undefined,
-): Promise<T> {
+async function get<T>(key: string, fetcher: () => Promise<T>, platform?: App.Platform): Promise<T> {
 	const kv = platform_binding.get_kv(platform)
 	const now = Date.now()
-	const memory_value = get_from_memory(key, now)
-
-	if (memory_value !== undefined) {
-		return memory_value as T
-	}
-
-	const kv_value = await get_from_kv(key, kv, now)
-
-	if (kv_value !== undefined) {
-		return kv_value as T
-	}
+	const cached = await get_cached_value(key, kv, now)
+	if (cached !== undefined) return cached as T
 
 	return await fetch_and_save(key, fetcher, now, kv)
 }
 
-async function delete_cache(key: string, platform: App.Platform | undefined): Promise<void> {
+async function delete_cache(key: string, platform?: App.Platform): Promise<void> {
 	const kv = platform_binding.get_kv(platform)
 
 	memory_cache.delete(key)
