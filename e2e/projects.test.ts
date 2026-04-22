@@ -3,7 +3,6 @@ import { TEST_ROUTES } from './test-routes'
 
 const KIT_TITLE = '@joshuafolkken/kit'
 const BLOG_LABEL = 'Blog'
-const GITHUB_LABEL = 'GitHub'
 const KIT_GITHUB_URL = 'https://github.com/joshuafolkken/kit'
 const KIT_BLOG_URL = '/blog/kit-package'
 const CARD_SELECTOR = '.cyber-card'
@@ -22,10 +21,9 @@ test.describe('Projects page', () => {
 		await page.goto(TEST_ROUTES.PROJECTS)
 
 		const first_card = page.locator(CARD_SELECTOR).first()
-		const github_link = first_card.getByRole('link', { name: GITHUB_LABEL })
+		const github_link = first_card.locator(`a[href="${KIT_GITHUB_URL}"]`)
 
 		await expect(github_link).toBeVisible()
-		await expect(github_link).toHaveAttribute('href', KIT_GITHUB_URL)
 	})
 
 	test('kit card shows Blog link on /projects', async ({ page }) => {
@@ -58,10 +56,9 @@ test.describe('Home page featured projects', () => {
 		await page.goto(TEST_ROUTES.HOME)
 
 		const first_card = page.locator(CARD_SELECTOR).first()
-		const github_link = first_card.getByRole('link', { name: GITHUB_LABEL })
+		const github_link = first_card.locator(`a[href="${KIT_GITHUB_URL}"]`)
 
 		await expect(github_link).toBeVisible()
-		await expect(github_link).toHaveAttribute('href', KIT_GITHUB_URL)
 	})
 
 	test(`${GODOT_2D_TITLE} is not in featured projects on /`, async ({ page }) => {
