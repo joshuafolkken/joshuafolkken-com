@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest'
 import { INTERACTIVE_SCALE_HOVER } from './interactive-effects'
+import { ICON_SIZE_MD } from './layout'
 import {
 	MENU_TOGGLE_BUTTON_CLASSES,
 	NAV_ICON_SIZE,
@@ -18,7 +19,7 @@ test('INTERACTIVE_SCALE_HOVER resolves to the shared Tailwind tokens', () => {
 })
 
 test('NAV_ICON_SIZE matches ICON_SIZE_MD value', () => {
-	expect(NAV_ICON_SIZE).toBe('1.25rem')
+	expect(NAV_ICON_SIZE).toBe(ICON_SIZE_MD)
 })
 
 test.each(CONSUMER_CASES)('%s includes INTERACTIVE_SCALE_HOVER exactly once', (_name, value) => {
