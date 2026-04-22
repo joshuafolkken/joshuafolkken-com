@@ -1,7 +1,10 @@
 import { resolve } from '$app/paths'
+import type { Pathname } from '$app/types'
 import { LINK_REL, LINK_TARGET } from '$lib/app'
 
 const PROTOCOL_HTTP_PREFIX = 'http'
+const INTERNAL_PATH_PREFIX = '/'
+const BLOG_SLUG_PREFIX = '/blog/'
 
 const INTERNAL_PATHS = [
 	'/',
@@ -25,12 +28,20 @@ function is_internal_path(link: string): link is InternalPath {
 	return INTERNAL_PATH_SET.has(link)
 }
 
+function is_pathname(link: string): link is Pathname {
+	if (is_internal_path(link)) return true
+	if (link.startsWith(BLOG_SLUG_PREFIX)) return link.length > BLOG_SLUG_PREFIX.length
+
+	return false
+}
+
 function get_href(link?: string): string | undefined {
 	if (!link) return undefined
 	if (link.startsWith(PROTOCOL_HTTP_PREFIX)) return link
-	if (!is_internal_path(link)) return undefined
+	if (is_pathname(link)) return resolve(link)
+	if (link.startsWith(INTERNAL_PATH_PREFIX)) return link
 
-	return resolve(link)
+	return undefined
 }
 
 function is_internal_link(link?: string): boolean {
