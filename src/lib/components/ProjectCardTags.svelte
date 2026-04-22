@@ -1,6 +1,6 @@
 <script lang="ts">
+	import LiftedTechPill from '$lib/components/LiftedTechPill.svelte'
 	import { PROJECT_CARD_TAGS_ROW_CLASS } from '$lib/constants/card-styles'
-	import TechPill from './TechPill.svelte'
 
 	const {
 		tags,
@@ -18,7 +18,7 @@
 {#if tags.length}
 	<div class={row_class}>
 		{#each tags as tag (tag)}
-			<TechPill name={tag} />
+			<LiftedTechPill name={tag} />
 		{/each}
 	</div>
 {/if}

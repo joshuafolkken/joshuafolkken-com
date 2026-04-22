@@ -2,7 +2,7 @@ import type { Component } from 'svelte'
 
 export interface ProjectLink {
 	href: string
-	type: 'github' | 'demo'
+	type: 'github' | 'demo' | 'npm' | 'blog'
 }
 
 export interface Project {

@@ -1,9 +1,8 @@
 <script lang="ts">
+	import LiftedTechPill from '$lib/components/LiftedTechPill.svelte'
 	import RevealOnIntersect from '$lib/components/RevealOnIntersect.svelte'
 	import SectionHeading from '$lib/components/SectionHeading.svelte'
-	import TechPill from '$lib/components/TechPill.svelte'
 	import { CARD_BASE_CLASS } from '$lib/constants/card-styles'
-	import { TECH_PILL_LIFT_CLASS } from '$lib/constants/hover-styles'
 	import { TECH_STACK } from '$lib/data/tech-stack'
 	import ToolIcon from '$lib/icons/ToolIcon.svelte'
 
@@ -24,9 +23,7 @@
 					</h3>
 					<div class="flex flex-wrap gap-2.5">
 						{#each category.badges as badge (badge.name)}
-							<div class={TECH_PILL_LIFT_CLASS}>
-								<TechPill name={badge.name} logo={badge.logo} />
-							</div>
+							<LiftedTechPill name={badge.name} logo={badge.logo} />
 						{/each}
 					</div>
 				</div>

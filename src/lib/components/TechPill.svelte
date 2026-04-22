@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { LINK_REL, LINK_TARGET } from '$lib/app'
 	import TechPillContent from '$lib/components/TechPillContent.svelte'
-	import { ALL_ICONS, TECH_NAME_TO_LOGO } from '$lib/data/si-icons'
+	import { ALL_ICONS } from '$lib/data/si-icons'
 	import { tech_colors } from '$lib/data/tech-colors'
+	import { TECH_LOGO_MAP } from '$lib/data/tech-logo-map'
 	import { tech_official_urls } from '$lib/data/tech-official-urls'
 
 	const { name, logo = '' }: { name: string; logo?: string } = $props()
 
 	const color = $derived(tech_colors.get(name))
-	const logo_slug = $derived(logo || (TECH_NAME_TO_LOGO.get(name) ?? ''))
+	const logo_slug = $derived(logo || (TECH_LOGO_MAP.get(name) ?? ''))
 	const icon = $derived(logo_slug ? ALL_ICONS.get(logo_slug) : undefined)
 	const is_dark_brand = $derived(tech_colors.is_dark(color))
 	const official_url = $derived(tech_official_urls.get_official_url(name))

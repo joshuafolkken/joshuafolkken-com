@@ -1,41 +1,58 @@
 import type { LogoSlug } from '$lib/data/si-icons'
 
-const TECH_STACK_LOGO_ENTRIES = [
+const TECH_LOGO_MAP_ENTRIES = [
+	// AI Coding
 	['Claude Code', 'claude'],
 	['CodeRabbit', 'coderabbit'],
 	['Cursor', 'cursor'],
 	['Antigravity', 'google'],
-	['SonarCloud', 'sonarqubecloud'],
+	['Gemini', 'googlegemini'],
+	['AI Workflow', 'claude'],
+	// Code Quality & Testing
+	['SonarQube Cloud', 'sonarqubecloud'],
 	['Prettier', 'prettier'],
 	['ESLint', 'eslint'],
 	['Vitest', 'vitest'],
 	['Playwright', 'playwright'],
+	['CSpell', 'cspell'],
+	// Cloud & Edge
 	['Cloudflare Workers', 'cloudflare'],
 	['Cloudflare KV', 'cloudflare'],
 	['Cloudflare D1', 'cloudflare'],
 	['Cloudflare R2', 'cloudflare'],
+	['Cloudflare Workers / D1 / KV / R2', 'cloudflare'],
 	['AWS', 'amazonwebservices'],
+	['AWS EC2', 'amazonwebservices'],
 	['Vercel', 'vercel'],
+	// Web Technologies
 	['Better Auth', 'betterauth'],
 	['Svelte', 'svelte'],
+	['SvelteKit', 'svelte'],
 	['HTML5', 'html5'],
 	['CSS3', 'css'],
 	['Tailwind CSS', 'tailwindcss'],
+	['TailwindCSS', 'tailwindcss'],
 	['Node.js', 'nodedotjs'],
 	['Vue.js', 'vuedotjs'],
 	['.NET', 'dotnet'],
 	['Angular', 'angular'],
 	['Bootstrap', 'bootstrap'],
 	['Vite', 'vite'],
+	['Web Export', 'html5'],
+	['WebSocket', 'socketdotio'],
+	['WebSockets', 'socketdotio'],
+	// Development Tools
 	['Lefthook', 'lefthook'],
 	['pnpm', 'pnpm'],
 	['GitHub', 'github'],
+	['GitHub Actions', 'githubactions'],
 	['npm', 'npm'],
 	['Git', 'git'],
 	['tsx', 'typescript'],
 	['Sharp', 'sharp'],
 	['Markdown', 'markdown'],
 	['mdsvex', 'markdown'],
+	// Programming Languages
 	['TypeScript', 'typescript'],
 	['JavaScript', 'javascript'],
 	['Rust', 'rust'],
@@ -48,43 +65,54 @@ const TECH_STACK_LOGO_ENTRIES = [
 	['PHP', 'php'],
 	['Python', 'python'],
 	['C', 'c'],
+	// Databases & ORM
 	['TURSO', 'turso'],
 	['Drizzle', 'drizzle'],
+	['Drizzle ORM', 'drizzle'],
 	['LibSQL', 'sqlite'],
 	['SQLite', 'sqlite'],
 	['PostgreSQL', 'postgresql'],
 	['MySQL', 'mysql'],
 	['Redis', 'redis'],
+	// Game Development
 	['Godot', 'godotengine'],
 	['GDScript', 'godotengine'],
+	['GDShader', 'godotengine'],
+	['Godot / GDScript', 'godotengine'],
+	['Game Design', 'godotengine'],
 	['Unity', 'unity'],
+	// Mobile Development
 	['Android', 'android'],
 	['iOS', 'ios'],
 	['Flutter', 'flutter'],
 	['Android Studio', 'androidstudio'],
 	['Xcode', 'xcode'],
+	// Desktop Development
 	['Windows', 'windows'],
 	['macOS', 'macos'],
 	['Linux', 'linux'],
+	// IDEs & Editors
 	['VS Code', 'vscode'],
 	['Visual Studio', 'visualstudio'],
 	['IntelliJ IDEA', 'intellijidea'],
 	['PhpStorm', 'phpstorm'],
 	['Eclipse', 'eclipseide'],
+	// Infrastructure
 	['PM2', 'pm2'],
 	['VPS', 'vps'],
 	['Ubuntu', 'ubuntu'],
 	['CentOS', 'centos'],
 	['Nginx', 'nginx'],
 	['Apache', 'apache'],
-	['AWS EC2', 'amazonwebservices'],
 	['Caddy', 'caddy'],
 	['ngrok', 'ngrok'],
 	["Let's Encrypt", 'letsencrypt'],
+	// Soft skills (Skills section)
+	['Teaching & Mentoring', 'udemy'],
+	['UI / UX Design', 'figma'],
+	['Community Building', 'discord'],
 ] as const satisfies ReadonlyArray<readonly [string, LogoSlug]>
 
-export type TechStackName = (typeof TECH_STACK_LOGO_ENTRIES)[number][0]
+export type TechLogoName = (typeof TECH_LOGO_MAP_ENTRIES)[number][0]
 
-export const TECH_STACK_LOGO: ReadonlyMap<TechStackName, LogoSlug> = new Map(
-	TECH_STACK_LOGO_ENTRIES,
-)
+export const TECH_LOGO_MAP: ReadonlyMap<string, LogoSlug> = new Map(TECH_LOGO_MAP_ENTRIES)

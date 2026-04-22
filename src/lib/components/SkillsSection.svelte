@@ -1,8 +1,7 @@
 <script lang="ts">
+	import LiftedTechPill from '$lib/components/LiftedTechPill.svelte'
 	import RevealOnIntersect from '$lib/components/RevealOnIntersect.svelte'
 	import SectionHeading from '$lib/components/SectionHeading.svelte'
-	import TechPill from '$lib/components/TechPill.svelte'
-	import { TECH_PILL_LIFT_CLASS } from '$lib/constants/hover-styles'
 	import { SKILLS } from '$lib/data/skills'
 	import { tech_colors } from '$lib/data/tech-colors'
 	import SparklesIcon from '$lib/icons/SparklesIcon.svelte'
@@ -29,9 +28,7 @@
 			{@const color = tech_colors.get(skill.name)}
 			<RevealOnIntersect is_always_render on_visible={() => revealed.add(skill.name)}>
 				<div class="mb-2 flex items-baseline justify-between">
-					<div class="{TECH_PILL_LIFT_CLASS} inline-block">
-						<TechPill name={skill.name} />
-					</div>
+					<LiftedTechPill name={skill.name} />
 					<span class="font-mono text-xs" style:color>{skill.percent}%</span>
 				</div>
 				<div class="h-1 rounded-full bg-white/5">
