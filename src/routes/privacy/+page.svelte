@@ -1,17 +1,21 @@
 <script lang="ts">
 	/* eslint-disable max-len */
-	import { resolve } from '$app/paths'
 	import { APP, AUTHOR, LAST_UPDATED } from '$lib/app'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import PageSection from '$lib/components/PageSection.svelte'
 	import PrivacyPolicyTrackingSection from '$lib/components/privacy-policy/PrivacyPolicyTrackingSection.svelte'
-	import { LINK_BASE_CLASS } from '$lib/constants/layout'
+	import {
+		LAST_UPDATED_CLASS,
+		LINK_BASE_CLASS,
+		LIST_DECIMAL_CLASS,
+		LIST_DISC_CLASS,
+		SECTION_HEADING_3_CLASS,
+	} from '$lib/constants/layout'
+	import { CONTACT_HREF, TERMS_HREF } from '$lib/constants/page-routes'
 	import { PAGES } from '$lib/types/page'
 
 	const last_updated = LAST_UPDATED.PRIVACY_POLICY
-	const terms_href = resolve('/terms')
-	const contact_href = resolve('/contact')
 </script>
 
 <svelte:head>
@@ -23,7 +27,7 @@
 	<PageHeader page={PAGES.PRIVACY_POLICY} />
 
 	<PageSection>
-		<p class="text-right text-sm text-white/60">Last Updated: {last_updated}</p>
+		<p class={LAST_UPDATED_CLASS}>Last Updated: {last_updated}</p>
 	</PageSection>
 
 	<PageSection title="Introduction">
@@ -34,19 +38,19 @@
 		</p>
 		<p class="mt-2">
 			For the rules governing your use of this website, please also review our
-			<a href={terms_href} class={LINK_BASE_CLASS}>Terms of Service</a>.
+			<a href={TERMS_HREF} class={LINK_BASE_CLASS}>Terms of Service</a>.
 		</p>
 	</PageSection>
 
 	<PageSection title="Information We Collect">
 		<div class="space-y-4">
 			<div>
-				<h3 class="mb-2 text-xl font-medium">Automatically Collected Information</h3>
+				<h3 class={SECTION_HEADING_3_CLASS}>Automatically Collected Information</h3>
 				<p class="mb-2">
 					When you visit our website, we may automatically collect certain information about your
 					device and browsing behavior, including:
 				</p>
-				<ul class="ml-4 list-disc space-y-1">
+				<ul class={LIST_DISC_CLASS}>
 					<li><strong>Device Information</strong>: Browser type, operating system, device type</li>
 					<li>
 						<strong>Usage Data</strong>: Pages visited, time spent on pages, click patterns,
@@ -64,9 +68,9 @@
 			</div>
 
 			<div>
-				<h3 class="mb-2 text-xl font-medium">Information You Provide</h3>
+				<h3 class={SECTION_HEADING_3_CLASS}>Information You Provide</h3>
 				<p class="mb-2">We may collect information that you voluntarily provide to us, such as:</p>
-				<ul class="ml-4 list-disc space-y-1">
+				<ul class={LIST_DISC_CLASS}>
 					<li>Contact information when you reach out to us via email or contact forms</li>
 					<li>Comments or feedback you submit</li>
 					<li>Any other information you choose to share with us</li>
@@ -77,7 +81,7 @@
 
 	<PageSection title="How We Use Your Information">
 		<p class="mb-2">We use the collected information for the following purposes:</p>
-		<ol class="ml-4 list-decimal space-y-1">
+		<ol class={LIST_DECIMAL_CLASS}>
 			<li>
 				<strong>Website Operation</strong>: To provide, maintain, and improve our website
 				functionality
@@ -102,7 +106,7 @@
 		<p class="mb-2">
 			We may use other third-party services that collect information about your use of our website:
 		</p>
-		<ul class="ml-4 list-disc space-y-1">
+		<ul class={LIST_DISC_CLASS}>
 			<li><strong>Analytics Services</strong>: To analyze website traffic and user behavior</li>
 			<li><strong>Content Delivery Networks</strong>: To deliver content efficiently</li>
 			<li>
@@ -121,7 +125,7 @@
 			We do not sell your personal information. We may share your information in the following
 			circumstances:
 		</p>
-		<ol class="ml-4 list-decimal space-y-1">
+		<ol class={LIST_DECIMAL_CLASS}>
 			<li>
 				<strong>Service Providers</strong>: With third-party service providers who assist us in
 				operating our website and conducting our business
@@ -163,7 +167,7 @@
 			Depending on your location, you may have certain rights regarding your personal information,
 			including:
 		</p>
-		<ul class="ml-4 list-disc space-y-1">
+		<ul class={LIST_DISC_CLASS}>
 			<li>
 				<strong>Access</strong>: The right to access the personal information we hold about you
 			</li>
@@ -187,7 +191,7 @@
 		</ul>
 		<p class="mt-2">
 			To exercise these rights, please reach out via our
-			<a href={contact_href} class={LINK_BASE_CLASS}>Contact page</a>.
+			<a href={CONTACT_HREF} class={LINK_BASE_CLASS}>Contact page</a>.
 		</p>
 	</PageSection>
 
@@ -225,7 +229,7 @@
 			If you are a California resident, you have additional rights under the California Consumer
 			Privacy Act (CCPA), including:
 		</p>
-		<ul class="ml-4 list-disc space-y-1">
+		<ul class={LIST_DISC_CLASS}>
 			<li>The right to know what personal information is collected, used, shared, or sold</li>
 			<li>The right to delete personal information held by businesses</li>
 			<li>The right to opt-out of the sale of personal information</li>
@@ -238,7 +242,7 @@
 			If you are located in the European Economic Area (EEA), you have rights under the General Data
 			Protection Regulation (GDPR), including:
 		</p>
-		<ul class="ml-4 list-disc space-y-1">
+		<ul class={LIST_DISC_CLASS}>
 			<li>The right to access, rectify, or erase your personal data</li>
 			<li>The right to restrict or object to processing</li>
 			<li>The right to data portability</li>
@@ -250,7 +254,7 @@
 		<p>
 			If you have any questions, concerns, or requests regarding this Privacy Policy or our data
 			practices, please reach out via our
-			<a href={contact_href} class={LINK_BASE_CLASS}>Contact page</a>.
+			<a href={CONTACT_HREF} class={LINK_BASE_CLASS}>Contact page</a>.
 		</p>
 	</PageSection>
 </PageLayout>

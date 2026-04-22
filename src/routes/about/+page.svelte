@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { resolve } from '$app/paths'
 	import { APP, AUTHOR, LINK_REL, LINK_TARGET, OPENCOLLECTIVE, URLS } from '$lib/app'
 	import AdSenseScript from '$lib/components/AdSenseScript.svelte'
 	import EngagementButtons from '$lib/components/EngagementButtons.svelte'
@@ -9,12 +8,17 @@
 	import SkillsSection from '$lib/components/SkillsSection.svelte'
 	import SupportBox from '$lib/components/SupportBox.svelte'
 	import TechStack from '$lib/components/TechStack.svelte'
-	import { BLOCKQUOTE_CLASS, LINK_BASE_DEFAULT_CLASS } from '$lib/constants/layout'
+	import {
+		BLOCKQUOTE_CLASS,
+		LINK_BASE_DEFAULT_CLASS,
+		LIST_DISC_CLASS,
+		LIST_DISC_LINK_CLASS,
+		SECTION_HEADING_3_CLASS,
+	} from '$lib/constants/layout'
+	import { CONTACT_HREF } from '$lib/constants/page-routes'
 	import { PAGES } from '$lib/types/page'
 
 	const title = `${PAGES.ABOUT.title} - ${AUTHOR.NAME}`
-	const contact_href = resolve('/contact')
-	const LINK_LIST_CLASS = 'ml-4 list-disc space-y-2'
 </script>
 
 <svelte:head>
@@ -41,8 +45,8 @@
 	<PageSection title="🌟 What I Do">
 		<div class="space-y-6">
 			<div>
-				<h3 class="mb-2 text-xl font-medium">🎮 Game Development</h3>
-				<ul class="ml-4 list-disc space-y-1">
+				<h3 class={SECTION_HEADING_3_CLASS}>🎮 Game Development</h3>
+				<ul class={LIST_DISC_CLASS}>
 					<li>
 						<strong>Technologies</strong>: TypeScript + SvelteKit (Web Apps), Godot 4 with Typed
 						GDScript
@@ -56,8 +60,8 @@
 			</div>
 
 			<div>
-				<h3 class="mb-2 text-xl font-medium">👨‍🏫 Community & Education</h3>
-				<ul class="ml-4 list-disc space-y-1">
+				<h3 class={SECTION_HEADING_3_CLASS}>👨‍🏫 Community & Education</h3>
+				<ul class={LIST_DISC_CLASS}>
 					<li>
 						<strong>Career Counseling</strong>: Supporting young people aspiring to become engineers
 					</li>
@@ -120,7 +124,7 @@
 				</a>
 				, we support:
 			</p>
-			<ul class="ml-4 list-disc space-y-1">
+			<ul class={LIST_DISC_CLASS}>
 				<li>👥 Career consultation sessions for aspiring engineers</li>
 				<li>🎓 Job hunting and skill development support</li>
 				<li>👶 Programming workshops for children and youth</li>
@@ -136,7 +140,7 @@
 
 	<!-- My Projects -->
 	<PageSection title="🛠️ My Projects">
-		<ul class={LINK_LIST_CLASS}>
+		<ul class={LIST_DISC_LINK_CLASS}>
 			<li>
 				<a
 					href={URLS.GITHUB}
@@ -178,7 +182,7 @@
 
 	<!-- Connect -->
 	<PageSection title="🔗 Connect">
-		<ul class={LINK_LIST_CLASS}>
+		<ul class={LIST_DISC_LINK_CLASS}>
 			<li>
 				<a
 					href={URLS.GITHUB}
@@ -234,7 +238,7 @@
 	<PageSection title="📬 Get in touch">
 		<p>
 			Questions, collaboration ideas, or just want to say hi? Head over to the
-			<a href={contact_href} class={LINK_BASE_DEFAULT_CLASS}>contact page</a>
+			<a href={CONTACT_HREF} class={LINK_BASE_DEFAULT_CLASS}>contact page</a>
 			— I read every message.
 		</p>
 	</PageSection>
