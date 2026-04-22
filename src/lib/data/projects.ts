@@ -1,4 +1,5 @@
 import { SUBTITLE_DEVELOPMENT_TOOL, URLS } from '$lib/app'
+import kit_package from '$lib/assets/images/blog/kit-package.png'
 import godot_2d_platformer from '$lib/assets/images/projects/godot-2d-platformer.png'
 import godot_multiplayer from '$lib/assets/images/projects/godot-multiplayer-v2.png'
 import godot_project_template from '$lib/assets/images/projects/godot-project-template.png'
@@ -10,6 +11,7 @@ import tic_tac_toe from '$lib/assets/images/projects/tic-tac-toe.png'
 import FilmIcon from '$lib/icons/FilmIcon.svelte'
 import GlobeIcon from '$lib/icons/GlobeIcon.svelte'
 import ListIcon from '$lib/icons/ListIcon.svelte'
+import PackageIcon from '$lib/icons/PackageIcon.svelte'
 import ProjectsIcon from '$lib/icons/ProjectsIcon.svelte'
 import RunningIcon from '$lib/icons/RunningIcon.svelte'
 import TalkIcon from '$lib/icons/TalkIcon.svelte'
@@ -22,10 +24,44 @@ const CLOUDFLARE_D1 = 'Cloudflare D1'
 const GODOT = 'Godot'
 const GDSCRIPT = 'GDScript'
 const WEB_EXPORT = 'Web Export'
+const KIT_BLOG_URL = '/blog/kit-package'
 
 const FEATURED_COUNT = 4
 
 export const PROJECTS: Array<Project> = [
+	{
+		icon: PackageIcon,
+		title: '@joshuafolkken/kit',
+		subtitle: 'npm package',
+		description:
+			'A consolidated npm package for development configuration and AI workflow automation. One command deploys 25+ config files; 25+ CLI subcommands cover code quality, CI/CD, git hooks, spell-checking, and AI-assisted workflows (kickoff / fullrun).',
+		links: [
+			{ href: KIT_BLOG_URL, type: 'blog' },
+			{ href: `${URLS.GITHUB}/kit`, type: 'github' },
+		],
+		image: kit_package,
+		tags: [
+			'TypeScript',
+			'Node.js',
+			'SvelteKit',
+			'pnpm',
+			'Prettier',
+			'ESLint',
+			'CSpell',
+			'Vitest',
+			'Playwright',
+			'Lefthook',
+			'GitHub',
+			'GitHub Actions',
+			'SonarQube Cloud',
+			'CodeRabbit',
+			CLOUDFLARE_WORKERS,
+			'AI Workflow',
+			'Claude Code',
+			'Cursor',
+			'Gemini',
+		],
+	},
 	{
 		icon: ProjectsIcon,
 		title: 'joshuafolkken.com',
@@ -128,6 +164,4 @@ export const PROJECTS: Array<Project> = [
 	},
 ]
 
-export const FEATURED_PROJECTS = PROJECTS.filter(
-	(proj): proj is Project & { image: NonNullable<Project['image']> } => proj.image !== undefined,
-).slice(0, FEATURED_COUNT)
+export const FEATURED_PROJECTS = PROJECTS.slice(0, FEATURED_COUNT)

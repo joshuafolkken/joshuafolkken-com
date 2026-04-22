@@ -28,6 +28,8 @@ words:
   - fastcgi
   - Frontmatter
   - ghcr
+  - githubactions
+  - googlegemini
   - hrefs
   - GHSA
   - Ghsas
@@ -57,6 +59,7 @@ words:
   - SAMEORIGIN
   - Shippori
   - socketdotio
+  - sonarqubeserver
   - Stylesheet
   - Supabase
   - sveltekit

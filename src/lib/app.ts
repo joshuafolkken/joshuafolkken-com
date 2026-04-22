@@ -53,9 +53,11 @@ const LAST_UPDATED = {
 const LINK_LABELS = {
 	github: 'GitHub',
 	demo: 'Live Demo',
+	npm: 'npm',
+	blog: 'Blog',
 } as const
 
-function link_label(type: 'github' | 'demo'): string {
+function link_label(type: keyof typeof LINK_LABELS): string {
 	return LINK_LABELS[type]
 }
 

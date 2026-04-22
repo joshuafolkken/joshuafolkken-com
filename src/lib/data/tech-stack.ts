@@ -1,12 +1,12 @@
 import type { LogoSlug } from '$lib/data/si-icons'
-import { TECH_STACK_LOGO, type TechStackName } from '$lib/data/tech-stack-logos'
+import { TECH_LOGO_MAP } from '$lib/data/tech-logo-map'
 import type { Category } from '$lib/types/tech-stack'
 
-type CategoryInput = readonly [title: string, names: ReadonlyArray<TechStackName>]
+type CategoryInput = readonly [title: string, names: ReadonlyArray<string>]
 
 const CATEGORIES: ReadonlyArray<CategoryInput> = [
 	['AI Coding', ['Claude Code', 'CodeRabbit', 'Cursor', 'Antigravity']],
-	['Code Quality & Testing', ['SonarCloud', 'Prettier', 'ESLint', 'Vitest', 'Playwright']],
+	['Code Quality & Testing', ['SonarQube Cloud', 'Prettier', 'ESLint', 'Vitest', 'Playwright']],
 	[
 		'Cloud & Edge',
 		['Cloudflare Workers', 'Cloudflare KV', 'Cloudflare D1', 'Cloudflare R2', 'AWS', 'Vercel'],
@@ -70,8 +70,8 @@ const CATEGORIES: ReadonlyArray<CategoryInput> = [
 	],
 ]
 
-function to_badge(name: TechStackName): { name: string; logo: LogoSlug } {
-	const logo = TECH_STACK_LOGO.get(name)
+function to_badge(name: string): { name: string; logo: LogoSlug } {
+	const logo = TECH_LOGO_MAP.get(name)
 
 	if (logo === undefined) {
 		throw new Error(`Missing logo mapping for tech: ${name}`)

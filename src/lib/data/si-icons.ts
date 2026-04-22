@@ -23,8 +23,10 @@ import {
 	siFlutter,
 	siGit,
 	siGithub,
+	siGithubactions,
 	siGodotengine,
 	siGoogle,
+	siGooglegemini,
 	siHtml5,
 	siIntellijidea,
 	siIos,
@@ -128,6 +130,8 @@ const SI_ICON_ENTRIES = [
 	['letsencrypt', siLetsencrypt],
 	['git', siGit],
 	['github', siGithub],
+	['githubactions', siGithubactions],
+	['googlegemini', siGooglegemini],
 	['npm', siNpm],
 	['pnpm', siPnpm],
 	['lefthook', siLefthook],
@@ -199,6 +203,13 @@ const CUSTOM_ICON_ENTRIES = [
 			view_box: DEVICON_VIEW_BOX,
 		},
 	],
+	[
+		'cspell',
+		{
+			path: 'M9 2 L22 2 L22 10 L9 10 Z M2 13 L13 13 L13 22 L2 22 Z M15 13 L22 13 L22 22 L15 22 Z',
+			view_box: SI_VIEW_BOX,
+		},
+	],
 ] as const satisfies ReadonlyArray<readonly [string, TechIcon]>
 
 function to_tech_icon_entry(entry: readonly [string, SimpleIcon]): [string, TechIcon] {
@@ -212,46 +223,7 @@ const ALL_ICONS_MAP = new Map<string, TechIcon>([
 	...CUSTOM_ICON_ENTRIES,
 ])
 
-const TECH_NAME_TO_LOGO_ENTRIES = [
-	['SvelteKit', 'svelte'],
-	['TypeScript', 'typescript'],
-	['Cloudflare Workers / D1 / KV / R2', 'cloudflare'],
-	['Cloudflare Workers', 'cloudflare'],
-	['Cloudflare KV', 'cloudflare'],
-	['Cloudflare D1', 'cloudflare'],
-	['Cloudflare R2', 'cloudflare'],
-	['Tailwind CSS', 'tailwindcss'],
-	['TailwindCSS', 'tailwindcss'],
-	['Drizzle', 'drizzle'],
-	['Drizzle ORM', 'drizzle'],
-	['Rust', 'rust'],
-	['Godot', 'godotengine'],
-	['GDScript', 'godotengine'],
-	['GDShader', 'godotengine'],
-	['Godot / GDScript', 'godotengine'],
-	['Better Auth', 'betterauth'],
-	['Web Export', 'html5'],
-	['WebSocket', 'socketdotio'],
-	['WebSockets', 'socketdotio'],
-	['Teaching & Mentoring', 'udemy'],
-	['UI / UX Design', 'figma'],
-	['Community Building', 'discord'],
-	['Game Design', 'godotengine'],
-	['C#', 'csharp'],
-	['AWS', 'amazonwebservices'],
-	['AWS EC2', 'amazonwebservices'],
-	['Windows', 'windows'],
-	['VS Code', 'vscode'],
-	['Visual Studio', 'visualstudio'],
-	['Playwright', 'playwright'],
-	['VB.NET', 'dotnet'],
-	['LibSQL', 'sqlite'],
-	['VPS', 'vps'],
-] as const satisfies ReadonlyArray<readonly [string, string]>
-
-const TECH_NAME_TO_LOGO_MAP = new Map<string, string>(TECH_NAME_TO_LOGO_ENTRIES)
-
 export type LogoSlug = (typeof SI_ICON_ENTRIES)[number][0] | (typeof CUSTOM_ICON_ENTRIES)[number][0]
 
 export type { TechIcon }
-export { ALL_ICONS_MAP as ALL_ICONS, TECH_NAME_TO_LOGO_MAP as TECH_NAME_TO_LOGO }
+export { ALL_ICONS_MAP as ALL_ICONS }

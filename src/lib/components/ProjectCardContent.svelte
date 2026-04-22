@@ -8,11 +8,11 @@
 
 	const {
 		project,
-		has_github_link = false,
+		has_secondary_link = false,
 		should_include_tags = true,
 	} = $props<{
 		project: Project
-		has_github_link?: boolean
+		has_secondary_link?: boolean
 		/** When false (demo link wraps the body), tags render outside the `<a>` in `ProjectCard`. */
 		should_include_tags?: boolean
 	}>()
@@ -20,7 +20,7 @@
 	const has_tag_list = $derived(Boolean(project.tags?.length))
 
 	const body_bottom_class = $derived(
-		get_card_body_padding(should_include_tags, has_github_link, has_tag_list),
+		get_card_body_padding(should_include_tags, has_secondary_link, has_tag_list),
 	)
 </script>
 
