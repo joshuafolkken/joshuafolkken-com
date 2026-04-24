@@ -13,12 +13,18 @@
 	const { menu_items } = sticky_header_menu
 </script>
 
-<aside
+<svelte:window onkeydown={sticky_header_state.handle_keydown} />
+
+<div
 	class={MENU_DRAWER_CLASSES}
 	style="width: {MENU_WIDTH}px; top: {HEADER_HEIGHT}"
 	class:translate-x-0={is_menu_open}
 	class:translate-x-full={!is_menu_open}
+	role="dialog"
+	aria-modal="true"
 	aria-label="ナビゲーションメニュー"
+	data-testid="nav-drawer"
+	tabindex="-1"
 	onmouseenter={sticky_header_state.handle_menu_enter}
 	onmouseleave={sticky_header_state.handle_menu_leave}
 >
@@ -27,4 +33,4 @@
 	</nav>
 
 	<HeaderSocialLinks variant="mobile" on_click={sticky_header_state.close_menu} />
-</aside>
+</div>

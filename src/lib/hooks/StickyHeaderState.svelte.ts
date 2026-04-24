@@ -1,3 +1,5 @@
+import { keyboard_utilities } from '$lib/utils/keyboard-utilities'
+
 const MENU_CLOSE_DELAY_MS = 400
 
 let is_menu_open = $state(false)
@@ -54,6 +56,10 @@ function handle_toggle_click(): void {
 	else open_menu()
 }
 
+function handle_keydown(event: KeyboardEvent): void {
+	if (is_menu_open && keyboard_utilities.is_escape(event)) close_menu()
+}
+
 function get_is_menu_open(): boolean {
 	return is_menu_open
 }
@@ -63,6 +69,7 @@ const sticky_header_state = {
 	get_is_menu_open,
 	handle_button_enter,
 	handle_button_leave,
+	handle_keydown,
 	handle_menu_enter,
 	handle_menu_leave,
 	handle_toggle_click,
