@@ -6,7 +6,7 @@ const CYBER_GLOW_HOVER_CLASS = 'cyber-glow-hover'
 const NARROW_VIEWPORT_WIDTH = 640
 const NARROW_VIEWPORT_HEIGHT = 800
 
-const DRAWER_ARIA_LABEL = 'ナビゲーションメニュー'
+const DRAWER_TESTID = 'nav-drawer'
 const MENU_OPEN_ARIA_LABEL = 'メニューを開く'
 
 test.describe('Sticky header drawer', () => {
@@ -21,7 +21,7 @@ test.describe('Sticky header drawer', () => {
 
 		await page.getByRole('button', { name: MENU_OPEN_ARIA_LABEL }).click()
 
-		const drawer = page.locator(`aside[aria-label="${DRAWER_ARIA_LABEL}"]`)
+		const drawer = page.getByTestId(DRAWER_TESTID)
 		const first_nav_link = drawer.getByRole('link').first()
 
 		await expect(first_nav_link).toBeVisible()

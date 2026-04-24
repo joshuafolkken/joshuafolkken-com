@@ -28,6 +28,7 @@ test.describe('Projects page', () => {
 
 	test('kit card shows Blog link on /projects', async ({ page }) => {
 		await page.goto(TEST_ROUTES.PROJECTS)
+		await page.waitForLoadState('networkidle')
 
 		const first_card = page.locator(CARD_SELECTOR).first()
 		const blog_link = first_card.getByRole('link', { name: BLOG_LABEL })
