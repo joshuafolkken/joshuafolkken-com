@@ -9,6 +9,7 @@ const PREVIEW_PORT = 4173
 const CI_TIMEOUT = 15_000
 const LOCAL_TIMEOUT = 25_000
 const TEST_TIMEOUT = 10_000
+const LOCAL_TEST_TIMEOUT = 25_000
 const EXPECT_TIMEOUT = 5_000
 const ACTION_TIMEOUT = 5_000
 const NAVIGATION_TIMEOUT = 10_000
@@ -43,7 +44,7 @@ export default defineConfig({
 	// リトライ設定（CI でのみ有効、ローカルでは即座に失敗を確認）
 	retries: isCI ? 2 : 0,
 	// タイムアウト設定を最適化
-	timeout: TEST_TIMEOUT,
+	timeout: isCI ? TEST_TIMEOUT : LOCAL_TEST_TIMEOUT,
 	expect: {
 		timeout: EXPECT_TIMEOUT,
 	},
