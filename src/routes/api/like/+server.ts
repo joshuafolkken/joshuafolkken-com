@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit'
 import { CONTENT_TYPE_JSON, ERROR_MESSAGES, HTTP_HEADERS, HTTP_STATUS } from '$lib/constants/http'
 import { logger } from '$lib/logger'
 import { like_store } from '$lib/server/like-store'
-import { security } from '$lib/server/security'
+import { security, type SecurityContext } from '$lib/server/security'
 import { slug_validator } from '$lib/utils/slug-validator'
 import type { RequestHandler } from './$types'
 
@@ -72,7 +72,8 @@ export const GET: RequestHandler = async ({
 	getClientAddress: get_client_address,
 	platform,
 }) => {
-	const error_response = security.validate_request_security(request, url, get_client_address())
+	const context: SecurityContext = { request, url, ip: get_client_address(), platform }
+	const error_response = await security.validate_request_security(context)
 
 	if (error_response) return error_response
 
@@ -97,7 +98,8 @@ export const POST: RequestHandler = async ({
 	url,
 	platform,
 }) => {
-	const error_response = security.validate_request_security(request, url, get_client_address())
+	const context: SecurityContext = { request, url, ip: get_client_address(), platform }
+	const error_response = await security.validate_request_security(context)
 
 	if (error_response) return error_response
 

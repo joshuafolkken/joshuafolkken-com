@@ -1,9 +1,17 @@
-import { RATE_LIMIT_COUNT } from '$lib/constants/security'
+/* eslint-disable @typescript-eslint/triple-slash-reference -- tsgo needs explicit reference for Cloudflare types */
+/// <reference path="../../../worker-configuration.d.ts" />
+import { platform_binding } from '$lib/server/platform-binding'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { security } from './security'
+import { security, type SecurityContext } from './security'
 
 vi.mock('$lib/logger', () => ({
 	logger: { warn: vi.fn(), info: vi.fn(), error: vi.fn(), debug: vi.fn() },
+}))
+
+vi.mock('$lib/server/platform-binding', () => ({
+	platform_binding: {
+		get_rate_limiter: vi.fn(),
+	},
 }))
 
 const APP_ID = 'joshuafolkken-com'
@@ -12,13 +20,11 @@ const SAME_ORIGIN = 'https://joshuafolkken.com'
 const DIFFERENT_ORIGIN = 'https://evil.example.com'
 const LOCALHOST_ORIGIN = 'http://localhost:5173'
 const INVALID_ORIGIN = 'not-a-url'
+// eslint-disable-next-line sonarjs/no-hardcoded-ip -- test fixture
+const DUMMY_IP = '10.0.0.1'
 
-let ip_counter = 0
-
-function unique_ip(): string {
-	ip_counter += 1
-
-	return `10.99.0.${String(ip_counter)}`
+function make_rate_limiter(success: boolean): RateLimit {
+	return { limit: vi.fn().mockResolvedValue({ success }) }
 }
 
 function make_request(options: { origin?: string; client?: string } = {}): Request {
@@ -30,7 +36,32 @@ function make_request(options: { origin?: string; client?: string } = {}): Reque
 	return new Request(BASE_URL, { headers })
 }
 
-const APP_URL = new URL(BASE_URL)
+function make_platform(success: boolean): App.Platform {
+	vi.mocked(platform_binding.get_rate_limiter).mockReturnValue(make_rate_limiter(success))
+
+	// eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- mock stub; App.Platform shape not needed in test
+	return {} as App.Platform
+}
+
+function make_context(
+	options: {
+		origin?: string
+		client?: string
+		platform?: App.Platform
+	} = {},
+): SecurityContext {
+	const request_options: { origin?: string; client?: string } = {}
+
+	if (options.origin !== undefined) request_options.origin = options.origin
+	if (options.client !== undefined) request_options.client = options.client
+
+	return {
+		request: make_request(request_options),
+		url: new URL(BASE_URL),
+		ip: DUMMY_IP,
+		platform: options.platform,
+	}
+}
 
 beforeEach(() => {
 	vi.clearAllMocks()
@@ -80,50 +111,48 @@ describe('security.json_error', () => {
 })
 
 describe('security.validate_request_security — rate limit', () => {
-	it('allows requests under the limit', () => {
-		const ip = unique_ip()
-		const result = security.validate_request_security(make_request(), APP_URL, ip)
+	it('allows the request when Cloudflare binding returns success', async () => {
+		const result = await security.validate_request_security(
+			make_context({ platform: make_platform(true) }),
+		)
 
 		expect(result).toBeUndefined()
 	})
 
-	it('blocks the request after exceeding the rate limit', () => {
-		const ip = unique_ip()
-		const request = make_request()
-
-		for (let index = 0; index < RATE_LIMIT_COUNT; index++) {
-			security.validate_request_security(request, APP_URL, ip)
-		}
-
-		const result = security.validate_request_security(request, APP_URL, ip)
+	it('returns 429 when Cloudflare binding returns failure', async () => {
+		const result = await security.validate_request_security(
+			make_context({ platform: make_platform(false) }),
+		)
 
 		expect(result).toBeInstanceOf(Response)
 		expect(result?.status).toBe(429)
 	})
+
+	it('skips rate limiting when platform is undefined', async () => {
+		const result = await security.validate_request_security(make_context())
+
+		expect(result).toBeUndefined()
+		expect(platform_binding.get_rate_limiter).not.toHaveBeenCalled()
+	})
 })
 
 describe('security.validate_request_security — custom header', () => {
-	it('returns undefined when the correct app client header is present', () => {
-		const ip = unique_ip()
-		const result = security.validate_request_security(make_request(), APP_URL, ip)
+	it('returns undefined when the correct app client header is present', async () => {
+		const result = await security.validate_request_security(make_context())
 
 		expect(result).toBeUndefined()
 	})
 
-	it('returns 403 when the app client header is missing', () => {
-		const ip = unique_ip()
-		const result = security.validate_request_security(make_request({ client: '' }), APP_URL, ip)
+	it('returns 403 when the app client header is missing', async () => {
+		const result = await security.validate_request_security(make_context({ client: '' }))
 
 		expect(result).toBeInstanceOf(Response)
 		expect(result?.status).toBe(403)
 	})
 
-	it('returns 403 when the app client header has an incorrect value', () => {
-		const ip = unique_ip()
-		const result = security.validate_request_security(
-			make_request({ client: 'wrong-client' }),
-			APP_URL,
-			ip,
+	it('returns 403 when the app client header has an incorrect value', async () => {
+		const result = await security.validate_request_security(
+			make_context({ client: 'wrong-client' }),
 		)
 
 		expect(result).toBeInstanceOf(Response)
@@ -132,30 +161,21 @@ describe('security.validate_request_security — custom header', () => {
 })
 
 describe('security.validate_request_security — origin (allowed)', () => {
-	it('returns undefined when no origin header is present', () => {
-		const ip = unique_ip()
-		const result = security.validate_request_security(make_request(), APP_URL, ip)
+	it('returns undefined when no origin header is present', async () => {
+		const result = await security.validate_request_security(make_context())
 
 		expect(result).toBeUndefined()
 	})
 
-	it('returns undefined when origin matches the request URL', () => {
-		const ip = unique_ip()
-		const result = security.validate_request_security(
-			make_request({ origin: SAME_ORIGIN }),
-			APP_URL,
-			ip,
-		)
+	it('returns undefined when origin matches the request URL', async () => {
+		const result = await security.validate_request_security(make_context({ origin: SAME_ORIGIN }))
 
 		expect(result).toBeUndefined()
 	})
 
-	it('returns undefined when origin is localhost', () => {
-		const ip = unique_ip()
-		const result = security.validate_request_security(
-			make_request({ origin: LOCALHOST_ORIGIN }),
-			APP_URL,
-			ip,
+	it('returns undefined when origin is localhost', async () => {
+		const result = await security.validate_request_security(
+			make_context({ origin: LOCALHOST_ORIGIN }),
 		)
 
 		expect(result).toBeUndefined()
@@ -163,24 +183,18 @@ describe('security.validate_request_security — origin (allowed)', () => {
 })
 
 describe('security.validate_request_security — origin (blocked)', () => {
-	it('returns 403 when origin does not match the request URL', () => {
-		const ip = unique_ip()
-		const result = security.validate_request_security(
-			make_request({ origin: DIFFERENT_ORIGIN }),
-			APP_URL,
-			ip,
+	it('returns 403 when origin does not match the request URL', async () => {
+		const result = await security.validate_request_security(
+			make_context({ origin: DIFFERENT_ORIGIN }),
 		)
 
 		expect(result).toBeInstanceOf(Response)
 		expect(result?.status).toBe(403)
 	})
 
-	it('returns 403 when origin is not a valid URL', () => {
-		const ip = unique_ip()
-		const result = security.validate_request_security(
-			make_request({ origin: INVALID_ORIGIN }),
-			APP_URL,
-			ip,
+	it('returns 403 when origin is not a valid URL', async () => {
+		const result = await security.validate_request_security(
+			make_context({ origin: INVALID_ORIGIN }),
 		)
 
 		expect(result).toBeInstanceOf(Response)
