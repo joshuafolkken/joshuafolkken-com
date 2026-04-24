@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/triple-slash-reference -- tsgo needs explicit reference for Cloudflare types */
 /// <reference path="../../../worker-configuration.d.ts" />
+import { CSP_VALUE, HSTS_VALUE, PERMISSIONS_POLICY_VALUE } from '$lib/constants/security'
 import { platform_binding } from '$lib/server/platform-binding'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { security, type SecurityContext } from './security'
@@ -90,6 +91,46 @@ describe('security.add_security_headers', () => {
 		security.add_security_headers(response)
 
 		expect(response.headers.get('Referrer-Policy')).toBe('strict-origin-when-cross-origin')
+	})
+
+	it('sets Strict-Transport-Security', () => {
+		const response = new Response()
+
+		security.add_security_headers(response)
+
+		expect(response.headers.get('Strict-Transport-Security')).toBe(HSTS_VALUE)
+	})
+
+	it('sets Permissions-Policy', () => {
+		const response = new Response()
+
+		security.add_security_headers(response)
+
+		expect(response.headers.get('Permissions-Policy')).toBe(PERMISSIONS_POLICY_VALUE)
+	})
+
+	it('sets Content-Security-Policy', () => {
+		const response = new Response()
+
+		security.add_security_headers(response)
+
+		expect(response.headers.get('Content-Security-Policy')).toBe(CSP_VALUE)
+	})
+})
+
+describe('security.add_security_headers — CSP directives', () => {
+	it('includes required third-party script origins', () => {
+		expect(CSP_VALUE).toContain('https://www.googletagmanager.com')
+		expect(CSP_VALUE).toContain('https://*.googlesyndication.com')
+	})
+
+	it('includes Google Fonts origins', () => {
+		expect(CSP_VALUE).toContain('https://fonts.googleapis.com')
+		expect(CSP_VALUE).toContain('https://fonts.gstatic.com')
+	})
+
+	it('disables object-src', () => {
+		expect(CSP_VALUE).toContain("object-src 'none'")
 	})
 })
 
