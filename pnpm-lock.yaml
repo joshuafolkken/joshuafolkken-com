@@ -41,8 +41,8 @@ importers:
         specifier: ^4.7.1
         version: 4.7.1(prettier@3.8.3)
       '@joshuafolkken/kit':
-        specifier: 0.56.0
-        version: 0.56.0(@playwright/test@1.59.1)(svelte@5.55.4(@typescript-eslint/types@8.59.0))
+        specifier: 0.64.0
+        version: 0.64.0(@playwright/test@1.59.1)(svelte@5.55.4(@typescript-eslint/types@8.59.0))
       '@playwright/test':
         specifier: ^1.59.1
         version: 1.59.1
@@ -1400,8 +1400,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@joshuafolkken/kit@0.56.0':
-    resolution: {integrity: sha512-0vOafDzs64Goe5nAgZdRkw1vqJycR411+nrZzPL0yAg4BLec4kqig1sKCHCPyeiVvGO9SjGSBEBkLnqI+5NdMA==, tarball: https://npm.pkg.github.com/download/@joshuafolkken/kit/0.56.0/3b6994ca5d513b65e2bf4f4772224f3ddc29c1f4}
+  '@joshuafolkken/kit@0.64.0':
+    resolution: {integrity: sha512-UU6OVYa/31KwJt93y5fLljqJ36nSCKzbnoDSGpoC5RirC4xY3cPXN0jQySsooXZVdiWrKks+av0KyZt4OmIczg==, tarball: https://npm.pkg.github.com/download/@joshuafolkken/kit/0.64.0/11ef0df1298e52c0f0ff3216b950651e73b51d82}
     engines: {node: '>=22.19.0'}
     hasBin: true
     peerDependencies:
@@ -5376,12 +5376,13 @@ snapshots:
   '@img/sharp-win32-x64@0.34.5':
     optional: true
 
-  '@joshuafolkken/kit@0.56.0(@playwright/test@1.59.1)(svelte@5.55.4(@typescript-eslint/types@8.59.0))':
+  '@joshuafolkken/kit@0.64.0(@playwright/test@1.59.1)(svelte@5.55.4(@typescript-eslint/types@8.59.0))':
     dependencies:
       '@playwright/test': 1.59.1
       strip-json-comments: 5.0.3
       svelte: 5.55.4(@typescript-eslint/types@8.59.0)
       tsx: 4.21.0
+      zod: 4.3.6
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
