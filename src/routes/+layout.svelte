@@ -5,7 +5,7 @@
 	import { APP, AUTHOR } from '$lib/app'
 	import favicon from '$lib/assets/logo.svg'
 	import StickyHeader from '$lib/components/StickyHeader.svelte'
-	import { MAIN_CONTENT_ID } from '$lib/constants/layout'
+	import { SKIP_LINK_TARGET_ID } from '$lib/constants/layout'
 	import {
 		PROGRESS_BAR_SETTLE_MS,
 		PROGRESS_BAR_THRESHOLD_MS,
@@ -46,7 +46,7 @@
 	</noscript>
 </svelte:head>
 
-<a href="#{MAIN_CONTENT_ID}" class={SKIP_LINK_CLASS}>Skip to main content</a>
+<a href="#{SKIP_LINK_TARGET_ID}" class={SKIP_LINK_CLASS}>Skip to main content</a>
 
 <ProgressBar
 	class="text-sky-400"
@@ -55,6 +55,6 @@
 	zIndex={PROGRESS_BAR_Z_INDEX}
 />
 <StickyHeader />
-<main id={MAIN_CONTENT_ID} class="pt-16" inert={is_menu_open}>
+<main id={SKIP_LINK_TARGET_ID} class="pt-16" inert={is_menu_open}>
 	{@render children()}
 </main>

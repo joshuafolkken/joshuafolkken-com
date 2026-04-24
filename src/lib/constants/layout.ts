@@ -38,6 +38,9 @@ const BLOCKQUOTE_CLASS = 'border-l-4 border-white/30 pl-4 italic'
 /** ID of the main content anchor for scroll links (e.g. from hero). */
 const MAIN_CONTENT_ID = 'main-content'
 
+/** ID of the skip-link target on the layout main element. */
+const SKIP_LINK_TARGET_ID = 'skip-to-main'
+
 function get_max_width_class(max_width: MaxWidthKey = '2xl'): string {
 	return MAX_WIDTH_CLASS_MAP[max_width]
 }
@@ -51,6 +54,7 @@ export {
 	LIST_DISC_CLASS,
 	LIST_DISC_LINK_CLASS,
 	MAIN_CONTENT_ID,
+	SKIP_LINK_TARGET_ID,
 	get_max_width_class,
 	ICON_LABEL_ROW_CENTER_CLASS,
 	ICON_SIZE_2XL,
