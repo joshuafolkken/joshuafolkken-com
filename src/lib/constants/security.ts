@@ -1,5 +1,3 @@
 const LOCALHOST_HOSTNAMES: ReadonlySet<string> = new Set(['localhost', '127.0.0.1'])
-const RATE_LIMIT_COUNT = 60
-const RATE_LIMIT_WINDOW_MS = 60_000
 
-export { LOCALHOST_HOSTNAMES, RATE_LIMIT_COUNT, RATE_LIMIT_WINDOW_MS }
+export { LOCALHOST_HOSTNAMES }
