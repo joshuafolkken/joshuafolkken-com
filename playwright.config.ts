@@ -12,6 +12,7 @@ const TEST_TIMEOUT = 10_000
 const EXPECT_TIMEOUT = 5_000
 const ACTION_TIMEOUT = 5_000
 const NAVIGATION_TIMEOUT = 10_000
+const LOCAL_NAVIGATION_TIMEOUT = 25_000
 
 // 環境に応じた設定を関数化
 const getWebServerConfig = () => {
@@ -73,7 +74,7 @@ export default defineConfig({
 		// アクションのタイムアウト
 		actionTimeout: ACTION_TIMEOUT,
 		// ナビゲーションのタイムアウト
-		navigationTimeout: NAVIGATION_TIMEOUT,
+		navigationTimeout: isCI ? NAVIGATION_TIMEOUT : LOCAL_NAVIGATION_TIMEOUT,
 		// スクリーンショットは失敗時のみ（CI でのみ）
 		screenshot: isCI ? 'only-on-failure' : 'off',
 		// ビデオは失敗時のみ（CI でのみ）
