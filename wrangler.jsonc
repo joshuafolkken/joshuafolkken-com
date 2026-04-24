@@ -46,5 +46,16 @@
 			"migrations_dir": "drizzle/migrations"
 			// "remote": true
 		}
+	],
+
+	"rate_limiting": [
+		{
+			"binding": "RATE_LIMITER",
+			"namespace_id": "1",
+			"simple": {
+				"limit": 60,
+				"period": 60
+			}
+		}
 	]
 }
