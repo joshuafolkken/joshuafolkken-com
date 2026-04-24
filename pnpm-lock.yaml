@@ -10,6 +10,7 @@ overrides:
   cookie@<0.7.0: '>=0.7.0'
   drizzle-orm@<0.45.2: '>=0.45.2'
   '@sveltejs/kit@<=2.57.0': '>=2.57.1'
+  uuid@<14.0.0: '>=14.0.0'
 
 importers:
 
@@ -41,8 +42,8 @@ importers:
         specifier: ^4.7.1
         version: 4.7.1(prettier@3.8.3)
       '@joshuafolkken/kit':
-        specifier: 0.56.0
-        version: 0.56.0(@playwright/test@1.59.1)(svelte@5.55.4(@typescript-eslint/types@8.59.0))
+        specifier: 0.64.0
+        version: 0.64.0(@playwright/test@1.59.1)(svelte@5.55.4(@typescript-eslint/types@8.59.0))
       '@playwright/test':
         specifier: ^1.59.1
         version: 1.59.1
@@ -1400,13 +1401,18 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@joshuafolkken/kit@0.56.0':
-    resolution: {integrity: sha512-0vOafDzs64Goe5nAgZdRkw1vqJycR411+nrZzPL0yAg4BLec4kqig1sKCHCPyeiVvGO9SjGSBEBkLnqI+5NdMA==, tarball: https://npm.pkg.github.com/download/@joshuafolkken/kit/0.56.0/3b6994ca5d513b65e2bf4f4772224f3ddc29c1f4}
+  '@joshuafolkken/kit@0.64.0':
+    resolution: {integrity: sha512-UU6OVYa/31KwJt93y5fLljqJ36nSCKzbnoDSGpoC5RirC4xY3cPXN0jQySsooXZVdiWrKks+av0KyZt4OmIczg==, tarball: https://npm.pkg.github.com/download/@joshuafolkken/kit/0.64.0/11ef0df1298e52c0f0ff3216b950651e73b51d82}
     engines: {node: '>=22.19.0'}
     hasBin: true
     peerDependencies:
       '@playwright/test': '>=1.0.0'
       svelte: '>=5.0.0'
+    peerDependenciesMeta:
+      '@playwright/test':
+        optional: true
+      svelte:
+        optional: true
 
   '@jridgewell/gen-mapping@0.3.13':
     resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
@@ -4303,8 +4309,8 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
-  uuid@11.1.0:
-    resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
+  uuid@14.0.0:
+    resolution: {integrity: sha512-Qo+uWgilfSmAhXCMav1uYFynlQO7fMFiMVZsQqZRMIXp0O7rR7qjkj+cPvBHLgBqi960QCoo/PH2/6ZtVqKvrg==}
     hasBin: true
 
   vfile-message@2.0.4:
@@ -5376,12 +5382,14 @@ snapshots:
   '@img/sharp-win32-x64@0.34.5':
     optional: true
 
-  '@joshuafolkken/kit@0.56.0(@playwright/test@1.59.1)(svelte@5.55.4(@typescript-eslint/types@8.59.0))':
+  '@joshuafolkken/kit@0.64.0(@playwright/test@1.59.1)(svelte@5.55.4(@typescript-eslint/types@8.59.0))':
     dependencies:
-      '@playwright/test': 1.59.1
       strip-json-comments: 5.0.3
-      svelte: 5.55.4(@typescript-eslint/types@8.59.0)
       tsx: 4.21.0
+      zod: 4.3.6
+    optionalDependencies:
+      '@playwright/test': 1.59.1
+      svelte: 5.55.4(@typescript-eslint/types@8.59.0)
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
@@ -8475,7 +8483,7 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  uuid@11.1.0: {}
+  uuid@14.0.0: {}
 
   vfile-message@2.0.4:
     dependencies:
@@ -8493,7 +8501,7 @@ snapshots:
 
   vite-plugin-devtools-json@1.0.0(vite@8.0.9(@types/node@25.6.0)(esbuild@0.28.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)):
     dependencies:
-      uuid: 11.1.0
+      uuid: 14.0.0
       vite: 8.0.9(@types/node@25.6.0)(esbuild@0.28.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
 
   vite@8.0.9(@types/node@25.6.0)(esbuild@0.28.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3):
