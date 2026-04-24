@@ -38,6 +38,7 @@ Stack: TypeScript · pnpm · SvelteKit · Vitest · Playwright · TailwindCSS ·
 - `$state` reactive variables are reassignable
 - Props interface name `Props` is allowed by ESLint
 - DOM manipulation is restricted
+- Exception: `const foo: Action = ...` arrow-function assignments are allowed for Svelte actions (typed with `Action` from `svelte/action`); converting to a plain `function` declaration would lose the type annotation
 
 ### Content rules
 
