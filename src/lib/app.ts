@@ -8,13 +8,20 @@ const APP = {
 
 const AUTHOR = {
 	NAME: 'Joshua Folkken',
-	EMAIL: 'joshuafolkken@gmail.com',
 	X_USERNAME: 'joshuafolkken',
 	YEAR: new Date().getFullYear(),
 	get COPYRIGHT(): string {
 		return `© ${String(this.YEAR)} ${this.NAME}`
 	},
 } as const
+
+// joshuafolkken@gmail.com XOR-encoded with key=5; decoded only at reveal time
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+const AUTHOR_EMAIL_ENCODED: ReadonlyArray<number> = [
+	111, 106, 118, 109, 112, 100, 99, 106, 105, 110, 110, 96, 107, 69, 98, 104, 100, 108, 105, 43,
+	102, 106, 104,
+]
+/* eslint-enable @typescript-eslint/no-magic-numbers */
 
 const URLS = {
 	TALK: 'https://talk.joshuafolkken.com',
@@ -68,6 +75,7 @@ const app = {
 export {
 	APP,
 	AUTHOR,
+	AUTHOR_EMAIL_ENCODED,
 	LAST_UPDATED,
 	LINK_LABELS,
 	LINK_REL,
