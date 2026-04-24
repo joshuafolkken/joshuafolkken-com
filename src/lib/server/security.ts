@@ -3,7 +3,12 @@
 import { json } from '@sveltejs/kit'
 import { APP } from '$lib/app'
 import { ERROR_MESSAGES, HTTP_HEADERS, HTTP_STATUS } from '$lib/constants/http'
-import { LOCALHOST_HOSTNAMES } from '$lib/constants/security'
+import {
+	CSP_VALUE,
+	HSTS_VALUE,
+	LOCALHOST_HOSTNAMES,
+	PERMISSIONS_POLICY_VALUE,
+} from '$lib/constants/security'
 import { logger } from '$lib/logger'
 import { platform_binding } from '$lib/server/platform-binding'
 import {
@@ -23,6 +28,9 @@ function add_security_headers(response: Response): void {
 	response.headers.set('X-Content-Type-Options', 'nosniff')
 	response.headers.set('X-Frame-Options', 'SAMEORIGIN')
 	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+	response.headers.set('Strict-Transport-Security', HSTS_VALUE)
+	response.headers.set('Permissions-Policy', PERMISSIONS_POLICY_VALUE)
+	response.headers.set('Content-Security-Policy', CSP_VALUE)
 }
 
 function json_error(message: string, status: number): Response {
