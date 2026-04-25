@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { AUTHOR } from '$lib/app'
+	import { APP, AUTHOR } from '$lib/app'
 	import EngagementButtons from '$lib/components/EngagementButtons.svelte'
+	import MetaTags from '$lib/components/MetaTags.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import ProjectList from '$lib/components/ProjectList.svelte'
@@ -15,6 +16,8 @@
 	<title>{title}</title>
 	<meta name="description" content={PAGES.PROJECTS.description} />
 </svelte:head>
+
+<MetaTags {title} description={PAGES.PROJECTS.description} url="{APP.URL}/projects" />
 
 <PageLayout max_width="6xl">
 	<PageHeader page={PAGES.PROJECTS} />

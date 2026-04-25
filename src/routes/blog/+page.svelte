@@ -1,19 +1,23 @@
 <script lang="ts">
-	import { AUTHOR } from '$lib/app'
+	import { APP, AUTHOR } from '$lib/app'
 	import AdSenseScript from '$lib/components/AdSenseScript.svelte'
 	import BlogList from '$lib/components/BlogList.svelte'
+	import MetaTags from '$lib/components/MetaTags.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import { PAGES } from '$lib/types/page'
 	import type { PageData } from './$types'
 
 	const { data }: { data: PageData } = $props()
+	const blog_title = `${PAGES.BLOG.title} - ${AUTHOR.NAME}`
 </script>
 
 <svelte:head>
-	<title>{PAGES.BLOG.title} - {AUTHOR.NAME}</title>
+	<title>{blog_title}</title>
 	<meta name="description" content={PAGES.BLOG.description} />
 </svelte:head>
+
+<MetaTags title={blog_title} description={PAGES.BLOG.description} url="{APP.URL}/blog" />
 
 <AdSenseScript />
 
