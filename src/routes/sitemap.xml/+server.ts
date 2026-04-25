@@ -1,5 +1,5 @@
 import { APP } from '$lib/app'
-import { CONTENT_TYPE_XML, HTTP_HEADERS } from '$lib/constants/http'
+import { CONTENT_TYPE, HTTP_HEADERS } from '$lib/constants/http'
 import {
 	SITEMAP_CACHE_MAX_AGE_SECONDS,
 	SITEMAP_CHANGEFREQ,
@@ -93,7 +93,7 @@ ${url_xml}
 	return new Response(sitemap_xml, {
 		headers: {
 			[HTTP_HEADERS.CACHE_CONTROL]: `public, max-age=${String(SITEMAP_CACHE_MAX_AGE_SECONDS)}`,
-			[HTTP_HEADERS.CONTENT_TYPE]: CONTENT_TYPE_XML,
+			[HTTP_HEADERS.CONTENT_TYPE]: CONTENT_TYPE.XML,
 		},
 	})
 }
