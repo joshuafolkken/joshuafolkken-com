@@ -26,10 +26,12 @@ const INVALID_SLUG = 'INVALID SLUG!'
 const LIKE_COUNT = 42
 const DB_ERROR = 'DB error'
 const SECURITY_REJECTION_TEST = 'propagates security rejection response'
+const JSON_CONTENT_TYPE = 'application/json'
+const LIKE_API_URL = 'http://localhost/api/like'
 
 function make_get_event(slug?: string): Parameters<typeof GET>[0] {
 	const query = slug === undefined ? '' : `?slug=${slug}`
-	const url = new URL(`http://localhost/api/like${query}`)
+	const url = new URL(`${LIKE_API_URL}${query}`)
 
 	return {
 		url,
@@ -41,13 +43,32 @@ function make_get_event(slug?: string): Parameters<typeof GET>[0] {
 
 function make_post_event(
 	body: Record<string, unknown>,
-	content_type = 'application/json',
+	content_type = JSON_CONTENT_TYPE,
 ): Parameters<typeof POST>[0] {
-	const url = new URL('http://localhost/api/like')
+	const url = new URL(LIKE_API_URL)
 	const request = new Request(url.toString(), {
 		method: 'POST',
 		headers: { 'content-type': content_type },
 		body: JSON.stringify(body),
+	})
+
+	return {
+		url,
+		request,
+		getClientAddress: () => '127.0.0.1',
+		platform: undefined,
+	} as unknown as Parameters<typeof POST>[0]
+}
+
+function make_post_event_raw_body(
+	raw_body: string,
+	content_type = JSON_CONTENT_TYPE,
+): Parameters<typeof POST>[0] {
+	const url = new URL(LIKE_API_URL)
+	const request = new Request(url.toString(), {
+		method: 'POST',
+		headers: { 'content-type': content_type },
+		body: raw_body,
 	})
 
 	return {
@@ -111,7 +132,7 @@ describe('GET /api/like', () => {
 	})
 })
 
-describe('POST /api/like', () => {
+describe('POST /api/like — validation', () => {
 	beforeEach(() => {
 		vi.mocked(security.validate_request_security).mockReset()
 		vi.mocked(like_store.increment).mockResolvedValue(LIKE_COUNT)
@@ -139,6 +160,21 @@ describe('POST /api/like', () => {
 
 		expect(response.status).toBe(HTTP_STATUS.BAD_REQUEST)
 		expect(data).toMatchObject({ error: ERROR_MESSAGES.SLUG_INVALID })
+	})
+
+	it('returns 400 SLUG_INVALID when body is a non-object JSON value', async () => {
+		const response = await POST(make_post_event_raw_body('42'))
+		const data = await response.json()
+
+		expect(response.status).toBe(HTTP_STATUS.BAD_REQUEST)
+		expect(data).toMatchObject({ error: ERROR_MESSAGES.SLUG_INVALID })
+	})
+})
+
+describe('POST /api/like — error handling', () => {
+	beforeEach(() => {
+		vi.mocked(security.validate_request_security).mockReset()
+		vi.mocked(like_store.increment).mockResolvedValue(LIKE_COUNT)
 	})
 
 	it(SECURITY_REJECTION_TEST, async () => {
