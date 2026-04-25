@@ -4,6 +4,7 @@
 	import AdSenseScript from '$lib/components/AdSenseScript.svelte'
 	import DateDisplay from '$lib/components/DateDisplay.svelte'
 	import EngagementButtons from '$lib/components/EngagementButtons.svelte'
+	import MetaTags from '$lib/components/MetaTags.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import SupportBox from '$lib/components/SupportBox.svelte'
@@ -21,14 +22,15 @@
 <svelte:head>
 	<title>{page_title}</title>
 	<meta name="description" content={data.meta.excerpt} />
-
-	<meta property="og:type" content="webpage" />
-	<meta property="og:image" content={image_url} />
-
-	<meta name="twitter:card" content="summary_large_image" />
-	<meta name="twitter:image" content={image_url} />
-	<meta name="twitter:site" content="@{AUTHOR.X_USERNAME}" />
 </svelte:head>
+
+<MetaTags
+	title={page_title}
+	description={data.meta.excerpt}
+	url="{APP.URL}/blog/{data.slug}"
+	type="article"
+	image={image_url || undefined}
+/>
 
 <AdSenseScript />
 

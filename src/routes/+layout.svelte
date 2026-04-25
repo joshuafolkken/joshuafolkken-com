@@ -2,6 +2,7 @@
 	// eslint-disable-next-line @typescript-eslint/no-restricted-imports -- SvelteKit convention: app.css must reside at src/ root
 	import '../app.css'
 	import { ProgressBar } from '@prgm/sveltekit-progress-bar'
+	import { page } from '$app/state'
 	import { APP, AUTHOR } from '$lib/app'
 	import favicon from '$lib/assets/logo.svg'
 	import StickyHeader from '$lib/components/StickyHeader.svelte'
@@ -34,6 +35,7 @@
 	<link rel="icon" href={favicon} />
 	<title>{AUTHOR.NAME}</title>
 	<meta name="description" content={APP.DESCRIPTION} />
+	<link rel="canonical" href={page.url.href} />
 	<link rel="preload" as="style" href={GOOGLE_FONTS_URL} />
 	<link
 		rel="stylesheet"
