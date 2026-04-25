@@ -5,7 +5,7 @@ export interface Skill {
 	percent: number
 }
 
-export const SKILLS: Array<Skill> = [
+export const SKILLS = [
 	{ name: 'Teaching & Mentoring', percent: 85 },
 	{ name: 'SvelteKit', percent: 85 },
 	{ name: 'TypeScript', percent: 85 },
@@ -18,4 +18,4 @@ export const SKILLS: Array<Skill> = [
 	{ name: 'Community Building', percent: 60 },
 	{ name: 'Rust', percent: 50 },
 	{ name: 'Game Design', percent: 30 },
-]
+] as const satisfies ReadonlyArray<Skill>

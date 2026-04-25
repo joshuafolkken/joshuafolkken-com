@@ -32,7 +32,7 @@ const KIT_BLOG_URL = '/blog/kit-package'
 
 const FEATURED_COUNT = 4
 
-export const PROJECTS: Array<Project> = [
+export const PROJECTS = [
 	{
 		icon: PackageIcon,
 		title: '@joshuafolkken/kit',
@@ -166,6 +166,6 @@ export const PROJECTS: Array<Project> = [
 		image: godot_multiplayer,
 		tags: [GODOT, GDSCRIPT, 'WebSockets', WEB_EXPORT],
 	},
-]
+] as const satisfies ReadonlyArray<Project>
 
 export const FEATURED_PROJECTS = PROJECTS.slice(0, FEATURED_COUNT)
