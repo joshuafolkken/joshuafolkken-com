@@ -3,7 +3,7 @@
 	import ProjectCard from './ProjectCard.svelte'
 
 	const { projects } = $props<{
-		projects: Array<Project>
+		projects: ReadonlyArray<Project>
 	}>()
 </script>
 
