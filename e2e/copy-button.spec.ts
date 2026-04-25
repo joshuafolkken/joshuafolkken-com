@@ -4,6 +4,8 @@ import { TEST_ROUTES } from './test-routes'
 const COPY_BUTTON_ARIA_LABEL = 'Copy Link'
 const COPIED_TEXT = 'Copied!'
 
+test.use({ permissions: ['clipboard-read', 'clipboard-write'] })
+
 test.describe('CopyButton', () => {
 	test('renders Copy Link button on blog post page', async ({ page }) => {
 		await page.goto(TEST_ROUTES.BLOG_POST)
