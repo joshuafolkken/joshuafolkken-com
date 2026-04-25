@@ -42,8 +42,8 @@ importers:
         specifier: ^4.7.1
         version: 4.7.1(prettier@3.8.3)
       '@joshuafolkken/kit':
-        specifier: 0.67.0
-        version: 0.67.0(@playwright/test@1.59.1)(svelte@5.55.4(@typescript-eslint/types@8.59.0))
+        specifier: 0.98.0
+        version: 0.98.0(@playwright/test@1.59.1)(svelte@5.55.4(@typescript-eslint/types@8.59.0))
       '@playwright/test':
         specifier: ^1.59.1
         version: 1.59.1
@@ -1401,8 +1401,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@joshuafolkken/kit@0.67.0':
-    resolution: {integrity: sha512-NtKRRcGtnh+uWB0xM54HUWfb94hs9SFW5Mhb98kCsaPILmY0//D0W09u05UzTu75GegpU3iNeV9FmTLnLLGPiw==, tarball: https://npm.pkg.github.com/download/@joshuafolkken/kit/0.67.0/244a4f251c48b5741fef3a508220008d7389f051}
+  '@joshuafolkken/kit@0.98.0':
+    resolution: {integrity: sha512-1CShPv4fqj5kiCb5VWdyT3w3rGuwbhltZoBg4q+xHOUIV5Tt57MTp1A9yyBhu1dq5UH2YfunsxwKX87SJDI8Iw==, tarball: https://npm.pkg.github.com/download/@joshuafolkken/kit/0.98.0/0eda349d45526627a32f7168b52eb99bfb09970a}
     engines: {node: '>=22.19.0'}
     hasBin: true
     peerDependencies:
@@ -2271,6 +2271,9 @@ packages:
   ansi-styles@6.2.3:
     resolution: {integrity: sha512-4Dj6M28JB+oAH8kFkTLUo+a2jwOFkuqb3yucU0CANcRRUbxS0cP0nZYCGjcc3BNXwRIsUVmDGgzawme7zvJHvg==}
     engines: {node: '>=12'}
+
+  argparse@2.0.1:
+    resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
 
   aria-query@5.3.1:
     resolution: {integrity: sha512-Z/ZeOgVl7bcSYZ/u/rh0fOpvEpq//LZmdbkXyc7syVzjPAhfOa9ebsdTSjEBDU4vs5nC98Kfduj1uFo0qyET3g==}
@@ -3350,6 +3353,10 @@ packages:
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
+
+  js-yaml@4.1.1:
+    resolution: {integrity: sha512-qQKT4zQxXl8lLwBtHMWwaTcGfFOZviOJet3Oy/xmGk2gZH677CJM9EvtfdSkgWcATZhj/55JZ0rmy3myCT5lsA==}
+    hasBin: true
 
   jsesc@3.1.0:
     resolution: {integrity: sha512-/sM3dO2FOzXjKQhJuo0Q173wf2KOo8t4I8vHy6lF9poUp7bKT0/NHE8fPX23PwfhnykfqnC2xRxOnVw5XuGIaA==}
@@ -5377,9 +5384,10 @@ snapshots:
   '@img/sharp-win32-x64@0.34.5':
     optional: true
 
-  '@joshuafolkken/kit@0.67.0(@playwright/test@1.59.1)(svelte@5.55.4(@typescript-eslint/types@8.59.0))':
+  '@joshuafolkken/kit@0.98.0(@playwright/test@1.59.1)(svelte@5.55.4(@typescript-eslint/types@8.59.0))':
     dependencies:
       '@playwright/test': 1.59.1
+      js-yaml: 4.1.1
       strip-json-comments: 5.0.3
       svelte: 5.55.4(@typescript-eslint/types@8.59.0)
       tsx: 4.21.0
@@ -6139,6 +6147,8 @@ snapshots:
   ansi-regex@6.2.2: {}
 
   ansi-styles@6.2.3: {}
+
+  argparse@2.0.1: {}
 
   aria-query@5.3.1: {}
 
@@ -7422,6 +7432,10 @@ snapshots:
     optional: true
 
   js-tokens@4.0.0: {}
+
+  js-yaml@4.1.1:
+    dependencies:
+      argparse: 2.0.1
 
   jsesc@3.1.0: {}
 

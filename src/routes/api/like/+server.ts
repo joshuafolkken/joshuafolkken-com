@@ -16,16 +16,19 @@ function is_json_content_type(request: Request): boolean {
 	return content_type?.startsWith(CONTENT_TYPE_JSON) ?? false
 }
 
+function is_like_request_body(value: unknown): value is LikeRequestBody {
+	return typeof value === 'object' && value !== null
+}
+
 async function get_valid_slug(request: Request): Promise<string | undefined> {
-	if (!is_json_content_type(request)) {
-		return undefined
-	}
+	if (!is_json_content_type(request)) return undefined
 
 	try {
-		/* eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- request.json() returns unknown */
-		const body = (await request.json()) as LikeRequestBody
+		const raw: unknown = await request.json()
 
-		return slug_validator.parse_slug(body.slug)
+		if (!is_like_request_body(raw)) return undefined
+
+		return slug_validator.parse_slug(raw.slug)
 	} catch {
 		return undefined
 	}
