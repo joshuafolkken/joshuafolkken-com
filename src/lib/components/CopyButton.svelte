@@ -9,13 +9,25 @@
 	const { text_to_copy, class: class_name = '' }: Props = $props()
 
 	let is_copied = $state(false)
+	// eslint-disable-next-line unicorn/no-useless-undefined
+	let copy_timer: ReturnType<typeof setTimeout> | undefined = undefined
 	const COPIED_TIMEOUT_MS = 10_000
+
+	function clear_copy_timer(): void {
+		if (copy_timer === undefined) return
+		clearTimeout(copy_timer)
+		copy_timer = undefined
+	}
+
+	$effect(() => clear_copy_timer)
 
 	function copy(): void {
 		void navigator.clipboard.writeText(text_to_copy)
 		is_copied = true
-		setTimeout(() => {
+		clear_copy_timer()
+		copy_timer = setTimeout(() => {
 			is_copied = false
+			copy_timer = undefined
 		}, COPIED_TIMEOUT_MS)
 	}
 </script>
