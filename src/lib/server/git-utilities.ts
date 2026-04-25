@@ -13,10 +13,10 @@ function get_file_lastmod(path: string): Date {
 			return new Date(stdout.trim())
 		}
 	} catch {
-		// Gitコマンドが失敗した場合や、まだコミットされていないファイルの場合は無視
+		// Ignore failures (git unavailable or file not yet committed)
 	}
 
-	// 取得できなかった場合は現在日時（ビルド日時）を返す
+	// Fall back to current time (build time) when git date is unavailable
 	return new Date()
 }
 

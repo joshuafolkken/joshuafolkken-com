@@ -4,10 +4,6 @@ import { cache_keys } from '$lib/server/cache-keys'
 import { kv_cache } from '$lib/server/kv-cache'
 import type { LayoutServerLoad } from './$types'
 
-/**
- * Fetches and caches OpenCollective supporters for the layout.
- * Returns an empty list if no route.id is present or if fetching fails.
- */
 export const load: LayoutServerLoad = async ({ fetch, platform, route }) => {
 	if (!route.id) return { supporters: [] }
 
