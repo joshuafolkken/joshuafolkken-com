@@ -6,6 +6,17 @@
 
 Stack: TypeScript · pnpm · SvelteKit · Vitest · Playwright · TailwindCSS · Drizzle · better-auth · Paraglide · MCP
 
+## Environment Variables
+
+The following variables are required for `scripts-ai/` functionality. Store them in a `.env` file at the project root (loaded automatically by the AI scripts). See [docs/scripts-ai.md](./docs/scripts-ai.md) for setup instructions including how to obtain these values.
+
+| Variable             | Purpose                                               |
+| -------------------- | ----------------------------------------------------- |
+| `TELEGRAM_BOT_TOKEN` | Bot token for Telegram notifications (from BotFather) |
+| `TELEGRAM_CHAT_ID`   | Target chat or user ID for Telegram messages          |
+
+GitHub operations use the `gh` CLI. Authenticate once with `gh auth login`; no additional env var is needed unless running in CI (set `GH_TOKEN` there).
+
 ## Critical Conventions (non-standard — always apply)
 
 ### Naming
@@ -27,7 +38,7 @@ Stack: TypeScript · pnpm · SvelteKit · Vitest · Playwright · TailwindCSS ·
 
 ### Quality limits
 
-- Function complexity ≤4 · nesting ≤1 · function ≤25 lines · file ≤300 lines · params ≤3
+- Function complexity ≤5 · nesting ≤2 · function ≤25 lines · file ≤300 lines · params ≤4
 - Magic numbers: extract all literals except `0`, `1`, `-1` to named `UPPER_CASE` constants
 - No `any` · no unused vars · no floating promises · type assertions (`as`) are restricted
 - All function params and return types must be explicitly typed
@@ -38,12 +49,11 @@ Stack: TypeScript · pnpm · SvelteKit · Vitest · Playwright · TailwindCSS ·
 - `$state` reactive variables are reassignable
 - Props interface name `Props` is allowed by ESLint
 - DOM manipulation is restricted
-- Exception: `const foo: Action = ...` arrow-function assignments are allowed for Svelte actions (typed with `Action` from `svelte/action`); converting to a plain `function` declaration would lose the type annotation
 
 ### Content rules
 
 - i18n: all user-visible strings (labels, buttons, toasts, validation errors, page titles) must use message keys — never hardcode. Add to all locale message files.
-- Comments / test titles (`describe` / `it` / `test` / `expect` messages): English only
+- Comments / test titles (`describe` / `it` / `test` / `expect` messages): English only. Exception: `eslint/rules/` files may use Japanese comments to explain rule rationale.
 - No code duplication: extract to shared functions/modules immediately
 - `/* @refactor-ignore */` at file top excludes a file from refactoring
 
@@ -142,12 +152,31 @@ Before every `git commit` — including follow-up commits on the same branch —
 #### `kickoff` — Planning phase only (plan → Issue → Telegram notify → stop)
 
 - `kickoff #<N>`: Read existing Issue #N → **normalize the title**: if the title is not in English or can be phrased more clearly/conventionally, derive a better English title and run `gh issue edit <N> --title "<title>"` → analyze requirements → post the plan to the Issue (if body is blank, use `gh issue edit <N> --body "<plan>"`; otherwise `gh issue comment <N> --body "<plan>"`) → send Telegram notification → **stop** (do not implement). Plan comments MUST be in English. Telegram notification: `pnpm josh notify --task-type planning --issue-url "<issue-url>" --body=$'- <bullet1>\n- <bullet2>\n...'`. `--task-type` controls the header icon (`planning` 📋 / `completion` ✅ / `failure` ❌ / `kickoff_retry` 🔄 / `confirmation` ⏸️). `--repo-name` and `--issue-title` are auto-fetched from `gh` when not supplied. Include line breaks between bullets for readability. The Issue URL must be included.
-- `kickoff new` or `kickoff new "<title>"`: No Issue exists yet. Steps: (1) Derive an English title from the conversation, or use the provided title. (2) Create Issue: `gh issue create --title "<title>" --body "<body>"` — body follows the minimum template in `node_modules/@joshuafolkken/kit/prompts/collaboration-workflow.md`, filled from conversation context. Capture the new Issue number `<N>`. (3) Post the plan in English (same body/comment logic as `kickoff #<N>`). (4) Send Telegram notification (same format as `kickoff #<N>`). (5) **Stop** — do not implement.
+- `kickoff new` or `kickoff new "<title>"`: No Issue exists yet. Steps: (0) **Scope assessment**: Analyze whether the request contains multiple independent deliverables that could each be merged separately. If multiple → follow the **multi-issue split path**; if single → follow the **single-issue path**. **Single-issue path**: (1) Derive an English title from the conversation, or use the provided title. (2) Create Issue: `gh issue create --title "<title>" --body "<body>"` — body follows the minimum template in `node_modules/@joshuafolkken/kit/prompts/collaboration-workflow.md`, filled from conversation context. Capture the new Issue number `<N>`. (3) Post the plan in English (same body/comment logic as `kickoff #<N>`). (4) Send Telegram notification (same format as `kickoff #<N>`). (5) **Stop** — do not implement. **Multi-issue split path**: (1) For each independent deliverable, derive a focused English title and create a separate Issue: `gh issue create --title "<sub-title>" --body "<body>"`. Capture each Issue number `<N1>`, `<N2>`, etc. (2) Post a comment on the first Issue explaining the split rationale and listing all Issue numbers/titles. (3) Send Telegram notification listing all created issues (same format as `kickoff #<N>`). (4) Present the command `queue #N1 #N2 ...` to the user. (5) **Stop** — do not implement.
 
 #### `fullrun` — Full execution (plan → implement → PR → completion notify)
 
-- `fullrun #<N>`: Read Issue #N → **normalize the title**: if the title is not in English or can be phrased more clearly/conventionally, derive a better English title and run `gh issue edit <N> --title "<title>"` → post the agreed plan (if the Issue body is blank, use `gh issue edit <N> --body "<plan>"` to fill the body; otherwise use `gh issue comment <N> --body "<plan>"`) → implement → `pnpm josh bump minor` → `pnpm josh git -y` → `pnpm josh followup --merge` (full run from Step 3 onward in `node_modules/@joshuafolkken/kit/prompts/collaboration-workflow.md`). Issue plan comments MUST be written in English. Before implementing, run `git switch main && git pull`, then `josh latest` (includes `pnpm audit`; fix with `overrides` in `package.json` if vulnerabilities found). **After `josh latest`: verify `pnpm.overrides` was not modified — if any override was auto-removed or changed, investigate why it existed and restore it before proceeding (do NOT remove intentional overrides without user approval).** When running `pnpm josh followup --merge`, compose an implementation summary in English and pass it via `--notify-message`. Format: `"Implemented <title>:\n- <change1>\n- <change2>\n..."` (one bullet per meaningful change — what was added, changed, or fixed). **`pnpm josh followup --merge` waits for CI, verifies AI review findings, sends the completion notification, then merges — all in one step. If AI review blockers are found, followup exits non-zero; fix the findings and re-run `pnpm josh followup --merge`.**
-- `fullrun new` or `fullrun new "<title>"`: Shortcut that combines `kickoff new` + `fullrun #<N>` into a single run. Steps: (1) Derive an English title from the conversation, or use the provided title. (2) Create Issue: `gh issue create --title "<title>" --body "<body>"`. Capture the new Issue number `<N>`. (3) Post the agreed plan in English. (4) Run `git switch main && git pull`. (5) Run `josh latest`. **After `josh latest`: verify `pnpm.overrides` was not modified — if any override was auto-removed or changed, restore it before proceeding.** (6) Implement. (7) `pnpm josh bump minor`. (8) `pnpm josh git -y "<title> #<N>"`. (9) `pnpm josh followup "<title> #<N>" --merge --notify-message "Implemented <title>:\n- <change1>\n- <change2>\n..."`.
+- `fullrun #<N>`: Read Issue #N → **normalize the title**: if the title is not in English or can be phrased more clearly/conventionally, derive a better English title and run `gh issue edit <N> --title "<title>"` → **add `in-progress` label** (create if missing: `gh label create "in-progress" --color "#0075ca" --description "Work is actively in progress" 2>/dev/null || true`, then `gh issue edit <N> --add-label "in-progress"`) → post the agreed plan only if the Issue body is blank (use `gh issue edit <N> --body "<plan>"`); if the body already has content, skip the plan-posting step → implement → `pnpm josh bump minor` → `pnpm josh git -y` → `pnpm josh followup --merge` (full run from Step 3 onward in `node_modules/@joshuafolkken/kit/prompts/collaboration-workflow.md`). Issue plan comments MUST be written in English. Before implementing, run `git switch main && git pull`, then `josh latest` (includes `pnpm audit`; fix with `overrides` in `package.json` if vulnerabilities found). **After `josh latest`: verify `pnpm.overrides` was not modified — if any override was auto-removed or changed, investigate why it existed and restore it before proceeding (do NOT remove intentional overrides without user approval).** When running `pnpm josh followup --merge`, compose an implementation summary in English and pass it via `--notify-message`. Format: `"Implemented <title>:\n- <change1>\n- <change2>\n..."` (one bullet per meaningful change — what was added, changed, or fixed). **`pnpm josh followup --merge` waits for CI, verifies AI review findings, sends the completion notification, then merges — all in one step. If AI review blockers are found, followup exits non-zero; fix the findings and re-run `pnpm josh followup --merge`.**
+- `fullrun new` or `fullrun new "<title>"`: Shortcut that combines `kickoff new` + `fullrun #<N>` into a single run. Steps: (1) Derive an English title from the conversation, or use the provided title. (2) Create Issue: `gh issue create --title "<title>" --body "<body>"`. Capture the new Issue number `<N>`. (3) Add `in-progress` label: `gh label create "in-progress" --color "#0075ca" --description "Work is actively in progress" 2>/dev/null || true`, then `gh issue edit <N> --add-label "in-progress"`. (4) Post the agreed plan in English. (5) Run `git switch main && git pull`. (6) Run `josh latest`. **After `josh latest`: verify `pnpm.overrides` was not modified — if any override was auto-removed or changed, restore it before proceeding.** (7) Implement. (8) `pnpm josh bump minor`. (9) `pnpm josh git -y "<title> #<N>"`. (10) `pnpm josh followup "<title> #<N>" --merge --notify-message "Implemented <title>:\n- <change1>\n- <change2>\n..."`.
+
+#### `queue` — Sequential multi-issue fullrun
+
+`queue #N1 #N2 #N3 ...` runs `fullrun` for each issue in order. All issues must already exist (no `new` variant).
+
+**Steps:**
+
+1. Run `git switch main && git pull`, then `josh latest` once (before the first issue). Verify `pnpm.overrides` is unchanged after `josh latest`.
+2. For each issue `#<N>` in the supplied order:
+   a. From the 2nd issue onward: run `git switch main && git pull` to incorporate the previous PR's merge.
+   b. Execute the full `fullrun #<N>` flow: normalize title → add `in-progress` label → post plan if body is blank → implement → `pnpm josh bump minor` → `pnpm josh git -y "<title> #<N>"` → `pnpm josh followup "<title> #<N>" --merge --notify-message "Implemented <title>:\n- ..."` (sends per-issue completion notification and merges, exactly as `fullrun` does).
+   c. On failure: send a `failure` Telegram notification via `pnpm josh notify --task-type failure --issue-url "<issue-url>" --body="<reason>"` and **stop immediately** (do not proceed to the next issue).
+3. No extra batch summary notification — each issue's `pnpm josh followup --merge` already sends the per-issue completion notification as usual.
+
+**Key rules:**
+
+- Invoking `queue` is explicit authorization to merge each PR (same as `fullrun`).
+- `josh latest` runs only once, before the first issue.
+- All `kickoff`/`fullrun` mid-workflow stop rules (confirmation notification, AI review blocker handling, etc.) apply within each issue's execution.
 
 #### AI reviewer comment scan (automatic in `pnpm josh followup`)
 
