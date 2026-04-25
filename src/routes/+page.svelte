@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { APP, AUTHOR } from '$lib/app'
 	import HeroSection from '$lib/components/HeroSection.svelte'
+	import MetaTags from '$lib/components/MetaTags.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import ProjectCard from '$lib/components/ProjectCard.svelte'
 	import RevealSection from '$lib/components/RevealSection.svelte'
@@ -17,6 +19,8 @@
 	import { MAIN_NAV_PAGES, PAGES } from '$lib/types/page'
 	import { link_utilities } from '$lib/utils/link-utilities'
 </script>
+
+<MetaTags title={AUTHOR.NAME} description={APP.DESCRIPTION} url={APP.URL} />
 
 <HeroSection />
 

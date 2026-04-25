@@ -3,6 +3,7 @@
 	import AdSenseScript from '$lib/components/AdSenseScript.svelte'
 	import EngagementButtons from '$lib/components/EngagementButtons.svelte'
 	import ExternalLink from '$lib/components/ExternalLink.svelte'
+	import MetaTags from '$lib/components/MetaTags.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import PageSection from '$lib/components/PageSection.svelte'
@@ -26,6 +27,8 @@
 	<title>{title}</title>
 	<meta name="description" content={PAGES.ABOUT.description} />
 </svelte:head>
+
+<MetaTags {title} description={PAGES.ABOUT.description} url="{APP.URL}/about" />
 
 <AdSenseScript />
 
