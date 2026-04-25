@@ -1,5 +1,5 @@
 import { OPENCOLLECTIVE } from '$lib/app'
-import { CONTENT_TYPE_JSON, ERROR_MESSAGES, HTTP_HEADERS } from '$lib/constants/http'
+import { CONTENT_TYPE, ERROR_MESSAGES, HTTP_HEADERS } from '$lib/constants/http'
 import type {
 	GraphqlContributor,
 	GraphqlResponse,
@@ -94,7 +94,7 @@ async function fetch_supporters(
 ): Promise<Array<OpenCollectiveMember>> {
 	const response = await fetch_function(GRAPHQL_ENDPOINT, {
 		method: 'POST',
-		headers: { [HTTP_HEADERS.CONTENT_TYPE]: CONTENT_TYPE_JSON },
+		headers: { [HTTP_HEADERS.CONTENT_TYPE]: CONTENT_TYPE.JSON },
 		body: JSON.stringify({
 			query: CONTRIBUTORS_QUERY,
 			variables: { slug: OPENCOLLECTIVE.SLUG, limit: CONTRIBUTORS_LIMIT },

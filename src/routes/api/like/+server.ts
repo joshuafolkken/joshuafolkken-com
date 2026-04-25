@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit'
-import { CONTENT_TYPE_JSON, ERROR_MESSAGES, HTTP_HEADERS, HTTP_STATUS } from '$lib/constants/http'
+import { CONTENT_TYPE, ERROR_MESSAGES, HTTP_HEADERS, HTTP_STATUS } from '$lib/constants/http'
 import { logger } from '$lib/logger'
 import { like_store } from '$lib/server/like-store'
 import { security, type SecurityContext } from '$lib/server/security'
@@ -13,7 +13,7 @@ interface LikeRequestBody {
 function is_json_content_type(request: Request): boolean {
 	const content_type = request.headers.get(HTTP_HEADERS.CONTENT_TYPE)
 
-	return content_type?.startsWith(CONTENT_TYPE_JSON) ?? false
+	return content_type?.startsWith(CONTENT_TYPE.JSON) ?? false
 }
 
 function is_like_request_body(value: unknown): value is LikeRequestBody {

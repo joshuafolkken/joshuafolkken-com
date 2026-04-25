@@ -1,5 +1,7 @@
 import type { Action } from 'svelte/action'
 
+const INTERSECTION_THRESHOLD = 0
+
 /* eslint-disable promise/prefer-await-to-callbacks */
 const intersect: Action<HTMLElement, (() => void) | undefined> = (node, callback) => {
 	const observer = new IntersectionObserver(
@@ -11,7 +13,7 @@ const intersect: Action<HTMLElement, (() => void) | undefined> = (node, callback
 				observer.disconnect()
 			}
 		},
-		{ threshold: 0 },
+		{ threshold: INTERSECTION_THRESHOLD },
 	)
 
 	observer.observe(node)

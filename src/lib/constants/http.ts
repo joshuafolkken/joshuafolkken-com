@@ -27,5 +27,7 @@ export const HTTP_HEADERS = {
 	X_APP_CLIENT: 'X-App-Client',
 } as const
 
-export const CONTENT_TYPE_JSON = 'application/json' as const
-export const CONTENT_TYPE_XML = 'application/xml' as const
+export const CONTENT_TYPE = {
+	JSON: 'application/json',
+	XML: 'application/xml',
+} as const
