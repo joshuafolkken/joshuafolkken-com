@@ -1,5 +1,8 @@
 <script lang="ts">
 	import { SOCIAL_BUTTONS } from '$lib/constants/social-buttons'
+	import CheckIcon from '$lib/icons/CheckIcon.svelte'
+	import CopyIcon from '$lib/icons/CopyIcon.svelte'
+	import { logger } from '$lib/logger'
 
 	interface Props {
 		text_to_copy: string
@@ -21,8 +24,16 @@
 
 	$effect(() => clear_copy_timer)
 
+	async function write_to_clipboard(): Promise<void> {
+		try {
+			await navigator.clipboard.writeText(text_to_copy)
+		} catch (error: unknown) {
+			logger.error('Failed to copy to clipboard:', error)
+		}
+	}
+
 	function copy(): void {
-		void navigator.clipboard.writeText(text_to_copy)
+		void write_to_clipboard()
 		is_copied = true
 		clear_copy_timer()
 		copy_timer = setTimeout(() => {
@@ -39,36 +50,9 @@
 >
 	<div class="relative">
 		{#if is_copied}
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				width="24"
-				height="24"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="2"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				class="h-5 w-5"
-			>
-				<polyline points="20 6 9 17 4 12"></polyline>
-			</svg>
+			<CheckIcon />
 		{:else}
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				width="24"
-				height="24"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="2"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				class="h-5 w-5"
-			>
-				<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-				<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-			</svg>
+			<CopyIcon />
 		{/if}
 		{#if is_copied}
 			<span
