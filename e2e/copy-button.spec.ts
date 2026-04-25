@@ -32,6 +32,7 @@ test.describe('CopyButton', () => {
 
 		const copy_button = page.getByRole('button', { name: COPY_BUTTON_ARIA_LABEL })
 
+		await expect(copy_button).toBeVisible()
 		await copy_button.click()
 
 		await expect(page.getByText(COPIED_TEXT)).toBeVisible()
