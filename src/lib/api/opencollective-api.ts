@@ -60,7 +60,7 @@ function map_contributors_to_supporters(
 		.toSorted((first, second) => second.totalAmountDonated - first.totalAmountDonated)
 }
 
-function is_valid_graphql_container(value: unknown): value is object {
+function is_graphql_response(value: unknown): value is GraphqlResponse {
 	return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
@@ -80,15 +80,13 @@ function get_contributor_nodes(response: GraphqlResponse): Array<GraphqlContribu
 }
 
 function parse_graphql_response(json: unknown): Array<GraphqlContributor> {
-	if (!is_valid_graphql_container(json)) {
+	if (!is_graphql_response(json)) {
 		throw new Error('Invalid GraphQL response format')
 	}
 
-	const response = json as GraphqlResponse
+	throw_if_graphql_errors(json)
 
-	throw_if_graphql_errors(response)
-
-	return get_contributor_nodes(response)
+	return get_contributor_nodes(json)
 }
 
 async function fetch_supporters(

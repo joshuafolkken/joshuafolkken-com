@@ -3,6 +3,8 @@ import type { GraphqlContributor } from '$lib/types/opencollective'
 import { describe, expect, it, vi } from 'vitest'
 import { opencollective_api } from './opencollective-api'
 
+const INVALID_FORMAT_MSG = 'Invalid GraphQL response format'
+
 vi.mock('$lib/app', () => ({
 	OPENCOLLECTIVE: {
 		SLUG: 'test-collective',
@@ -118,9 +120,21 @@ describe('opencollective_api.fetch_supporters — error handling', () => {
 		).rejects.toThrow('Not found')
 	})
 
-	it('throws when GraphQL response is not an object', async () => {
+	it('throws when GraphQL response is a string', async () => {
 		await expect(
 			opencollective_api.fetch_supporters(make_fetch_function('invalid')),
-		).rejects.toThrow('Invalid GraphQL response format')
+		).rejects.toThrow(INVALID_FORMAT_MSG)
+	})
+
+	it('throws when GraphQL response is an array', async () => {
+		await expect(opencollective_api.fetch_supporters(make_fetch_function([]))).rejects.toThrow(
+			INVALID_FORMAT_MSG,
+		)
+	})
+
+	it('throws when GraphQL response is null', async () => {
+		await expect(opencollective_api.fetch_supporters(make_fetch_function(null))).rejects.toThrow(
+			INVALID_FORMAT_MSG,
+		)
 	})
 })

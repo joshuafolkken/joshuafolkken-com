@@ -136,6 +136,7 @@ async function get<T>(key: string, fetcher: () => Promise<T>, platform?: App.Pla
 	const kv = platform_binding.get_kv(platform)
 	const now = Date.now()
 	const cached = await get_cached_value(key, kv, now)
+	// Invariant: value was stored by fetch_and_save<T> via fetcher(): Promise<T>; same key always stores T.
 	if (cached !== undefined) return cached as T
 
 	return await fetch_and_save(key, fetcher, now, kv)
