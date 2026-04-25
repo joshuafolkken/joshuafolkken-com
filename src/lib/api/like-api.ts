@@ -1,5 +1,5 @@
 import { APP } from '$lib/app'
-import { CONTENT_TYPE_JSON, ERROR_MESSAGES, HTTP_HEADERS } from '$lib/constants/http'
+import { CONTENT_TYPE, ERROR_MESSAGES, HTTP_HEADERS } from '$lib/constants/http'
 
 interface LikeResponse {
 	likes: number
@@ -46,7 +46,7 @@ async function increment(slug: string): Promise<LikeResponse> {
 	const response = await fetch('/api/like', {
 		method: 'POST',
 		headers: {
-			[HTTP_HEADERS.CONTENT_TYPE]: CONTENT_TYPE_JSON,
+			[HTTP_HEADERS.CONTENT_TYPE]: CONTENT_TYPE.JSON,
 			[HTTP_HEADERS.X_APP_CLIENT]: APP.ID,
 		},
 		body: JSON.stringify({ slug }),
