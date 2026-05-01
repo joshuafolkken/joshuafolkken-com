@@ -7,6 +7,8 @@ describe('tech_official_urls.get_official_url', () => {
 		['CSpell', 'https://cspell.org'],
 		['Gemini', 'https://gemini.google.com/app'],
 		['SonarQube Cloud', 'https://www.sonarsource.com/products/sonarqube/cloud/'],
+		['Three.js', 'https://threejs.org'],
+		['Threlte', 'https://threlte.xyz'],
 	])('resolves %s to %s', (name, expected_url) => {
 		expect(tech_official_urls.get_official_url(name)).toBe(expected_url)
 	})

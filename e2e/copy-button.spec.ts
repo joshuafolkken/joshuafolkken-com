@@ -29,6 +29,7 @@ test.describe('CopyButton', () => {
 		})
 
 		await page.goto(TEST_ROUTES.BLOG_POST)
+		await page.waitForLoadState('networkidle')
 
 		const copy_button = page.getByRole('button', { name: COPY_BUTTON_ARIA_LABEL })
 

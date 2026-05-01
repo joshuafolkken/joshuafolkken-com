@@ -3,6 +3,19 @@ import { ALL_ICONS } from './si-icons'
 import { TECH_LOGO_MAP } from './tech-logo-map'
 
 const AI_WORKFLOW_NAME = 'AI Workflow'
+const CLOUDFLARE_WORKERS_TAG = 'Cloudflare Workers'
+const CLAUDE_CODE_TAG = 'Claude Code'
+const RESOLVES_TAG_TITLE = 'resolves tag %s to a non-empty slug'
+const SLUG_IN_ICONS_TITLE = 'resolved slug for %s exists in ALL_ICONS'
+
+const SIMON_PROJECT_TAGS = [
+	'SvelteKit',
+	'TypeScript',
+	'Three.js',
+	'Threlte',
+	CLOUDFLARE_WORKERS_TAG,
+	CLAUDE_CODE_TAG,
+]
 
 const KIT_PROJECT_TAGS = [
 	'TypeScript',
@@ -19,8 +32,8 @@ const KIT_PROJECT_TAGS = [
 	'GitHub Actions',
 	'SonarQube Cloud',
 	'CodeRabbit',
-	'Cloudflare Workers',
-	'Claude Code',
+	CLOUDFLARE_WORKERS_TAG,
+	CLAUDE_CODE_TAG,
 	'Cursor',
 	'Gemini',
 	AI_WORKFLOW_NAME,
@@ -43,15 +56,31 @@ const SKILL_NAMES = [
 
 const AI_WORKFLOW_SLUG = 'claude'
 
-describe('TECH_LOGO_MAP - Kit project tags', () => {
-	it.each(KIT_PROJECT_TAGS)('resolves tag %s to a non-empty slug', (tag) => {
+describe('TECH_LOGO_MAP - Simon project tags', () => {
+	it.each(SIMON_PROJECT_TAGS)(RESOLVES_TAG_TITLE, (tag) => {
 		const slug = TECH_LOGO_MAP.get(tag)
 
 		expect(slug, `expected ${tag} to have a logo slug`).toBeDefined()
 		expect(slug?.length ?? 0).toBeGreaterThan(0)
 	})
 
-	it.each(KIT_PROJECT_TAGS)('resolved slug for %s exists in ALL_ICONS', (tag) => {
+	it.each(SIMON_PROJECT_TAGS)(SLUG_IN_ICONS_TITLE, (tag) => {
+		const slug = TECH_LOGO_MAP.get(tag)
+
+		expect(slug).toBeDefined()
+		expect(ALL_ICONS.has(slug as string)).toBe(true)
+	})
+})
+
+describe('TECH_LOGO_MAP - Kit project tags', () => {
+	it.each(KIT_PROJECT_TAGS)(RESOLVES_TAG_TITLE, (tag) => {
+		const slug = TECH_LOGO_MAP.get(tag)
+
+		expect(slug, `expected ${tag} to have a logo slug`).toBeDefined()
+		expect(slug?.length ?? 0).toBeGreaterThan(0)
+	})
+
+	it.each(KIT_PROJECT_TAGS)(SLUG_IN_ICONS_TITLE, (tag) => {
 		const slug = TECH_LOGO_MAP.get(tag)
 
 		expect(slug).toBeDefined()

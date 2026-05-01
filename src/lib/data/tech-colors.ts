@@ -26,6 +26,8 @@ const TECH_COLOR_ENTRIES = [
 	// Web Technologies
 	['Better Auth', '#38bdf8'],
 	['Svelte', '#ff3e00'],
+	['Three.js', '#000000'],
+	['Threlte', '#ff3e00'],
 	['HTML5', '#e34f26'],
 	['CSS3', '#1572b6'],
 	['CSS', '#1572b6'],
