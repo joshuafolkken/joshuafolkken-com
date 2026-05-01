@@ -37,6 +37,8 @@ const TECH_LOGO_MAP_ENTRIES = [
 	['Better Auth', 'betterauth'],
 	['Svelte', 'svelte'],
 	['SvelteKit', 'svelte'],
+	['Three.js', 'threedotjs'],
+	['Threlte', 'threlte'],
 	['HTML5', 'html5'],
 	['CSS3', 'css'],
 	['Tailwind CSS', 'tailwindcss'],

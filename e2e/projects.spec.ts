@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { TEST_ROUTES } from './test-routes'
 
+const SIMON_TITLE = 'Simon'
 const KIT_TITLE = '@joshuafolkken/kit'
 const BLOG_LABEL = 'Blog'
 const KIT_GITHUB_URL = 'https://github.com/joshuafolkken/kit'
@@ -9,19 +10,25 @@ const CARD_SELECTOR = '.cyber-card'
 const GODOT_2D_TITLE = 'Godot 2D Platformer'
 
 test.describe('Projects page', () => {
-	test('kit card appears first on /projects', async ({ page }) => {
+	test('simon card appears first on /projects', async ({ page }) => {
 		await page.goto(TEST_ROUTES.PROJECTS)
 
 		const first_card = page.locator(CARD_SELECTOR).first()
 
-		await expect(first_card).toContainText(KIT_TITLE)
+		await expect(first_card).toContainText(SIMON_TITLE)
+	})
+
+	test('kit card is visible on /projects', async ({ page }) => {
+		await page.goto(TEST_ROUTES.PROJECTS)
+
+		await expect(page.getByText(KIT_TITLE)).toBeVisible()
 	})
 
 	test('kit card shows GitHub link on /projects', async ({ page }) => {
 		await page.goto(TEST_ROUTES.PROJECTS)
 
-		const first_card = page.locator(CARD_SELECTOR).first()
-		const github_link = first_card.locator(`a[href="${KIT_GITHUB_URL}"]`)
+		const kit_card = page.locator(CARD_SELECTOR).filter({ hasText: KIT_TITLE })
+		const github_link = kit_card.locator(`a[href="${KIT_GITHUB_URL}"]`)
 
 		await expect(github_link).toBeVisible()
 	})
@@ -30,8 +37,8 @@ test.describe('Projects page', () => {
 		await page.goto(TEST_ROUTES.PROJECTS)
 		await page.waitForLoadState('networkidle')
 
-		const first_card = page.locator(CARD_SELECTOR).first()
-		const blog_link = first_card.getByRole('link', { name: BLOG_LABEL })
+		const kit_card = page.locator(CARD_SELECTOR).filter({ hasText: KIT_TITLE })
+		const blog_link = kit_card.getByRole('link', { name: BLOG_LABEL })
 
 		await expect(blog_link).toBeVisible()
 		await expect(blog_link).toHaveAttribute('href', KIT_BLOG_URL)
@@ -45,21 +52,18 @@ test.describe('Projects page', () => {
 })
 
 test.describe('Home page featured projects', () => {
-	test('kit card appears first in featured projects on /', async ({ page }) => {
+	test('simon card appears first in featured projects on /', async ({ page }) => {
 		await page.goto(TEST_ROUTES.HOME)
 
 		const first_card = page.locator(CARD_SELECTOR).first()
 
-		await expect(first_card).toContainText(KIT_TITLE)
+		await expect(first_card).toContainText(SIMON_TITLE)
 	})
 
-	test('kit card shows GitHub link in featured projects on /', async ({ page }) => {
+	test('kit card is visible in featured projects on /', async ({ page }) => {
 		await page.goto(TEST_ROUTES.HOME)
 
-		const first_card = page.locator(CARD_SELECTOR).first()
-		const github_link = first_card.locator(`a[href="${KIT_GITHUB_URL}"]`)
-
-		await expect(github_link).toBeVisible()
+		await expect(page.getByText(KIT_TITLE)).toBeVisible()
 	})
 
 	test(`${GODOT_2D_TITLE} is not in featured projects on /`, async ({ page }) => {

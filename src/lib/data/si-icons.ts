@@ -59,6 +59,7 @@ import {
 	siSvelte,
 	siSwift,
 	siTailwindcss,
+	siThreedotjs,
 	siTurso,
 	siTypescript,
 	siUbuntu,
@@ -79,6 +80,7 @@ interface TechIcon {
 
 const SI_VIEW_BOX = '0 0 24 24'
 const DEVICON_VIEW_BOX = '0 0 128 128'
+const THRELTE_VIEW_BOX = '0 0 36 36'
 
 const SI_ICON_ENTRIES = [
 	['typescript', siTypescript],
@@ -96,6 +98,7 @@ const SI_ICON_ENTRIES = [
 	['html5', siHtml5],
 	['css', siCss],
 	['tailwindcss', siTailwindcss],
+	['threedotjs', siThreedotjs],
 	['nodedotjs', siNodedotjs],
 	['vuedotjs', siVuedotjs],
 	['angular', siAngular],
@@ -208,6 +211,13 @@ const CUSTOM_ICON_ENTRIES = [
 		{
 			path: 'M9 2 L22 2 L22 10 L9 10 Z M2 13 L13 13 L13 22 L2 22 Z M15 13 L22 13 L22 22 L15 22 Z',
 			view_box: SI_VIEW_BOX,
+		},
+	],
+	[
+		'threlte',
+		{
+			path: 'M22.25 4h-8.5a1 1 0 0 0-.96.73l-5.54 19.4a.5.5 0 0 0 .62.62l5.05-1.44a2 2 0 0 0 1.38-1.4l3.22-11.66a.5.5 0 0 1 .96 0l3.22 11.67a2 2 0 0 0 1.38 1.39l5.05 1.44a.5.5 0 0 0 .62-.62l-5.54-19.4a1 1 0 0 0-.96-.73ZM18 28a7.63 7.63 0 0 1-5-2c-1.4 2.1-.35 4.35.6 5.55.14.17.41.07.47-.15.44-1.8 2.93-1.22 2.93.6 0 2.28.87 3.4 1.72 3.81.34.16.59-.2.49-.56-.31-1.05-.29-2.46 1.29-3.25 3-1.5 3.17-4.83 2.5-6-.67.67-2.6 2-5 2Z',
+			view_box: THRELTE_VIEW_BOX,
 		},
 	],
 ] as const satisfies ReadonlyArray<readonly [string, TechIcon]>
