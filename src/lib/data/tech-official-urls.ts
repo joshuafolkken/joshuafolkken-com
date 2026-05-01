@@ -38,6 +38,8 @@ const TECH_URL_ENTRIES = [
 	// Web Technologies
 	['Better Auth', 'https://better-auth.com'],
 	['Svelte', 'https://svelte.dev'],
+	['Three.js', 'https://threejs.org'],
+	['Threlte', 'https://threlte.xyz'],
 	['HTML5', 'https://html.spec.whatwg.org'],
 	['CSS3', 'https://www.w3.org/Style/CSS'],
 	['Tailwind CSS', 'https://tailwindcss.com'],
