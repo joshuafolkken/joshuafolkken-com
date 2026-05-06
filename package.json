@@ -114,11 +114,5 @@
 			"@joshuafolkken/kit",
 			"lefthook"
 		]
-	},
-	"devEngines": {
-		"packageManager": {
-			"name": "pnpm",
-			"onFail": "error"
-		}
 	}
 }
