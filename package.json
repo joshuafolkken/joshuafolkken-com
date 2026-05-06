@@ -1,36 +1,8 @@
 {
 	"name": "joshuafolkken-com",
-	"private": true,
-	"version": "0.212.0",
+	"version": "0.213.0",
 	"type": "module",
-	"packageManager": "pnpm@10.33.2+sha512.a90faf6feeab71ad6c6e57f94e0fe1a12f5dcc22cd754db40ae9593eb6a3e0b6b12e3540218bb37ae083404b1f2ce6db2a4121e979829b4aff94b99f49da1cf8",
-	"engines": {
-		"node": ">=22.19.0"
-	},
-	"devEngines": {
-		"packageManager": {
-			"name": "pnpm",
-			"onFail": "error"
-		}
-	},
-	"pnpm": {
-		"overrides": {
-			"undici": ">=7.24.0",
-			"esbuild@<=0.24.2": ">=0.25.0",
-			"cookie@<0.7.0": ">=0.7.0",
-			"drizzle-orm@<0.45.2": ">=0.45.2",
-			"@sveltejs/kit@<=2.57.0": ">=2.57.1",
-			"uuid@<14.0.0": ">=14.0.0"
-		},
-		"onlyBuiltDependencies": [
-			"esbuild",
-			"workerd"
-		],
-		"ignoredBuiltDependencies": [
-			"@joshuafolkken/kit",
-			"lefthook"
-		]
-	},
+	"private": true,
 	"scripts": {
 		"preinstall": "pnpm dlx @aikidosec/safe-chain setup-ci",
 		"postinstall": "lefthook install",
@@ -55,17 +27,18 @@
 		"size-limit": "size-limit",
 		"josh": "josh"
 	},
-	"size-limit": [
-		{
-			"path": ".svelte-kit/output/client/_app/immutable/**/*.js",
-			"limit": "500 kB"
-		}
-	],
+	"dependencies": {
+		"dotenv": "^17.4.2",
+		"drizzle-orm": "^0.45.2",
+		"sharp": "^0.34.5",
+		"simple-icons": "^16.17.0",
+		"zod": "^4.3.6"
+	},
 	"devDependencies": {
 		"@eslint/compat": "^2.0.5",
 		"@eslint/js": "^10.0.1",
 		"@ianvs/prettier-plugin-sort-imports": "^4.7.1",
-		"@joshuafolkken/kit": "0.113.0",
+		"@joshuafolkken/kit": "0.137.0",
 		"@playwright/test": "^1.59.1",
 		"@prgm/sveltekit-progress-bar": "^3.0.2",
 		"@size-limit/file": "^12.1.0",
@@ -114,11 +87,32 @@
 		"vitest-browser-svelte": "^2.1.1",
 		"wrangler": "^4.84.0"
 	},
-	"dependencies": {
-		"dotenv": "^17.4.2",
-		"drizzle-orm": "^0.45.2",
-		"sharp": "^0.34.5",
-		"simple-icons": "^16.17.0",
-		"zod": "^4.3.6"
+	"packageManager": "pnpm@10.33.2+sha512.a90faf6feeab71ad6c6e57f94e0fe1a12f5dcc22cd754db40ae9593eb6a3e0b6b12e3540218bb37ae083404b1f2ce6db2a4121e979829b4aff94b99f49da1cf8",
+	"engines": {
+		"node": ">=22.19.0"
+	},
+	"size-limit": [
+		{
+			"path": ".svelte-kit/output/client/_app/immutable/**/*.js",
+			"limit": "500 kB"
+		}
+	],
+	"pnpm": {
+		"overrides": {
+			"undici": ">=7.24.0",
+			"esbuild@<=0.24.2": ">=0.25.0",
+			"cookie@<0.7.0": ">=0.7.0",
+			"drizzle-orm@<0.45.2": ">=0.45.2",
+			"@sveltejs/kit@<=2.57.0": ">=2.57.1",
+			"uuid@<14.0.0": ">=14.0.0"
+		},
+		"onlyBuiltDependencies": [
+			"esbuild",
+			"workerd"
+		],
+		"ignoredBuiltDependencies": [
+			"@joshuafolkken/kit",
+			"lefthook"
+		]
 	}
 }

@@ -42,8 +42,8 @@ importers:
         specifier: ^4.7.1
         version: 4.7.1(prettier@3.8.3)
       '@joshuafolkken/kit':
-        specifier: 0.113.0
-        version: 0.113.0(@playwright/test@1.59.1)(svelte@5.55.4(@typescript-eslint/types@8.59.0))
+        specifier: 0.137.0
+        version: 0.137.0(@playwright/test@1.59.1)(svelte@5.55.4(@typescript-eslint/types@8.59.0))
       '@playwright/test':
         specifier: ^1.59.1
         version: 1.59.1
@@ -1401,8 +1401,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@joshuafolkken/kit@0.113.0':
-    resolution: {integrity: sha512-qiE2vioDnQBp5rEgqT4hlnVnTOZ1/dXWqdQX70acJDAgKCOxrzDPvzRIUha0rxePoK6API1FiGkS6+CnmWmcmA==, tarball: https://npm.pkg.github.com/download/@joshuafolkken/kit/0.113.0/e6e44ac7826257724dbda6a2080dc0b475d536e4}
+  '@joshuafolkken/kit@0.137.0':
+    resolution: {integrity: sha512-s9cuA+sIoIFkg9Xb8/pkt9hFhiekaTvnDXPTRGsQD/xNoOnpIBiIzKxHoCZzvjXncJEErL7omsj7N/gMF5myeg==, tarball: https://npm.pkg.github.com/download/@joshuafolkken/kit/0.137.0/3d6ed01995c9b84a69807b33664860519bee3b03}
     engines: {node: '>=22.19.0'}
     hasBin: true
     peerDependencies:
@@ -4568,6 +4568,9 @@ packages:
   zod@4.3.6:
     resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
 
+  zod@4.4.3:
+    resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
+
 snapshots:
 
   '@babel/code-frame@7.29.0':
@@ -5384,14 +5387,14 @@ snapshots:
   '@img/sharp-win32-x64@0.34.5':
     optional: true
 
-  '@joshuafolkken/kit@0.113.0(@playwright/test@1.59.1)(svelte@5.55.4(@typescript-eslint/types@8.59.0))':
+  '@joshuafolkken/kit@0.137.0(@playwright/test@1.59.1)(svelte@5.55.4(@typescript-eslint/types@8.59.0))':
     dependencies:
       '@playwright/test': 1.59.1
       js-yaml: 4.1.1
       strip-json-comments: 5.0.3
       svelte: 5.55.4(@typescript-eslint/types@8.59.0)
       tsx: 4.21.0
-      zod: 4.3.6
+      zod: 4.4.3
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
@@ -8721,3 +8724,5 @@ snapshots:
   zimmerframe@1.1.4: {}
 
   zod@4.3.6: {}
+
+  zod@4.4.3: {}
