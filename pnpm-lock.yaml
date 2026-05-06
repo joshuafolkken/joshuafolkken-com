@@ -1364,7 +1364,7 @@ packages:
     os: [win32]
 
   '@joshuafolkken/kit@0.142.0':
-    resolution: {integrity: sha512-z/Gmlok6aO7VUXOfPsRa373YsnoYjHF0LpXdrAWeWoCJnJA/kT5p+eJ0bAXTRLBnM38vNnZDu0VVJQmMYALrCw==}
+    resolution: {integrity: sha512-z/Gmlok6aO7VUXOfPsRa373YsnoYjHF0LpXdrAWeWoCJnJA/kT5p+eJ0bAXTRLBnM38vNnZDu0VVJQmMYALrCw==, tarball: https://npm.pkg.github.com/download/@joshuafolkken/kit/0.142.0/977b6d49efdf12880434759883badc82b39d183f}
     engines: {node: '>=22.19.0'}
     hasBin: true
     peerDependencies:
