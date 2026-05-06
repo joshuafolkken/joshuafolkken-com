@@ -1,7 +1,11 @@
 allowBuilds:
+  '@joshuafolkken/kit': true
+  better-sqlite3: true
   esbuild: true
   lefthook: true
+  sharp: true
   unrs-resolver: true
+  workerd: true
 
 # Security fixes often require same-day vite releases; minimum-release-age in .npmrc would block them.
 minimumReleaseAgeExclude:
