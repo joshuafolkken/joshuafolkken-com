@@ -11,6 +11,7 @@ allowBuilds:
 minimumReleaseAgeExclude:
   - vite
   - '@joshuafolkken/kit'
+  - '@sveltejs/vite-plugin-svelte'
 overrides:
   undici: '>=7.24.0'
   esbuild@<=0.24.2: '>=0.25.0'
