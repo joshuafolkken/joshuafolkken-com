@@ -1,6 +1,6 @@
 {
 	"name": "joshuafolkken-com",
-	"version": "0.214.0",
+	"version": "0.215.0",
 	"type": "module",
 	"private": true,
 	"scripts": {
@@ -45,8 +45,8 @@
 		"@stylistic/eslint-plugin": "^5.10.0",
 		"@sveltejs/adapter-cloudflare": "^7.2.8",
 		"@sveltejs/adapter-node": "^5.5.4",
-		"@sveltejs/kit": "^2.59.0",
-		"@sveltejs/vite-plugin-svelte": "^7.0.0",
+		"@sveltejs/kit": "^2.59.1",
+		"@sveltejs/vite-plugin-svelte": "^7.1.1",
 		"@tailwindcss/typography": "^0.5.19",
 		"@tailwindcss/vite": "^4.2.4",
 		"@types/node": "^25.6.0",
@@ -74,7 +74,7 @@
 		"rollup-plugin-visualizer": "^7.0.1",
 		"size-limit": "^12.1.0",
 		"svelte": "^5.55.5",
-		"svelte-check": "^4.4.7",
+		"svelte-check": "^4.4.8",
 		"svelte-fast-check": "^0.4.5",
 		"tailwindcss": "^4.2.4",
 		"tsx": "^4.21.0",
@@ -87,11 +87,17 @@
 		"vitest-browser-svelte": "^2.1.1",
 		"wrangler": "^4.87.0"
 	},
-	"packageManager": "pnpm@10.33.3+sha512.a19744364a7e248b92657a4ca5973f9354d21caf982579674b1c539f32c7420c47138ad8b1254df07aba9bc782d9b3029e3db34d5dbff974326eb74dac8ff489",
+	"packageManager": "pnpm@11.0.6+sha512.97f906e1da2bedac3df83cadae04b4753a130092dd49d55cd36825ad3e623e9df3f97754f8f259e699172a360fac569acf2f908e7732bdae3eddb2dcf7e121fd",
 	"engines": {
 		"node": ">=22.19.0"
 	},
-	"devEngines": {},
+	"devEngines": {
+		"packageManager": {
+			"name": "pnpm",
+			"version": ">=11.0.0-0",
+			"onFail": "error"
+		}
+	},
 	"size-limit": [
 		{
 			"path": ".svelte-kit/output/client/_app/immutable/**/*.js",
@@ -99,14 +105,6 @@
 		}
 	],
 	"pnpm": {
-		"overrides": {
-			"undici": ">=7.24.0",
-			"esbuild@<=0.24.2": ">=0.25.0",
-			"cookie@<0.7.0": ">=0.7.0",
-			"drizzle-orm@<0.45.2": ">=0.45.2",
-			"@sveltejs/kit@<=2.57.0": ">=2.57.1",
-			"uuid@<14.0.0": ">=14.0.0"
-		},
 		"onlyBuiltDependencies": [
 			"esbuild",
 			"workerd"

@@ -55,10 +55,11 @@ jobs:
             echo "Deploying tag: $LATEST_TAG"
             git checkout tags/$LATEST_TAG
 
-            # pnpmをインストール（npm経由、または既にインストールされている場合はスキップ）
-            if ! command -v pnpm &> /dev/null; then
-              echo "Installing pnpm..."
-              npm install -g pnpm@10.24.0 || curl -fsSL https://get.pnpm.io/install.sh | sh -
+            # pnpmをインストール（v11未満の場合はアップグレード）
+            PNPM_MAJOR=$(pnpm --version 2>/dev/null | cut -d. -f1 || echo "0")
+            if ! command -v pnpm &> /dev/null || [ "$PNPM_MAJOR" -lt 11 ]; then
+              echo "Installing pnpm 11..."
+              npm install -g pnpm@11.0.6 || curl -fsSL https://get.pnpm.io/install.sh | sh -
             fi
 
             # pnpmのバージョンを確認

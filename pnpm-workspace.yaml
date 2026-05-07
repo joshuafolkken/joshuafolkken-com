@@ -1,9 +1,21 @@
 allowBuilds:
+  '@joshuafolkken/kit': false
+  better-sqlite3: true
   esbuild: true
   lefthook: true
+  sharp: true
   unrs-resolver: true
+  workerd: true
 
 # Security fixes often require same-day vite releases; minimum-release-age in .npmrc would block them.
 minimumReleaseAgeExclude:
   - vite
   - '@joshuafolkken/kit'
+  - '@sveltejs/vite-plugin-svelte'
+overrides:
+  undici: '>=7.24.0'
+  esbuild@<=0.24.2: '>=0.25.0'
+  cookie@<0.7.0: '>=0.7.0'
+  drizzle-orm: '>=0.45.2'
+  '@sveltejs/kit': '>=2.57.1'
+  uuid: '>=14.0.0'
