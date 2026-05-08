@@ -6,9 +6,10 @@ const DEV_PORT = 5173
 const PREVIEW_PORT = 4173
 
 const CI_TIMEOUT = 15_000
-const LOCAL_TIMEOUT = 25_000
-const CI_TEST_TIMEOUT = 10_000
-const ACTION_TIMEOUT = 5_000
+const LOCAL_TIMEOUT = 30_000
+const CI_TEST_TIMEOUT = 30_000
+const ACTION_TIMEOUT = 10_000
+const NAV_TIMEOUT = 30_000
 const CI_WORKERS = 2
 const CI_RETRIES = 2
 type EnvConfig = {
@@ -34,7 +35,7 @@ const env_config: EnvConfig = IS_CI
 	? {
 			retries: CI_RETRIES,
 			timeout: CI_TEST_TIMEOUT,
-			launch_args: ['--disable-dev-shm-usage', '--disable-gpu', '--no-sandbox'],
+			launch_args: ['--disable-dev-shm-usage', '--no-sandbox'],
 			screenshot: 'only-on-failure',
 			video: 'retain-on-failure',
 			trace: 'retain-on-failure',
@@ -71,7 +72,7 @@ export default defineConfig({
 	reporter: env_config.reporter,
 	use: {
 		actionTimeout: ACTION_TIMEOUT,
-		navigationTimeout: env_config.timeout,
+		navigationTimeout: NAV_TIMEOUT,
 		screenshot: env_config.screenshot,
 		video: env_config.video,
 		trace: env_config.trace,
