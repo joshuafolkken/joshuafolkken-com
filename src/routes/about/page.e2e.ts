@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { TEST_ROUTES } from './test-routes'
+import { TEST_ROUTES } from '../test-routes'
 
 const SERVER_ERROR_TEXT = 'ERR_RUNTIME_FAILURE'
 const LOAD_STATE = 'domcontentloaded'
