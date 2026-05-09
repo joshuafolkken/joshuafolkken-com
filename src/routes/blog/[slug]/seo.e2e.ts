@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { TEST_ROUTES } from './test-routes'
+import { TEST_ROUTES } from '../../test-routes'
 
 const APP_URL = 'https://joshuafolkken.com'
 const X_HANDLE = '@joshuafolkken'

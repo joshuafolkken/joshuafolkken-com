@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { TEST_ROUTES } from './test-routes'
+import { TEST_ROUTES } from '../../test-routes'
 
 const COPY_BUTTON_ARIA_LABEL = 'Copy Link'
 const COPIED_TEXT = 'Copied!'
