@@ -33,12 +33,14 @@ function make_get_event(slug?: string): Parameters<typeof GET>[0] {
 	const query = slug === undefined ? '' : `?slug=${slug}`
 	const url = new URL(`${LIKE_API_URL}${query}`)
 
-	return {
+	const partial = {
 		url,
 		request: new Request(url.toString()),
 		getClientAddress: () => '127.0.0.1',
 		platform: undefined,
-	} as unknown as Parameters<typeof GET>[0]
+	}
+
+	return partial as Parameters<typeof GET>[0]
 }
 
 function make_post_event(
@@ -52,12 +54,14 @@ function make_post_event(
 		body: JSON.stringify(body),
 	})
 
-	return {
+	const partial = {
 		url,
 		request,
 		getClientAddress: () => '127.0.0.1',
 		platform: undefined,
-	} as unknown as Parameters<typeof POST>[0]
+	}
+
+	return partial as Parameters<typeof POST>[0]
 }
 
 function make_post_event_raw_body(
@@ -71,12 +75,14 @@ function make_post_event_raw_body(
 		body: raw_body,
 	})
 
-	return {
+	const partial = {
 		url,
 		request,
 		getClientAddress: () => '127.0.0.1',
 		platform: undefined,
-	} as unknown as Parameters<typeof POST>[0]
+	}
+
+	return partial as Parameters<typeof POST>[0]
 }
 
 beforeEach(() => {
