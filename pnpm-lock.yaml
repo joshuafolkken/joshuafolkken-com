@@ -20,7 +20,7 @@ importers:
         specifier: ^17.4.2
         version: 17.4.2
       drizzle-orm:
-        specifier: ^0.45.2
+        specifier: '>=0.45.2'
         version: 0.45.2(@cloudflare/workers-types@4.20260508.1)(better-sqlite3@12.9.0)
       sharp:
         specifier: ^0.34.5
@@ -63,7 +63,7 @@ importers:
         specifier: ^5.5.4
         version: 5.5.4(@sveltejs/kit@2.59.1(@sveltejs/vite-plugin-svelte@7.1.2(svelte@5.55.5(@typescript-eslint/types@8.59.2))(vite@8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4)))(svelte@5.55.5(@typescript-eslint/types@8.59.2))(typescript@6.0.3)(vite@8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4)))
       '@sveltejs/kit':
-        specifier: ^2.59.1
+        specifier: '>=2.57.1'
         version: 2.59.1(@sveltejs/vite-plugin-svelte@7.1.2(svelte@5.55.5(@typescript-eslint/types@8.59.2))(vite@8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4)))(svelte@5.55.5(@typescript-eslint/types@8.59.2))(typescript@6.0.3)(vite@8.0.11(@types/node@25.6.2)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
       '@sveltejs/vite-plugin-svelte':
         specifier: ^7.1.2
@@ -1246,6 +1246,11 @@ packages:
     peerDependencies:
       '@playwright/test': '>=1.0.0'
       svelte: '>=5.0.0'
+    peerDependenciesMeta:
+      '@playwright/test':
+        optional: true
+      svelte:
+        optional: true
 
   '@jridgewell/gen-mapping@0.3.13':
     resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
@@ -4555,12 +4560,13 @@ snapshots:
 
   '@joshuafolkken/kit@0.161.0(@playwright/test@1.59.1)(svelte@5.55.5(@typescript-eslint/types@8.59.2))':
     dependencies:
-      '@playwright/test': 1.59.1
       js-yaml: 4.1.1
       strip-json-comments: 5.0.3
-      svelte: 5.55.5(@typescript-eslint/types@8.59.2)
       tsx: 4.21.0
       zod: 4.4.3
+    optionalDependencies:
+      '@playwright/test': 1.59.1
+      svelte: 5.55.5(@typescript-eslint/types@8.59.2)
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
