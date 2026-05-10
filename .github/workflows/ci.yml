@@ -1,7 +1,4 @@
 name: CI
-permissions:
-  contents: read
-  packages: read
 
 on:
   push:
@@ -18,6 +15,15 @@ jobs:
   checks:
     name: Checks
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    # Playwright system dependencies and Chromium are pre-installed in this image,
+    # eliminating the slow `playwright install-deps` step. Keep the image tag in
+    # sync with @playwright/test in package.json whenever Playwright is upgraded.
+    container:
+      image: mcr.microsoft.com/playwright:v1.59.1-noble
+      options: --user root
     timeout-minutes: 8
     steps:
       - name: Checkout code
@@ -80,6 +86,8 @@ jobs:
     name: Security Audit
     runs-on: ubuntu-latest
     timeout-minutes: 3
+    permissions:
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
@@ -93,6 +101,8 @@ jobs:
     name: Detect E2E
     runs-on: ubuntu-latest
     timeout-minutes: 2
+    permissions:
+      contents: read
     outputs:
       enabled: ${{ steps.check.outputs.enabled }}
     steps:
@@ -113,6 +123,9 @@ jobs:
     needs: e2e-detect
     if: needs.e2e-detect.outputs.enabled == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
     # Playwright system dependencies and Chromium are pre-installed in this image.
     # Keep the image tag in sync with @playwright/test in package.json whenever
     # Playwright is upgraded.
@@ -157,11 +170,6 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm install --frozen-lockfile --ignore-scripts
-
-      - name: Build application
-        env:
-          E2E_CLEANUP_ENABLED: '1'
-        run: pnpm build
 
       - name: Run E2E tests
         run: pnpm exec playwright test
