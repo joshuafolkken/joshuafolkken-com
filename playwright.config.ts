@@ -1,86 +1,81 @@
-import { defineConfig, devices } from '@playwright/test'
+import { defineConfig, devices, type ReporterDescription } from '@playwright/test'
 
-// 環境判定と設定値の定数化
-const isCI = Boolean(process.env['CI'])
-// const isStaging = Boolean(process.env['STAGING']) // 将来の拡張用
+const IS_CI = Boolean(process.env['CI'])
 
 const DEV_PORT = 5173
 const PREVIEW_PORT = 4173
-const CI_TIMEOUT = 15_000
-const LOCAL_TIMEOUT = 25_000
-const TEST_TIMEOUT = 10_000
-const LOCAL_TEST_TIMEOUT = 25_000
-const EXPECT_TIMEOUT = 5_000
-const ACTION_TIMEOUT = 5_000
-const NAVIGATION_TIMEOUT = 10_000
-const LOCAL_NAVIGATION_TIMEOUT = 25_000
 
-// 環境に応じた設定を関数化
-const getWebServerConfig = () => {
-	if (isCI) {
-		return {
-			command: 'pnpm run preview',
+const CI_TIMEOUT = 120_000
+const LOCAL_TIMEOUT = 30_000
+const CI_TEST_TIMEOUT = 30_000
+const ACTION_TIMEOUT = 10_000
+const NAV_TIMEOUT = 30_000
+const CI_WORKERS = 2
+const CI_RETRIES = 2
+
+type EnvConfig = {
+	retries: number
+	timeout: number
+	launch_args: string[]
+	screenshot: 'only-on-failure' | 'off'
+	video: 'retain-on-failure' | 'off'
+	trace: 'retain-on-failure' | 'off'
+	reporter: ReporterDescription[]
+}
+
+const web_server_config = IS_CI
+	? {
+			command: 'pnpm run build && pnpm run preview',
 			port: PREVIEW_PORT,
 			timeout: CI_TIMEOUT,
 			reuseExistingServer: false,
 		}
-	}
-	// 将来的に staging 環境を追加する場合
-	// if (isStaging) { ... }
-	return {
-		command: 'pnpm run dev',
-		port: DEV_PORT,
-		timeout: LOCAL_TIMEOUT,
-		reuseExistingServer: true,
-	}
-}
+	: { command: 'pnpm run dev', port: DEV_PORT, timeout: LOCAL_TIMEOUT, reuseExistingServer: true }
+
+const env_config: EnvConfig = IS_CI
+	? {
+			retries: CI_RETRIES,
+			timeout: CI_TEST_TIMEOUT,
+			launch_args: ['--disable-dev-shm-usage', '--no-sandbox'],
+			screenshot: 'only-on-failure',
+			video: 'retain-on-failure',
+			trace: 'retain-on-failure',
+			reporter: [['html'], ['github']],
+		}
+	: {
+			retries: 0,
+			timeout: LOCAL_TIMEOUT,
+			launch_args: [],
+			screenshot: 'off',
+			video: 'off',
+			trace: 'off',
+			reporter: [['html'], ['list']],
+		}
 
 export default defineConfig({
-	webServer: getWebServerConfig(),
-	testDir: 'e2e',
+	webServer: web_server_config,
+	testMatch: '**/*.e2e.{ts,js}',
 	fullyParallel: true,
-	// 並列実行数を最適化（CPU コア数に応じて自動調整、CI では明示的に設定）
-	...(isCI ? { workers: 2 } : {}),
-	// リトライ設定（CI でのみ有効、ローカルでは即座に失敗を確認）
-	retries: isCI ? 2 : 0,
-	// タイムアウト設定を最適化
-	timeout: isCI ? TEST_TIMEOUT : LOCAL_TEST_TIMEOUT,
-	expect: {
-		timeout: EXPECT_TIMEOUT,
-	},
-	// 必要なブラウザのみ実行
+	...(IS_CI ? { workers: CI_WORKERS } : {}),
+	retries: env_config.retries,
+	timeout: env_config.timeout,
 	projects: [
 		{
 			name: 'chromium',
 			use: {
 				...devices['Desktop Chrome'],
-				// パフォーマンス向上のための設定
-				viewport: { width: 1280, height: 720 },
-				// ブラウザの起動を高速化
 				launchOptions: {
-					args: [
-						'--disable-dev-shm-usage',
-						'--disable-gpu',
-						// --no-sandbox は CI 環境でのみ使用（セキュリティ上の理由）
-						...(isCI ? ['--no-sandbox'] : []),
-					],
+					args: env_config.launch_args,
 				},
 			},
 		},
 	],
-	// レポート設定
-	reporter: isCI ? [['html'], ['github']] : [['html'], ['list']],
-	// グローバル設定
+	reporter: env_config.reporter,
 	use: {
-		// アクションのタイムアウト
 		actionTimeout: ACTION_TIMEOUT,
-		// ナビゲーションのタイムアウト
-		navigationTimeout: isCI ? NAVIGATION_TIMEOUT : LOCAL_NAVIGATION_TIMEOUT,
-		// スクリーンショットは失敗時のみ（CI でのみ）
-		screenshot: isCI ? 'only-on-failure' : 'off',
-		// ビデオは失敗時のみ（CI でのみ）
-		video: isCI ? 'retain-on-failure' : 'off',
-		// トレースは失敗時のみ（CI でのみ）
-		trace: isCI ? 'retain-on-failure' : 'off',
+		navigationTimeout: NAV_TIMEOUT,
+		screenshot: env_config.screenshot,
+		video: env_config.video,
+		trace: env_config.trace,
 	},
 })

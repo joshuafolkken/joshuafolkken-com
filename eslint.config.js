@@ -37,7 +37,13 @@ const FILE_PATTERNS = {
 	phrases: ['**/phrases/collections/*.ts', '**/phrases/praise.ts'],
 	params: ['src/params/**/*.ts'],
 	routes: ['src/routes/**/+*.ts', 'src/routes/**/+*.js'],
-	tests: ['**/*.test.ts', '**/*.spec.ts', '**/*.test.svelte.ts', '**/*.spec.svelte.ts'],
+	tests: [
+		'**/*.test.ts',
+		'**/*.spec.ts',
+		'**/*.e2e.ts',
+		'**/*.test.svelte.ts',
+		'**/*.spec.svelte.ts',
+	],
 }
 
 // SvelteKitのルートファイル名パターン
@@ -173,6 +179,7 @@ export default defineConfig(
 				{
 					allowList: {
 						Props: true,
+						e2e: true,
 					},
 				},
 			],
@@ -223,6 +230,8 @@ export default defineConfig(
 		files: FILE_PATTERNS.tests,
 		rules: {
 			'@typescript-eslint/no-magic-numbers': 'off',
+			'@typescript-eslint/no-restricted-imports': 'off',
+			'unicorn/prevent-abbreviations': ['error', { checkFilenames: false }],
 			'max-lines-per-function': ['error', { max: 35, skipBlankLines: true, skipComments: true }],
 			'no-console': ['error', { allow: ['warn', 'error', 'info'] }],
 			// '@typescript-eslint/no-explicit-any': 'off',
