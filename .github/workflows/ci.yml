@@ -22,7 +22,7 @@ jobs:
     # eliminating the slow `playwright install-deps` step. Keep the image tag in
     # sync with @playwright/test in package.json whenever Playwright is upgraded.
     container:
-      image: mcr.microsoft.com/playwright:v1.59.1-noble
+      image: mcr.microsoft.com/playwright:v1.60.0-noble
       options: --user root
     timeout-minutes: 8
     steps:
@@ -130,7 +130,7 @@ jobs:
     # Keep the image tag in sync with @playwright/test in package.json whenever
     # Playwright is upgraded.
     container:
-      image: mcr.microsoft.com/playwright:v1.59.1-noble
+      image: mcr.microsoft.com/playwright:v1.60.0-noble
       options: --user root
     timeout-minutes: 10
     # Playwright preview は localhost:4173。ワークフロー共通の BETTER_AUTH_URL（本番）を
@@ -181,3 +181,24 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+
+  notify-auto-tag:
+    name: Notify Auto Tag
+    needs: [checks, security, e2e-detect, e2e]
+    if: |
+      always() &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      needs.checks.result == 'success' &&
+      needs.security.result == 'success' &&
+      needs.e2e-detect.result == 'success' &&
+      (needs.e2e.result == 'success' || needs.e2e.result == 'skipped')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Dispatch auto-tag
+        uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # v4.0.1
+        with:
+          event-type: ci-passed-on-main
+          client-payload: '{"sha": "${{ github.sha }}"}'
