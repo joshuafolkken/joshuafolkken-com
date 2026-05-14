@@ -25,6 +25,7 @@ words:
   - Csvg
   - devicon
   - eclipseide
+  - ENOENT
   - fastcgi
   - Frontmatter
   - ghcr
@@ -49,6 +50,7 @@ words:
   - neverthrow
   - nodedotjs
   - octocat
+  - oneline
   - opencollective
   - pagead
   - pexels
