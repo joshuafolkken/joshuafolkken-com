@@ -1,0 +1,39 @@
+const BLOG_PATH_PREFIX = '/blog/'
+
+const LEGACY_SLUG_MAP = new Map<string, string>([['simon', 'mnemecha']])
+
+function strip_trailing_slashes(value: string): string {
+	let result = value
+
+	while (result.endsWith('/')) {
+		result = result.slice(0, -1)
+	}
+
+	return result
+}
+
+function extract_slug(pathname: string): string | undefined {
+	if (!pathname.startsWith(BLOG_PATH_PREFIX)) return undefined
+
+	const after_prefix = pathname.slice(BLOG_PATH_PREFIX.length)
+	const without_trailing_slash = strip_trailing_slashes(after_prefix)
+
+	if (without_trailing_slash.length === 0) return undefined
+	if (without_trailing_slash.includes('/')) return undefined
+
+	return without_trailing_slash
+}
+
+function get_redirect_target(pathname: string): string | undefined {
+	const slug = extract_slug(pathname)
+	if (slug === undefined) return undefined
+
+	const new_slug = LEGACY_SLUG_MAP.get(slug)
+	if (new_slug === undefined) return undefined
+
+	return `${BLOG_PATH_PREFIX}${new_slug}`
+}
+
+export const blog_redirects = {
+	get_redirect_target,
+}

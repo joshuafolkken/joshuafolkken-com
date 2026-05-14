@@ -4,8 +4,8 @@ import godot_2d_platformer from '$lib/assets/images/projects/godot-2d-platformer
 import godot_multiplayer from '$lib/assets/images/projects/godot-multiplayer-v2.png'
 import godot_project_template from '$lib/assets/images/projects/godot-project-template.png'
 import joshuafolkken_com from '$lib/assets/images/projects/joshuafolkken-com-v2.png'
+import mnemecha from '$lib/assets/images/projects/mnemecha.png'
 import pong from '$lib/assets/images/projects/pong.png'
-import simon from '$lib/assets/images/projects/simon.png'
 import talk from '$lib/assets/images/projects/talk.png'
 import tasks from '$lib/assets/images/projects/tasks-v2.png'
 import tic_tac_toe from '$lib/assets/images/projects/tic-tac-toe.png'
@@ -31,6 +31,7 @@ import ToolIcon from '$lib/icons/ToolIcon.svelte'
 import type { Project } from '$lib/types/project'
 
 const KIT_BLOG_URL = '/blog/kit-package'
+const MNEMECHA_BLOG_URL = '/blog/mnemecha'
 const CLAUDE_CODE_TAG = 'Claude Code'
 
 const FEATURED_COUNT = 4
@@ -38,15 +39,16 @@ const FEATURED_COUNT = 4
 export const PROJECTS = [
 	{
 		icon: SparklesIcon,
-		title: 'Simon',
+		title: 'Mnemecha',
 		subtitle: 'Memory Game',
 		description:
-			'A 3D Simon Says memory game. Features increasingly fast color sequences, satisfying audio feedback, and a cyber visual mode — all rendered in real-time with Threlte.',
+			'A 3D first-person memory game inspired by the classic Simon format. Features increasingly fast color sequences, satisfying audio feedback, and a cyber visual mode — all rendered in real-time with Threlte.',
 		links: [
-			{ href: URLS.SIMON, type: 'demo' },
-			{ href: `${URLS.GITHUB}/simon`, type: 'github' },
+			{ href: URLS.MNEMECHA, type: 'demo' },
+			{ href: MNEMECHA_BLOG_URL, type: 'blog' },
+			{ href: `${URLS.GITHUB}/mnemecha`, type: 'github' },
 		],
-		image: simon,
+		image: mnemecha,
 		tags: ['SvelteKit', 'TypeScript', 'Three.js', 'Threlte', CLOUDFLARE_WORKERS, CLAUDE_CODE_TAG],
 	},
 	{
