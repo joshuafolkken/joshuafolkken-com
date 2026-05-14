@@ -31,6 +31,7 @@ import ToolIcon from '$lib/icons/ToolIcon.svelte'
 import type { Project } from '$lib/types/project'
 
 const KIT_BLOG_URL = '/blog/kit-package'
+const MNEMECHA_BLOG_URL = '/blog/mnemecha'
 const CLAUDE_CODE_TAG = 'Claude Code'
 
 const FEATURED_COUNT = 4
@@ -44,6 +45,7 @@ export const PROJECTS = [
 			'A 3D first-person memory game inspired by the classic Simon format. Features increasingly fast color sequences, satisfying audio feedback, and a cyber visual mode — all rendered in real-time with Threlte.',
 		links: [
 			{ href: URLS.MNEMECHA, type: 'demo' },
+			{ href: MNEMECHA_BLOG_URL, type: 'blog' },
 			{ href: `${URLS.GITHUB}/mnemecha`, type: 'github' },
 		],
 		image: mnemecha,

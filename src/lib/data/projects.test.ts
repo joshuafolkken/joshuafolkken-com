@@ -45,12 +45,13 @@ describe('PROJECTS - mnemecha entry', () => {
 		expect(mnemecha.title).toBe(MNEMECHA_TITLE)
 	})
 
-	it('has demo then github links in order', () => {
+	it('has demo, blog, github links in order', () => {
 		const [mnemecha] = PROJECTS
 		const types = mnemecha.links.map((link) => link.type)
 
 		expect(types[0]).toBe('demo')
-		expect(types[1]).toBe('github')
+		expect(types[1]).toBe('blog')
+		expect(types[2]).toBe('github')
 	})
 
 	it('demo link points to mnemecha.joshuafolkken.com', () => {
@@ -60,6 +61,15 @@ describe('PROJECTS - mnemecha entry', () => {
 		expect(demo_link.href).toBe(MNEMECHA_DEMO_URL)
 	})
 
+	it('blog link points to /blog/mnemecha', () => {
+		const [mnemecha] = PROJECTS
+		const blog_link = mnemecha.links.find((link) => link.type === 'blog')
+
+		expect(blog_link?.href).toBe('/blog/mnemecha')
+	})
+})
+
+describe('PROJECTS - mnemecha entry: content', () => {
 	it(HAS_IMAGE_TEST, () => {
 		const [mnemecha] = PROJECTS
 
