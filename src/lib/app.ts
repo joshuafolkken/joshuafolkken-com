@@ -24,7 +24,7 @@ const AUTHOR_EMAIL_ENCODED: ReadonlyArray<number> = [
 /* eslint-enable @typescript-eslint/no-magic-numbers */
 
 const URLS = {
-	SIMON: 'https://simon.joshuafolkken.com',
+	MNEMECHA: 'https://mnemecha.joshuafolkken.com',
 	TALK: 'https://talk.joshuafolkken.com',
 	TASKS: 'https://tasks.joshuafolkken.com',
 	GITHUB: 'https://github.com/joshuafolkken',
