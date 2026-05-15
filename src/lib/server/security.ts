@@ -37,15 +37,26 @@ function json_error(message: string, status: number): Response {
 	return json({ error: message }, { status })
 }
 
+function try_get_rate_limiter(platform: App.Platform): RateLimit | undefined {
+	try {
+		return platform_binding.get_rate_limiter(platform)
+	} catch (error) {
+		logger.error(`[RateLimit] Binding unavailable, skipping rate limit: ${String(error)}`)
+
+		return undefined
+	}
+}
+
 async function check_rate_limit(
 	platform: App.Platform | undefined,
 	ip: string,
 ): Promise<ValidationResult> {
 	if (!platform) return undefined
 
-	const { success: is_allowed } = await platform_binding
-		.get_rate_limiter(platform)
-		.limit({ key: ip })
+	const rate_limiter = try_get_rate_limiter(platform)
+	if (!rate_limiter) return undefined
+
+	const { success: is_allowed } = await rate_limiter.limit({ key: ip })
 
 	if (!is_allowed) {
 		logger.warn(`[RateLimit] Blocked request from ${ip}`)
