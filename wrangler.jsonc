@@ -48,9 +48,9 @@
 		}
 	],
 
-	"rate_limiting": [
+	"ratelimits": [
 		{
-			"binding": "RATE_LIMITER",
+			"name": "RATE_LIMITER",
 			"namespace_id": "1",
 			"simple": {
 				"limit": 60,

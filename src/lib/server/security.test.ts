@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/triple-slash-reference -- tsgo needs explicit reference for Cloudflare types */
 /// <reference path="../../../worker-configuration.d.ts" />
 import { CSP_VALUE, HSTS_VALUE, PERMISSIONS_POLICY_VALUE } from '$lib/constants/security'
+import { logger } from '$lib/logger'
 import { platform_binding } from '$lib/server/platform-binding'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { security, type SecurityContext } from './security'
@@ -23,6 +24,7 @@ const LOCALHOST_ORIGIN = 'http://localhost:5173'
 const INVALID_ORIGIN = 'not-a-url'
 // eslint-disable-next-line sonarjs/no-hardcoded-ip -- test fixture
 const DUMMY_IP = '10.0.0.1'
+const RATE_LIMITER_ERROR_MSG = 'Rate limiter not available'
 
 function make_rate_limiter(success: boolean): RateLimit {
 	return { limit: vi.fn().mockResolvedValue({ success }) }
@@ -39,6 +41,15 @@ function make_request(options: { origin?: string; client?: string } = {}): Reque
 
 function make_platform(success: boolean): App.Platform {
 	vi.mocked(platform_binding.get_rate_limiter).mockReturnValue(make_rate_limiter(success))
+
+	// eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- mock stub; App.Platform shape not needed in test
+	return {} as App.Platform
+}
+
+function make_platform_no_limiter(): App.Platform {
+	vi.mocked(platform_binding.get_rate_limiter).mockImplementation(() => {
+		throw new Error(RATE_LIMITER_ERROR_MSG)
+	})
 
 	// eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- mock stub; App.Platform shape not needed in test
 	return {} as App.Platform
@@ -174,6 +185,20 @@ describe('security.validate_request_security — rate limit', () => {
 
 		expect(result).toBeUndefined()
 		expect(platform_binding.get_rate_limiter).not.toHaveBeenCalled()
+	})
+
+	it('skips rate limiting when the rate limiter binding is unavailable', async () => {
+		const result = await security.validate_request_security(
+			make_context({ platform: make_platform_no_limiter() }),
+		)
+
+		expect(result).toBeUndefined()
+	})
+
+	it('logs an error when the rate limiter binding is unavailable', async () => {
+		await security.validate_request_security(make_context({ platform: make_platform_no_limiter() }))
+
+		expect(logger.error).toHaveBeenCalledWith(expect.stringContaining('[RateLimit]'))
 	})
 })
 
