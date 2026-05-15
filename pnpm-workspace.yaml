@@ -15,9 +15,7 @@ minimumReleaseAgeExclude:
   - '@sveltejs/vite-plugin-svelte'
 
 overrides:
-  undici: '>=7.24.0'
-  esbuild@<=0.24.2: '>=0.25.0'
-  cookie@<0.7.0: '>=0.7.0'
-  drizzle-orm: '>=0.45.2'
-  '@sveltejs/kit': '>=2.57.1'
-  uuid: '>=14.0.0'
+  esbuild: '^0.25.0'
+  cookie: '^0.7.0'
+  svelte: ^5.55.7
+  devalue: ^5.8.1
