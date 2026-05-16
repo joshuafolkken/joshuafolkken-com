@@ -1,6 +1,7 @@
 ---
 title: シンプルなゲームを作ったら、次のゲームを作るキットも育っていた—— 3D Mnemecha リリースの話
 date: '2026-05-14 22:30'
+updated: '2026-05-17 01:47'
 author: 'Joshua Folkken'
 cover_image: /api/images/blog/mnemecha.webp
 excerpt: 3 歳から 90 歳まで遊べるシンプルな記憶ゲーム Mnemecha を、 3D 空間に詰め込んでリリースしました。スマホでも滑らかに動くまで詰めた工夫と、そのあいだに育てていた『次のゲームを作るためのキット』の話を、ぜんぶ書きます。
@@ -159,20 +160,29 @@ FPS 表示を出したのは、もともとパフォーマンス調整のため�
 
 ここから犯人探し（[#198](https://github.com/joshuafolkken/mnemecha/issues/198)）が始まりました。
 
-- 影を疑って外す → 変わらず
-- ネオンライトを疑って外す → 変わらず
-- ネオンチューブを疑って外す → 変わらず
-- 「絶対こいつや！」と思って外したのが、片っ端から空振り
+最初に容疑者として吊し上げたのは、 **CYBER スイッチアイコンのジオメトリ** でした。 `TorusGeometry × 2 + SphereGeometry` 、頂点数だけ見ると確かに多そう。「こいつ重そうやん」と疑ってかかったんですが—— **変わらず** 。
 
-**嘘やろ……** を 5 回くらい呟きました。当てずっぽうで shader を疑ったり、テクスチャを疑ったり、 emissive を全部 0 にしたり。それでも CYBER の 40 FPS が動かない。
+そらそうです。よく考えたら、スイッチアイコンは **RETRO のときも CYBER のときも同じものを描画している** 。 `is_active` で色と emissive intensity が切り替わるだけで、頂点数自体はモード差ゼロ。「 CYBER だけ遅い」の説明にはならない。 **完全に的外れの吊し上げやった** 。
 
-最終犯人は—— **CYBER スイッチアイコンのジオメトリ** でした。
+影を疑って外しても変わらず。 emissive を全部 0 にしても変わらず。当てずっぽうで shader を疑ったり、テクスチャを疑ったり。 **嘘やろ……** を 5 回くらい呟きました。
 
-`TorusGeometry × 2 + SphereGeometry` で頂点数 **700+** 。 RETRO の数十倍の頂点を、毎フレーム描いていた。「**お前やったんか**」。
+最終犯人は—— **`{#if is_cyber}` ブロックの中身** でした。
 
-ジオメトリを軽量化して、 60 FPS まで持ち上がりました。
+CYBER モードに切り替わると、 `SceneObjects.svelte` の `{#if is_cyber}` ブロックの中で **追加の PointLight × 3 と emissive な CylinderGeometry × 2 （ネオンチューブ）** がドカッと差し込まれていた（ [#67](https://github.com/joshuafolkken/mnemecha/issues/67) で「天井ネオンチューブ + 色付き ambient で CYBER 感を出す」目的で追加したやつ）。プラス、 [#54](https://github.com/joshuafolkken/mnemecha/issues/54) で入れた **`cyber-glow` という画面全面の CSS オーバーレイ** （`position: absolute; inset: 0` + `radial-gradient` + `mix-blend-mode: screen` + 2 秒ループのパルスアニメーション）も `{#if is_cyber}` 配下。 RETRO のときはこれらが全部スキップされる。「 CYBER だけ重い」の正体はここ。
 
-ちなみに、こういう「ボトルネックを 1 つずつ消去法で削っていく」っていう動き、 [ESLint を高速化したとき](/blog/optimize-eslint-performance) と全く同じでした。 **3 倍も速さ変わったりするんか** 、と思いながら、 1 つずつ容疑者を吊し上げていく。エンジニアあるあるです。今後もまだ調整したい。これは旅の途中。
+しかも厄介なのが PBR のフラグメントシェーダ。 **ライト数に対して照明計算のコストが線形に乗る** 。 1 灯から 4 灯になった瞬間、画面全体・全フラグメントの照明計算が **ざっくり 4 倍** 。画面のピクセル数 × 4 倍の演算を毎フレームやっていて、 **そらモバイル GPU 泣くわ** 、という話でした。
+
+[#198](https://github.com/joshuafolkken/mnemecha/issues/198) の修正は 3 段構え：
+
+1. **`{#if is_cyber}` の中身を全部消す** ：余分な PointLight 3 灯とネオンチューブ 2 本を撤去。代わりにメインのライト色を CYBER モード時だけマゼンタに切り替える、で雰囲気は維持。
+2. **シャドウマッピングを丸ごと OFF** ： `<Canvas shadows>` のフラグを外し、メイン PointLight の `castShadow` も落とし、 Room の各メッシュの `receiveShadow` も全部削除。 PointLight 1 灯あたり 6 枚の shadow map をレンダリングしていたので、これだけでも GPU はだいぶ楽になる。
+3. **スイッチアイコンの segment 数を間引く** ：おまけ作業。 ring radial を `8 → 4` 、 tubular を `6 → 4` 、 orb segments を `12 → 6` 。アイコンの頂点数は 295 → 99 まで減ったけど、 **これは効果としては一番小さかった** 。 PBR は頂点数より、フラグメント × ライト数のほうがはるかに効く。
+
+結果、 CYBER モードも 60 FPS まで持ち上がりました。
+
+ちなみに最初に「頂点数 700+ や！」とドヤ顔で吊し上げかけたのは、 **PR [#46](https://github.com/joshuafolkken/mnemecha/issues/46) 時代の数字を引きずっていた** から。 PR #46 の初期スイッチは `TorusGeometry × 1` で `tubularSegments=48` 、たしかに 700+ 頂点ありました。でも [#145](https://github.com/joshuafolkken/mnemecha/issues/145) でホログラフィックパネル設計に作り直したときに `tubularSegments=6` まで間引かれていて、 Torus × 2 + Sphere でも **300 頂点弱** 。 **記憶の中の数字が、もう過去のものになっていた** 。これも犯人探しあるある。
+
+こういう「ボトルネックを 1 つずつ消去法で削っていく」っていう動き、 [ESLint を高速化したとき](/blog/optimize-eslint-performance) と全く同じでした。 **3 倍も速さ変わったりするんか** 、と思いながら、 1 つずつ容疑者を吊し上げていく。エンジニアあるあるです。今後もまだ調整したい。これは旅の途中。
 
 ## PWA と、 Cloudflare Workers の罠
 
