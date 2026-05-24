@@ -2,12 +2,18 @@ import { describe, expect, it } from 'vitest'
 import { FEATURED_PROJECTS, PROJECTS } from './projects'
 
 const MNEMECHA_TITLE = 'Mnemecha'
+const GAME_KIT_TITLE = '@joshuafolkken/game-kit'
 const KIT_TITLE = '@joshuafolkken/kit'
 const GODOT_2D_TITLE = 'Godot 2D Platformer'
 const FEATURED_COUNT = 4
 const MNEMECHA_DEMO_URL = 'https://mnemecha.joshuafolkken.com'
-const KIT_INDEX = 1
+const GAME_KIT_INDEX = 1
+const KIT_INDEX = 2
+const GAME_KIT_GITHUB_URL = 'https://github.com/joshuafolkken/game-kit'
+const GAME_KIT_BLOG_URL = '/blog/mnemecha-2'
 const HAS_IMAGE_TEST = 'has a project image'
+const HAS_REQUIRED_TAGS_TEST = 'tags include all required tools'
+const HAS_BLOG_GITHUB_LINKS_TEST = 'has blog then github links in order'
 
 const PRETTIER_TAG = 'Prettier'
 const ESLINT_TAG = 'ESLint'
@@ -15,6 +21,19 @@ const AI_WORKFLOW_TAG = 'AI Workflow'
 const CLAUDE_CODE_TAG = 'Claude Code'
 const CURSOR_TAG = 'Cursor'
 const GEMINI_TAG = 'Gemini'
+const CLOUDFLARE_WORKERS_TAG = 'Cloudflare Workers'
+
+const REQUIRED_GAME_KIT_TAGS = [
+	'TypeScript',
+	'Node.js',
+	'SvelteKit',
+	'Three.js',
+	'Threlte',
+	'pnpm',
+	CLOUDFLARE_WORKERS_TAG,
+	'CLI',
+	CLAUDE_CODE_TAG,
+]
 
 const REQUIRED_KIT_TAGS = [
 	'TypeScript',
@@ -31,7 +50,7 @@ const REQUIRED_KIT_TAGS = [
 	'GitHub Actions',
 	'SonarQube Cloud',
 	'CodeRabbit',
-	'Cloudflare Workers',
+	CLOUDFLARE_WORKERS_TAG,
 	CLAUDE_CODE_TAG,
 	CURSOR_TAG,
 	GEMINI_TAG,
@@ -97,14 +116,72 @@ describe('PROJECTS - mnemecha entry: content', () => {
 	})
 })
 
+describe('PROJECTS - game-kit entry', () => {
+	it('is the second entry (directly after Mnemecha)', () => {
+		const game_kit = PROJECTS[GAME_KIT_INDEX]
+
+		expect(game_kit.title).toBe(GAME_KIT_TITLE)
+	})
+
+	it(HAS_BLOG_GITHUB_LINKS_TEST, () => {
+		const game_kit = PROJECTS[GAME_KIT_INDEX]
+		const types = game_kit.links.map((link) => link.type)
+
+		expect(types).toEqual(['blog', 'github'])
+	})
+
+	it(`blog link points to ${GAME_KIT_BLOG_URL}`, () => {
+		const game_kit = PROJECTS[GAME_KIT_INDEX]
+		const blog_link = game_kit.links.find((link) => link.type === 'blog')
+
+		expect(blog_link?.href).toBe(GAME_KIT_BLOG_URL)
+	})
+
+	it(`github link points to ${GAME_KIT_GITHUB_URL}`, () => {
+		const game_kit = PROJECTS[GAME_KIT_INDEX]
+		const github_link = game_kit.links.find((link) => link.type === 'github')
+
+		expect(github_link?.href).toBe(GAME_KIT_GITHUB_URL)
+	})
+})
+
+describe('PROJECTS - game-kit entry: content', () => {
+	it(HAS_IMAGE_TEST, () => {
+		const game_kit = PROJECTS[GAME_KIT_INDEX]
+
+		expect(game_kit.image).toBeDefined()
+	})
+
+	it('uses a dedicated image (not the Mnemecha image)', () => {
+		const [mnemecha] = PROJECTS
+		const game_kit = PROJECTS[GAME_KIT_INDEX]
+
+		expect(game_kit.image).not.toBe(mnemecha.image)
+	})
+
+	it(HAS_REQUIRED_TAGS_TEST, () => {
+		const game_kit = PROJECTS[GAME_KIT_INDEX]
+
+		for (const tag of REQUIRED_GAME_KIT_TAGS) {
+			expect(game_kit.tags).toContain(tag)
+		}
+	})
+
+	it('description mentions the jgame CLI', () => {
+		const game_kit = PROJECTS[GAME_KIT_INDEX]
+
+		expect(game_kit.description).toContain('jgame')
+	})
+})
+
 describe('PROJECTS - kit entry', () => {
-	it('is the second entry', () => {
+	it('is the third entry', () => {
 		const kit = PROJECTS[KIT_INDEX]
 
 		expect(kit.title).toBe(KIT_TITLE)
 	})
 
-	it('has blog then github links in order', () => {
+	it(HAS_BLOG_GITHUB_LINKS_TEST, () => {
 		const kit = PROJECTS[KIT_INDEX]
 		const types = kit.links.map((link) => link.type)
 
@@ -126,7 +203,7 @@ describe('PROJECTS - kit entry', () => {
 		expect(blog_link.href).toBe('/blog/kit-package')
 	})
 
-	it('tags include all required tools', () => {
+	it(HAS_REQUIRED_TAGS_TEST, () => {
 		const kit = PROJECTS[KIT_INDEX]
 
 		for (const tag of REQUIRED_KIT_TAGS) {
@@ -173,10 +250,16 @@ describe('FEATURED_PROJECTS', () => {
 		expect(first?.title).toBe(MNEMECHA_TITLE)
 	})
 
-	it('has @joshuafolkken/kit as the second featured project', () => {
+	it(`has ${GAME_KIT_TITLE} as the second featured project`, () => {
 		const [, second] = FEATURED_PROJECTS
 
-		expect(second?.title).toBe(KIT_TITLE)
+		expect(second?.title).toBe(GAME_KIT_TITLE)
+	})
+
+	it(`still includes ${KIT_TITLE} in the featured set`, () => {
+		const titles = FEATURED_PROJECTS.map((proj) => proj.title)
+
+		expect(titles).toContain(KIT_TITLE)
 	})
 
 	it(`does not include ${GODOT_2D_TITLE} (out of first ${String(FEATURED_COUNT)})`, () => {

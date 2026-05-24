@@ -1,5 +1,6 @@
-import { SUBTITLE_DEVELOPMENT_TOOL, URLS } from '$lib/app'
+import { SUBTITLE_DEVELOPMENT_TOOL, SUBTITLE_NPM_PACKAGE, URLS } from '$lib/app'
 import kit_package from '$lib/assets/images/blog/kit-package.png'
+import game_kit from '$lib/assets/images/projects/game-kit.png'
 import godot_2d_platformer from '$lib/assets/images/projects/godot-2d-platformer.png'
 import godot_multiplayer from '$lib/assets/images/projects/godot-multiplayer-v2.png'
 import godot_project_template from '$lib/assets/images/projects/godot-project-template.png'
@@ -32,6 +33,7 @@ import type { Project } from '$lib/types/project'
 
 const KIT_BLOG_URL = '/blog/kit-package'
 const MNEMECHA_BLOG_URL = '/blog/mnemecha'
+const GAME_KIT_BLOG_URL = '/blog/mnemecha-2'
 const CLAUDE_CODE_TAG = 'Claude Code'
 
 const FEATURED_COUNT = 4
@@ -53,8 +55,31 @@ export const PROJECTS = [
 	},
 	{
 		icon: PackageIcon,
+		title: '@joshuafolkken/game-kit',
+		subtitle: SUBTITLE_NPM_PACKAGE,
+		description:
+			'A reusable game development kit extracted from Mnemecha. Bundles shared Svelte/Threlte building blocks (HUD, toggles, splash, controls), a CRT/RETRO rendering pipeline with a VGA 3-3-2 palette and Bayer dithering, and the `jgame` CLI for installing and syncing the kit into new game projects.',
+		links: [
+			{ href: GAME_KIT_BLOG_URL, type: 'blog' },
+			{ href: `${URLS.GITHUB}/game-kit`, type: 'github' },
+		],
+		image: game_kit,
+		tags: [
+			'TypeScript',
+			'Node.js',
+			'SvelteKit',
+			'Three.js',
+			'Threlte',
+			'pnpm',
+			CLOUDFLARE_WORKERS,
+			'CLI',
+			CLAUDE_CODE_TAG,
+		],
+	},
+	{
+		icon: PackageIcon,
 		title: '@joshuafolkken/kit',
-		subtitle: 'npm package',
+		subtitle: SUBTITLE_NPM_PACKAGE,
 		description:
 			'A consolidated npm package for development configuration and AI workflow automation. One command deploys 25+ config files; 25+ CLI subcommands cover code quality, CI/CD, git hooks, spell-checking, and AI-assisted workflows (kickoff / fullrun).',
 		links: [
