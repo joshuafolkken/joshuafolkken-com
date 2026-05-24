@@ -49,6 +49,7 @@ const LINK_TARGET = '_blank'
 const LINK_REL = 'noopener noreferrer'
 
 const SUBTITLE_DEVELOPMENT_TOOL = 'Dev Tool'
+const SUBTITLE_NPM_PACKAGE = 'npm package'
 
 const LEGAL_PAGES_LAST_UPDATED = 'April 2026'
 
@@ -82,6 +83,7 @@ export {
 	LINK_REL,
 	LINK_TARGET,
 	SUBTITLE_DEVELOPMENT_TOOL,
+	SUBTITLE_NPM_PACKAGE,
 	URLS,
 	OPENCOLLECTIVE,
 	app,
