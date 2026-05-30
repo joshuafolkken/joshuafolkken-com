@@ -32,7 +32,9 @@
 	image={image_url || undefined}
 />
 
-<AdSenseScript />
+{#if data.should_show_ads}
+	<AdSenseScript />
+{/if}
 
 <PageLayout>
 	<PageHeader page={PAGES.BLOG} />
