@@ -7,10 +7,14 @@ import {
 	SITEMAP_PRIORITY_HOME,
 	SITEMAP_ROUTE,
 } from '$lib/constants/sitemap'
+import { PROJECTS } from '$lib/data/projects'
 import { git_utilities } from '$lib/server/git-utilities'
 import { blog_parser } from '$lib/utils/blog-parser'
 import { date_utilities } from '$lib/utils/date-utilities'
+import { project_utilities } from '$lib/utils/project-utilities'
 import type { RequestHandler } from './$types'
+
+const PROJECT_CASE_STUDIES_PATH = '/src/lib/data/project-case-studies.ts'
 
 interface SitemapUrl {
 	loc: string
@@ -56,6 +60,15 @@ function get_blog_posts(): Array<SitemapUrl> {
 		.map((post) => create_sitemap_entry(`/blog/${post.slug}`, new Date(post.updated ?? post.date)))
 }
 
+function get_project_pages(): Array<SitemapUrl> {
+	return PROJECTS.map((project) =>
+		create_sitemap_entry(
+			project_utilities.get_detail_path(project.slug),
+			PROJECT_CASE_STUDIES_PATH,
+		),
+	)
+}
+
 function escape_xml(value: string): string {
 	return value
 		.replaceAll('&', '&amp;')
@@ -80,8 +93,9 @@ function generate_url_xml(urls: Array<SitemapUrl>): string {
 
 const GET: RequestHandler = () => {
 	const static_pages = get_static_pages()
+	const project_pages = get_project_pages()
 	const blog_posts = get_blog_posts()
-	const all_urls = [...static_pages, ...blog_posts]
+	const all_urls = [...static_pages, ...project_pages, ...blog_posts]
 
 	const url_xml = generate_url_xml(all_urls)
 

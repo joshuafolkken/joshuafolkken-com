@@ -62,6 +62,7 @@ const LAST_UPDATED = {
 const LINK_LABELS = {
 	github: 'GitHub',
 	demo: 'Live Demo',
+	play: 'Play',
 	npm: 'npm',
 	blog: 'Blog',
 } as const

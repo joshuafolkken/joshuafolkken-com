@@ -1,61 +1,47 @@
-import type { Project, ProjectLink } from '$lib/types/project'
+import { PROJECTS } from '$lib/data/projects'
 import { describe, expect, it } from 'vitest'
-import { project_utilities } from './project-utilities'
+import { PROJECT_DETAIL_BASE, project_utilities } from './project-utilities'
 
-const GITHUB_HREF = 'https://github.com/example'
-const DEMO_HREF = 'https://example.com/demo'
-const DEMO_HREF_SHORT = 'https://example.com'
-const NPM_HREF = 'https://npmjs.com/example'
+const KNOWN_SLUG = 'mnemecha'
+const UNKNOWN_SLUG = 'does-not-exist'
+const UNKNOWN_SLUG_TEST = 'returns undefined for an unknown slug'
 
-function make_link(type: ProjectLink['type'], href: string): ProjectLink {
-	return { type, href }
-}
-
-function make_project(links: Array<ProjectLink>): Project {
-	return { title: 'Test', description: 'Test', links } as unknown as Project
-}
-
-describe('project_utilities.get_demo_href', () => {
-	it('returns the href of the demo link when one exists', () => {
-		const project = make_project([make_link('demo', DEMO_HREF), make_link('github', GITHUB_HREF)])
-
-		expect(project_utilities.get_demo_href(project)).toBe(DEMO_HREF)
+describe('project_utilities.get_detail_path', () => {
+	it('builds the detail path under the projects base', () => {
+		expect(project_utilities.get_detail_path(KNOWN_SLUG)).toBe(
+			`${PROJECT_DETAIL_BASE}/${KNOWN_SLUG}`,
+		)
 	})
 
-	it('returns undefined when no demo link exists', () => {
-		const project = make_project([make_link('github', GITHUB_HREF)])
-
-		expect(project_utilities.get_demo_href(project)).toBeUndefined()
-	})
-
-	it('returns undefined when links array is empty', () => {
-		expect(project_utilities.get_demo_href(make_project([]))).toBeUndefined()
+	it('returns a path for every project slug', () => {
+		for (const project of PROJECTS) {
+			expect(project_utilities.get_detail_path(project.slug)).toBe(
+				`${PROJECT_DETAIL_BASE}/${project.slug}`,
+			)
+		}
 	})
 })
 
-describe('project_utilities.get_secondary_links', () => {
-	it('returns all non-demo links', () => {
-		const github = make_link('github', GITHUB_HREF)
-		const npm = make_link('npm', NPM_HREF)
-		const project = make_project([make_link('demo', DEMO_HREF_SHORT), github, npm])
+describe('project_utilities.get_project_by_slug', () => {
+	it('returns the matching project for a known slug', () => {
+		const project = project_utilities.get_project_by_slug(KNOWN_SLUG)
 
-		expect(project_utilities.get_secondary_links(project)).toEqual([github, npm])
+		expect(project?.slug).toBe(KNOWN_SLUG)
 	})
 
-	it('returns all links when there is no demo link', () => {
-		const github = make_link('github', GITHUB_HREF)
-		const project = make_project([github])
+	it(UNKNOWN_SLUG_TEST, () => {
+		expect(project_utilities.get_project_by_slug(UNKNOWN_SLUG)).toBeUndefined()
+	})
+})
 
-		expect(project_utilities.get_secondary_links(project)).toEqual([github])
+describe('project_utilities.get_case_study', () => {
+	it('returns a case study for every project slug', () => {
+		for (const project of PROJECTS) {
+			expect(project_utilities.get_case_study(project.slug)).toBeDefined()
+		}
 	})
 
-	it('returns an empty array when all links are demo links', () => {
-		const project = make_project([make_link('demo', DEMO_HREF_SHORT)])
-
-		expect(project_utilities.get_secondary_links(project)).toEqual([])
-	})
-
-	it('returns an empty array when links array is empty', () => {
-		expect(project_utilities.get_secondary_links(make_project([]))).toEqual([])
+	it(UNKNOWN_SLUG_TEST, () => {
+		expect(project_utilities.get_case_study(UNKNOWN_SLUG)).toBeUndefined()
 	})
 })
