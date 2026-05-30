@@ -41,12 +41,13 @@ const FEATURED_COUNT = 4
 export const PROJECTS = [
 	{
 		icon: SparklesIcon,
+		slug: 'mnemecha',
 		title: 'Mnemecha',
 		subtitle: 'Memory Game',
 		description:
 			'A 3D first-person memory game inspired by the classic Simon format. Features increasingly fast color sequences, satisfying audio feedback, and a cyber visual mode — all rendered in real-time with Threlte.',
 		links: [
-			{ href: URLS.MNEMECHA, type: 'demo' },
+			{ href: URLS.MNEMECHA, type: 'play' },
 			{ href: MNEMECHA_BLOG_URL, type: 'blog' },
 			{ href: `${URLS.GITHUB}/mnemecha`, type: 'github' },
 		],
@@ -55,6 +56,7 @@ export const PROJECTS = [
 	},
 	{
 		icon: PackageIcon,
+		slug: 'game-kit',
 		title: '@joshuafolkken/game-kit',
 		subtitle: SUBTITLE_NPM_PACKAGE,
 		description:
@@ -78,6 +80,7 @@ export const PROJECTS = [
 	},
 	{
 		icon: PackageIcon,
+		slug: 'kit',
 		title: '@joshuafolkken/kit',
 		subtitle: SUBTITLE_NPM_PACKAGE,
 		description:
@@ -111,6 +114,7 @@ export const PROJECTS = [
 	},
 	{
 		icon: ProjectsIcon,
+		slug: 'joshuafolkken-com',
 		title: 'joshuafolkken.com',
 		subtitle: 'Portfolio',
 		description:
@@ -129,6 +133,7 @@ export const PROJECTS = [
 	},
 	{
 		icon: ListIcon,
+		slug: 'tasks',
 		title: 'Tasks',
 		subtitle: 'Task Manager',
 		description:
@@ -142,11 +147,12 @@ export const PROJECTS = [
 	},
 	{
 		icon: TalkIcon,
+		slug: 'talk',
 		title: 'Talk',
 		subtitle: 'Language Learning Game',
 		description: "World's first fun language learning game for listening and speaking",
 		links: [
-			{ href: URLS.TALK, type: 'demo' },
+			{ href: URLS.TALK, type: 'play' },
 			{ href: `${URLS.GITHUB}/talk-svelte`, type: 'github' },
 		],
 		image: talk,
@@ -154,11 +160,12 @@ export const PROJECTS = [
 	},
 	{
 		icon: RunningIcon,
+		slug: 'godot-2d-platformer',
 		title: 'Godot 2D Platformer',
 		subtitle: 'Platform Game',
 		description: 'Features dash mechanics, high jumps, and double jumps like Mario!',
 		links: [
-			{ href: `${URLS.GITHUB_PAGE}/godot-2d-platformer`, type: 'demo' },
+			{ href: `${URLS.GITHUB_PAGE}/godot-2d-platformer`, type: 'play' },
 			{ href: `${URLS.GITHUB}/godot-2d-platformer`, type: 'github' },
 		],
 		image: godot_2d_platformer,
@@ -166,11 +173,12 @@ export const PROJECTS = [
 	},
 	{
 		icon: FilmIcon,
+		slug: 'tic-tac-toe',
 		title: 'Tic-Tac-Toe',
 		subtitle: 'Strategy Game',
 		description: 'A classic game reimagined, inspired by the 1983 movie WarGames',
 		links: [
-			{ href: `${URLS.GITHUB_PAGE}/tic-tac-toe`, type: 'demo' },
+			{ href: `${URLS.GITHUB_PAGE}/tic-tac-toe`, type: 'play' },
 			{ href: `${URLS.GITHUB}/tic-tac-toe`, type: 'github' },
 		],
 		image: tic_tac_toe,
@@ -178,11 +186,12 @@ export const PROJECTS = [
 	},
 	{
 		icon: TennisIcon,
+		slug: 'pong',
 		title: 'KAWAII PONG',
 		subtitle: 'Action Game',
 		description: 'Inspired by the 1976 SUPER PONG with a kawaii twist',
 		links: [
-			{ href: `${URLS.GITHUB_PAGE}/pong`, type: 'demo' },
+			{ href: `${URLS.GITHUB_PAGE}/pong`, type: 'play' },
 			{ href: `${URLS.GITHUB}/pong`, type: 'github' },
 		],
 		image: pong,
@@ -190,6 +199,7 @@ export const PROJECTS = [
 	},
 	{
 		icon: ToolIcon,
+		slug: 'godot-project-template',
 		title: 'Godot Project Template',
 		subtitle: SUBTITLE_DEVELOPMENT_TOOL,
 		description: 'A minimalist template for rapid Godot 4 development',
@@ -202,6 +212,7 @@ export const PROJECTS = [
 	},
 	{
 		icon: GlobeIcon,
+		slug: 'godot-multiplayer',
 		title: 'Godot Multiplayer',
 		subtitle: SUBTITLE_DEVELOPMENT_TOOL,
 		description: 'Exploring multiplayer game development with Godot',

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { PROJECT_SLUGS } from './project-slugs'
 import { FEATURED_PROJECTS, PROJECTS } from './projects'
 
 const MNEMECHA_TITLE = 'Mnemecha'
@@ -64,20 +65,20 @@ describe('PROJECTS - mnemecha entry', () => {
 		expect(mnemecha.title).toBe(MNEMECHA_TITLE)
 	})
 
-	it('has demo, blog, github links in order', () => {
+	it('has play, blog, github links in order', () => {
 		const [mnemecha] = PROJECTS
 		const types = mnemecha.links.map((link) => link.type)
 
-		expect(types[0]).toBe('demo')
+		expect(types[0]).toBe('play')
 		expect(types[1]).toBe('blog')
 		expect(types[2]).toBe('github')
 	})
 
-	it('demo link points to mnemecha.joshuafolkken.com', () => {
+	it('play link points to mnemecha.joshuafolkken.com', () => {
 		const [mnemecha] = PROJECTS
-		const [demo_link] = mnemecha.links
+		const [play_link] = mnemecha.links
 
-		expect(demo_link.href).toBe(MNEMECHA_DEMO_URL)
+		expect(play_link.href).toBe(MNEMECHA_DEMO_URL)
 	})
 
 	it('blog link points to /blog/mnemecha', () => {
@@ -236,6 +237,62 @@ describe('PROJECTS - general', () => {
 		const titles = PROJECTS.map((proj) => proj.title)
 
 		expect(titles).toContain(GODOT_2D_TITLE)
+	})
+})
+
+describe('PROJECTS - slugs', () => {
+	const KEBAB_CASE_PATTERN = /^[a-z\d]+(?:-[a-z\d]+)*$/u
+
+	it('every project has a non-empty slug', () => {
+		for (const project of PROJECTS) {
+			expect(project.slug.length).toBeGreaterThan(0)
+		}
+	})
+
+	it('every slug is kebab-case', () => {
+		for (const project of PROJECTS) {
+			expect(project.slug).toMatch(KEBAB_CASE_PATTERN)
+		}
+	})
+
+	it('all slugs are unique', () => {
+		const slugs = PROJECTS.map((project) => project.slug)
+
+		expect(new Set(slugs).size).toBe(slugs.length)
+	})
+
+	it('matches the shared PROJECT_SLUGS list (single source for tests)', () => {
+		expect(PROJECTS.map((project) => project.slug)).toEqual([...PROJECT_SLUGS])
+	})
+})
+
+function find_project(slug: string): (typeof PROJECTS)[number] {
+	const project = PROJECTS.find((candidate) => candidate.slug === slug)
+	if (!project) throw new Error(`missing project: ${slug}`)
+
+	return project
+}
+
+describe('PROJECTS - playable vs demo link types', () => {
+	const PLAY_SLUGS = ['mnemecha', 'talk', 'godot-2d-platformer', 'tic-tac-toe', 'pong']
+	const DEMO_SLUGS = ['tasks', 'godot-project-template']
+
+	it('game projects expose a play link, never a demo link', () => {
+		for (const slug of PLAY_SLUGS) {
+			const types = find_project(slug).links.map((link) => link.type)
+
+			expect(types, slug).toContain('play')
+			expect(types, slug).not.toContain('demo')
+		}
+	})
+
+	it('non-game live links stay as demo (apps and templates)', () => {
+		for (const slug of DEMO_SLUGS) {
+			const types = find_project(slug).links.map((link) => link.type)
+
+			expect(types, slug).toContain('demo')
+			expect(types, slug).not.toContain('play')
+		}
 	})
 })
 

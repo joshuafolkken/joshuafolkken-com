@@ -6,9 +6,10 @@
 	import type { ProjectLink } from '$lib/types/project'
 	import { link_utilities } from '$lib/utils/link-utilities'
 
-	const { link }: { link: ProjectLink } = $props()
+	const { link, is_icon_only = false }: { link: ProjectLink; is_icon_only?: boolean } = $props()
 
 	const link_info = $derived(link_utilities.get_link_info(link.href))
+	const label = $derived(app.link_label(link.type))
 </script>
 
 <a
@@ -16,7 +17,11 @@
 	target={link_info.target}
 	rel={link_info.rel}
 	class={PROJECT_CARD_LINK_BUTTON_CLASS}
+	aria-label={is_icon_only ? label : undefined}
+	title={is_icon_only ? label : undefined}
 >
 	<LinkTypeIcon type={link.type} size={ICON_SIZE_SM} />
-	{app.link_label(link.type)}
+	{#if !is_icon_only}
+		{label}
+	{/if}
 </a>

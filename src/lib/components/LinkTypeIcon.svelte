@@ -17,6 +17,6 @@
 	<GitHubIcon {size} />
 {:else if type === 'npm'}
 	<PackageIcon {size} />
-{:else if type === 'demo'}
+{:else if type === 'demo' || type === 'play'}
 	<LiveDemoIcon {size} />
 {/if}

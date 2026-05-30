@@ -16,10 +16,6 @@ const CARD_IMAGE_OVERLAY_CLASS =
 
 const PROJECT_CARD_TAGS_ROW_CLASS = 'mt-3 flex flex-wrap gap-2.5'
 
-const PROJECT_CARD_COLUMN_CLASS = 'flex flex-1 flex-col'
-
-const PROJECT_CARD_LINKS_ROW_CLASS = 'absolute right-6 bottom-6 z-10 flex items-center gap-4'
-
 const PROJECT_CARD_LINK_BUTTON_CLASS =
 	'flex items-center gap-2 text-sm text-white/60 transition-colors duration-300 group-hover:text-white/80 hover:text-sky-400'
 
@@ -31,8 +27,6 @@ export {
 	CARD_IMAGE_WRAPPER_CLASS,
 	CARD_TITLE_CLASS,
 	CARD_WRAPPER_CLASS,
-	PROJECT_CARD_COLUMN_CLASS,
 	PROJECT_CARD_LINK_BUTTON_CLASS,
-	PROJECT_CARD_LINKS_ROW_CLASS,
 	PROJECT_CARD_TAGS_ROW_CLASS,
 }
