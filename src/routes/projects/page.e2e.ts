@@ -4,6 +4,7 @@ import { TEST_ROUTES } from '../test-routes'
 const MNEMECHA_TITLE = 'Mnemecha'
 const KIT_TITLE = '@joshuafolkken/kit'
 const BLOG_LABEL = 'Blog'
+const GITHUB_LABEL = 'GitHub'
 const KIT_GITHUB_URL = 'https://github.com/joshuafolkken/kit'
 const KIT_BLOG_URL = '/blog/kit-package'
 const CARD_SELECTOR = '.cyber-card'
@@ -48,6 +49,31 @@ test.describe('Projects page', () => {
 		await page.goto(TEST_ROUTES.PROJECTS)
 
 		await expect(page.getByText(GODOT_2D_TITLE)).toBeVisible()
+	})
+})
+
+test.describe('Projects page detail navigation', () => {
+	test('mnemecha card links to its detail page', async ({ page }) => {
+		await page.goto(TEST_ROUTES.PROJECTS)
+
+		const first_card = page.locator(CARD_SELECTOR).first()
+
+		await first_card.locator('a[href="/projects/mnemecha"]').click()
+
+		await expect(page).toHaveURL(/\/projects\/mnemecha$/u)
+		await expect(page.locator('article h1')).toContainText(MNEMECHA_TITLE)
+	})
+})
+
+test.describe('Projects page card links', () => {
+	test('kit card links are icon-only (aria-label, no visible text)', async ({ page }) => {
+		await page.goto(TEST_ROUTES.PROJECTS)
+
+		const kit_card = page.locator(CARD_SELECTOR).filter({ hasText: KIT_TITLE })
+		const github_link = kit_card.getByRole('link', { name: GITHUB_LABEL, exact: true })
+
+		await expect(github_link).toBeVisible()
+		await expect(github_link).toHaveAttribute('aria-label', GITHUB_LABEL)
 	})
 })
 
