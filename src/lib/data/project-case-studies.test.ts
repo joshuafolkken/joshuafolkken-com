@@ -39,8 +39,8 @@ describe('PROJECT_CASE_STUDIES', () => {
 			expect(case_study.sections.length).toBeGreaterThanOrEqual(MIN_SECTION_COUNT)
 
 			for (const section of case_study.sections) {
-				expect(section.heading.length).toBeGreaterThan(0)
-				expect(section.body.length).toBeGreaterThan(0)
+				expect(section.heading.trim().length).toBeGreaterThan(0)
+				expect(section.body.trim().length).toBeGreaterThan(0)
 			}
 		}
 	})
