@@ -34,6 +34,28 @@ describe('project_utilities.get_project_by_slug', () => {
 	})
 })
 
+describe('project_utilities.get_project_page', () => {
+	it('maps a project to a page using its subtitle as the description', () => {
+		const project = project_utilities.get_project_by_slug(KNOWN_SLUG)
+
+		expect(project).toBeDefined()
+		if (!project) return
+
+		const page = project_utilities.get_project_page(project)
+
+		expect(page.title).toBe(project.title)
+		expect(page.description).toBe(project.subtitle ?? '')
+		expect(page.icon).toBe(project.icon)
+		expect(page.link).toBe(`${PROJECT_DETAIL_BASE}/${project.slug}`)
+	})
+
+	it('builds a page for every project', () => {
+		for (const project of PROJECTS) {
+			expect(project_utilities.get_project_page(project).title).toBe(project.title)
+		}
+	})
+})
+
 describe('project_utilities.get_case_study', () => {
 	it('returns a case study for every project slug', () => {
 		for (const project of PROJECTS) {
