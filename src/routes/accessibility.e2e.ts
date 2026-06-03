@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { TEST_ROUTES } from './test-routes'
+import { TEST_ROUTES } from '$lib/test-routes'
 
 const SKIP_LINK_TEXT = 'Skip to main content'
 const SKIP_LINK_TARGET_ID = 'skip-to-main'

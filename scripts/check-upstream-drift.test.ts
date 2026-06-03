@@ -32,7 +32,6 @@ describe('upstream_drift.classify', () => {
 	})
 
 	it('returns missing_upstream when upstream is absent', () => {
-		// eslint-disable-next-line unicorn/no-useless-undefined
 		expect(upstream_drift.classify('local', undefined)).toBe('missing_upstream')
 	})
 })

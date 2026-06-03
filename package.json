@@ -1,11 +1,10 @@
 {
 	"name": "joshuafolkken-com",
-	"version": "0.235.0",
+	"version": "0.236.0",
 	"type": "module",
 	"private": true,
 	"scripts": {
 		"preinstall": "pnpm dlx @aikidosec/safe-chain setup-ci",
-		"postinstall": "lefthook install && tsx node_modules/@joshuafolkken/kit/scripts/fix-gh-packages.ts",
 		"dev": "vite dev",
 		"dev:cloudflare": "pnpm build && wrangler dev --remote",
 		"build": "vite build",
@@ -14,7 +13,7 @@
 		"preview": "wrangler dev .svelte-kit/cloudflare/_worker.js --port 4173",
 		"preview:normal": "vite preview",
 		"preview:stop": "kill-port 4173 || true",
-		"prepare": "pnpm gen && svelte-kit sync",
+		"prepare": "pnpm gen && svelte-kit sync && command -v lefthook >/dev/null 2>&1 && lefthook install; command -v tsx >/dev/null 2>&1 && tsx node_modules/@joshuafolkken/kit/scripts/fix-gh-packages.ts; true",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"gen": "pnpm gen:pre && wrangler types",
 		"gen:pre": "rm -f .svelte-kit/cloudflare/_worker.*",
@@ -38,7 +37,7 @@
 		"@eslint/compat": "^2.1.0",
 		"@eslint/js": "^10.0.1",
 		"@ianvs/prettier-plugin-sort-imports": "^4.7.1",
-		"@joshuafolkken/kit": "0.199.0",
+		"@joshuafolkken/kit": "0.217.0",
 		"@playwright/test": "^1.60.0",
 		"@prgm/sveltekit-progress-bar": "^3.0.2",
 		"@size-limit/file": "^12.1.0",
@@ -94,7 +93,7 @@
 	"devEngines": {
 		"packageManager": {
 			"name": "pnpm",
-			"version": ">=11.0.0-0",
+			"version": "11.5.0",
 			"onFail": "error"
 		}
 	},
@@ -103,16 +102,5 @@
 			"path": ".svelte-kit/output/client/_app/immutable/**/*.js",
 			"limit": "500 kB"
 		}
-	],
-	"pnpm": {
-		"onlyBuiltDependencies": [
-			"esbuild",
-			"workerd"
-		],
-		"ignoredBuiltDependencies": [
-			"@joshuafolkken/kit",
-			"lefthook"
-		],
-		"overrides": {}
-	}
+	]
 }

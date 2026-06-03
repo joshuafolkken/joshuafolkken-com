@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/naming-convention, unicorn/no-null -- OpenCollectiveMember interface uses MemberId (PascalCase) and null per API contract */
+/* eslint-disable unicorn/no-null -- OpenCollectiveMember interface uses MemberId (PascalCase) and null per API contract */
 import { opencollective_api } from '$lib/api/opencollective-api'
 import { kv_cache } from '$lib/server/kv-cache'
 import type { OpenCollectiveMember } from '$lib/types/opencollective'

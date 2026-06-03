@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { PROJECT_SLUGS } from '../../lib/data/project-slugs'
+import { PROJECT_SLUGS } from '$lib/data/project-slugs'
 
 const SITE_ORIGIN = 'https://joshuafolkken.com'
 const SITEMAP_PATH = '/sitemap.xml'
