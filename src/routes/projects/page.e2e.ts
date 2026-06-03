@@ -61,7 +61,7 @@ test.describe('Projects page detail navigation', () => {
 		await first_card.locator('a[href="/projects/mnemecha"]').click()
 
 		await expect(page).toHaveURL(/\/projects\/mnemecha$/u)
-		await expect(page.locator('article h1')).toContainText(MNEMECHA_TITLE)
+		await expect(page.getByRole('heading', { level: 1, name: MNEMECHA_TITLE })).toBeVisible()
 	})
 })
 
