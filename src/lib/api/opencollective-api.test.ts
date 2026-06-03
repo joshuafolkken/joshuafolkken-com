@@ -59,7 +59,6 @@ describe('opencollective_api.fetch_supporters — success', () => {
 			make_fetch_function(make_graphql_response(nodes)),
 		)
 
-		/* eslint-disable @typescript-eslint/naming-convention -- OpenCollectiveMember API contract */
 		expect(result[0]).toEqual({
 			MemberId: 42,
 			name: 'User 42',
@@ -68,7 +67,6 @@ describe('opencollective_api.fetch_supporters — success', () => {
 			totalAmountDonated: 200,
 			role: 'BACKER',
 		})
-		/* eslint-enable @typescript-eslint/naming-convention */
 	})
 })
 

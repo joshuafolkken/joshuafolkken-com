@@ -46,7 +46,6 @@ function map_contributors_to_supporters(
 
 	return filtered
 		.map((node) => {
-			/* eslint-disable @typescript-eslint/naming-convention -- OpenCollectiveMember API contract */
 			return {
 				MemberId: Number.parseInt(node.id, 10),
 				name: node.account.name,
@@ -55,7 +54,6 @@ function map_contributors_to_supporters(
 				totalAmountDonated: node.totalAmountContributed.value,
 				role: 'BACKER',
 			}
-			/* eslint-enable @typescript-eslint/naming-convention */
 		})
 		.toSorted((first, second) => second.totalAmountDonated - first.totalAmountDonated)
 }

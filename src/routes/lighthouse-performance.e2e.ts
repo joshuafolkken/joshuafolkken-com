@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { TEST_ROUTES } from './test-routes'
+import { TEST_ROUTES } from '$lib/test-routes'
 
 const SKILL_BAR_SELECTOR = '.skill-bar'
 

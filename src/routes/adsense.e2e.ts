@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { TEST_ROUTES } from './test-routes'
+import { TEST_ROUTES } from '$lib/test-routes'
 
 const ADSENSE_SRC = 'pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'
 const ADSENSE_POLL_TIMEOUT = 15_000

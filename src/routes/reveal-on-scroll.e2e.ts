@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { TEST_ROUTES } from './test-routes'
+import { TEST_ROUTES } from '$lib/test-routes'
 
 const REVEAL_SECTION = 'section.reveal-on-scroll'
 
