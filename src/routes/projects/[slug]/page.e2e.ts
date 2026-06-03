@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { PROJECT_SLUGS } from '../../../lib/data/project-slugs'
+import { PROJECT_SLUGS } from '$lib/data/project-slugs'
 
 const CHALLENGE_HEADING = 'The Challenge'
 const NOT_FOUND_STATUS = 404

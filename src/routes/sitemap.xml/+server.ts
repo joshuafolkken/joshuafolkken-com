@@ -113,7 +113,7 @@ ${url_xml}
 }
 
 // SvelteKit configuration
-// eslint-disable-next-line @typescript-eslint/naming-convention
+
 const prerender = true
 
 export { GET, prerender }

@@ -7,7 +7,6 @@ const OPENCOLLECTIVE_IMAGES_BASE = 'https://images.opencollective.com'
 const OPENCOLLECTIVE_BASE = 'https://opencollective.com'
 const DEFAULT_PROFILE = `${OPENCOLLECTIVE_BASE}/some-user`
 
-/* eslint-disable @typescript-eslint/naming-convention -- OpenCollectiveMember API contract */
 function make_member(image: string | null, profile = DEFAULT_PROFILE): OpenCollectiveMember {
 	return {
 		MemberId: 1,
@@ -18,7 +17,6 @@ function make_member(image: string | null, profile = DEFAULT_PROFILE): OpenColle
 		role: 'BACKER',
 	}
 }
-/* eslint-enable @typescript-eslint/naming-convention */
 
 describe('opencollective_utilities.get_avatar_url', () => {
 	it('returns image URL from images.opencollective.com', () => {
