@@ -239,8 +239,8 @@ importers:
         specifier: ^4.7.1
         version: 4.7.1(prettier@3.8.3)
       '@joshuafolkken/kit':
-        specifier: 0.223.0
-        version: 0.223.0(@playwright/test@1.60.0)(@typescript-eslint/utils@8.60.1(eslint@10.4.1(jiti@2.7.0))(typescript@6.0.3))(eslint@10.4.1(jiti@2.7.0))(svelte@5.56.1(@typescript-eslint/types@8.60.1))(typescript@6.0.3)
+        specifier: 0.228.0
+        version: 0.228.0(@playwright/test@1.60.0)(@typescript-eslint/utils@8.60.1(eslint@10.4.1(jiti@2.7.0))(typescript@6.0.3))(eslint@10.4.1(jiti@2.7.0))(svelte@5.56.1(@typescript-eslint/types@8.60.1))(typescript@6.0.3)
       '@playwright/test':
         specifier: ^1.60.0
         version: 1.60.0
@@ -1124,8 +1124,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@joshuafolkken/kit@0.223.0':
-    resolution: {integrity: sha512-8PPFpcMksjYz1cqqHzVfbxvyc8fg6Lr7VFdBfgynCTsnnyRoygW8JGYFKNM4+nVHqcguU1bO+ZKXuESa29NJzg==, tarball: https://npm.pkg.github.com/download/@joshuafolkken/kit/0.223.0/f839ab8116f3f62ddcba31de63ce634d04000ce5}
+  '@joshuafolkken/kit@0.228.0':
+    resolution: {integrity: sha512-6wTYh1y7Oir1g5kq1qM8iXW4Yjbn5DWCzb0yy9ABh5IhiR8+DXV7YlNcXGG1fyOiCPi//Ygs4gmZf5CdhUF8ew==, tarball: https://npm.pkg.github.com/download/@joshuafolkken/kit/0.228.0/26504ca7e7bf99e30dbd51cfc85ee3aa02e650ff}
     engines: {node: '>=22.19.0'}
     hasBin: true
     peerDependencies:
@@ -3446,8 +3446,8 @@ packages:
       svelte: ^5.55.7
       typescript: '>=5.0.0'
 
-  svelte-eslint-parser@1.7.1:
-    resolution: {integrity: sha512-mmwwKL9L/MB0QyBKdfyWxGjDuQfEyzxWy5S9Kkd0O/V5XD57MQ33KQtXrO6vKLuP6PIt8CRozvOX1mxpcRTqUg==}
+  svelte-eslint-parser@1.8.0:
+    resolution: {integrity: sha512-mikR1qwIVy3t5WthUoAXkMwxkXvabZP9FJgdx35Ei7EbGWmctva1Pih16Koeor/bdNNq8NXHlwKGS6NkYTawLg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0, pnpm: 10.34.1}
     peerDependencies:
       svelte: ^5.55.7
@@ -4392,7 +4392,7 @@ snapshots:
   '@img/sharp-win32-x64@0.34.5':
     optional: true
 
-  '@joshuafolkken/kit@0.223.0(@playwright/test@1.60.0)(@typescript-eslint/utils@8.60.1(eslint@10.4.1(jiti@2.7.0))(typescript@6.0.3))(eslint@10.4.1(jiti@2.7.0))(svelte@5.56.1(@typescript-eslint/types@8.60.1))(typescript@6.0.3)':
+  '@joshuafolkken/kit@0.228.0(@playwright/test@1.60.0)(@typescript-eslint/utils@8.60.1(eslint@10.4.1(jiti@2.7.0))(typescript@6.0.3))(eslint@10.4.1(jiti@2.7.0))(svelte@5.56.1(@typescript-eslint/types@8.60.1))(typescript@6.0.3)':
     dependencies:
       '@eslint/compat': 2.1.0(eslint@10.4.1(jiti@2.7.0))
       '@eslint/js': 10.0.1(eslint@10.4.1(jiti@2.7.0))
@@ -5509,7 +5509,7 @@ snapshots:
       postcss-load-config: 3.1.4(postcss@8.5.15)
       postcss-safe-parser: 7.0.1(postcss@8.5.15)
       semver: 7.8.1
-      svelte-eslint-parser: 1.7.1(svelte@5.56.1(@typescript-eslint/types@8.60.1))
+      svelte-eslint-parser: 1.8.0(svelte@5.56.1(@typescript-eslint/types@8.60.1))
     optionalDependencies:
       svelte: 5.56.1(@typescript-eslint/types@8.60.1)
     transitivePeerDependencies:
@@ -6445,7 +6445,7 @@ snapshots:
     transitivePeerDependencies:
       - picomatch
 
-  svelte-eslint-parser@1.7.1(svelte@5.56.1(@typescript-eslint/types@8.60.1)):
+  svelte-eslint-parser@1.8.0(svelte@5.56.1(@typescript-eslint/types@8.60.1)):
     dependencies:
       eslint-scope: 8.4.0
       eslint-visitor-keys: 4.2.1
