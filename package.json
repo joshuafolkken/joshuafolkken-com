@@ -1,6 +1,6 @@
 {
 	"name": "joshuafolkken-com",
-	"version": "0.241.0",
+	"version": "0.242.0",
 	"type": "module",
 	"private": true,
 	"scripts": {
@@ -29,6 +29,7 @@
 	"dependencies": {
 		"dotenv": "^17.4.2",
 		"drizzle-orm": "^0.45.2",
+		"minisearch": "^7.2.0",
 		"sharp": "^0.34.5",
 		"simple-icons": "^16.22.0",
 		"zod": "^4.4.3"

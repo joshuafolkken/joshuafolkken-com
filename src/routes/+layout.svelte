@@ -5,6 +5,7 @@
 	import { page } from '$app/state'
 	import { APP, AUTHOR } from '$lib/app'
 	import favicon from '$lib/assets/logo.svg'
+	import SearchDialog from '$lib/components/SearchDialog.svelte'
 	import StickyHeader from '$lib/components/StickyHeader.svelte'
 	import { SKIP_LINK_TARGET_ID } from '$lib/constants/layout'
 	import {
@@ -57,6 +58,7 @@
 	zIndex={PROGRESS_BAR_Z_INDEX}
 />
 <StickyHeader />
+<SearchDialog />
 <main id={SKIP_LINK_TARGET_ID} class="pt-16" inert={is_menu_open}>
 	{@render children()}
 </main>

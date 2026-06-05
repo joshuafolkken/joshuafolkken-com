@@ -4,6 +4,9 @@
 @theme {
 	/* 768px */
 	--breakpoint-md: 48rem;
+	/* 832px — header switches between the desktop nav and the mobile drawer here,
+	   just above the width where the desktop nav would overlap the social icons */
+	--breakpoint-desktop: 52rem;
 	--font-display: 'Shippori Mincho', serif;
 }
 
