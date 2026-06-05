@@ -15,6 +15,11 @@ const BELOW_DESKTOP_WIDTH = 800
 const AT_DESKTOP_WIDTH = 900
 const VIEWPORT_HEIGHT = 800
 
+const MAIN_SELECTOR = '#skip-to-main'
+const SELECTED_SELECTOR = '[data-selected="true"]'
+const COMMON_QUERY = 'こと'
+const ARROW_PRESSES = 15
+
 test.describe('Site search', () => {
 	test('opens from the header trigger, finds a Japanese blog result, and navigates', async ({
 		page,
@@ -81,6 +86,31 @@ test.describe('Search trigger', () => {
 		await page.goto(TEST_ROUTES.HOME)
 
 		await expect(page.getByTestId(TRIGGER_TESTID)).toContainText('Search')
+	})
+})
+
+test.describe('Search dialog accessibility', () => {
+	test('makes the page content inert while the dialog is open', async ({ page }) => {
+		await page.goto(TEST_ROUTES.HOME)
+
+		await page.getByTestId(TRIGGER_TESTID).click()
+		await expect(page.getByTestId(DIALOG_TESTID)).toBeVisible()
+
+		await expect(page.locator(MAIN_SELECTOR)).toHaveAttribute('inert')
+	})
+
+	test('keeps the keyboard-selected result in view', async ({ page }) => {
+		await page.goto(TEST_ROUTES.HOME)
+
+		await page.getByTestId(TRIGGER_TESTID).click()
+		await page.getByTestId(INPUT_TESTID).fill(COMMON_QUERY)
+		await expect(page.getByTestId(RESULT_TESTID).first()).toBeVisible()
+
+		for (let press = 0; press < ARROW_PRESSES; press++) {
+			await page.keyboard.press('ArrowDown')
+		}
+
+		await expect(page.locator(SELECTED_SELECTOR)).toBeInViewport()
 	})
 })
 

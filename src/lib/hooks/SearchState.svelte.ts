@@ -5,10 +5,16 @@ import { search_engine } from '$lib/utils/search-engine'
 import type MiniSearch from 'minisearch'
 
 async function fetch_documents(): Promise<Array<SearchDocument>> {
-	const response = await fetch(SEARCH_INDEX_URL)
-	const data: unknown = response.ok ? await response.json() : []
+	try {
+		const response = await fetch(SEARCH_INDEX_URL)
+		const data: unknown = response.ok ? await response.json() : []
 
-	return data as Array<SearchDocument>
+		return data as Array<SearchDocument>
+	} catch {
+		// Network failure (offline / CORS): degrade to an empty index instead of
+		// leaving an unhandled rejection from the fire-and-forget load.
+		return []
+	}
 }
 
 function build_groups(items: Array<SearchResult>): Array<SearchGroup> {

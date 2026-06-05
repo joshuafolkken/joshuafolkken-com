@@ -13,6 +13,7 @@
 		PROGRESS_BAR_THRESHOLD_MS,
 		PROGRESS_BAR_Z_INDEX,
 	} from '$lib/constants/navigation-progress'
+	import { search_state } from '$lib/hooks/SearchState.svelte'
 	import { sticky_header_state } from '$lib/hooks/StickyHeaderState.svelte'
 	import { font_load_handler } from '$lib/utils/font-load-handler'
 	import type { Snippet } from 'svelte'
@@ -30,6 +31,7 @@
 	const { children }: Props = $props()
 
 	const is_menu_open = $derived(sticky_header_state.get_is_menu_open())
+	const is_page_inert = $derived(is_menu_open || search_state.get_is_open())
 </script>
 
 <svelte:head>
@@ -59,6 +61,6 @@
 />
 <StickyHeader />
 <SearchDialog />
-<main id={SKIP_LINK_TARGET_ID} class="pt-16" inert={is_menu_open}>
+<main id={SKIP_LINK_TARGET_ID} class="pt-16" inert={is_page_inert}>
 	{@render children()}
 </main>

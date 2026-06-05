@@ -35,6 +35,7 @@
 	const has_results = $derived(search_state.get_result_count() > 0)
 
 	let input_el = $state<HTMLInputElement | undefined>()
+	let results_el = $state<HTMLElement | undefined>()
 
 	$effect(() => {
 		if (is_open) input_el?.focus()
@@ -49,6 +50,16 @@
 
 		return () => {
 			root.style.overflow = previous_overflow
+		}
+	})
+
+	// Keep the keyboard-selected result scrolled into view within the panel.
+	$effect(() => {
+		const index = search_state.get_selected_index()
+		const count = search_state.get_result_count()
+
+		if (index >= 0 && count > 0) {
+			results_el?.querySelector('[data-selected="true"]')?.scrollIntoView({ block: 'nearest' })
 		}
 	})
 
@@ -101,10 +112,14 @@
 		}
 	}
 
-	function result_class(result: SearchResult): string {
-		const is_selected = result === search_state.get_selected()
+	function is_result_selected(result: SearchResult): boolean {
+		return result === search_state.get_selected()
+	}
 
-		return is_selected ? `${RESULT_BASE_CLASS} ${RESULT_SELECTED_CLASS}` : RESULT_BASE_CLASS
+	function result_class(result: SearchResult): string {
+		return is_result_selected(result)
+			? `${RESULT_BASE_CLASS} ${RESULT_SELECTED_CLASS}`
+			: RESULT_BASE_CLASS
 	}
 </script>
 
@@ -148,7 +163,7 @@
 				/>
 			</div>
 
-			<div class="overflow-y-auto py-2">
+			<div bind:this={results_el} class="overflow-y-auto py-2">
 				{#if is_loading}
 					<p class={STATE_TEXT_CLASS}>{SEARCH_LABELS.LOADING}</p>
 				{:else if !has_query}
@@ -165,6 +180,7 @@
 										<a
 											href={result.url}
 											class={result_class(result)}
+											data-selected={is_result_selected(result)}
 											data-testid="search-result"
 											onclick={(event) => {
 												handle_select(event, result.url)
