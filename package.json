@@ -1,6 +1,6 @@
 {
 	"name": "joshuafolkken-com",
-	"version": "0.238.0",
+	"version": "0.239.0",
 	"type": "module",
 	"private": true,
 	"scripts": {
@@ -37,14 +37,14 @@
 		"@eslint/compat": "^2.1.0",
 		"@eslint/js": "^10.0.1",
 		"@ianvs/prettier-plugin-sort-imports": "^4.7.1",
-		"@joshuafolkken/kit": "0.218.0",
+		"@joshuafolkken/kit": "0.221.0",
 		"@playwright/test": "^1.60.0",
 		"@prgm/sveltekit-progress-bar": "^3.0.2",
 		"@size-limit/file": "^12.1.0",
 		"@stylistic/eslint-plugin": "^5.10.0",
 		"@sveltejs/adapter-cloudflare": "^7.2.8",
 		"@sveltejs/adapter-node": "^5.5.4",
-		"@sveltejs/kit": "^2.61.1",
+		"@sveltejs/kit": "^2.63.0",
 		"@sveltejs/vite-plugin-svelte": "^7.1.2",
 		"@tailwindcss/typography": "^0.5.19",
 		"@tailwindcss/vite": "^4.3.0",
@@ -84,7 +84,7 @@
 		"vite-plugin-devtools-json": "^1.0.0",
 		"vitest": "^4.1.8",
 		"vitest-browser-svelte": "^2.1.1",
-		"wrangler": "4.96.0"
+		"wrangler": "4.97.0"
 	},
 	"packageManager": "pnpm@11.5.0+sha512.dbfcc4f81cf48597afd4bc391ffdf12c11f1a9fb83a395bfa6b0a2d9cc2fd8ffebafdb1ccbd529632153f793904c2615b7f09fe1a345473fd1c35845172a8eb1",
 	"engines": {
