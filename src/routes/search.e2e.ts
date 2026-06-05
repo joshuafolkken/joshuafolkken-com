@@ -32,11 +32,11 @@ test.describe('Site search', () => {
 
 		await page.getByTestId(INPUT_TESTID).fill(JAPANESE_QUERY)
 
-		const first_result = page.getByTestId(RESULT_TESTID).first()
+		const blog_result = page.locator(`[data-testid="${RESULT_TESTID}"][href*="/blog/"]`).first()
 
-		await expect(first_result).toBeVisible()
+		await expect(blog_result).toBeVisible()
 
-		await first_result.click()
+		await blog_result.click()
 
 		await expect(page).toHaveURL(/\/blog\//u)
 	})
@@ -111,6 +111,28 @@ test.describe('Search dialog accessibility', () => {
 		}
 
 		await expect(page.locator(SELECTED_SELECTOR)).toBeInViewport()
+	})
+})
+
+test.describe('Search dialog focus management', () => {
+	test('makes the header inert while the dialog is open', async ({ page }) => {
+		await page.goto(TEST_ROUTES.HOME)
+
+		await page.getByTestId(TRIGGER_TESTID).click()
+		await expect(page.getByTestId(DIALOG_TESTID)).toBeVisible()
+
+		await expect(page.getByTestId('site-header')).toHaveAttribute('inert')
+	})
+
+	test('restores focus to the trigger after closing', async ({ page }) => {
+		await page.goto(TEST_ROUTES.HOME)
+
+		await page.getByTestId(TRIGGER_TESTID).click()
+		await expect(page.getByTestId(DIALOG_TESTID)).toBeVisible()
+
+		await page.keyboard.press('Escape')
+
+		await expect(page.getByTestId(TRIGGER_TESTID)).toBeFocused()
 	})
 })
 

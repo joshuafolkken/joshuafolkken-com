@@ -5,16 +5,12 @@ import { search_engine } from '$lib/utils/search-engine'
 import type MiniSearch from 'minisearch'
 
 async function fetch_documents(): Promise<Array<SearchDocument>> {
-	try {
-		const response = await fetch(SEARCH_INDEX_URL)
-		const data: unknown = response.ok ? await response.json() : []
+	const response = await fetch(SEARCH_INDEX_URL)
+	if (!response.ok) throw new Error(`Failed to load search index: ${String(response.status)}`)
 
-		return data as Array<SearchDocument>
-	} catch {
-		// Network failure (offline / CORS): degrade to an empty index instead of
-		// leaving an unhandled rejection from the fire-and-forget load.
-		return []
-	}
+	const data: unknown = await response.json()
+
+	return data as Array<SearchDocument>
 }
 
 function build_groups(items: Array<SearchResult>): Array<SearchGroup> {
@@ -110,6 +106,9 @@ class SearchStateStore {
 			this.#index = search_engine.create_index(await fetch_documents())
 			this.#is_loaded = true
 			this.#update_results()
+		} catch {
+			// Leave #is_loaded false so a transient failure (offline / 404 / 500)
+			// retries on the next open instead of sticking at an empty index.
 		} finally {
 			this.#is_loading = false
 		}

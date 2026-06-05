@@ -37,8 +37,14 @@
 	let input_el = $state<HTMLInputElement | undefined>()
 	let results_el = $state<HTMLElement | undefined>()
 
+	// Focus the input on open; restore focus to the trigger on close.
 	$effect(() => {
+		const previously_focused = is_open ? document.activeElement : undefined
 		if (is_open) input_el?.focus()
+
+		return () => {
+			if (previously_focused instanceof HTMLElement) previously_focused.focus()
+		}
 	})
 
 	// Lock background page scroll while the dialog is open; restore on close.

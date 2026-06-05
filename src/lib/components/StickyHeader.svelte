@@ -29,6 +29,7 @@
 	import { fade } from 'svelte/transition'
 
 	const is_menu_open = $derived(sticky_header_state.get_is_menu_open())
+	const is_search_open = $derived(search_state.get_is_open())
 
 	const current_page = $derived(page_title.get_page_from_path(page.url.pathname))
 	const is_top_page = $derived(page.url.pathname === '/')
@@ -40,7 +41,7 @@
 	const { menu_items } = sticky_header_menu
 </script>
 
-<header class={HEADER_CONTAINER_CLASSES}>
+<header class={HEADER_CONTAINER_CLASSES} inert={is_search_open} data-testid="site-header">
 	<div class={HEADER_LEFT_SECTION_CLASSES}>
 		<HeaderLogoLink is_text_hidden={is_showing_page_link} />
 
