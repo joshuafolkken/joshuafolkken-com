@@ -20,6 +20,8 @@ words:
   - androidstudio
   - apos
   - appleboy
+  - bigram
+  - bigrams
   - Caddyfile
   - CCPA
   - Csvg
@@ -47,8 +49,10 @@ words:
   - libsql
   - Mcpjson
   - Mdsvex
+  - minisearch
   - mnemecha
   - multicriteria
+  - multispace
   - narratively
   - navigations
   - neverthrow
