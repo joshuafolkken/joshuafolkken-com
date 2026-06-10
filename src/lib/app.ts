@@ -11,7 +11,7 @@ const AUTHOR = {
 	X_USERNAME: 'joshuafolkken',
 	YEAR: new Date().getFullYear(),
 	get COPYRIGHT(): string {
-		return `© ${String(this.YEAR)} ${this.NAME}`
+		return `© ${String(AUTHOR.YEAR)} ${AUTHOR.NAME}`
 	},
 } as const
 
@@ -41,7 +41,7 @@ const URLS = {
 const OPENCOLLECTIVE = {
 	SLUG: 'joshua-studio',
 	get URL(): string {
-		return `https://opencollective.com/${this.SLUG}`
+		return `https://opencollective.com/${OPENCOLLECTIVE.SLUG}`
 	},
 } as const
 

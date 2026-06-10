@@ -16,7 +16,7 @@
 		class?: string
 	} = $props()
 
-	const format_date = (date_string: string): string => date_string.split(' ')[0] ?? ''
+	const format_date = (date_string: string): string => date_string.split(' ', 1)[0] ?? ''
 </script>
 
 <div class="flex items-center justify-end gap-4 text-sm text-white/50 {class_name}">

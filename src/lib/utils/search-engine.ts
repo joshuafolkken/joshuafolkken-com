@@ -19,10 +19,10 @@ function create_index(documents: Array<SearchDocument>): MiniSearch<SearchDocume
 	return index
 }
 
-function to_document_type(value: unknown): SearchDocumentType | undefined {
-	if (value === 'blog' || value === 'project' || value === 'page') return value
+const DOCUMENT_TYPES: ReadonlyArray<SearchDocumentType> = ['blog', 'project', 'page']
 
-	return undefined
+function to_document_type(value: unknown): SearchDocumentType | undefined {
+	return DOCUMENT_TYPES.find((type) => type === value)
 }
 
 function is_string(value: unknown): value is string {

@@ -94,7 +94,7 @@
 			<ExternalLink href="https://www.google.com/settings/ads">Google's Ads Settings</ExternalLink>.
 			Alternatively, you can opt out of third-party vendor's use of cookies for personalized
 			advertising by visiting
-			<ExternalLink href="http://www.aboutads.info/choices">www.aboutads.info/choices</ExternalLink
+			<ExternalLink href="https://www.aboutads.info/choices">www.aboutads.info/choices</ExternalLink
 			>.
 		</p>
 		<p>
