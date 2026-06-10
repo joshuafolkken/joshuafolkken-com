@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { INTERNAL_PATHS, link_utilities } from './link-utilities'
 
+// eslint-disable-next-line unicorn/prefer-https -- intentional HTTP fixture: verifies http:// is detected as external
 const EXTERNAL_HTTP = 'http://example.com'
 const EXTERNAL_HTTPS = 'https://example.com/path'
 const DYNAMIC_BLOG_POST = '/blog/kit-package'

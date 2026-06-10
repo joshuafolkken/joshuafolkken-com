@@ -17,7 +17,7 @@ describe('text_highlight.highlight', () => {
 	})
 
 	it('returns a single unmatched segment for a blank query', () => {
-		expect(text_highlight.highlight('hello', '   ')).toStrictEqual([
+		expect(text_highlight.highlight('hello', ' '.repeat(3))).toStrictEqual([
 			{ text: 'hello', is_match: false },
 		])
 	})
