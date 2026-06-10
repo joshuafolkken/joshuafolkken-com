@@ -19,6 +19,6 @@ describe('search_tokenizer.tokenize', () => {
 	})
 
 	it('returns an empty array for blank input', () => {
-		expect(search_tokenizer.tokenize('   ')).toStrictEqual([])
+		expect(search_tokenizer.tokenize(' '.repeat(3))).toStrictEqual([])
 	})
 })
