@@ -23,3 +23,5 @@ overrides:
   cookie: '^0.7.0'
   svelte: ^5.55.7
   devalue: ^5.8.1
+
+trustLockfile: true
