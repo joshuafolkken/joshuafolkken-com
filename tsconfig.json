@@ -3,9 +3,6 @@
 		"./node_modules/@joshuafolkken/kit/tsconfig/sveltekit.jsonc",
 		"./.svelte-kit/tsconfig.json"
 	],
-	"compilerOptions": {
-		"types": ["./worker-configuration.d.ts"]
-	},
 	"include": [
 		"./.svelte-kit/ambient.d.ts",
 		"./.svelte-kit/non-ambient.d.ts",
