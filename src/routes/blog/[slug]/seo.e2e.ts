@@ -49,6 +49,24 @@ test.describe('SEO: blog article page', () => {
 	})
 })
 
+test.describe('SEO: low-value posts are excluded from indexing', () => {
+	const ROBOTS_NOINDEX = 'meta[name="robots"]'
+	const THIN_POST = '/blog/first-post'
+	const SUBSTANTIAL_POST = '/blog/mnemecha'
+
+	test('a thin, low-value post is marked noindex', async ({ page }) => {
+		await page.goto(THIN_POST)
+
+		await expect(page.locator(ROBOTS_NOINDEX)).toHaveAttribute('content', /noindex/u)
+	})
+
+	test('a substantial post is not marked noindex', async ({ page }) => {
+		await page.goto(SUBSTANTIAL_POST)
+
+		await expect(page.locator(ROBOTS_NOINDEX)).toHaveCount(0)
+	})
+})
+
 test.describe('SEO: static pages have og:title, og:url, and canonical', () => {
 	const static_pages = [
 		{ route: TEST_ROUTES.ABOUT, url_pattern: /\/about/u },
