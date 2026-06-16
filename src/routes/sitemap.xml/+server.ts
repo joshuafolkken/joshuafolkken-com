@@ -10,7 +10,9 @@ import {
 import { PROJECTS } from '$lib/data/projects'
 import { git_utilities } from '$lib/server/git-utilities'
 import { blog_parser } from '$lib/utils/blog-parser'
+import { content_quality } from '$lib/utils/content-quality'
 import { date_utilities } from '$lib/utils/date-utilities'
+import { post_length } from '$lib/utils/post-length'
 import { project_utilities } from '$lib/utils/project-utilities'
 import type { RequestHandler } from './$types'
 
@@ -54,10 +56,20 @@ function get_static_pages(): Array<SitemapUrl> {
 		.map(({ path, route }) => create_sitemap_entry(route, path))
 }
 
-function get_blog_posts(): Array<SitemapUrl> {
-	return blog_parser
-		.get_all_posts()
-		.map((post) => create_sitemap_entry(`/blog/${post.slug}`, new Date(post.updated ?? post.date)))
+async function get_blog_posts(): Promise<Array<SitemapUrl>> {
+	const posts = blog_parser.get_all_posts()
+	const measured = await Promise.all(
+		posts.map(async (post) => ({
+			post,
+			is_substantial: content_quality.is_substantial(await post_length.measure(post.slug)),
+		})),
+	)
+
+	return measured
+		.filter(({ is_substantial }) => is_substantial)
+		.map(({ post }) =>
+			create_sitemap_entry(`/blog/${post.slug}`, new Date(post.updated ?? post.date)),
+		)
 }
 
 function get_project_pages(): Array<SitemapUrl> {
@@ -91,10 +103,10 @@ function generate_url_xml(urls: Array<SitemapUrl>): string {
 		.join('\n')
 }
 
-const GET: RequestHandler = () => {
+const GET: RequestHandler = async () => {
 	const static_pages = get_static_pages()
 	const project_pages = get_project_pages()
-	const blog_posts = get_blog_posts()
+	const blog_posts = await get_blog_posts()
 	const all_urls = [...static_pages, ...project_pages, ...blog_posts]
 
 	const url_xml = generate_url_xml(all_urls)
