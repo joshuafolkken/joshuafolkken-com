@@ -28,6 +28,7 @@ test.describe('sitemap.xml', () => {
 		const response = await request.get(SITEMAP_PATH)
 		const body = await response.text()
 
+		expect(response.ok()).toBeTruthy()
 		expect(body).not.toContain(`<loc>${SITE_ORIGIN}/blog/first-post</loc>`)
 	})
 })
