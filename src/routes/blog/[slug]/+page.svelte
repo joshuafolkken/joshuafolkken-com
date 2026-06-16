@@ -22,6 +22,9 @@
 <svelte:head>
 	<title>{page_title}</title>
 	<meta name="description" content={data.meta.excerpt} />
+	{#if !data.should_index}
+		<meta name="robots" content="noindex, follow" />
+	{/if}
 </svelte:head>
 
 <MetaTags

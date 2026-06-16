@@ -21,4 +21,14 @@ test.describe('sitemap.xml', () => {
 		expect(body).toContain(`<loc>${SITE_ORIGIN}/blog/mnemecha</loc>`)
 		expect(body).toContain(`<loc>${SITE_ORIGIN}/projects</loc>`)
 	})
+
+	test('excludes low-value posts that are below the content-quality threshold', async ({
+		request,
+	}) => {
+		const response = await request.get(SITEMAP_PATH)
+		const body = await response.text()
+
+		expect(response.ok()).toBeTruthy()
+		expect(body).not.toContain(`<loc>${SITE_ORIGIN}/blog/first-post</loc>`)
+	})
 })
