@@ -1,6 +1,6 @@
 version: "0.2"
 import:
-  - "@joshuafolkken/kit/cspell/sveltekit"
+  - "@joshuafolkken/app-kit/cspell/sveltekit"
 language: en
 ignorePaths:
   - .svelte-kit/**
