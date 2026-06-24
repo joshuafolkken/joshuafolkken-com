@@ -7,11 +7,13 @@ allowBuilds:
   workerd: true
   better-sqlite3: true
   '@joshuafolkken/kit': false # project postinstall handles lefthook install
+  '@joshuafolkken/app-kit': false # consumer does not run app-kit's own preinstall (safe-chain setup-ci)
 
 # Security fixes often require same-day vite releases; minimum-release-age in .npmrc would block them.
 # `@types/node` and `tsx` are also excluded so routine Dependabot-style bumps are not
 # delayed by the minimum-release-age window.
 minimumReleaseAgeExclude:
+  - '@joshuafolkken/app-kit'
   - '@joshuafolkken/kit'
   - vite
   - '@sveltejs/vite-plugin-svelte'

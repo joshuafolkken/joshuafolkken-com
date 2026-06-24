@@ -241,6 +241,9 @@ importers:
       '@ianvs/prettier-plugin-sort-imports':
         specifier: ^4.7.1
         version: 4.7.1(prettier@3.8.4)
+      '@joshuafolkken/app-kit':
+        specifier: 0.13.0
+        version: 0.13.0(@joshuafolkken/kit@0.256.0(@playwright/test@1.60.0)(@typescript-eslint/utils@8.61.0(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.5.0(jiti@2.7.0))(svelte@5.56.3(@typescript-eslint/types@8.61.0))(typescript@6.0.3))(svelte@5.56.3(@typescript-eslint/types@8.61.0))
       '@joshuafolkken/kit':
         specifier: 0.256.0
         version: 0.256.0(@playwright/test@1.60.0)(@typescript-eslint/utils@8.61.0(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.5.0(jiti@2.7.0))(svelte@5.56.3(@typescript-eslint/types@8.61.0))(typescript@6.0.3)
@@ -1287,6 +1290,13 @@ packages:
     engines: {node: '>=20.9.0'}
     cpu: [x64]
     os: [win32]
+
+  '@joshuafolkken/app-kit@0.13.0':
+    resolution: {integrity: sha512-lL0nu2Zjb3AQbHoAbTKD6GLCfc88Cq/IuFPqN5RmH966pp82JpWjqa7kiZMTPY0hSz8+f2dmOm4mQ6atch4XOw==, tarball: https://npm.pkg.github.com/download/@joshuafolkken/app-kit/0.13.0/47c3ee72dd180a66d4685bf631c6c810232b731b}
+    hasBin: true
+    peerDependencies:
+      '@joshuafolkken/kit': '>=0.256.0'
+      svelte: ^5.55.7
 
   '@joshuafolkken/kit@0.256.0':
     resolution: {integrity: sha512-06yYoHvuPaG4VpqdDuRshiheRkdjklQ/gmT2JhtPIzzQAMZH5+L50bJVwMpQN/WqHnxE81DIePOz+MvX5WRwHw==, tarball: https://npm.pkg.github.com/download/@joshuafolkken/kit/0.256.0/96bfa3160a0346102976174ffc62a68a1d562ccc}
@@ -4668,6 +4678,11 @@ snapshots:
 
   '@img/sharp-win32-x64@0.35.1':
     optional: true
+
+  '@joshuafolkken/app-kit@0.13.0(@joshuafolkken/kit@0.256.0(@playwright/test@1.60.0)(@typescript-eslint/utils@8.61.0(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.5.0(jiti@2.7.0))(svelte@5.56.3(@typescript-eslint/types@8.61.0))(typescript@6.0.3))(svelte@5.56.3(@typescript-eslint/types@8.61.0))':
+    dependencies:
+      '@joshuafolkken/kit': 0.256.0(@playwright/test@1.60.0)(@typescript-eslint/utils@8.61.0(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.5.0(jiti@2.7.0))(svelte@5.56.3(@typescript-eslint/types@8.61.0))(typescript@6.0.3)
+      svelte: 5.56.3(@typescript-eslint/types@8.61.0)
 
   '@joshuafolkken/kit@0.256.0(@playwright/test@1.60.0)(@typescript-eslint/utils@8.61.0(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.5.0(jiti@2.7.0))(svelte@5.56.3(@typescript-eslint/types@8.61.0))(typescript@6.0.3)':
     dependencies:
