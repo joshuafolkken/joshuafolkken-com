@@ -1,6 +1,6 @@
 {
 	"name": "joshuafolkken-com",
-	"version": "0.248.0",
+	"version": "0.249.0",
 	"type": "module",
 	"private": true,
 	"scripts": {
@@ -38,6 +38,7 @@
 		"@eslint/compat": "^2.1.0",
 		"@eslint/js": "^10.0.1",
 		"@ianvs/prettier-plugin-sort-imports": "^4.7.1",
+		"@joshuafolkken/app-kit": "0.13.0",
 		"@joshuafolkken/kit": "0.256.0",
 		"@playwright/test": "^1.60.0",
 		"@prgm/sveltekit-progress-bar": "^3.0.2",
