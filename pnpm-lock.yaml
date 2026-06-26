@@ -243,10 +243,10 @@ importers:
         version: 4.7.1(prettier@3.8.4)
       '@joshuafolkken/app-kit':
         specifier: 0.18.0
-        version: 0.18.0(@joshuafolkken/kit@0.279.0(@playwright/test@1.61.1)(@typescript-eslint/utils@8.62.0(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.5.0(jiti@2.7.0))(svelte@5.56.4(@typescript-eslint/types@8.62.0))(typescript@6.0.3))(svelte@5.56.4(@typescript-eslint/types@8.62.0))
+        version: 0.18.0(@joshuafolkken/kit@0.280.0(@playwright/test@1.61.1)(@typescript-eslint/utils@8.62.0(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.5.0(jiti@2.7.0))(svelte@5.56.4(@typescript-eslint/types@8.62.0))(typescript@6.0.3))(svelte@5.56.4(@typescript-eslint/types@8.62.0))
       '@joshuafolkken/kit':
-        specifier: 0.279.0
-        version: 0.279.0(@playwright/test@1.61.1)(@typescript-eslint/utils@8.62.0(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.5.0(jiti@2.7.0))(svelte@5.56.4(@typescript-eslint/types@8.62.0))(typescript@6.0.3)
+        specifier: 0.280.0
+        version: 0.280.0(@playwright/test@1.61.1)(@typescript-eslint/utils@8.62.0(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.5.0(jiti@2.7.0))(svelte@5.56.4(@typescript-eslint/types@8.62.0))(typescript@6.0.3)
       '@playwright/test':
         specifier: ^1.61.1
         version: 1.61.1
@@ -1304,8 +1304,8 @@ packages:
       '@joshuafolkken/kit': '>=0.279.0'
       svelte: ^5.55.7
 
-  '@joshuafolkken/kit@0.279.0':
-    resolution: {integrity: sha512-PfChWBlgRyg6eyQUh4UmYW8oW9mvF0qaQ5VA6QBY6ep3A7/6iwdQSgQEdwD4TNzVxSKP+EaJqEUAgp3YSIPhpw==, tarball: https://npm.pkg.github.com/download/@joshuafolkken/kit/0.279.0/c0e1824ff625f4dd060ac75f13a34aecfd8608b8}
+  '@joshuafolkken/kit@0.280.0':
+    resolution: {integrity: sha512-EHFuzWejpri/DkQs3seX72wIJmjVWjzdAGH1QrRewJSVDbVTZoArTVxfQuYMIc3aQ7KY6Yo26ZvaBieBG4aYHg==, tarball: https://npm.pkg.github.com/download/@joshuafolkken/kit/0.280.0/bc6a1aa6bd55bce635d62e5cc5178f78a19cc2eb}
     engines: {node: '>=22.19.0'}
     hasBin: true
     peerDependencies:
@@ -4690,12 +4690,12 @@ snapshots:
   '@img/sharp-win32-x64@0.35.2':
     optional: true
 
-  '@joshuafolkken/app-kit@0.18.0(@joshuafolkken/kit@0.279.0(@playwright/test@1.61.1)(@typescript-eslint/utils@8.62.0(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.5.0(jiti@2.7.0))(svelte@5.56.4(@typescript-eslint/types@8.62.0))(typescript@6.0.3))(svelte@5.56.4(@typescript-eslint/types@8.62.0))':
+  '@joshuafolkken/app-kit@0.18.0(@joshuafolkken/kit@0.280.0(@playwright/test@1.61.1)(@typescript-eslint/utils@8.62.0(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.5.0(jiti@2.7.0))(svelte@5.56.4(@typescript-eslint/types@8.62.0))(typescript@6.0.3))(svelte@5.56.4(@typescript-eslint/types@8.62.0))':
     dependencies:
-      '@joshuafolkken/kit': 0.279.0(@playwright/test@1.61.1)(@typescript-eslint/utils@8.62.0(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.5.0(jiti@2.7.0))(svelte@5.56.4(@typescript-eslint/types@8.62.0))(typescript@6.0.3)
+      '@joshuafolkken/kit': 0.280.0(@playwright/test@1.61.1)(@typescript-eslint/utils@8.62.0(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.5.0(jiti@2.7.0))(svelte@5.56.4(@typescript-eslint/types@8.62.0))(typescript@6.0.3)
       svelte: 5.56.4(@typescript-eslint/types@8.62.0)
 
-  '@joshuafolkken/kit@0.279.0(@playwright/test@1.61.1)(@typescript-eslint/utils@8.62.0(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.5.0(jiti@2.7.0))(svelte@5.56.4(@typescript-eslint/types@8.62.0))(typescript@6.0.3)':
+  '@joshuafolkken/kit@0.280.0(@playwright/test@1.61.1)(@typescript-eslint/utils@8.62.0(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.5.0(jiti@2.7.0))(svelte@5.56.4(@typescript-eslint/types@8.62.0))(typescript@6.0.3)':
     dependencies:
       '@eslint/compat': 2.1.0(eslint@10.5.0(jiti@2.7.0))
       '@eslint/js': 10.0.1(eslint@10.5.0(jiti@2.7.0))

@@ -87,8 +87,7 @@ a.link-base:hover,
 pre,
 code {
 	white-space: pre-wrap; /* 折り返す */
-	word-break: break-word; /* 長い単語でも折る */
-	overflow-wrap: anywhere; /* ブラウザ互換のために併記 */
+	overflow-wrap: anywhere; /* 長い単語でも折る */
 	max-width: 100%;
 	box-sizing: border-box;
 }
