@@ -8,14 +8,16 @@ describe('WebP image files', () => {
 			const posts = blog_parser.get_all_posts()
 
 			for (const post of posts) {
-				if (post.cover_image) {
-					const resolved = blog_images.resolve_url(post.cover_image)
-
-					expect(
-						resolved,
-						`Post "${post.slug}" has cover_image "${post.cover_image}" but no matching image in src/lib/assets/images/blog/`,
-					).toBeDefined()
+				if (!post.cover_image) {
+					continue
 				}
+
+				const resolved = blog_images.resolve_url(post.cover_image)
+
+				expect(
+					resolved,
+					`Post "${post.slug}" has cover_image "${post.cover_image}" but no matching image in src/lib/assets/images/blog/`,
+				).toBeDefined()
 			}
 		})
 	})

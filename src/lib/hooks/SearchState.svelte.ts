@@ -30,6 +30,41 @@ class SearchStateStore {
 	#index: MiniSearch<SearchDocument> | undefined
 	#is_loaded = false
 
+	#update_results(): void {
+		const trimmed = this.#query.trim()
+
+		if (!this.#index || trimmed.length < MIN_QUERY_LENGTH) {
+			this.#set_results([])
+
+			return
+		}
+
+		this.#set_results(search_engine.run_search(this.#index, trimmed))
+	}
+
+	#set_results(matches: Array<SearchResult>): void {
+		this.#groups = build_groups(matches)
+		this.#results = this.#groups.flatMap((group) => group.results)
+		this.#selected_index = 0
+	}
+
+	async #load(): Promise<void> {
+		if (this.#is_loaded || this.#is_loading || !browser) return
+
+		this.#is_loading = true
+
+		try {
+			this.#index = search_engine.create_index(await fetch_documents())
+			this.#is_loaded = true
+			this.#update_results()
+		} catch {
+			// Leave #is_loaded false so a transient failure (offline / 404 / 500)
+			// retries on the next open instead of sticking at an empty index.
+		} finally {
+			this.#is_loading = false
+		}
+	}
+
 	get_is_open(): boolean {
 		return this.#is_open
 	}
@@ -77,41 +112,6 @@ class SearchStateStore {
 		if (count === 0) return
 
 		this.#selected_index = (this.#selected_index + delta + count) % count
-	}
-
-	#update_results(): void {
-		const trimmed = this.#query.trim()
-
-		if (!this.#index || trimmed.length < MIN_QUERY_LENGTH) {
-			this.#set_results([])
-
-			return
-		}
-
-		this.#set_results(search_engine.run_search(this.#index, trimmed))
-	}
-
-	#set_results(matches: Array<SearchResult>): void {
-		this.#groups = build_groups(matches)
-		this.#results = this.#groups.flatMap((group) => group.results)
-		this.#selected_index = 0
-	}
-
-	async #load(): Promise<void> {
-		if (this.#is_loaded || this.#is_loading || !browser) return
-
-		this.#is_loading = true
-
-		try {
-			this.#index = search_engine.create_index(await fetch_documents())
-			this.#is_loaded = true
-			this.#update_results()
-		} catch {
-			// Leave #is_loaded false so a transient failure (offline / 404 / 500)
-			// retries on the next open instead of sticking at an empty index.
-		} finally {
-			this.#is_loading = false
-		}
 	}
 }
 

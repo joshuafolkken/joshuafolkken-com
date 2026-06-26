@@ -3,7 +3,8 @@ const FENCED_CODE_PATTERN = /```[\S\s]*?```/gu
 const INLINE_CODE_PATTERN = /`[^`]*`/gu
 const IMAGE_PATTERN = /!\[[^\]]*\]\([^)]*\)/gu
 // Linear-time pattern over trusted build-time markdown, so ReDoS does not apply.
-// eslint-disable-next-line sonarjs/slow-regex -- see note above
+
+// eslint-disable-next-line sonarjs/super-linear-regex -- trusted build-time markdown, not a ReDoS vector
 const LINK_PATTERN = /\[([^\]]*)\]\([^)]*\)/gu
 const MARKDOWN_SYMBOL_PATTERN = /[#*>_`~-]/gu
 

@@ -35,7 +35,7 @@ function make_get_event(slug?: string): Parameters<typeof GET>[0] {
 
 	const partial = {
 		url,
-		request: new Request(url.toString()),
+		request: new Request(url.href),
 		getClientAddress: () => '127.0.0.1',
 		platform: undefined,
 	}
@@ -48,7 +48,7 @@ function make_post_event(
 	content_type = JSON_CONTENT_TYPE,
 ): Parameters<typeof POST>[0] {
 	const url = new URL(LIKE_API_URL)
-	const request = new Request(url.toString(), {
+	const request = new Request(url.href, {
 		method: 'POST',
 		headers: { 'content-type': content_type },
 		body: JSON.stringify(body),
@@ -69,7 +69,7 @@ function make_post_event_raw_body(
 	content_type = JSON_CONTENT_TYPE,
 ): Parameters<typeof POST>[0] {
 	const url = new URL(LIKE_API_URL)
-	const request = new Request(url.toString(), {
+	const request = new Request(url.href, {
 		method: 'POST',
 		headers: { 'content-type': content_type },
 		body: raw_body,

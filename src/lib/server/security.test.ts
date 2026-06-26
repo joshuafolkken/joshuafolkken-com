@@ -26,8 +26,8 @@ const INVALID_ORIGIN = 'not-a-url'
 const DUMMY_IP = '10.0.0.1'
 const RATE_LIMITER_ERROR_MSG = 'Rate limiter not available'
 
-function make_rate_limiter(success: boolean): RateLimit {
-	return { limit: vi.fn().mockResolvedValue({ success }) }
+function make_rate_limiter(is_success: boolean): RateLimit {
+	return { limit: vi.fn().mockResolvedValue({ success: is_success }) }
 }
 
 function make_request(options: { origin?: string; client?: string } = {}): Request {
@@ -39,8 +39,8 @@ function make_request(options: { origin?: string; client?: string } = {}): Reque
 	return new Request(BASE_URL, { headers })
 }
 
-function make_platform(success: boolean): App.Platform {
-	vi.mocked(platform_binding.get_rate_limiter).mockReturnValue(make_rate_limiter(success))
+function make_platform(is_success: boolean): App.Platform {
+	vi.mocked(platform_binding.get_rate_limiter).mockReturnValue(make_rate_limiter(is_success))
 
 	// eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- mock stub; App.Platform shape not needed in test
 	return {} as App.Platform
