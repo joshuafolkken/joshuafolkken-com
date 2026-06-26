@@ -15,6 +15,7 @@ async function has_adsense_script(page: Page): Promise<boolean> {
 }
 
 test.describe('AdSense script placement', () => {
+	// eslint-disable-next-line sonarjs/assertions-in-tests -- Playwright expect.poll(...).toBe is a web-first assertion sonarjs does not recognize
 	test('present on /about', async ({ page }) => {
 		await page.goto(TEST_ROUTES.ABOUT, { waitUntil: 'domcontentloaded' })
 		await expect
@@ -41,6 +42,7 @@ test.describe('AdSense script placement', () => {
 test.describe('AdSense script placement on blog pages', () => {
 	test.describe.configure({ timeout: BLOG_TEST_TIMEOUT })
 
+	// eslint-disable-next-line sonarjs/assertions-in-tests -- Playwright expect.poll(...).toBe is a web-first assertion sonarjs does not recognize
 	test('present on /blog list', async ({ page }) => {
 		await page.goto(TEST_ROUTES.BLOG, { waitUntil: 'domcontentloaded', timeout: BLOG_NAV_TIMEOUT })
 		await expect
@@ -48,6 +50,7 @@ test.describe('AdSense script placement on blog pages', () => {
 			.toBe(true)
 	})
 
+	// eslint-disable-next-line sonarjs/assertions-in-tests -- Playwright expect.poll(...).toBe is a web-first assertion sonarjs does not recognize
 	test('present on /blog/[slug]', async ({ page }) => {
 		await page.goto(TEST_ROUTES.BLOG_POST, {
 			waitUntil: 'domcontentloaded',

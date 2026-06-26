@@ -15,12 +15,12 @@ vi.mock('./platform-binding', () => ({
 	platform_binding: { get_kv: vi.fn() },
 }))
 
-let key_counter = 0
+const key_counter = { value: 0 }
 
 function unique_key(): string {
-	key_counter += 1
+	key_counter.value += 1
 
-	return `kv-spec-${String(key_counter)}`
+	return `kv-spec-${String(key_counter.value)}`
 }
 
 function make_mock_kv(delete_mock = vi.fn()): KVNamespace {

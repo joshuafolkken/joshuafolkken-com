@@ -59,7 +59,7 @@ test('is_cache_entry_shape narrows well-formed and rejects malformed inputs', ()
 test('is_cache_entry_shape rejects non-finite expires values so entries cannot live forever', () => {
 	expect(kv_cache_entry.is_cache_entry_shape({ value: 1, expires: Infinity })).toBe(false)
 	expect(kv_cache_entry.is_cache_entry_shape({ value: 1, expires: -Infinity })).toBe(false)
-	expect(kv_cache_entry.is_cache_entry_shape({ value: 1, expires: Number.NaN })).toBe(false)
+	expect(kv_cache_entry.is_cache_entry_shape({ value: 1, expires: NaN })).toBe(false)
 })
 
 test('is_cache_entry_shape rejects arrays even when they carry matching keys', () => {

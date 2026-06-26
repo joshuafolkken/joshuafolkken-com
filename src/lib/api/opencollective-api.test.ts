@@ -27,8 +27,8 @@ function make_graphql_response(nodes: Array<GraphqlContributor>): unknown {
 	return { data: { account: { contributors: { nodes } } } }
 }
 
-function make_fetch_function(data: unknown, ok = true): typeof globalThis.fetch {
-	const status = ok ? 200 : 500
+function make_fetch_function(data: unknown, is_ok = true): typeof globalThis.fetch {
+	const status = is_ok ? 200 : 500
 
 	return vi.fn().mockResolvedValue(Response.json(data, { status }))
 }

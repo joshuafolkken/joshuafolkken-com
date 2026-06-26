@@ -7,11 +7,11 @@ const ANIMATION_DURATION = 1000
 const INCREMENT = 1
 
 export class LikeState {
+	#slug: string
+	#animation_timer: ReturnType<typeof setTimeout> | undefined = undefined
 	count = $state(0)
 	is_liked = $state(false)
 	is_animating = $state(false)
-	#slug: string
-	#animation_timer: ReturnType<typeof setTimeout> | undefined = undefined
 
 	constructor(slug: string, initial_count = 0) {
 		this.count = initial_count

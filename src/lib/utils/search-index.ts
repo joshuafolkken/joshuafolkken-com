@@ -10,13 +10,14 @@ type SearchableProject = Pick<Project, 'slug' | 'title' | 'subtitle' | 'descript
 const FRONTMATTER_FENCE = '---\n'
 const CODE_FENCE = '```'
 const CODE_FENCE_STEP = 2
-/* eslint-disable sonarjs/slow-regex -- these patterns run only on trusted, author-written
-   markdown at build/prerender time (never on request input), not a DoS vector */
+
+/* eslint-disable sonarjs/super-linear-regex -- trusted, author-written markdown at build/prerender time (never request input), not a DoS vector */
 const IMAGE = /!\[[^\]]*\]\([^)]*\)/gu
 const LINK = /\[([^\]]*)\]\([^)]*\)/gu
 const INLINE_CODE = /`[^`]*`/gu
 const HTML_TAG = /<[^>]+>/gu
-/* eslint-enable sonarjs/slow-regex */
+/* eslint-enable sonarjs/super-linear-regex */
+
 const MD_MARKS = /[#>*_~`-]/gu
 const MULTISPACE = /\s+/gu
 
