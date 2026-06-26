@@ -47,7 +47,7 @@ function map_contributors_to_supporters(
 	return filtered
 		.map((node) => {
 			return {
-				MemberId: Number.parseInt(node.id, 10),
+				MemberId: Number(node.id),
 				name: node.account.name,
 				image: node.account.imageUrl,
 				profile: `${OPENCOLLECTIVE_BASE_URL}/${node.account.slug}`,

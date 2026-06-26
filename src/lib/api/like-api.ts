@@ -7,7 +7,7 @@ interface LikeResponse {
 
 const ERROR_INVALID_RESPONSE_FORMAT = 'Invalid response format'
 
-function validate_like_response(data: unknown): data is LikeResponse {
+function is_like_response(data: unknown): data is LikeResponse {
 	if (typeof data !== 'object' || data === null) return false
 
 	const candidate = data as { likes?: unknown }
@@ -25,7 +25,7 @@ async function handle_like_response(
 
 	const data: unknown = await response.json()
 
-	if (!validate_like_response(data)) {
+	if (!is_like_response(data)) {
 		throw new Error(ERROR_INVALID_RESPONSE_FORMAT)
 	}
 

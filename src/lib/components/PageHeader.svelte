@@ -10,6 +10,7 @@
 	const is_top_page = $derived(page === PAGES.TOP)
 
 	function observe_visibility(element: HTMLElement): { destroy: () => void } {
+		// eslint-disable-next-line unicorn/no-useless-undefined -- explicit "no previous reading yet" sentinel; init-declarations requires an initializer
 		let is_previous_visible: boolean | undefined = undefined
 
 		function update(): void {
@@ -20,6 +21,7 @@
 		}
 
 		update()
+		// eslint-disable-next-line unicorn/prefer-observer-apis -- custom HEADER_HEIGHT_PX threshold against the header; scroll-based check, IntersectionObserver migration deferred
 		window.addEventListener('scroll', update, { passive: true })
 
 		return {

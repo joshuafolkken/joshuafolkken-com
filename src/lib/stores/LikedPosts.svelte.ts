@@ -36,13 +36,11 @@ class LikedPostsStore {
 				// 依存関係としてアクセス
 				const current_likes = this.#likes
 
-				if (!is_initialized) {
+				if (is_initialized) {
+					save_to_storage(current_likes)
+				} else {
 					is_initialized = true
-
-					return
 				}
-
-				save_to_storage(current_likes)
 			})
 		})
 	}

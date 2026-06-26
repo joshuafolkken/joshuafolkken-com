@@ -9,6 +9,7 @@ const GET: RequestHandler = () => {
 
 // SvelteKit configuration
 
+// eslint-disable-next-line unicorn/consistent-boolean-name -- `prerender` is a SvelteKit reserved page-option export; the name is fixed
 const prerender = true
 
 export { GET, prerender }

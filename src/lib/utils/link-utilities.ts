@@ -65,7 +65,7 @@ function get_link_info(link?: string): LinkInfo {
 		href,
 		is_link: is_internal,
 		is_external,
-		...(is_external ? { target: LINK_TARGET, rel: LINK_REL } : {}),
+		...(is_external && { target: LINK_TARGET, rel: LINK_REL }),
 	}
 }
 
