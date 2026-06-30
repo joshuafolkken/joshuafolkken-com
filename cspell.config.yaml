@@ -3,11 +3,9 @@ import:
   - "@joshuafolkken/app-kit/cspell/sveltekit"
 language: en
 ignorePaths:
-  - .svelte-kit/**
   - src/lib/posts/*.md
   - prompts/blog-drafts/**/*.md
   - prompts/antigravity-blog-writer.md
-  - .wrangler/**
   - .coderabbit.yaml
   - .fast-check/**
   - "**/*.svg"

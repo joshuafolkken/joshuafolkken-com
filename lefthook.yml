@@ -1,2 +1,2 @@
 extends:
-  - node_modules/@joshuafolkken/kit/lefthook/sveltekit.yml
+  - node_modules/@joshuafolkken/app-kit/lefthook/sveltekit.yml
