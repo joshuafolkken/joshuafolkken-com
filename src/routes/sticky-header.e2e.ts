@@ -12,6 +12,15 @@ const MENU_OPEN_ARIA_LABEL = 'メニューを開く'
 const MNEMECHA_PATH = '/projects/mnemecha'
 const MNEMECHA_TITLE = 'Mnemecha'
 
+const DESKTOP_SOCIAL_NAV_LABEL = 'ソーシャルリンク'
+
+const X_HREF = 'https://x.com/joshuafolkken'
+const DISCORD_HREF = 'https://discord.gg/JdFywJmaSj'
+const YOUTUBE_HREF = 'https://www.youtube.com/@Joshuafolkken-studio'
+const GITHUB_HREF = 'https://github.com/joshuafolkken'
+
+const SOCIAL_LINK_COUNT = 4
+
 test.describe('Sticky header drawer', () => {
 	test('drawer nav links carry the cyber-glow-hover utility on narrow viewports', async ({
 		page,
@@ -52,5 +61,23 @@ test.describe('Sticky header drawer', () => {
 
 		await expect(sticky_link).toBeVisible()
 		await expect(sticky_link).toContainText(MNEMECHA_TITLE)
+	})
+})
+
+test.describe('Header social links', () => {
+	test('lists links in X, Discord, YouTube, GitHub order with expected URLs', async ({ page }) => {
+		await page.goto(HOME_PATH)
+
+		const social_nav = page.getByRole('navigation', {
+			name: DESKTOP_SOCIAL_NAV_LABEL,
+			exact: true,
+		})
+		const social_links = social_nav.getByRole('link')
+
+		await expect(social_links).toHaveCount(SOCIAL_LINK_COUNT)
+		await expect(social_links.nth(0)).toHaveAttribute('href', X_HREF)
+		await expect(social_links.nth(1)).toHaveAttribute('href', DISCORD_HREF)
+		await expect(social_links.nth(2)).toHaveAttribute('href', YOUTUBE_HREF)
+		await expect(social_links.nth(3)).toHaveAttribute('href', GITHUB_HREF)
 	})
 })
