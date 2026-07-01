@@ -35,6 +35,7 @@ const URLS = {
 	get X(): string {
 		return `https://x.com/${AUTHOR.X_USERNAME}`
 	},
+	DISCORD: 'https://discord.gg/JdFywJmaSj',
 	YOUTUBE: 'https://www.youtube.com/@Joshuafolkken-studio',
 } as const
 
