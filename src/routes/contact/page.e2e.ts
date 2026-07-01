@@ -21,8 +21,11 @@ const ICON_DEFAULT_TESTID = 'contact-email-reveal-icon-default'
 const ICON_HOVER_TESTID = 'contact-email-reveal-icon-hover'
 
 const X_HREF = 'https://x.com/joshuafolkken'
+const DISCORD_HREF = 'https://discord.gg/JdFywJmaSj'
 const GITHUB_HREF = 'https://github.com/joshuafolkken'
 const YOUTUBE_HREF = 'https://www.youtube.com/@Joshuafolkken-studio'
+
+const SOCIAL_LINK_COUNT = 4
 
 test.describe('Contact page', () => {
 	test('renders h1 Contact', async ({ page }) => {
@@ -31,22 +34,6 @@ test.describe('Contact page', () => {
 		await expect(
 			page.getByRole(HEADING_ROLE, { level: LEVEL_1, name: CONTACT_TITLE }),
 		).toBeVisible()
-	})
-
-	test('lists social links in X, GitHub, YouTube order with expected URLs', async ({ page }) => {
-		await page.goto(TEST_ROUTES.CONTACT)
-
-		const social_heading = page.getByRole(HEADING_ROLE, {
-			level: LEVEL_2,
-			name: SOCIAL_HEADING,
-		})
-		const social_section = social_heading.locator('..')
-		const social_links = social_section.getByRole(LINK_ROLE)
-
-		await expect(social_links).toHaveCount(3)
-		await expect(social_links.nth(0)).toHaveAttribute('href', X_HREF)
-		await expect(social_links.nth(1)).toHaveAttribute('href', GITHUB_HREF)
-		await expect(social_links.nth(2)).toHaveAttribute('href', YOUTUBE_HREF)
 	})
 
 	test('does not leak the full email address in the initial HTML', async ({ page }) => {
@@ -68,6 +55,25 @@ test.describe('Contact page', () => {
 
 		await expect(mailto_link).toBeVisible()
 		await expect(mailto_link).toHaveAttribute('href', MAILTO_PATTERN)
+	})
+})
+
+test.describe('Contact social links', () => {
+	test('lists links in X, Discord, YouTube, GitHub order with expected URLs', async ({ page }) => {
+		await page.goto(TEST_ROUTES.CONTACT)
+
+		const social_heading = page.getByRole(HEADING_ROLE, {
+			level: LEVEL_2,
+			name: SOCIAL_HEADING,
+		})
+		const social_section = social_heading.locator('..')
+		const social_links = social_section.getByRole(LINK_ROLE)
+
+		await expect(social_links).toHaveCount(SOCIAL_LINK_COUNT)
+		await expect(social_links.nth(0)).toHaveAttribute('href', X_HREF)
+		await expect(social_links.nth(1)).toHaveAttribute('href', DISCORD_HREF)
+		await expect(social_links.nth(2)).toHaveAttribute('href', YOUTUBE_HREF)
+		await expect(social_links.nth(3)).toHaveAttribute('href', GITHUB_HREF)
 	})
 })
 
