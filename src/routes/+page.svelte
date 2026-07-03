@@ -62,7 +62,7 @@
 	<!-- Quick Navigation -->
 	<RevealSection>
 		<SectionHeading icon={CompassIcon} title="Discover" class="mb-12" />
-		<div class="grid gap-6 lg:grid-cols-3">
+		<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
 			{#each MAIN_NAV_PAGES as p (p.title)}
 				<a
 					href={link_utilities.get_href(p.link) ?? '#'}

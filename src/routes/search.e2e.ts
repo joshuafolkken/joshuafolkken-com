@@ -10,9 +10,9 @@ const INPUT_TESTID = 'search-input'
 const RESULT_TESTID = 'search-result'
 
 const MENU_OPEN_LABEL = 'メニューを開く'
-// Header switches to the desktop nav at the `desktop` breakpoint (832px).
-const BELOW_DESKTOP_WIDTH = 800
-const AT_DESKTOP_WIDTH = 900
+// Header switches to the desktop nav at the `desktop` breakpoint (992px = 62rem).
+const BELOW_DESKTOP_WIDTH = 960
+const AT_DESKTOP_WIDTH = 1024
 const VIEWPORT_HEIGHT = 800
 
 const MAIN_SELECTOR = '#skip-to-main'
