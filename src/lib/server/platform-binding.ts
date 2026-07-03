@@ -26,6 +26,14 @@ function get_rate_limiter(platform: App.Platform | undefined): RateLimit {
 	return get_platform_binding<RateLimit>(platform, 'RATE_LIMITER', 'Rate limiter not available')
 }
 
+function get_ai_search(platform: App.Platform | undefined): AiSearchInstance {
+	return get_platform_binding<AiSearchInstance>(
+		platform,
+		'AI_SEARCH',
+		'AI Search binding not available',
+	)
+}
+
 function get_database(platform: App.Platform | undefined): ReturnType<typeof database.get> {
 	return database.get(get_d1(platform))
 }
@@ -35,6 +43,7 @@ const platform_binding = {
 	get_kv,
 	get_database,
 	get_rate_limiter,
+	get_ai_search,
 }
 
 export { platform_binding }

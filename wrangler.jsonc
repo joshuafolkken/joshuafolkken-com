@@ -57,5 +57,12 @@
 				"period": 60
 			}
 		}
+	],
+
+	"ai_search": [
+		{
+			"binding": "AI_SEARCH",
+			"instance_name": "joshuafolkken-com-chat"
+		}
 	]
 }

@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit'
-import { CONTENT_TYPE, ERROR_MESSAGES, HTTP_HEADERS, HTTP_STATUS } from '$lib/constants/http'
+import { ERROR_MESSAGES, HTTP_STATUS } from '$lib/constants/http'
 import { logger } from '$lib/logger'
 import { like_store } from '$lib/server/like-store'
 import { security, type SecurityContext } from '$lib/server/security'
@@ -10,18 +10,12 @@ interface LikeRequestBody {
 	slug?: string
 }
 
-function is_json_content_type(request: Request): boolean {
-	const content_type = request.headers.get(HTTP_HEADERS.CONTENT_TYPE)
-
-	return content_type?.startsWith(CONTENT_TYPE.JSON) ?? false
-}
-
 function is_like_request_body(value: unknown): value is LikeRequestBody {
 	return typeof value === 'object' && value !== null
 }
 
 async function get_valid_slug(request: Request): Promise<string | undefined> {
-	if (!is_json_content_type(request)) return undefined
+	if (!security.is_json_content_type(request)) return undefined
 
 	try {
 		const raw: unknown = await request.json()
@@ -64,7 +58,7 @@ function get_slug_error_message(raw_slug: string | null): string {
 }
 
 function get_post_slug_error_message(request: Request): string {
-	return is_json_content_type(request)
+	return security.is_json_content_type(request)
 		? ERROR_MESSAGES.SLUG_INVALID
 		: ERROR_MESSAGES.INVALID_CONTENT_TYPE
 }

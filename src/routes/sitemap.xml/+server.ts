@@ -12,6 +12,7 @@ import { git_utilities } from '$lib/server/git-utilities'
 import { blog_parser } from '$lib/utils/blog-parser'
 import { content_quality } from '$lib/utils/content-quality'
 import { date_utilities } from '$lib/utils/date-utilities'
+import { markup } from '$lib/utils/escape'
 import { post_length } from '$lib/utils/post-length'
 import { project_utilities } from '$lib/utils/project-utilities'
 import type { RequestHandler } from './$types'
@@ -81,23 +82,14 @@ function get_project_pages(): Array<SitemapUrl> {
 	)
 }
 
-function escape_xml(value: string): string {
-	return value
-		.replaceAll('&', '&amp;')
-		.replaceAll('<', '&lt;')
-		.replaceAll('>', '&gt;')
-		.replaceAll('"', '&quot;')
-		.replaceAll("'", '&apos;')
-}
-
 function generate_url_xml(urls: Array<SitemapUrl>): string {
 	return urls
 		.map(
 			(url) => `  <url>
-    <loc>${escape_xml(url.loc)}</loc>
-    <lastmod>${escape_xml(url.lastmod)}</lastmod>
-    <changefreq>${escape_xml(url.changefreq)}</changefreq>
-    <priority>${escape_xml(url.priority)}</priority>
+    <loc>${markup.escape(url.loc)}</loc>
+    <lastmod>${markup.escape(url.lastmod)}</lastmod>
+    <changefreq>${markup.escape(url.changefreq)}</changefreq>
+    <priority>${markup.escape(url.priority)}</priority>
   </url>`,
 		)
 		.join('\n')

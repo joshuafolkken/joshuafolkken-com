@@ -14,6 +14,8 @@ vi.mock('$lib/server/security', () => ({
 		json_error: vi.fn((message: string, status: number) =>
 			Response.json({ error: message }, { status }),
 		),
+		is_json_content_type: (request: Request) =>
+			request.headers.get('content-type')?.startsWith('application/json') ?? false,
 	},
 }))
 
