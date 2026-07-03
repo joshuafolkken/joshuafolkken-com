@@ -1,16 +1,11 @@
-import { logger } from '$lib/logger'
+import { parse_json_array } from '$lib/utils/parse-json-array'
+
+function is_string(value: unknown): value is string {
+	return typeof value === 'string'
+}
 
 function parse(raw: string): Array<string> {
-	try {
-		const parsed: unknown = JSON.parse(raw)
-		if (!Array.isArray(parsed)) return []
-
-		return parsed.filter((item): item is string => typeof item === 'string')
-	} catch (error) {
-		logger.error('Failed to parse liked posts:', error)
-
-		return []
-	}
+	return parse_json_array(raw, is_string, 'Failed to parse liked posts:')
 }
 
 const liked_posts_payload = { parse }

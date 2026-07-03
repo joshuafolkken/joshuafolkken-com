@@ -1,5 +1,6 @@
 import { APP, AUTHOR, OPENCOLLECTIVE, URLS } from '$lib/app'
 import BlogIcon from '$lib/icons/BlogIcon.svelte'
+import ChatIcon from '$lib/icons/ChatIcon.svelte'
 import LinkIcon from '$lib/icons/LinkIcon.svelte'
 import MailIcon from '$lib/icons/MailIcon.svelte'
 import OpenCollectiveIcon from '$lib/icons/OpenCollectiveIcon.svelte'
@@ -28,6 +29,7 @@ type PageKey =
 	| 'TERMS_OF_SERVICE'
 	| 'DONATIONS'
 	| 'BLOG'
+	| 'CHAT'
 
 const TOP: Page = {
 	title: AUTHOR.NAME,
@@ -97,6 +99,13 @@ const BLOG: Page = {
 	link: '/blog',
 }
 
+const CHAT: Page = {
+	icon: ChatIcon,
+	title: 'AI Chat',
+	description: 'Ask about the author, projects, and blog',
+	link: '/chat',
+}
+
 const PAGES: Record<PageKey, Page> = {
 	TOP,
 	TALK,
@@ -108,9 +117,10 @@ const PAGES: Record<PageKey, Page> = {
 	TERMS_OF_SERVICE,
 	DONATIONS,
 	BLOG,
+	CHAT,
 }
 
-const MAIN_NAV_PAGES = [PAGES.PROJECTS, PAGES.BLOG, PAGES.ABOUT] as const
+const MAIN_NAV_PAGES = [PAGES.PROJECTS, PAGES.BLOG, PAGES.ABOUT, PAGES.CHAT] as const
 
 export { MAIN_NAV_PAGES, PAGES }
 export type { Page, PageKey }

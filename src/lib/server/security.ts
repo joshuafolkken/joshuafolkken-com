@@ -2,7 +2,7 @@
 /// <reference path="../../../worker-configuration.d.ts" />
 import { json } from '@sveltejs/kit'
 import { APP } from '$lib/app'
-import { ERROR_MESSAGES, HTTP_HEADERS, HTTP_STATUS } from '$lib/constants/http'
+import { CONTENT_TYPE, ERROR_MESSAGES, HTTP_HEADERS, HTTP_STATUS } from '$lib/constants/http'
 import {
 	CSP_VALUE,
 	HSTS_VALUE,
@@ -35,6 +35,12 @@ function add_security_headers(response: Response): void {
 
 function json_error(message: string, status: number): Response {
 	return json({ error: message }, { status })
+}
+
+function is_json_content_type(request: Request): boolean {
+	const content_type = request.headers.get(HTTP_HEADERS.CONTENT_TYPE)
+
+	return content_type?.startsWith(CONTENT_TYPE.JSON) ?? false
 }
 
 function try_get_rate_limiter(platform: App.Platform): RateLimit | undefined {
@@ -126,5 +132,6 @@ export type { SecurityContext }
 export const security = {
 	add_security_headers,
 	json_error,
+	is_json_content_type,
 	validate_request_security,
 }
