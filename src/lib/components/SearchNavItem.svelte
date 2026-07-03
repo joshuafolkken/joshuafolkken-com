@@ -14,6 +14,7 @@
 		`${sticky_header_menu.get_link_classes(variant, false)} cursor-pointer`,
 	)
 	const icon_class = $derived(sticky_header_menu.get_icon_class(variant))
+	const test_id = $derived(variant === 'desktop' ? 'search-trigger' : 'search-trigger-mobile')
 
 	function handle_click(): void {
 		search_state.open()
@@ -25,7 +26,7 @@
 	type="button"
 	class={link_classes}
 	aria-label={SEARCH_LABELS.OPEN}
-	data-testid="search-trigger"
+	data-testid={test_id}
 	onclick={handle_click}
 >
 	<SearchIcon size={NAV_ICON_SIZE} class={icon_class} aria_label={SEARCH_LABELS.OPEN} />

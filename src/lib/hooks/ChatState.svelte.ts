@@ -28,11 +28,10 @@ function save_to_storage(serialized: string): void {
 // Module-level singleton so the conversation survives client-side navigation, backed by
 // localStorage so it also survives a full page reload and even closing the tab.
 class ChatStateStore {
-	#messages = $state<Array<ChatMessage>>([])
+	// Reassigned only here (at construction); afterwards it is mutated in place, so it is readonly.
+	readonly #messages = $state<Array<ChatMessage>>(load_from_storage())
 
 	constructor() {
-		this.#messages = load_from_storage()
-
 		let is_initialized = false
 
 		$effect.root(() => {
