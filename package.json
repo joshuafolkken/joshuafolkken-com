@@ -1,6 +1,6 @@
 {
 	"name": "joshuafolkken-com",
-	"version": "0.258.0",
+	"version": "0.259.0",
 	"type": "module",
 	"private": true,
 	"scripts": {
@@ -33,8 +33,10 @@
 		"prepare:gh-packages": "[ -n \"$CI\" ] || ! command -v tsx >/dev/null 2>&1 || tsx node_modules/@joshuafolkken/kit/scripts/fix-gh-packages.ts"
 	},
 	"dependencies": {
+		"dompurify": "^3.4.11",
 		"dotenv": "^17.4.2",
 		"drizzle-orm": "^0.45.2",
+		"marked": "^18.0.5",
 		"minisearch": "^7.2.0",
 		"sharp": "^0.35.3",
 		"simple-icons": "^16.24.1",
@@ -70,6 +72,7 @@
 		"eslint-plugin-svelte": "^3.20.0",
 		"eslint-plugin-unicorn": "^70.0.0",
 		"globals": "^17.7.0",
+		"jsdom": "^29.1.1",
 		"kill-port": "^2.0.1",
 		"lefthook": "2.1.9",
 		"mdsvex": "^0.12.7",
