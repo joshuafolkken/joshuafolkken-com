@@ -16,6 +16,8 @@ const DESKTOP_HEIGHT = 800
 // The input sits ~1rem above the bottom (same as mobile); guard against a large floating gap.
 const MAX_BOTTOM_GAP = 48
 const LONG_MESSAGE_COUNT = 40
+// On page display the view must already sit at the bottom; allow only sub-pixel rounding slack.
+const SCROLL_BOTTOM_TOLERANCE = 8
 
 async function seed_conversation(page: Page): Promise<void> {
 	await page.evaluate(
@@ -107,6 +109,27 @@ test('scrolls the whole page natively for a long conversation', async ({ page })
 	)
 
 	expect(is_page_scrollable).toBe(true)
+})
+
+test('opens scrolled to the newest message on page display, not animating from the top', async ({
+	page,
+}) => {
+	await page.setViewportSize({ width: DESKTOP_WIDTH, height: DESKTOP_HEIGHT })
+	await page.goto('/chat')
+	await seed_many_messages(page, LONG_MESSAGE_COUNT)
+	await page.reload()
+
+	// Wait for the newest message to attach, then measure on the first frame — before any
+	// smooth-scroll animation could carry the view down from the top.
+	await page.getByText(`message number ${String(LONG_MESSAGE_COUNT - 1)}`).waitFor({
+		state: 'attached',
+	})
+
+	const distance_from_bottom = await page.evaluate(
+		() => document.documentElement.scrollHeight - window.innerHeight - window.scrollY,
+	)
+
+	expect(distance_from_bottom).toBeLessThanOrEqual(SCROLL_BOTTOM_TOLERANCE)
 })
 
 test('is a full-height app view: no site footer, and the viewport resizes for the keyboard', async ({

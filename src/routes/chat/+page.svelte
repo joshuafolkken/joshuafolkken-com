@@ -7,6 +7,7 @@
 	import { chat_state } from '$lib/hooks/ChatState.svelte'
 	import ArrowUpIcon from '$lib/icons/ArrowUpIcon.svelte'
 	import { markdown } from '$lib/utils/markdown'
+	import { onMount } from 'svelte'
 
 	const PAGE_TITLE = `${CHAT_LABELS.TITLE} - ${AUTHOR.NAME}`
 
@@ -21,18 +22,36 @@
 	let is_loading = $state(false)
 	let input_el = $state<HTMLInputElement>()
 
+	let has_rendered_once = false
+
 	$effect(() => {
 		input_el?.focus({ preventScroll: true })
 	})
 
+	onMount(() => {
+		// The page scrolls smoothly by default (html { scroll-behavior: smooth }); on display, force an
+		// instant jump so a returning visitor opens at the bottom of their restored history rather than
+		// watching it animate down from the top.
+		if (chat_state.get_messages().length > 0) {
+			window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' })
+		}
+	})
+
 	$effect(() => {
-		// Depend on the full message text; scroll the whole page (native scroll) to the latest reply.
+		// Deep-read every message's text so a streamed reply re-triggers this effect; the read must
+		// stay first so the dependency is registered even on the initial (skipped) run.
 		const content = chat_state
 			.get_messages()
 			.map((message) => message.text)
 			.join('')
 
-		if (content) window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+		// onMount positions the initial view; only follow later streamed replies here, and smoothly,
+		// so the page load itself is never animated.
+		if (has_rendered_once && content) {
+			window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+		}
+
+		has_rendered_once = true
 	})
 
 	async function respond(question: string, index: number): Promise<void> {
