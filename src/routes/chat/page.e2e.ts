@@ -4,9 +4,11 @@ import { CHAT_LABELS } from '$lib/constants/chat'
 const GREETING = 'Hello'
 const CHAT_INPUT = 'chat-input'
 const CHAT_SEND = 'chat-send'
+const CHAT_MESSAGES = 'chat-messages'
 const STORAGE_KEY = 'chat_log'
 const PERSISTED_QUESTION = 'What did I ask before?'
 const PERSISTED_ANSWER = 'This is the remembered answer.'
+const MARKDOWN_ANSWER = 'use `queue` and **kit**, see [docs](https://example.com)'
 const FOOTER_HEADING = 'Top Supporters'
 const CHAT_EMPTY = 'chat-empty'
 const DESKTOP_WIDTH = 1280
@@ -26,6 +28,20 @@ async function seed_conversation(page: Page): Promise<void> {
 			localStorage.setItem(key, JSON.stringify(log))
 		},
 		{ key: STORAGE_KEY, question: PERSISTED_QUESTION, answer: PERSISTED_ANSWER },
+	)
+}
+
+async function seed_markdown_answer(page: Page): Promise<void> {
+	await page.evaluate(
+		({ key, answer }) => {
+			const log = [
+				{ role: 'user', text: 'q' },
+				{ role: 'assistant', text: answer },
+			]
+
+			localStorage.setItem(key, JSON.stringify(log))
+		},
+		{ key: STORAGE_KEY, answer: MARKDOWN_ANSWER },
 	)
 }
 
@@ -137,6 +153,23 @@ test('restores a persisted conversation from localStorage after reload', async (
 
 	await expect(page.getByText(PERSISTED_QUESTION)).toBeVisible()
 	await expect(page.getByText(PERSISTED_ANSWER)).toBeVisible()
+})
+
+test('renders assistant markdown as formatted html, not raw syntax', async ({ page }) => {
+	await page.goto('/chat')
+	await seed_markdown_answer(page)
+	await page.reload()
+
+	const messages = page.getByTestId(CHAT_MESSAGES)
+
+	await expect(messages.locator('code', { hasText: 'queue' })).toBeVisible()
+	await expect(messages.locator('strong', { hasText: 'kit' })).toBeVisible()
+	await expect(messages.getByRole('link', { name: 'docs' })).toHaveAttribute(
+		'href',
+		/example\.com/u,
+	)
+
+	expect(await messages.innerText()).not.toContain('`')
 })
 
 test('clears the conversation when /clear is submitted', async ({ page }) => {

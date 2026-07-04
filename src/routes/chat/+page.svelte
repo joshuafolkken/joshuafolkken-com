@@ -6,7 +6,7 @@
 	import { CHAT_LABELS } from '$lib/constants/chat'
 	import { chat_state } from '$lib/hooks/ChatState.svelte'
 	import ArrowUpIcon from '$lib/icons/ArrowUpIcon.svelte'
-	import { linkify } from '$lib/utils/linkify'
+	import { markdown } from '$lib/utils/markdown'
 
 	const PAGE_TITLE = `${CHAT_LABELS.TITLE} - ${AUTHOR.NAME}`
 
@@ -14,7 +14,7 @@
 	const ASSISTANT_BUBBLE_CLASS =
 		'max-w-[85%] self-start rounded-lg border border-white/10 bg-slate-800/40 px-4 py-2 text-white/90'
 	const TEXT_CLASS = 'break-words whitespace-pre-wrap'
-	const LINK_CLASS = 'break-all text-sky-300 underline hover:text-sky-200'
+	const MARKDOWN_CLASS = 'markdown break-words'
 	const DOT_CLASS = 'size-1.5 animate-thinking rounded-full bg-white/70'
 
 	let input = $state('')
@@ -105,7 +105,7 @@
 						<div class={ASSISTANT_BUBBLE_CLASS}>
 							{#if message.text}
 								<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-								<p class={TEXT_CLASS}>{@html linkify.to_html(message.text, LINK_CLASS)}</p>
+								<div class={MARKDOWN_CLASS}>{@html markdown.to_html(message.text)}</div>
 							{:else}
 								<span class="inline-flex gap-1 py-1" aria-label={CHAT_LABELS.THINKING}>
 									<span class={`${DOT_CLASS} [animation-delay:-0.3s]`}></span>
@@ -141,3 +141,73 @@
 		</form>
 	</div>
 </PageLayout>
+
+<style>
+	/* {@html} markdown content is not scoped by Svelte, so target descendants with :global. */
+	.markdown :global(p) {
+		margin: 0;
+	}
+
+	.markdown :global(p + p),
+	.markdown :global(ul),
+	.markdown :global(ol) {
+		margin-top: 0.5rem;
+	}
+
+	.markdown :global(code) {
+		border-radius: 0.25rem;
+		background: rgb(255 255 255 / 0.12);
+		padding: 0.1em 0.35em;
+		font-size: 0.9em;
+	}
+
+	.markdown :global(pre) {
+		overflow-x: auto;
+		border-radius: 0.375rem;
+		background: rgb(255 255 255 / 0.08);
+		padding: 0.6rem 0.75rem;
+	}
+
+	.markdown :global(pre code) {
+		background: transparent;
+		padding: 0;
+	}
+
+	.markdown :global(a) {
+		color: rgb(125 211 252);
+		text-decoration: underline;
+		word-break: break-all;
+	}
+
+	.markdown :global(a:hover) {
+		color: rgb(186 230 253);
+	}
+
+	.markdown :global(strong) {
+		font-weight: 700;
+	}
+
+	.markdown :global(ul),
+	.markdown :global(ol) {
+		padding-left: 1.25rem;
+	}
+
+	.markdown :global(ul) {
+		list-style: disc;
+	}
+
+	.markdown :global(ol) {
+		list-style: decimal;
+	}
+
+	.markdown :global(li) {
+		margin: 0.125rem 0;
+	}
+
+	.markdown :global(h1),
+	.markdown :global(h2),
+	.markdown :global(h3) {
+		margin: 0.5rem 0 0.25rem;
+		font-weight: 700;
+	}
+</style>
