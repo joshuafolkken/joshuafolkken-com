@@ -5,6 +5,7 @@ const CHAT_LABELS = {
 	DESCRIPTION: 'Ask about the author, projects, and blog posts.',
 	PLACEHOLDER: 'Ask a question…',
 	SEND: 'Send',
+	EMPTY_GREETING: 'Coffee and Joshua time?',
 	ASK: 'Ask a question',
 	THINKING: 'Thinking',
 	NOT_FOUND:

@@ -4,8 +4,8 @@
 	import MetaTags from '$lib/components/MetaTags.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import { CHAT_LABELS } from '$lib/constants/chat'
-	import { SECTION_HEADING_LIGHT_SM_CLASS } from '$lib/constants/typography'
 	import { chat_state } from '$lib/hooks/ChatState.svelte'
+	import ArrowUpIcon from '$lib/icons/ArrowUpIcon.svelte'
 	import { linkify } from '$lib/utils/linkify'
 
 	const PAGE_TITLE = `${CHAT_LABELS.TITLE} - ${AUTHOR.NAME}`
@@ -19,7 +19,6 @@
 
 	let input = $state('')
 	let is_loading = $state(false)
-	let messages_el = $state<HTMLDivElement>()
 	let input_el = $state<HTMLInputElement>()
 
 	$effect(() => {
@@ -27,15 +26,13 @@
 	})
 
 	$effect(() => {
+		// Depend on the full message text; scroll the whole page (native scroll) to the latest reply.
 		const content = chat_state
 			.get_messages()
 			.map((message) => message.text)
 			.join('')
-		const element = messages_el
 
-		if (element) {
-			element.scrollTo({ top: element.scrollHeight, behavior: content ? 'smooth' : 'auto' })
-		}
+		if (content) window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
 	})
 
 	async function respond(question: string, index: number): Promise<void> {
@@ -89,41 +86,40 @@
 
 <MetaTags title={PAGE_TITLE} description={CHAT_LABELS.DESCRIPTION} url="{APP.URL}/chat" />
 
-<PageLayout>
-	<div class="-mt-4 flex h-[calc(100dvh-6rem)] flex-col desktop:mt-0 desktop:h-[70vh]">
-		<div class="mb-3 shrink-0">
-			<h1 class={SECTION_HEADING_LIGHT_SM_CLASS}>{CHAT_LABELS.TITLE}</h1>
-			<p class="mt-1 text-sm text-white/70">{CHAT_LABELS.DESCRIPTION}</p>
+<PageLayout has_footer={false}>
+	<div class="-mt-4 flex min-h-[calc(100dvh-5rem)] flex-col">
+		<div class="flex flex-1 flex-col gap-3" data-testid="chat-messages">
+			{#if chat_state.get_messages().length === 0}
+				<div class="flex flex-1 items-center justify-center">
+					<p class="text-2xl text-white/90" data-testid="chat-empty">
+						{CHAT_LABELS.EMPTY_GREETING}
+					</p>
+				</div>
+			{:else}
+				{#each chat_state.get_messages() as message, index (index)}
+					{#if message.role === 'user'}
+						<div class={USER_BUBBLE_CLASS}>
+							<p class={TEXT_CLASS}>{message.text}</p>
+						</div>
+					{:else}
+						<div class={ASSISTANT_BUBBLE_CLASS}>
+							{#if message.text}
+								<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+								<p class={TEXT_CLASS}>{@html linkify.to_html(message.text, LINK_CLASS)}</p>
+							{:else}
+								<span class="inline-flex gap-1 py-1" aria-label={CHAT_LABELS.THINKING}>
+									<span class={`${DOT_CLASS} [animation-delay:-0.3s]`}></span>
+									<span class={`${DOT_CLASS} [animation-delay:-0.15s]`}></span>
+									<span class={DOT_CLASS}></span>
+								</span>
+							{/if}
+						</div>
+					{/if}
+				{/each}
+			{/if}
 		</div>
 
-		<div
-			bind:this={messages_el}
-			class="flex flex-1 flex-col gap-3 overflow-y-auto pr-1"
-			data-testid="chat-messages"
-		>
-			{#each chat_state.get_messages() as message, index (index)}
-				{#if message.role === 'user'}
-					<div class={USER_BUBBLE_CLASS}>
-						<p class={TEXT_CLASS}>{message.text}</p>
-					</div>
-				{:else}
-					<div class={ASSISTANT_BUBBLE_CLASS}>
-						{#if message.text}
-							<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-							<p class={TEXT_CLASS}>{@html linkify.to_html(message.text, LINK_CLASS)}</p>
-						{:else}
-							<span class="inline-flex gap-1 py-1" aria-label={CHAT_LABELS.THINKING}>
-								<span class={`${DOT_CLASS} [animation-delay:-0.3s]`}></span>
-								<span class={`${DOT_CLASS} [animation-delay:-0.15s]`}></span>
-								<span class={DOT_CLASS}></span>
-							</span>
-						{/if}
-					</div>
-				{/if}
-			{/each}
-		</div>
-
-		<form class="mt-4 flex shrink-0 gap-2" onsubmit={handle_submit}>
+		<form class="sticky bottom-0 flex gap-2 bg-slate-950 pt-3 pb-4" onsubmit={handle_submit}>
 			<input
 				bind:value={input}
 				bind:this={input_el}
@@ -136,10 +132,11 @@
 			<button
 				type="submit"
 				disabled={is_loading}
+				aria-label={CHAT_LABELS.SEND}
 				data-testid="chat-send"
-				class="rounded-lg bg-sky-600 px-4 py-2 font-medium text-white transition hover:bg-sky-500 disabled:opacity-50"
+				class="flex size-11 shrink-0 items-center justify-center rounded-lg bg-sky-600 text-white transition hover:bg-sky-500 disabled:opacity-50"
 			>
-				{CHAT_LABELS.SEND}
+				<ArrowUpIcon />
 			</button>
 		</form>
 	</div>
