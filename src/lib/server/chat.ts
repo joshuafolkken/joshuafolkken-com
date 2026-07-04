@@ -1,6 +1,8 @@
 const MATCH_THRESHOLD = 0.3
 const GROUNDING_THRESHOLD = 0.3
 const MAX_NUM_RESULTS = 8
+// Qwen3 MoE (3B active): strong Japanese with ~1/6.7 the output Neurons of the 70B default (see #668).
+const GENERATION_MODEL = '@cf/qwen/qwen3-30b-a3b-fp8'
 
 const STRICT_GROUNDING_PROMPT =
 	'You are the assistant for the joshuafolkken.com website. ' +
@@ -40,6 +42,7 @@ async function stream_answer(
 	question: string,
 ): Promise<ReadableStream> {
 	return await ai_search.chatCompletions({
+		model: GENERATION_MODEL,
 		messages: [
 			{ role: 'system', content: STRICT_GROUNDING_PROMPT },
 			{ role: 'user', content: question },

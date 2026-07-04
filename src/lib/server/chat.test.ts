@@ -57,7 +57,9 @@ describe('chat.stream_answer', () => {
 
 		const result = await chat.stream_answer(instance as unknown as AiSearchInstance, QUERY)
 
-		expect(chat_completions).toHaveBeenCalledWith(expect.objectContaining({ stream: true }))
+		expect(chat_completions).toHaveBeenCalledWith(
+			expect.objectContaining({ model: '@cf/qwen/qwen3-30b-a3b-fp8', stream: true }),
+		)
 		expect(result).toBe(stream)
 	})
 })
