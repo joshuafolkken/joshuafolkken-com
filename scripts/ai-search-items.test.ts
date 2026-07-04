@@ -28,8 +28,11 @@ describe('ai_search_items.build_items_url', () => {
 describe('ai_search_items.build_form', () => {
 	it('attaches the content under the file field keyed by the item key', () => {
 		const form = ai_search_items.build_form(RECORD)
+		const file = form.get('file')
 
-		expect(form.has('file')).toBe(true)
+		expect(file).toBeInstanceOf(File)
+		expect((file as File).name).toBe(RECORD.key)
+		expect((file as File).type).toBe('text/markdown')
 	})
 })
 

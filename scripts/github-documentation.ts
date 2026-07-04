@@ -14,7 +14,7 @@ const REPOS_PER_PAGE = 100
 const GITHUB_API_VERSION = '2022-11-28'
 const DOCUMENT_PATH_PATTERN = /^(readme\.md|(docs|prompts)\/.+\.md)$/iu
 // Unpublished blog drafts are not documentation — the repo itself excludes them (cspell ignorePaths).
-const EXCLUDED_PATH_PATTERN = /blog-drafts\//iu
+const EXCLUDED_PATH_PATTERN = /(^|\/)blog-drafts\//iu
 
 interface GithubRepo {
 	name: string
@@ -185,20 +185,45 @@ async function build_record(
 	}
 }
 
-async function collect_repo_documents(
+function collect_fulfilled(
+	repo_name: string,
+	settled: ReadonlyArray<PromiseSettledResult<DocumentRecord>>,
+): ReadonlyArray<DocumentRecord> {
+	const documents: Array<DocumentRecord> = []
+
+	for (const result of settled) {
+		if (result.status === 'fulfilled') documents.push(result.value)
+		else console.warn(`Skipped a file in ${repo_name}: ${String(result.reason)}`)
+	}
+
+	return documents
+}
+
+async function fetch_document_paths_safe(
 	owner: string,
 	repo: GithubRepo,
 	token: string | undefined,
-): Promise<ReadonlyArray<DocumentRecord>> {
+): Promise<ReadonlyArray<string>> {
 	try {
-		const paths = await fetch_document_paths(owner, repo, token)
-
-		return await Promise.all(paths.map(async (path) => await build_record(owner, repo, path)))
+		return await fetch_document_paths(owner, repo, token)
 	} catch (error) {
 		console.warn(`Skipped ${repo.name}: ${String(error)}`)
 
 		return []
 	}
+}
+
+async function collect_repo_documents(
+	owner: string,
+	repo: GithubRepo,
+	token: string | undefined,
+): Promise<ReadonlyArray<DocumentRecord>> {
+	const paths = await fetch_document_paths_safe(owner, repo, token)
+	const settled = await Promise.allSettled(
+		paths.map(async (path) => await build_record(owner, repo, path)),
+	)
+
+	return collect_fulfilled(repo.name, settled)
 }
 
 async function collect_all_documents(
@@ -234,6 +259,7 @@ const github_documentation = {
 	github_headers,
 	is_document_path,
 	is_ingestable_repo,
+	collect_fulfilled,
 	collect_all_documents,
 }
 

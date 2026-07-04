@@ -42,13 +42,17 @@ function optional_environment(name: string, fallback: string): string {
 	return value === undefined || value === '' ? fallback : value
 }
 
+function read_environment(name: string): string | undefined {
+	return process.env[name]
+}
+
 function read_config(): IngestConfig {
 	return {
 		account_id: require_environment('CLOUDFLARE_ACCOUNT_ID'),
 		api_token: require_environment('CLOUDFLARE_API_TOKEN'),
 		instance: optional_environment('AI_SEARCH_INSTANCE', DEFAULT_INSTANCE),
 		owner: optional_environment('GITHUB_DOCS_OWNER', github_documentation.DEFAULT_OWNER),
-		github_token: process.env['GITHUB_TOKEN'],
+		github_token: read_environment('GITHUB_TOKEN'),
 	}
 }
 

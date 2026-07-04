@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { github_documentation, type GithubRepo } from './github-documentation'
+import { github_documentation, type DocumentRecord, type GithubRepo } from './github-documentation'
 
 const OWNER = 'joshuafolkken'
 const REPO = 'my-repo'
 const BRANCH = 'main'
 const DOCUMENT_PATH = 'docs/guide.md'
 const BODY = '# Guide\n\nBody text.'
+const README_KEY = 'github__my-repo__README.md'
 
 const SAMPLE_REPO: GithubRepo = {
 	name: REPO,
@@ -91,9 +92,19 @@ describe('github_documentation.build_document_key', () => {
 	})
 
 	it('keeps a root README as a flat key', () => {
-		expect(github_documentation.build_document_key(REPO, 'README.md')).toBe(
-			'github__my-repo__README.md',
-		)
+		expect(github_documentation.build_document_key(REPO, 'README.md')).toBe(README_KEY)
+	})
+})
+
+describe('github_documentation.collect_fulfilled', () => {
+	it('keeps fulfilled documents and drops rejected ones', () => {
+		const record: DocumentRecord = { key: README_KEY, content: 'ok' }
+		const settled: ReadonlyArray<PromiseSettledResult<DocumentRecord>> = [
+			{ status: 'fulfilled', value: record },
+			{ status: 'rejected', reason: new Error('boom') },
+		]
+
+		expect(github_documentation.collect_fulfilled(REPO, settled)).toEqual([record])
 	})
 })
 
