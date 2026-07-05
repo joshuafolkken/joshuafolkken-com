@@ -12,8 +12,7 @@
 	const PAGE_TITLE = `${CHAT_LABELS.TITLE} - ${AUTHOR.NAME}`
 
 	const USER_BUBBLE_CLASS = 'max-w-[85%] self-end rounded-lg bg-sky-600/80 px-4 py-2 text-white'
-	const ASSISTANT_BUBBLE_CLASS =
-		'max-w-[85%] self-start rounded-lg border border-white/10 bg-slate-800/40 px-4 py-2 text-white/90'
+	const ASSISTANT_MESSAGE_CLASS = 'text-white/90'
 	const TEXT_CLASS = 'break-words whitespace-pre-wrap'
 	const MARKDOWN_CLASS = 'markdown break-words'
 	const DOT_CLASS = 'size-1.5 animate-thinking rounded-full bg-white/70'
@@ -118,11 +117,11 @@
 			{:else}
 				{#each chat_state.get_messages() as message, index (index)}
 					{#if message.role === 'user'}
-						<div class={USER_BUBBLE_CLASS}>
+						<div class={USER_BUBBLE_CLASS} data-testid="chat-message-user">
 							<p class={TEXT_CLASS}>{message.text}</p>
 						</div>
 					{:else}
-						<div class={ASSISTANT_BUBBLE_CLASS}>
+						<div class={ASSISTANT_MESSAGE_CLASS} data-testid="chat-message-assistant">
 							{#if message.text}
 								<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 								<div class={MARKDOWN_CLASS}>{@html markdown.to_html(message.text)}</div>
