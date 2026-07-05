@@ -9,9 +9,14 @@
 	import ArrowDownIcon from '$lib/icons/ArrowDownIcon.svelte'
 	import ArrowUpIcon from '$lib/icons/ArrowUpIcon.svelte'
 	import { markdown } from '$lib/utils/markdown'
+	import { scheduling } from '$lib/utils/scheduling'
 	import { fade } from 'svelte/transition'
 
 	const PAGE_TITLE = `${CHAT_LABELS.TITLE} - ${AUTHOR.NAME}`
+
+	// Sentinel for "no reply is streaming": the streaming message renders as plain text (see the each
+	// block), every settled message as Markdown.
+	const NO_STREAM_INDEX = -1
 
 	// Treat anything within this many pixels of the bottom as "at the bottom" so sub-pixel rounding
 	// and the smooth-scroll tail don't leave the button lingering once the newest message is in view.
@@ -31,6 +36,7 @@
 	let is_loading = $state(false)
 	let input_el = $state<HTMLInputElement>()
 	let is_at_bottom = $state(true)
+	let streaming_index = $state(NO_STREAM_INDEX)
 
 	let has_rendered_once = false
 	// Distance in px from the bottom of the page, cached on every scroll so a viewport resize (software
@@ -44,6 +50,12 @@
 	function scroll_to_bottom(): void {
 		window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
 	}
+
+	// Following a streamed reply fires once per token; throttle to one instant jump per frame so a fast
+	// stream can't restart a smooth animation on every token (which fights itself and stutters).
+	const follow_bottom = scheduling.raf_throttle(() => {
+		window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' })
+	})
 
 	function sync_is_at_bottom(): void {
 		bottom_distance = document.documentElement.scrollHeight - window.innerHeight - window.scrollY
@@ -94,19 +106,19 @@
 	})
 
 	$effect(() => {
-		// Deep-read every message's text so a streamed reply re-triggers this effect; the read must
-		// stay first so the dependency is registered even on the initial (skipped) run.
-		const content = chat_state
+		// Sum every message's text length so a streamed token re-triggers this effect; this is a cheap
+		// dependency read (string lengths, no concatenation) and must stay first so the dependency is
+		// registered even on the initial (skipped) run.
+		const streamed_chars = chat_state
 			.get_messages()
-			.map((message) => message.text)
-			.join('')
+			.reduce((total, message) => total + message.text.length, 0)
 
-		// afterNavigate positions the initial view; only follow later streamed replies here, and smoothly,
-		// so the page load itself is never animated.
-		if (has_rendered_once && content) {
-			scroll_to_bottom()
-			// The smooth scroll lands at the bottom, so hide the button now rather than letting it flash
-			// visible for the animation's duration before the settling scroll events would clear it.
+		// afterNavigate positions the initial view; only follow later streamed replies here, throttled to
+		// one jump per frame.
+		if (has_rendered_once && streamed_chars > 0) {
+			follow_bottom.schedule()
+			// The follow lands at the bottom, so hide the button now rather than letting it flash visible
+			// until the settling scroll events would clear it.
 			is_at_bottom = true
 		}
 
@@ -130,6 +142,21 @@
 		return question.length === 0 || is_loading
 	}
 
+	async function run_exchange(question: string): Promise<void> {
+		is_loading = true
+		const index = chat_state.start_exchange(question)
+
+		streaming_index = index
+
+		try {
+			await respond(question, index)
+		} finally {
+			// Clearing the index flips the reply from plain streaming text to parsed Markdown.
+			streaming_index = NO_STREAM_INDEX
+			is_loading = false
+		}
+	}
+
 	async function send(): Promise<void> {
 		const question = input.trim()
 
@@ -143,12 +170,7 @@
 			return
 		}
 
-		is_loading = true
-		const index = chat_state.start_exchange(question)
-
-		await respond(question, index)
-
-		is_loading = false
+		await run_exchange(question)
 	}
 
 	function handle_submit(event: SubmitEvent): void {
@@ -183,15 +205,19 @@
 						</div>
 					{:else}
 						<div class={ASSISTANT_MESSAGE_CLASS} data-testid="chat-message-assistant">
-							{#if message.text}
-								<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-								<div class={MARKDOWN_CLASS}>{@html markdown.to_html(message.text)}</div>
-							{:else}
+							{#if !message.text}
 								<span class="inline-flex gap-1 py-1" aria-label={CHAT_LABELS.THINKING}>
 									<span class={`${DOT_CLASS} [animation-delay:-0.3s]`}></span>
 									<span class={`${DOT_CLASS} [animation-delay:-0.15s]`}></span>
 									<span class={DOT_CLASS}></span>
 								</span>
+							{:else if index === streaming_index}
+								<!-- While streaming, show raw text; re-parsing the growing Markdown per
+								token is O(n^2). It is parsed once, on completion, in the branch below. -->
+								<p class={TEXT_CLASS}>{message.text}</p>
+							{:else}
+								<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+								<div class={MARKDOWN_CLASS}>{@html markdown.to_html(message.text)}</div>
 							{/if}
 						</div>
 					{/if}
