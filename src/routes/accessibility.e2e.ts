@@ -3,7 +3,7 @@ import { TEST_ROUTES } from '$lib/test-routes'
 
 const SKIP_LINK_TEXT = 'Skip to main content'
 const SKIP_LINK_TARGET_ID = 'skip-to-main'
-const MENU_OPEN_ARIA_LABEL = 'メニューを開く'
+const MENU_OPEN_ARIA_LABEL = 'Open menu'
 
 const NARROW_VIEWPORT_WIDTH = 640
 const NARROW_VIEWPORT_HEIGHT = 800

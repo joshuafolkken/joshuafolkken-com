@@ -27,13 +27,13 @@
 	class:translate-x-full={!is_menu_open}
 	role="dialog"
 	aria-modal="true"
-	aria-label="ナビゲーションメニュー"
+	aria-label="Navigation menu"
 	data-testid="nav-drawer"
 	tabindex="-1"
 	onmouseenter={sticky_header_state.handle_menu_enter}
 	onmouseleave={sticky_header_state.handle_menu_leave}
 >
-	<nav class="flex flex-col gap-0 p-4 pt-4" aria-label="ページリンク">
+	<nav class="flex flex-col gap-0 p-4 pt-4" aria-label="Page links">
 		<MenuNavList
 			menu_items={drawer_items}
 			variant="mobile"
