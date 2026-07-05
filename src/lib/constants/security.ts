@@ -11,7 +11,7 @@ const CSP_DIRECTIVES: ReadonlyArray<string> = [
 	"font-src 'self' https://fonts.gstatic.com",
 	"img-src 'self' data: https://*.opencollective.com https://*.google-analytics.com https://*.googlesyndication.com https://*.doubleclick.net https://ssl.gstatic.com",
 	"connect-src 'self' https://*.google-analytics.com https://api.opencollective.com https://www.googletagmanager.com https://*.doubleclick.net https://region1.analytics.google.com",
-	'frame-src https://*.googlesyndication.com https://*.doubleclick.net',
+	'frame-src https://*.googlesyndication.com https://*.doubleclick.net https://www.youtube-nocookie.com',
 	"object-src 'none'",
 	"base-uri 'self'",
 	"form-action 'self'",
