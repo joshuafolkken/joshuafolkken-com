@@ -5,6 +5,8 @@ const GREETING = 'Hello'
 const CHAT_INPUT = 'chat-input'
 const CHAT_SEND = 'chat-send'
 const CHAT_MESSAGES = 'chat-messages'
+const CHAT_MESSAGE_USER = 'chat-message-user'
+const CHAT_MESSAGE_ASSISTANT = 'chat-message-assistant'
 const CHAT_TRIGGER_MOBILE = 'chat-trigger-mobile'
 const STORAGE_KEY = 'chat_log'
 const PERSISTED_QUESTION = 'What did I ask before?'
@@ -25,6 +27,8 @@ const SCROLL_BOTTOM_TOLERANCE = 8
 // After a client-side navigation SvelteKit resets scroll asynchronously, animating under
 // `scroll-behavior: smooth`; wait until the position holds still before asserting where it landed.
 const SCROLL_SETTLE_MS = 300
+// A full-width AI reply may fall a hair short of the column width only from sub-pixel rounding.
+const FULL_WIDTH_TOLERANCE = 2
 
 async function seed_conversation(page: Page): Promise<void> {
 	await page.evaluate(
@@ -248,6 +252,43 @@ test('renders assistant markdown as formatted html, not raw syntax', async ({ pa
 	)
 
 	expect(await messages.innerText()).not.toContain('`')
+})
+
+const EMPTY_BOX = { x: 0, y: 0, width: 0, height: 0 }
+
+async function box_of(page: Page, testid: string): Promise<{ x: number; width: number }> {
+	return (await page.getByTestId(testid).boundingBox()) ?? EMPTY_BOX
+}
+
+async function message_layout(page: Page): Promise<{
+	container: { x: number; width: number }
+	user: { x: number; width: number }
+	assistant: { x: number; width: number }
+}> {
+	return {
+		container: await box_of(page, CHAT_MESSAGES),
+		user: await box_of(page, CHAT_MESSAGE_USER),
+		assistant: await box_of(page, CHAT_MESSAGE_ASSISTANT),
+	}
+}
+
+test('renders AI replies full width and user messages as constrained bubbles', async ({ page }) => {
+	await page.setViewportSize({ width: DESKTOP_WIDTH, height: DESKTOP_HEIGHT })
+	await page.goto('/chat')
+	await seed_conversation(page)
+	await page.reload()
+
+	await expect(page.getByTestId(CHAT_MESSAGE_USER)).toBeVisible()
+	await expect(page.getByTestId(CHAT_MESSAGE_ASSISTANT)).toBeVisible()
+
+	const { container, user, assistant } = await message_layout(page)
+
+	// The AI reply spans the full width of the conversation column, with no bubble to constrain it.
+	expect(assistant.width).toBeGreaterThanOrEqual(container.width - FULL_WIDTH_TOLERANCE)
+
+	// The user message stays a constrained bubble: narrower than the column and offset from the left.
+	expect(user.width).toBeLessThan(container.width)
+	expect(user.x).toBeGreaterThan(container.x)
 })
 
 test('clears the conversation when /clear is submitted', async ({ page }) => {
