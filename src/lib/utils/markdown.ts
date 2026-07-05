@@ -1,14 +1,15 @@
 import DOMPurify from 'dompurify'
 import { marked, type TokenizerAndRendererExtension, type Tokens } from 'marked'
 
-// Hiragana, Katakana, and CJK ideographs.
-const CJK_CHAR = /[\p{sc=Hiragana}\p{sc=Katakana}\p{sc=Han}]/u
+// A URL written in Markdown is ASCII, so the first non-ASCII character marks where the following
+// Japanese text — a sentence, or punctuation that ends one — begins.
+const NON_ASCII = /\P{ASCII}/u
 
-// Match a bare URL only up to the first CJK character (lookahead). marked's built-in url tokenizer uses
-// [^\s<]*, and because Japanese has no ASCII spaces it swallows the following sentence (and any later
-// URL) into the href. This fires only when a URL is immediately followed by CJK; every other URL falls
-// through to marked's built-in url tokenizer, keeping its email and trailing-punctuation handling.
-const URL_BEFORE_CJK = /^(https?:\/\/[^\s<]*?)(?=[\p{sc=Hiragana}\p{sc=Katakana}\p{sc=Han}])/u
+// Match a bare URL only up to the first non-ASCII character (lookahead). marked's built-in url tokenizer
+// uses [^\s<]*, and because Japanese has no ASCII spaces it swallows the following sentence (and any
+// later URL) into the href. This fires only when a URL is immediately followed by non-ASCII text; every
+// other URL falls through to marked's built-in url tokenizer, keeping its email/trailing-punctuation handling.
+const URL_BEFORE_NON_ASCII = /^(https?:\/\/[^\s<]*?)(?=\P{ASCII})/u
 
 function safe_decode(value: string): string {
 	try {
@@ -20,7 +21,7 @@ function safe_decode(value: string): string {
 
 // marked percent-encodes non-ASCII href characters, so decode before checking for leaked sentence text.
 function has_leaked_text(href: string): boolean {
-	return CJK_CHAR.test(safe_decode(href))
+	return NON_ASCII.test(safe_decode(href))
 }
 
 function bounded_url_start(source: string): number | undefined {
@@ -28,7 +29,7 @@ function bounded_url_start(source: string): number | undefined {
 }
 
 function bounded_url_tokenizer(source: string): Tokens.Generic | undefined {
-	const match = URL_BEFORE_CJK.exec(source)
+	const match = URL_BEFORE_NON_ASCII.exec(source)
 	if (!match) return undefined
 
 	const [, href] = match

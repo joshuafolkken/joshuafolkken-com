@@ -54,6 +54,14 @@ describe('markdown.to_html repairs leaked links', () => {
 		expect(html).not.toContain('%E3%')
 	})
 
+	it('trims trailing Japanese punctuation off a bare-url autolink', () => {
+		const html = markdown.to_html('リンクはhttps://example.com。')
+
+		expect(html).toContain('href="https://example.com"')
+		expect(html).not.toContain('href="https://example.com。"')
+		expect(html).not.toContain('%E3%')
+	})
+
 	it('re-links a second url that the first autolink swallowed', () => {
 		const html = markdown.to_html('https://example.com/aです。https://example.com/b')
 
