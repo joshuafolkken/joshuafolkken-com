@@ -30,10 +30,7 @@
 	)
 </script>
 
-<nav
-	class={container_classes}
-	aria-label={is_desktop ? 'ソーシャルリンク' : 'ソーシャルリンク（モバイル）'}
->
+<nav class={container_classes} aria-label={is_desktop ? 'Social links' : 'Social links (mobile)'}>
 	{#each HEADER_SOCIAL_LINKS as link (link.href)}
 		<SocialLinkItem
 			{link}

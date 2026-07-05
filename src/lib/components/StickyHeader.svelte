@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { afterNavigate } from '$app/navigation'
 	import { page } from '$app/state'
 	import HeaderLogoLink from '$lib/components/HeaderLogoLink.svelte'
 	import HeaderPageLink from '$lib/components/HeaderPageLink.svelte'
@@ -42,6 +43,12 @@
 	const CHAT_PATH = '/chat'
 	const CHAT_LABEL = 'AI Chat'
 	const is_chat_active = $derived(page.url.pathname === CHAT_PATH)
+
+	// Close the mobile drawer on any route change so navigation from controls outside
+	// the drawer (logo link, mobile chat icon) does not leave it open.
+	afterNavigate(() => {
+		sticky_header_state.close_menu()
+	})
 </script>
 
 <header class={HEADER_CONTAINER_CLASSES} inert={is_search_open} data-testid="site-header">
@@ -57,7 +64,7 @@
 			</div>
 		{/if}
 
-		<nav class="hidden items-center gap-2 desktop:flex" aria-label="ページナビゲーション">
+		<nav class="hidden items-center gap-2 desktop:flex" aria-label="Page navigation">
 			<MenuNavList {menu_items} variant="desktop" />
 			<SearchNavItem />
 		</nav>
@@ -75,7 +82,7 @@
 		<HeaderSocialLinks variant="desktop" />
 		<button
 			type="button"
-			aria-label={is_menu_open ? 'メニューを閉じる' : 'メニューを開く'}
+			aria-label={is_menu_open ? 'Close menu' : 'Open menu'}
 			aria-expanded={is_menu_open}
 			class={MENU_TOGGLE_BUTTON_CLASSES}
 			onclick={sticky_header_state.handle_toggle_click}
