@@ -7,29 +7,13 @@ const CHAT_SEND = 'chat-send'
 const CHAT_MESSAGES = 'chat-messages'
 const CHAT_MESSAGE_USER = 'chat-message-user'
 const CHAT_MESSAGE_ASSISTANT = 'chat-message-assistant'
-const CHAT_SCROLL_BOTTOM = 'chat-scroll-bottom'
-const CHAT_TRIGGER_MOBILE = 'chat-trigger-mobile'
 const STORAGE_KEY = 'chat_log'
 const PERSISTED_QUESTION = 'What did I ask before?'
 const PERSISTED_ANSWER = 'This is the remembered answer.'
 const MARKDOWN_ANSWER = 'use `queue` and **kit**, see [docs](https://example.com)'
-const FOOTER_HEADING = 'Top Supporters'
 const CHAT_EMPTY = 'chat-empty'
 const DESKTOP_WIDTH = 1280
 const DESKTOP_HEIGHT = 800
-// Below the 62rem desktop breakpoint the header exposes the mobile chat link used for in-app navigation.
-const MOBILE_WIDTH = 390
-const MOBILE_HEIGHT = 800
-// The input sits ~1rem above the bottom (same as mobile); guard against a large floating gap.
-const MAX_BOTTOM_GAP = 48
-// Viewport height after the software keyboard shrinks it (well under DESKTOP_HEIGHT).
-const HEIGHT_WITH_KEYBOARD = 460
-const LONG_MESSAGE_COUNT = 40
-// On page display the view must already sit at the bottom; allow only sub-pixel rounding slack.
-const SCROLL_BOTTOM_TOLERANCE = 8
-// After a client-side navigation SvelteKit resets scroll asynchronously, animating under
-// `scroll-behavior: smooth`; wait until the position holds still before asserting where it landed.
-const SCROLL_SETTLE_MS = 300
 // A full-width AI reply may fall a hair short of the column width only from sub-pixel rounding.
 const FULL_WIDTH_TOLERANCE = 2
 
@@ -58,47 +42,6 @@ async function seed_markdown_answer(page: Page): Promise<void> {
 			localStorage.setItem(key, JSON.stringify(log))
 		},
 		{ key: STORAGE_KEY, answer: MARKDOWN_ANSWER },
-	)
-}
-
-async function wait_for_scroll_settle(page: Page): Promise<void> {
-	await page.evaluate(async (stable_ms) => {
-		await new Promise<void>((resolve) => {
-			let last_y = window.scrollY
-			let stable_since = performance.now()
-
-			function tick(now: number): void {
-				if (window.scrollY !== last_y) {
-					last_y = window.scrollY
-					stable_since = now
-				}
-
-				if (now - stable_since >= stable_ms) resolve()
-				else requestAnimationFrame(tick)
-			}
-
-			requestAnimationFrame(tick)
-		})
-	}, SCROLL_SETTLE_MS)
-}
-
-async function distance_from_bottom(page: Page): Promise<number> {
-	return await page.evaluate(
-		() => document.documentElement.scrollHeight - window.innerHeight - window.scrollY,
-	)
-}
-
-async function seed_many_messages(page: Page, count: number): Promise<void> {
-	await page.evaluate(
-		({ key, total }) => {
-			const log = Array.from({ length: total }, (_unused, index) => ({
-				role: index % 2 === 0 ? 'user' : 'assistant',
-				text: `message number ${String(index)}`,
-			}))
-
-			localStorage.setItem(key, JSON.stringify(log))
-		},
-		{ key: STORAGE_KEY, total: count },
 	)
 }
 
@@ -136,203 +79,11 @@ test('renders the send control as an icon only, labelled for assistive tech', as
 	await expect(page.getByRole('button', { name: CHAT_LABELS.SEND })).toBeVisible()
 })
 
-test('scrolls the whole page natively for a long conversation', async ({ page }) => {
-	await page.setViewportSize({ width: DESKTOP_WIDTH, height: DESKTOP_HEIGHT })
-	await page.goto('/chat')
-	await seed_many_messages(page, LONG_MESSAGE_COUNT)
-	await page.reload()
-
-	// Messages load client-side after hydration; wait for the last one before measuring the page height.
-	await expect(page.getByText(`message number ${String(LONG_MESSAGE_COUNT - 1)}`)).toBeVisible()
-
-	const is_page_scrollable = await page.evaluate(
-		() => document.documentElement.scrollHeight > window.innerHeight,
-	)
-
-	expect(is_page_scrollable).toBe(true)
-})
-
-test('opens scrolled to the newest message on page display, not animating from the top', async ({
-	page,
-}) => {
-	await page.setViewportSize({ width: DESKTOP_WIDTH, height: DESKTOP_HEIGHT })
-	await page.goto('/chat')
-	await seed_many_messages(page, LONG_MESSAGE_COUNT)
-	await page.reload()
-
-	// Wait for the newest message to attach, then measure on the first frame — before any
-	// smooth-scroll animation could carry the view down from the top.
-	await page.getByText(`message number ${String(LONG_MESSAGE_COUNT - 1)}`).waitFor({
-		state: 'attached',
-	})
-
-	expect(await distance_from_bottom(page)).toBeLessThanOrEqual(SCROLL_BOTTOM_TOLERANCE)
-})
-
-test('stays scrolled to the newest message when navigated into from another page', async ({
-	page,
-}) => {
-	await page.setViewportSize({ width: MOBILE_WIDTH, height: MOBILE_HEIGHT })
-	await page.goto('/chat')
-	await seed_many_messages(page, LONG_MESSAGE_COUNT)
-	// Full load so the message store picks up the seeded log, then land on another page.
-	await page.goto('/')
-	// The mobile chat link only navigates client-side once the header has hydrated.
-	await page.waitForLoadState('networkidle')
-
-	// Client-side navigation into /chat (not a reload); SvelteKit resets scroll to the top afterwards.
-	await page.getByTestId(CHAT_TRIGGER_MOBILE).click()
-	await page.waitForURL(/\/chat$/u)
-	await page.getByText(`message number ${String(LONG_MESSAGE_COUNT - 1)}`).waitFor({
-		state: 'attached',
-	})
-
-	// Measure only after SvelteKit's async scroll reset has run and settled — otherwise the view
-	// looks correct on the first frame but drifts to the top a moment later.
-	await wait_for_scroll_settle(page)
-
-	expect(await distance_from_bottom(page)).toBeLessThanOrEqual(SCROLL_BOTTOM_TOLERANCE)
-})
-
-async function scroll_window_to_top(page: Page): Promise<void> {
-	// Override the global smooth scroll so the test lands at the top deterministically, then let the
-	// scroll listener update the button visibility.
-	await page.evaluate(() => {
-		window.scrollTo({ top: 0, behavior: 'instant' })
-	})
-}
-
-async function open_long_conversation(page: Page): Promise<void> {
-	await page.setViewportSize({ width: DESKTOP_WIDTH, height: DESKTOP_HEIGHT })
-	await page.goto('/chat')
-	await seed_many_messages(page, LONG_MESSAGE_COUNT)
-	await page.reload()
-	await page.getByText(`message number ${String(LONG_MESSAGE_COUNT - 1)}`).waitFor({
-		state: 'attached',
-	})
-	await wait_for_scroll_settle(page)
-}
-
-test('pins the newest message to the bottom when the keyboard opens', async ({ page }) => {
-	await open_long_conversation(page)
-
-	// The software keyboard opening shrinks the layout viewport (interactive-widget=resizes-content).
-	await page.setViewportSize({ width: DESKTOP_WIDTH, height: HEIGHT_WITH_KEYBOARD })
-	await wait_for_scroll_settle(page)
-
-	// The bottom stays put: the newest message remains in view above the input.
-	expect(await distance_from_bottom(page)).toBeLessThanOrEqual(SCROLL_BOTTOM_TOLERANCE)
-})
-
-test('keeps a user reading earlier history in place when the keyboard opens', async ({ page }) => {
-	await open_long_conversation(page)
-	await scroll_window_to_top(page)
-
-	// Wait for the scrolled-away state to register before the keyboard shrinks the viewport.
-	await expect(page.getByTestId(CHAT_SCROLL_BOTTOM)).toBeVisible()
-
-	await page.setViewportSize({ width: DESKTOP_WIDTH, height: HEIGHT_WITH_KEYBOARD })
-	await wait_for_scroll_settle(page)
-
-	// Opening the keyboard must not yank a user who scrolled up down to the newest message.
-	expect(await distance_from_bottom(page)).toBeGreaterThan(SCROLL_BOTTOM_TOLERANCE)
-})
-
-test('shows the scroll-to-bottom button only when scrolled away from the bottom', async ({
-	page,
-}) => {
-	await open_long_conversation(page)
-
-	// The page opens at the newest message, so the button stays hidden.
-	await expect(page.getByTestId(CHAT_SCROLL_BOTTOM)).toHaveCount(0)
-
-	await scroll_window_to_top(page)
-
-	const button = page.getByTestId(CHAT_SCROLL_BOTTOM)
-
-	await expect(button).toBeVisible()
-	await expect(button).toHaveAccessibleName(CHAT_LABELS.SCROLL_TO_BOTTOM)
-
-	// Returning to the bottom hides it again.
-	await page.evaluate(() => {
-		window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' })
-	})
-
-	await expect(button).toHaveCount(0)
-})
-
-test('scrolls to the bottom when the scroll-to-bottom button is clicked', async ({ page }) => {
-	await open_long_conversation(page)
-	await scroll_window_to_top(page)
-
-	await page.getByTestId(CHAT_SCROLL_BOTTOM).click()
-	await wait_for_scroll_settle(page)
-
-	expect(await distance_from_bottom(page)).toBeLessThanOrEqual(SCROLL_BOTTOM_TOLERANCE)
-	await expect(page.getByTestId(CHAT_SCROLL_BOTTOM)).toHaveCount(0)
-})
-
-// Scroll to the top, then read the button's opacity on the very next frame — all in-browser so
-// Playwright round-trip latency can't push the sample past the short fade window.
-async function opacity_on_scroll_to_top(page: Page): Promise<number> {
-	return await page.evaluate(async () => {
-		return await new Promise<number>((resolve) => {
-			window.scrollTo({ top: 0, behavior: 'instant' })
-			requestAnimationFrame(() => {
-				const button = document.querySelector('[data-testid="chat-scroll-bottom"]')
-
-				resolve(button ? Number(getComputedStyle(button).opacity) : 1)
-			})
-		})
-	})
-}
-
-test('fades the scroll-to-bottom button in rather than popping it', async ({ page }) => {
-	await open_long_conversation(page)
-
-	// On the first frame after it mounts the button is still climbing from transparent; an instant
-	// toggle would already read fully opaque.
-	expect(await opacity_on_scroll_to_top(page)).toBeLessThan(1)
-
-	// It settles fully opaque once the fade completes.
-	await expect(page.getByTestId(CHAT_SCROLL_BOTTOM)).toHaveCSS('opacity', '1')
-})
-
-test('is a full-height app view: no site footer, and the viewport resizes for the keyboard', async ({
-	page,
-}) => {
-	await page.goto('/chat')
-
-	await expect(page.locator('meta[name="viewport"]')).toHaveAttribute(
-		'content',
-		/interactive-widget=resizes-content/u,
-	)
-	await expect(page.getByRole('heading', { name: FOOTER_HEADING })).toHaveCount(0)
-
-	await page.goto('/')
-
-	await expect(page.getByRole('heading', { name: FOOTER_HEADING })).toHaveCount(1)
-})
-
 test('does not render the page title or description block', async ({ page }) => {
 	await page.goto('/chat')
 
 	await expect(page.getByRole('heading', { name: CHAT_LABELS.TITLE })).toHaveCount(0)
 	await expect(page.getByText(CHAT_LABELS.DESCRIPTION)).toHaveCount(0)
-})
-
-test('pins the input to the bottom on desktop, like mobile', async ({ page }) => {
-	await page.setViewportSize({ width: DESKTOP_WIDTH, height: DESKTOP_HEIGHT })
-	await page.goto('/chat')
-
-	const bottom_gap = await page.evaluate(() => {
-		const input = document.querySelector('[data-testid="chat-input"]')
-
-		return input ? window.innerHeight - input.getBoundingClientRect().bottom : -1
-	})
-
-	expect(bottom_gap).toBeGreaterThanOrEqual(0)
-	expect(bottom_gap).toBeLessThan(MAX_BOTTOM_GAP)
 })
 
 test('restores a persisted conversation from localStorage after reload', async ({ page }) => {

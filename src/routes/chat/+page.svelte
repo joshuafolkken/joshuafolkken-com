@@ -33,6 +33,9 @@
 	let is_at_bottom = $state(true)
 
 	let has_rendered_once = false
+	// Distance in px from the bottom of the page, cached on every scroll so a viewport resize (software
+	// keyboard) can restore it and keep the same content in view rather than letting the keyboard cover it.
+	let bottom_distance = 0
 
 	$effect(() => {
 		input_el?.focus({ preventScroll: true })
@@ -43,27 +46,29 @@
 	}
 
 	function sync_is_at_bottom(): void {
-		const distance = document.documentElement.scrollHeight - window.innerHeight - window.scrollY
+		bottom_distance = document.documentElement.scrollHeight - window.innerHeight - window.scrollY
 
-		is_at_bottom = distance <= SCROLL_BOTTOM_THRESHOLD
+		is_at_bottom = bottom_distance <= SCROLL_BOTTOM_THRESHOLD
 	}
 
 	function pin_to_bottom(): void {
 		window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' })
 		is_at_bottom = true
+		bottom_distance = 0
 	}
 
 	function handle_resize(): void {
 		// A software keyboard opening (Android's interactive-widget=resizes-content, or iOS via the
-		// visualViewport resize below) shrinks the viewport under a conversation that was pinned to the
-		// bottom, sliding the newest message out of view above the input. Capture the pinned state before
-		// recomputing, then re-pin instantly so the bottom stays put. A user who had scrolled up to read
-		// history is left where they were.
-		const should_repin = is_at_bottom
+		// visualViewport resize below) shrinks the viewport from the bottom, so without adjusting, the
+		// content the user was viewing is hidden behind the keyboard. Keep the bottom edge of the viewport
+		// fixed by restoring the distance from the bottom captured on the last scroll: an at-bottom view
+		// stays pinned to the newest message, and a mid-scroll view keeps its content in place above the
+		// input, while a user scrolled up to read history is not yanked down to the bottom.
+		const max_top = document.documentElement.scrollHeight - window.innerHeight
+
+		window.scrollTo({ top: Math.max(0, max_top - bottom_distance), behavior: 'instant' })
 
 		sync_is_at_bottom()
-
-		if (should_repin) pin_to_bottom()
 	}
 
 	$effect(() => {
