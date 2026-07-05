@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { POST } from './+server'
 
 vi.mock('$lib/server/chat', () => ({
-	chat: { retrieve: vi.fn(), is_grounded: vi.fn(), stream_answer: vi.fn() },
+	chat: { stream_answer: vi.fn() },
 }))
 
 vi.mock('$lib/server/platform-binding', () => ({
@@ -50,8 +50,7 @@ function make_post_event(
 
 beforeEach(() => {
 	vi.mocked(security.validate_request_security).mockResolvedValue(undefined)
-	vi.mocked(chat.retrieve).mockResolvedValue([])
-	vi.mocked(chat.is_grounded).mockReturnValue(false)
+	vi.mocked(chat.stream_answer).mockResolvedValue(new ReadableStream())
 })
 
 describe('POST /api/chat', () => {
@@ -71,23 +70,19 @@ describe('POST /api/chat', () => {
 		expect(response.status).toBe(HTTP_STATUS.BAD_REQUEST)
 	})
 
-	it('returns not-grounded json when there is no relevant context', async () => {
-		vi.mocked(chat.is_grounded).mockReturnValue(false)
-
-		const response = await POST(make_post_event({ question: QUESTION }))
-		const body = await response.json()
-
-		expect(body).toEqual({ grounded: false })
-		expect(chat.stream_answer).not.toHaveBeenCalled()
-	})
-
-	it('streams an answer when grounded', async () => {
-		vi.mocked(chat.is_grounded).mockReturnValue(true)
-		vi.mocked(chat.stream_answer).mockResolvedValue(new ReadableStream())
-
+	it('streams the answer directly for a valid question, with a single retrieval', async () => {
 		const response = await POST(make_post_event({ question: QUESTION }))
 
 		expect(response.headers.get('Content-Type')).toContain(EVENT_STREAM)
-		expect(chat.stream_answer).toHaveBeenCalled()
+		// One generation call, no separate pre-stream grounding search: a single retrieval per request.
+		expect(chat.stream_answer).toHaveBeenCalledOnce()
+	})
+
+	it('returns a server error when the answer stream cannot be created', async () => {
+		vi.mocked(chat.stream_answer).mockRejectedValue(new Error('ai search down'))
+
+		const response = await POST(make_post_event({ question: QUESTION }))
+
+		expect(response.status).toBe(HTTP_STATUS.INTERNAL_SERVER_ERROR)
 	})
 })

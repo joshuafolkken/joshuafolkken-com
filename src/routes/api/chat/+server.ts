@@ -1,4 +1,3 @@
-import { json } from '@sveltejs/kit'
 import { CONTENT_TYPE, ERROR_MESSAGES, HTTP_HEADERS, HTTP_STATUS } from '$lib/constants/http'
 import { logger } from '$lib/logger'
 import { chat } from '$lib/server/chat'
@@ -43,10 +42,8 @@ async function answer_question(
 	platform: App.Platform | undefined,
 ): Promise<Response> {
 	const ai_search = platform_binding.get_ai_search(platform)
-	const chunks = await chat.retrieve(ai_search, question)
-
-	if (!chat.is_grounded(chunks)) return json({ grounded: false })
-
+	// Single retrieval: chatCompletions retrieves and generates in one pass. Grounding is no longer
+	// gated by a separate pre-stream search; the dashboard system prompt answers "not found" in-band.
 	const stream = await chat.stream_answer(ai_search, question)
 
 	return new Response(stream, {
