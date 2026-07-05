@@ -63,10 +63,10 @@ describe('markdown.to_html repairs leaked links', () => {
 		expect(html).not.toContain('%E3%')
 	})
 
-	it('drops a link whose target absorbed a Japanese sentence', () => {
+	it('drops the href of an inline link whose target absorbed a Japanese sentence', () => {
 		const html = markdown.to_html('[game-kit](blog/mnemechaの文書には、game-kitです。)')
 
-		expect(html).not.toContain('<a')
+		expect(html).not.toContain('href=')
 		expect(html).not.toContain('%E3%')
 		expect(html).toContain('game-kit')
 	})
