@@ -37,22 +37,38 @@ function is_leaked_anchor(anchor: HTMLAnchorElement): boolean {
 }
 
 // Re-render the trimmed-off tail as inline markdown so any further URLs it swallowed get autolinked
-// again instead of staying dead plain text. parseInline keeps it inline (no wrapping <p>); the newly
-// re-linked URLs may over-absorb in turn, which the repair_links loop then trims on its next pass.
-function render_tail(text: string): string {
+// again instead of staying dead plain text. parseInline keeps it inline (no wrapping <p>); the result
+// is returned as DOM nodes — never assigned as innerHTML — so DOM text is never reinterpreted as HTML.
+function render_tail_nodes(text: string): Array<Node> {
 	const raw = marked.parseInline(text, { async: false, gfm: true })
+	const parsed = new DOMParser().parseFromString(DOMPurify.sanitize(raw), 'text/html')
 
-	return DOMPurify.sanitize(raw)
+	return [...parsed.body.childNodes]
+}
+
+function insert_after(anchor: HTMLAnchorElement, nodes: Array<Node>): void {
+	const parent = anchor.parentNode
+	if (!parent) return
+
+	const reference = anchor.nextSibling
+
+	for (const node of nodes) {
+		// @cloudflare/workers-types augments Element with HTMLRewriter's .after()/.before(), which shadow
+		// the DOM signatures and reject real nodes; Node.insertBefore is not shadowed, so use it here.
+		// eslint-disable-next-line unicorn/prefer-modern-dom-apis
+		parent.insertBefore(node, reference)
+	}
 }
 
 // A bare-url autolink carries the leaked text in its label too; cut both back to the real URL and
 // re-render the trailing sentence so its own links survive while the leaked text becomes plain text.
+// Newly re-linked URLs may over-absorb in turn, which the repair_links loop then trims on its next pass.
 function trim_autolink(anchor: HTMLAnchorElement, text: string, cut: number): void {
 	const url_part = text.slice(0, cut)
 
 	anchor.setAttribute('href', url_part)
 	anchor.textContent = url_part
-	anchor.insertAdjacentHTML('afterend', render_tail(text.slice(cut)))
+	insert_after(anchor, render_tail_nodes(text.slice(cut)))
 }
 
 // An inline [label](target) link whose target absorbed a sentence has an unrecoverable URL, so drop
