@@ -7,6 +7,7 @@ const CHAT_LABELS = {
 	SEND: 'Send',
 	EMPTY_GREETING: 'Coffee and Joshua time?',
 	ASK: 'Ask a question',
+	SCROLL_TO_BOTTOM: 'Scroll to the newest message',
 	THINKING: 'Thinking',
 	NOT_FOUND:
 		"I couldn't find that in the site content. Try rephrasing, or check the About and Blog pages.",
