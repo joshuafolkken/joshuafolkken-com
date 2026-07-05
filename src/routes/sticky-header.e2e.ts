@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 
 const HOME_PATH = '/'
 const CYBER_GLOW_HOVER_CLASS = 'cyber-glow-hover'
@@ -7,12 +7,37 @@ const NARROW_VIEWPORT_WIDTH = 640
 const NARROW_VIEWPORT_HEIGHT = 800
 
 const DRAWER_TESTID = 'nav-drawer'
-const MENU_OPEN_ARIA_LABEL = 'メニューを開く'
+const MENU_OPEN_ARIA_LABEL = 'Open menu'
+const MENU_CLOSE_ARIA_LABEL = 'Close menu'
+
+const CHAT_PATH = '/chat'
+const CHAT_TRIGGER_TESTID = 'chat-trigger-mobile'
+const HOME_LOGO_ARIA_LABEL = 'Home'
+
+const ARIA_EXPANDED_ATTR = 'aria-expanded'
+const ARIA_EXPANDED_CLOSED = 'false'
+
+async function open_drawer_on(page: Page, path: string): Promise<void> {
+	await page.setViewportSize({
+		width: NARROW_VIEWPORT_WIDTH,
+		height: NARROW_VIEWPORT_HEIGHT,
+	})
+	await page.goto(path)
+	await page.getByRole('button', { name: MENU_OPEN_ARIA_LABEL }).click()
+	await expect(page.getByRole('button', { name: MENU_CLOSE_ARIA_LABEL })).toBeVisible()
+}
+
+async function expect_drawer_closed(page: Page): Promise<void> {
+	await expect(page.getByRole('button', { name: MENU_OPEN_ARIA_LABEL })).toHaveAttribute(
+		ARIA_EXPANDED_ATTR,
+		ARIA_EXPANDED_CLOSED,
+	)
+}
 
 const MNEMECHA_PATH = '/projects/mnemecha'
 const MNEMECHA_TITLE = 'Mnemecha'
 
-const DESKTOP_SOCIAL_NAV_LABEL = 'ソーシャルリンク'
+const DESKTOP_SOCIAL_NAV_LABEL = 'Social links'
 
 const X_HREF = 'https://x.com/joshuafolkken'
 const DISCORD_HREF = 'https://discord.gg/JdFywJmaSj'
@@ -61,6 +86,28 @@ test.describe('Sticky header drawer', () => {
 
 		await expect(sticky_link).toBeVisible()
 		await expect(sticky_link).toContainText(MNEMECHA_TITLE)
+	})
+})
+
+test.describe('Sticky header drawer closes on navigation', () => {
+	test('closes the drawer when navigating to the chat page via the mobile chat icon', async ({
+		page,
+	}) => {
+		await open_drawer_on(page, HOME_PATH)
+
+		await page.getByTestId(CHAT_TRIGGER_TESTID).click()
+
+		await expect(page).toHaveURL(new RegExp(`${CHAT_PATH}$`, 'u'))
+		await expect_drawer_closed(page)
+	})
+
+	test('closes the drawer when navigating to the top page via the logo', async ({ page }) => {
+		await open_drawer_on(page, CHAT_PATH)
+
+		await page.getByRole('link', { name: HOME_LOGO_ARIA_LABEL }).click()
+
+		await expect(page).toHaveURL(new RegExp(`${HOME_PATH}$`, 'u'))
+		await expect_drawer_closed(page)
 	})
 })
 
