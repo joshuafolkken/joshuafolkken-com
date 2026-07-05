@@ -140,6 +140,10 @@ describe('security.add_security_headers — CSP directives', () => {
 		expect(CSP_VALUE).toContain('https://fonts.gstatic.com')
 	})
 
+	it('allows the YouTube embed origin in frame-src', () => {
+		expect(CSP_VALUE).toContain('https://www.youtube-nocookie.com')
+	})
+
 	it('disables object-src', () => {
 		expect(CSP_VALUE).toContain("object-src 'none'")
 	})

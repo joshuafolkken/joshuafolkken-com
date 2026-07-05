@@ -9,6 +9,7 @@ interface MdsvexMetadata {
 	author?: unknown
 	excerpt?: unknown
 	cover_image?: unknown
+	youtube?: unknown
 }
 
 interface MdsvexFile {
@@ -41,7 +42,8 @@ function has_valid_metadata(metadata: MdsvexMetadata): metadata is BlogMetadata 
 		has_required_string_fields(metadata) &&
 		is_optional_string(metadata.updated) &&
 		is_optional_string(metadata.author) &&
-		is_optional_string(metadata.cover_image)
+		is_optional_string(metadata.cover_image) &&
+		is_optional_string(metadata.youtube)
 	)
 }
 
@@ -80,6 +82,7 @@ function parse_post(path: string, file: unknown): Post | undefined {
 		author: file.metadata.author,
 		excerpt: file.metadata.excerpt,
 		cover_image,
+		youtube: file.metadata.youtube,
 	}
 }
 
