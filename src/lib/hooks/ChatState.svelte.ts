@@ -41,11 +41,21 @@ class ChatStateStore {
 	}, PERSIST_DEBOUNCE_MS)
 
 	constructor() {
-		if (browser) {
-			window.addEventListener('pagehide', () => {
-				this.#persist.flush()
-			})
-		}
+		if (!browser) return
+
+		// Flush any pending write before the tab goes away. pagehide covers reload / close / navigation;
+		// visibilitychange additionally covers mobile backgrounding, where the tab can be evicted without
+		// ever firing pagehide.
+		window.addEventListener('pagehide', () => {
+			this.#flush()
+		})
+		document.addEventListener('visibilitychange', () => {
+			this.#flush()
+		})
+	}
+
+	#flush(): void {
+		this.#persist.flush()
 	}
 
 	#write_now(): void {

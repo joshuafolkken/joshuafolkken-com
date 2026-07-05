@@ -39,6 +39,8 @@
 	let streaming_index = $state(NO_STREAM_INDEX)
 
 	let has_rendered_once = false
+	// Tracks the previous streaming state so the plain -> Markdown flip can trigger a follow-scroll.
+	let did_stream = false
 	// Distance in px from the bottom of the page, cached on every scroll so a viewport resize (software
 	// keyboard) can restore it and keep the same content in view rather than letting the keyboard cover it.
 	let bottom_distance = 0
@@ -123,6 +125,17 @@
 		}
 
 		has_rendered_once = true
+	})
+
+	$effect(() => {
+		// When a reply finishes streaming it re-renders from plain text to Markdown, which changes the
+		// rendered height without changing text length (so the length-based effect above does not fire).
+		// Follow the reader to the new bottom on that plain -> Markdown flip.
+		const is_streaming = streaming_index !== NO_STREAM_INDEX
+
+		if (did_stream && !is_streaming) follow_bottom.schedule()
+
+		did_stream = is_streaming
 	})
 
 	async function respond(question: string, index: number): Promise<void> {
