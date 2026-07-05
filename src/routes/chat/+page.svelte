@@ -6,26 +6,47 @@
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import { CHAT_LABELS } from '$lib/constants/chat'
 	import { chat_state } from '$lib/hooks/ChatState.svelte'
+	import ArrowDownIcon from '$lib/icons/ArrowDownIcon.svelte'
 	import ArrowUpIcon from '$lib/icons/ArrowUpIcon.svelte'
 	import { markdown } from '$lib/utils/markdown'
+	import { fade } from 'svelte/transition'
 
 	const PAGE_TITLE = `${CHAT_LABELS.TITLE} - ${AUTHOR.NAME}`
+
+	// Treat anything within this many pixels of the bottom as "at the bottom" so sub-pixel rounding
+	// and the smooth-scroll tail don't leave the button lingering once the newest message is in view.
+	const SCROLL_BOTTOM_THRESHOLD = 24
+	// Fade the scroll-to-bottom button in and out rather than popping it on/off.
+	const SCROLL_FADE_MS = 200
 
 	const USER_BUBBLE_CLASS = 'max-w-[85%] self-end rounded-lg bg-sky-600/80 px-4 py-2 text-white'
 	const ASSISTANT_MESSAGE_CLASS = 'text-white/90'
 	const TEXT_CLASS = 'break-words whitespace-pre-wrap'
 	const MARKDOWN_CLASS = 'markdown break-words'
 	const DOT_CLASS = 'size-1.5 animate-thinking rounded-full bg-white/70'
+	const SCROLL_BUTTON_CLASS =
+		'absolute -top-14 left-1/2 flex size-10 -translate-x-1/2 items-center justify-center rounded-full border border-white/10 bg-slate-800/90 text-white/70 shadow-lg backdrop-blur transition hover:bg-slate-700 hover:text-white'
 
 	let input = $state('')
 	let is_loading = $state(false)
 	let input_el = $state<HTMLInputElement>()
+	let is_at_bottom = $state(true)
 
 	let has_rendered_once = false
 
 	$effect(() => {
 		input_el?.focus({ preventScroll: true })
 	})
+
+	function scroll_to_bottom(): void {
+		window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+	}
+
+	function sync_is_at_bottom(): void {
+		const distance = document.documentElement.scrollHeight - window.innerHeight - window.scrollY
+
+		is_at_bottom = distance <= SCROLL_BOTTOM_THRESHOLD
+	}
 
 	afterNavigate(() => {
 		// The page scrolls smoothly by default (html { scroll-behavior: smooth }); on display, force an
@@ -48,7 +69,10 @@
 		// afterNavigate positions the initial view; only follow later streamed replies here, and smoothly,
 		// so the page load itself is never animated.
 		if (has_rendered_once && content) {
-			window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+			scroll_to_bottom()
+			// The smooth scroll lands at the bottom, so hide the button now rather than letting it flash
+			// visible for the animation's duration before the settling scroll events would clear it.
+			is_at_bottom = true
 		}
 
 		has_rendered_once = true
@@ -98,6 +122,8 @@
 	}
 </script>
 
+<svelte:window onscroll={sync_is_at_bottom} onresize={sync_is_at_bottom} />
+
 <svelte:head>
 	<title>{PAGE_TITLE}</title>
 	<meta name="description" content={CHAT_LABELS.DESCRIPTION} />
@@ -139,6 +165,18 @@
 		</div>
 
 		<form class="sticky bottom-0 flex gap-2 bg-slate-950 pt-3 pb-4" onsubmit={handle_submit}>
+			{#if !is_at_bottom && chat_state.get_messages().length > 0}
+				<button
+					type="button"
+					onclick={scroll_to_bottom}
+					transition:fade={{ duration: SCROLL_FADE_MS }}
+					aria-label={CHAT_LABELS.SCROLL_TO_BOTTOM}
+					data-testid="chat-scroll-bottom"
+					class={SCROLL_BUTTON_CLASS}
+				>
+					<ArrowDownIcon />
+				</button>
+			{/if}
 			<input
 				bind:value={input}
 				bind:this={input_el}

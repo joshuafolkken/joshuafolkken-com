@@ -7,6 +7,7 @@ const CHAT_SEND = 'chat-send'
 const CHAT_MESSAGES = 'chat-messages'
 const CHAT_MESSAGE_USER = 'chat-message-user'
 const CHAT_MESSAGE_ASSISTANT = 'chat-message-assistant'
+const CHAT_SCROLL_BOTTOM = 'chat-scroll-bottom'
 const CHAT_TRIGGER_MOBILE = 'chat-trigger-mobile'
 const STORAGE_KEY = 'chat_log'
 const PERSISTED_QUESTION = 'What did I ask before?'
@@ -189,6 +190,85 @@ test('stays scrolled to the newest message when navigated into from another page
 	await wait_for_scroll_settle(page)
 
 	expect(await distance_from_bottom(page)).toBeLessThanOrEqual(SCROLL_BOTTOM_TOLERANCE)
+})
+
+async function scroll_window_to_top(page: Page): Promise<void> {
+	// Override the global smooth scroll so the test lands at the top deterministically, then let the
+	// scroll listener update the button visibility.
+	await page.evaluate(() => {
+		window.scrollTo({ top: 0, behavior: 'instant' })
+	})
+}
+
+async function open_long_conversation(page: Page): Promise<void> {
+	await page.setViewportSize({ width: DESKTOP_WIDTH, height: DESKTOP_HEIGHT })
+	await page.goto('/chat')
+	await seed_many_messages(page, LONG_MESSAGE_COUNT)
+	await page.reload()
+	await page.getByText(`message number ${String(LONG_MESSAGE_COUNT - 1)}`).waitFor({
+		state: 'attached',
+	})
+	await wait_for_scroll_settle(page)
+}
+
+test('shows the scroll-to-bottom button only when scrolled away from the bottom', async ({
+	page,
+}) => {
+	await open_long_conversation(page)
+
+	// The page opens at the newest message, so the button stays hidden.
+	await expect(page.getByTestId(CHAT_SCROLL_BOTTOM)).toHaveCount(0)
+
+	await scroll_window_to_top(page)
+
+	const button = page.getByTestId(CHAT_SCROLL_BOTTOM)
+
+	await expect(button).toBeVisible()
+	await expect(button).toHaveAccessibleName(CHAT_LABELS.SCROLL_TO_BOTTOM)
+
+	// Returning to the bottom hides it again.
+	await page.evaluate(() => {
+		window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' })
+	})
+
+	await expect(button).toHaveCount(0)
+})
+
+test('scrolls to the bottom when the scroll-to-bottom button is clicked', async ({ page }) => {
+	await open_long_conversation(page)
+	await scroll_window_to_top(page)
+
+	await page.getByTestId(CHAT_SCROLL_BOTTOM).click()
+	await wait_for_scroll_settle(page)
+
+	expect(await distance_from_bottom(page)).toBeLessThanOrEqual(SCROLL_BOTTOM_TOLERANCE)
+	await expect(page.getByTestId(CHAT_SCROLL_BOTTOM)).toHaveCount(0)
+})
+
+// Scroll to the top, then read the button's opacity on the very next frame — all in-browser so
+// Playwright round-trip latency can't push the sample past the short fade window.
+async function opacity_on_scroll_to_top(page: Page): Promise<number> {
+	return await page.evaluate(async () => {
+		return await new Promise<number>((resolve) => {
+			window.scrollTo({ top: 0, behavior: 'instant' })
+			requestAnimationFrame(() => {
+				const button = document.querySelector('[data-testid="chat-scroll-bottom"]')
+
+				resolve(button ? Number(getComputedStyle(button).opacity) : 1)
+			})
+		})
+	})
+}
+
+test('fades the scroll-to-bottom button in rather than popping it', async ({ page }) => {
+	await open_long_conversation(page)
+
+	// On the first frame after it mounts the button is still climbing from transparent; an instant
+	// toggle would already read fully opaque.
+	expect(await opacity_on_scroll_to_top(page)).toBeLessThan(1)
+
+	// It settles fully opaque once the fade completes.
+	await expect(page.getByTestId(CHAT_SCROLL_BOTTOM)).toHaveCSS('opacity', '1')
 })
 
 test('is a full-height app view: no site footer, and the viewport resizes for the keyboard', async ({
