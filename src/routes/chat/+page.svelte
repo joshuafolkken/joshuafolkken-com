@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { afterNavigate } from '$app/navigation'
 	import { chat_api } from '$lib/api/chat-api'
 	import { APP, AUTHOR } from '$lib/app'
 	import MetaTags from '$lib/components/MetaTags.svelte'
@@ -7,7 +8,6 @@
 	import { chat_state } from '$lib/hooks/ChatState.svelte'
 	import ArrowUpIcon from '$lib/icons/ArrowUpIcon.svelte'
 	import { markdown } from '$lib/utils/markdown'
-	import { onMount } from 'svelte'
 
 	const PAGE_TITLE = `${CHAT_LABELS.TITLE} - ${AUTHOR.NAME}`
 
@@ -28,10 +28,11 @@
 		input_el?.focus({ preventScroll: true })
 	})
 
-	onMount(() => {
+	afterNavigate(() => {
 		// The page scrolls smoothly by default (html { scroll-behavior: smooth }); on display, force an
 		// instant jump so a returning visitor opens at the bottom of their restored history rather than
-		// watching it animate down from the top.
+		// watching it animate down from the top. afterNavigate runs after SvelteKit resets scroll on a
+		// client-side navigation, so the jump also survives arriving here from another page (not just reload).
 		if (chat_state.get_messages().length > 0) {
 			window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' })
 		}
@@ -45,7 +46,7 @@
 			.map((message) => message.text)
 			.join('')
 
-		// onMount positions the initial view; only follow later streamed replies here, and smoothly,
+		// afterNavigate positions the initial view; only follow later streamed replies here, and smoothly,
 		// so the page load itself is never animated.
 		if (has_rendered_once && content) {
 			window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })

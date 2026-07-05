@@ -5,6 +5,7 @@ const GREETING = 'Hello'
 const CHAT_INPUT = 'chat-input'
 const CHAT_SEND = 'chat-send'
 const CHAT_MESSAGES = 'chat-messages'
+const CHAT_TRIGGER_MOBILE = 'chat-trigger-mobile'
 const STORAGE_KEY = 'chat_log'
 const PERSISTED_QUESTION = 'What did I ask before?'
 const PERSISTED_ANSWER = 'This is the remembered answer.'
@@ -13,11 +14,17 @@ const FOOTER_HEADING = 'Top Supporters'
 const CHAT_EMPTY = 'chat-empty'
 const DESKTOP_WIDTH = 1280
 const DESKTOP_HEIGHT = 800
+// Below the 62rem desktop breakpoint the header exposes the mobile chat link used for in-app navigation.
+const MOBILE_WIDTH = 390
+const MOBILE_HEIGHT = 800
 // The input sits ~1rem above the bottom (same as mobile); guard against a large floating gap.
 const MAX_BOTTOM_GAP = 48
 const LONG_MESSAGE_COUNT = 40
 // On page display the view must already sit at the bottom; allow only sub-pixel rounding slack.
 const SCROLL_BOTTOM_TOLERANCE = 8
+// After a client-side navigation SvelteKit resets scroll asynchronously, animating under
+// `scroll-behavior: smooth`; wait until the position holds still before asserting where it landed.
+const SCROLL_SETTLE_MS = 300
 
 async function seed_conversation(page: Page): Promise<void> {
 	await page.evaluate(
@@ -44,6 +51,33 @@ async function seed_markdown_answer(page: Page): Promise<void> {
 			localStorage.setItem(key, JSON.stringify(log))
 		},
 		{ key: STORAGE_KEY, answer: MARKDOWN_ANSWER },
+	)
+}
+
+async function wait_for_scroll_settle(page: Page): Promise<void> {
+	await page.evaluate(async (stable_ms) => {
+		await new Promise<void>((resolve) => {
+			let last_y = window.scrollY
+			let stable_since = performance.now()
+
+			function tick(now: number): void {
+				if (window.scrollY !== last_y) {
+					last_y = window.scrollY
+					stable_since = now
+				}
+
+				if (now - stable_since >= stable_ms) resolve()
+				else requestAnimationFrame(tick)
+			}
+
+			requestAnimationFrame(tick)
+		})
+	}, SCROLL_SETTLE_MS)
+}
+
+async function distance_from_bottom(page: Page): Promise<number> {
+	return await page.evaluate(
+		() => document.documentElement.scrollHeight - window.innerHeight - window.scrollY,
 	)
 }
 
@@ -125,11 +159,32 @@ test('opens scrolled to the newest message on page display, not animating from t
 		state: 'attached',
 	})
 
-	const distance_from_bottom = await page.evaluate(
-		() => document.documentElement.scrollHeight - window.innerHeight - window.scrollY,
-	)
+	expect(await distance_from_bottom(page)).toBeLessThanOrEqual(SCROLL_BOTTOM_TOLERANCE)
+})
 
-	expect(distance_from_bottom).toBeLessThanOrEqual(SCROLL_BOTTOM_TOLERANCE)
+test('stays scrolled to the newest message when navigated into from another page', async ({
+	page,
+}) => {
+	await page.setViewportSize({ width: MOBILE_WIDTH, height: MOBILE_HEIGHT })
+	await page.goto('/chat')
+	await seed_many_messages(page, LONG_MESSAGE_COUNT)
+	// Full load so the message store picks up the seeded log, then land on another page.
+	await page.goto('/')
+	// The mobile chat link only navigates client-side once the header has hydrated.
+	await page.waitForLoadState('networkidle')
+
+	// Client-side navigation into /chat (not a reload); SvelteKit resets scroll to the top afterwards.
+	await page.getByTestId(CHAT_TRIGGER_MOBILE).click()
+	await page.waitForURL(/\/chat$/u)
+	await page.getByText(`message number ${String(LONG_MESSAGE_COUNT - 1)}`).waitFor({
+		state: 'attached',
+	})
+
+	// Measure only after SvelteKit's async scroll reset has run and settled — otherwise the view
+	// looks correct on the first frame but drifts to the top a moment later.
+	await wait_for_scroll_settle(page)
+
+	expect(await distance_from_bottom(page)).toBeLessThanOrEqual(SCROLL_BOTTOM_TOLERANCE)
 })
 
 test('is a full-height app view: no site footer, and the viewport resizes for the keyboard', async ({
