@@ -14,6 +14,7 @@ const MARKDOWN_ANSWER = 'use `queue` and **kit**, see [docs](https://example.com
 const STREAMED_MARKDOWN = 'use `queue` and **kit**'
 const CHAT_ENDPOINT = '**/api/chat'
 const EVENT_STREAM_CONTENT_TYPE = 'text/event-stream'
+const FOLLOW_UP = 'Tell me more about that.'
 const CHAT_EMPTY = 'chat-empty'
 const DESKTOP_WIDTH = 1280
 const DESKTOP_HEIGHT = 800
@@ -125,6 +126,41 @@ test('renders assistant markdown as formatted html, not raw syntax', async ({ pa
 	)
 
 	expect(await messages.innerText()).not.toContain('`')
+})
+
+test('sends the recent conversation history with a follow-up question', async ({ page }) => {
+	let captured_body: unknown = undefined
+
+	await page.route(CHAT_ENDPOINT, async (route) => {
+		captured_body = route.request().postDataJSON()
+
+		const delta = JSON.stringify({ choices: [{ delta: { content: 'ok' } }] })
+
+		await route.fulfill({
+			status: 200,
+			headers: { 'content-type': EVENT_STREAM_CONTENT_TYPE },
+			body: `data: ${delta}\n\ndata: [DONE]\n\n`,
+		})
+	})
+
+	await page.goto('/chat')
+	await seed_conversation(page)
+	await page.reload()
+
+	await page.getByTestId(CHAT_INPUT).fill(FOLLOW_UP)
+	await page.getByTestId(CHAT_SEND).click()
+
+	await expect(page.getByTestId(CHAT_MESSAGE_ASSISTANT).last()).toContainText('ok')
+
+	// The follow-up resolves against prior turns because the request now carries the earlier
+	// question and answer, not just the latest message.
+	expect(captured_body).toEqual({
+		messages: [
+			{ role: 'user', content: PERSISTED_QUESTION },
+			{ role: 'assistant', content: PERSISTED_ANSWER },
+			{ role: 'user', content: FOLLOW_UP },
+		],
+	})
 })
 
 test('renders a streamed reply as formatted markdown once the stream completes', async ({

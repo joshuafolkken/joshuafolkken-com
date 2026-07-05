@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { afterNavigate } from '$app/navigation'
 	import { chat_api } from '$lib/api/chat-api'
+	import { chat_history } from '$lib/api/chat-history'
 	import { APP, AUTHOR } from '$lib/app'
 	import MetaTags from '$lib/components/MetaTags.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
@@ -138,9 +139,13 @@
 		did_stream = is_streaming
 	})
 
-	async function respond(question: string, index: number): Promise<void> {
+	async function respond(index: number): Promise<void> {
+		// The window is read after start_exchange, so it already includes this turn's question and
+		// excludes the empty assistant placeholder that build_request_messages filters out.
+		const messages = chat_history.build_request_messages(chat_state.get_messages())
+
 		try {
-			await chat_api.ask(question, (token) => {
+			await chat_api.ask(messages, (token) => {
 				chat_state.append(index, token)
 			})
 
@@ -162,7 +167,7 @@
 		streaming_index = index
 
 		try {
-			await respond(question, index)
+			await respond(index)
 		} finally {
 			// Clearing the index flips the reply from plain streaming text to parsed Markdown.
 			streaming_index = NO_STREAM_INDEX
