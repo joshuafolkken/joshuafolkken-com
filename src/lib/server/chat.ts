@@ -1,18 +1,10 @@
 // Generation model, retrieval thresholds, query rewrite, and the system prompt are configured on
 // the AI Search instance (dashboard) — the single source of truth. Overriding them here diverged
 // production from the Playground (Japanese questions answered in English, no citations); see #675.
-type SearchChunks = AiSearchSearchResponse['chunks']
-
-async function retrieve(ai_search: AiSearchInstance, question: string): Promise<SearchChunks> {
-	const { chunks } = await ai_search.search({ query: question })
-
-	return chunks
-}
-
-function is_grounded(chunks: SearchChunks): boolean {
-	return chunks.length > 0
-}
-
+//
+// A single retrieval per request: chatCompletions retrieves and generates in one pass, so grounding
+// is decided by the same search that produces the answer (no separate pre-stream search that could
+// diverge from it) and off-topic questions are handled in-band by the dashboard system prompt; #665.
 async function stream_answer(
 	ai_search: AiSearchInstance,
 	question: string,
@@ -24,8 +16,6 @@ async function stream_answer(
 }
 
 const chat = {
-	retrieve,
-	is_grounded,
 	stream_answer,
 }
 
