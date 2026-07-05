@@ -1,5 +1,6 @@
 import { chat_history, type ChatRequestMessage } from '$lib/api/chat-history'
 import { CONTENT_TYPE, ERROR_MESSAGES, HTTP_HEADERS, HTTP_STATUS } from '$lib/constants/http'
+import { chat_log_payload } from '$lib/hooks/chat-log-payload'
 import { logger } from '$lib/logger'
 import { chat } from '$lib/server/chat'
 import { platform_binding } from '$lib/server/platform-binding'
@@ -18,16 +19,16 @@ interface ChatRequestBody {
 	messages?: unknown
 }
 
-function is_chat_request_body(value: unknown): value is ChatRequestBody {
+function is_non_null_object(value: unknown): boolean {
 	return typeof value === 'object' && value !== null
+}
+
+function is_chat_request_body(value: unknown): value is ChatRequestBody {
+	return is_non_null_object(value)
 }
 
 function has_message_fields(value: unknown): value is Record<'role' | 'content', unknown> {
-	return typeof value === 'object' && value !== null
-}
-
-function is_role(value: unknown): boolean {
-	return value === 'user' || value === 'assistant'
+	return is_non_null_object(value)
 }
 
 function is_content(value: unknown): boolean {
@@ -35,7 +36,7 @@ function is_content(value: unknown): boolean {
 }
 
 function is_request_message(item: unknown): item is ChatRequestMessage {
-	return has_message_fields(item) && is_role(item.role) && is_content(item.content)
+	return has_message_fields(item) && chat_log_payload.is_role(item.role) && is_content(item.content)
 }
 
 function has_valid_length(messages: Array<unknown>): boolean {

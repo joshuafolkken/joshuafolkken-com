@@ -25,7 +25,7 @@ function parse(raw: string): Array<ChatMessage> {
 	return parse_json_array(raw, is_chat_message, 'Failed to parse chat log:')
 }
 
-const chat_log_payload = { parse }
+const chat_log_payload = { parse, is_role }
 
 export { chat_log_payload }
 export type { ChatMessage, ChatRole }

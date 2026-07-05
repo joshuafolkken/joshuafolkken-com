@@ -1,3 +1,4 @@
+import { CHAT_LABELS } from '$lib/constants/chat'
 import type { ChatMessage } from '$lib/hooks/chat-log-payload'
 import { describe, expect, it } from 'vitest'
 import { chat_history } from './chat-history'
@@ -64,5 +65,16 @@ describe('chat_history.build_request_messages window bounds', () => {
 		const result = chat_history.build_request_messages(log)
 
 		expect(result[1]?.content).toHaveLength(chat_history.MAX_CONTENT_CHARS)
+	})
+
+	it('excludes client-side status labels so they are not replayed as real assistant history', () => {
+		const log = [user('q'), assistant(CHAT_LABELS.ERROR), user('follow-up')]
+
+		const result = chat_history.build_request_messages(log)
+
+		expect(result).toEqual([
+			{ role: 'user', content: 'q' },
+			{ role: 'user', content: 'follow-up' },
+		])
 	})
 })
