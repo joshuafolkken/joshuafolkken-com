@@ -34,4 +34,27 @@ describe('blog_parser.parse_post', () => {
 
 		expect(result).toBeUndefined()
 	})
+
+	it('includes youtube in parsed post when frontmatter has youtube', () => {
+		const youtube_url = 'https://www.youtube.com/watch?v=UI3-GR6yvjY'
+		const file = { metadata: { ...BASE_FILE.metadata, youtube: youtube_url } }
+
+		const result = blog_parser.parse_post(TEST_PATH, file)
+
+		expect(result?.youtube).toBe(youtube_url)
+	})
+
+	it('sets youtube to undefined when frontmatter has no youtube', () => {
+		const result = blog_parser.parse_post(TEST_PATH, BASE_FILE)
+
+		expect(result?.youtube).toBeUndefined()
+	})
+
+	it('returns undefined when youtube is a non-string value', () => {
+		const file = { metadata: { ...BASE_FILE.metadata, youtube: 42 } }
+
+		const result = blog_parser.parse_post(TEST_PATH, file)
+
+		expect(result).toBeUndefined()
+	})
 })
