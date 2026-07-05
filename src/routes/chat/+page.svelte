@@ -48,13 +48,43 @@
 		is_at_bottom = distance <= SCROLL_BOTTOM_THRESHOLD
 	}
 
+	function pin_to_bottom(): void {
+		window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' })
+		is_at_bottom = true
+	}
+
+	function handle_resize(): void {
+		// A software keyboard opening (Android's interactive-widget=resizes-content, or iOS via the
+		// visualViewport resize below) shrinks the viewport under a conversation that was pinned to the
+		// bottom, sliding the newest message out of view above the input. Capture the pinned state before
+		// recomputing, then re-pin instantly so the bottom stays put. A user who had scrolled up to read
+		// history is left where they were.
+		const should_repin = is_at_bottom
+
+		sync_is_at_bottom()
+
+		if (should_repin) pin_to_bottom()
+	}
+
+	$effect(() => {
+		// <svelte:window> only exposes the layout-viewport resize; iOS Safari shrinks the visual viewport
+		// for the keyboard without firing that, so listen to visualViewport directly as well.
+		const viewport = window.visualViewport
+
+		viewport?.addEventListener('resize', handle_resize)
+
+		return () => {
+			viewport?.removeEventListener('resize', handle_resize)
+		}
+	})
+
 	afterNavigate(() => {
 		// The page scrolls smoothly by default (html { scroll-behavior: smooth }); on display, force an
 		// instant jump so a returning visitor opens at the bottom of their restored history rather than
 		// watching it animate down from the top. afterNavigate runs after SvelteKit resets scroll on a
 		// client-side navigation, so the jump also survives arriving here from another page (not just reload).
 		if (chat_state.get_messages().length > 0) {
-			window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' })
+			pin_to_bottom()
 		}
 	})
 
@@ -122,7 +152,7 @@
 	}
 </script>
 
-<svelte:window onscroll={sync_is_at_bottom} onresize={sync_is_at_bottom} />
+<svelte:window onscroll={sync_is_at_bottom} onresize={handle_resize} />
 
 <svelte:head>
 	<title>{PAGE_TITLE}</title>

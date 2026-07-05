@@ -22,6 +22,8 @@ const MOBILE_WIDTH = 390
 const MOBILE_HEIGHT = 800
 // The input sits ~1rem above the bottom (same as mobile); guard against a large floating gap.
 const MAX_BOTTOM_GAP = 48
+// Viewport height after the software keyboard shrinks it (well under DESKTOP_HEIGHT).
+const HEIGHT_WITH_KEYBOARD = 460
 const LONG_MESSAGE_COUNT = 40
 // On page display the view must already sit at the bottom; allow only sub-pixel rounding slack.
 const SCROLL_BOTTOM_TOLERANCE = 8
@@ -210,6 +212,31 @@ async function open_long_conversation(page: Page): Promise<void> {
 	})
 	await wait_for_scroll_settle(page)
 }
+
+test('pins the newest message to the bottom when the keyboard opens', async ({ page }) => {
+	await open_long_conversation(page)
+
+	// The software keyboard opening shrinks the layout viewport (interactive-widget=resizes-content).
+	await page.setViewportSize({ width: DESKTOP_WIDTH, height: HEIGHT_WITH_KEYBOARD })
+	await wait_for_scroll_settle(page)
+
+	// The bottom stays put: the newest message remains in view above the input.
+	expect(await distance_from_bottom(page)).toBeLessThanOrEqual(SCROLL_BOTTOM_TOLERANCE)
+})
+
+test('keeps a user reading earlier history in place when the keyboard opens', async ({ page }) => {
+	await open_long_conversation(page)
+	await scroll_window_to_top(page)
+
+	// Wait for the scrolled-away state to register before the keyboard shrinks the viewport.
+	await expect(page.getByTestId(CHAT_SCROLL_BOTTOM)).toBeVisible()
+
+	await page.setViewportSize({ width: DESKTOP_WIDTH, height: HEIGHT_WITH_KEYBOARD })
+	await wait_for_scroll_settle(page)
+
+	// Opening the keyboard must not yank a user who scrolled up down to the newest message.
+	expect(await distance_from_bottom(page)).toBeGreaterThan(SCROLL_BOTTOM_TOLERANCE)
+})
 
 test('shows the scroll-to-bottom button only when scrolled away from the bottom', async ({
 	page,
