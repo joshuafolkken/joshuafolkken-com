@@ -3,17 +3,19 @@ import { describe, expect, it } from 'vitest'
 import { markdown } from './markdown'
 
 const LINK_URL = 'https://example.com'
+const CODE_QUEUE_HTML = '<code>queue</code>'
+const STRONG_KIT_HTML = '<strong>kit</strong>'
 
 describe('markdown.to_html', () => {
 	it('renders inline code without literal backticks', () => {
 		const html = markdown.to_html('use `queue` now')
 
-		expect(html).toContain('<code>queue</code>')
+		expect(html).toContain(CODE_QUEUE_HTML)
 		expect(html).not.toContain('`')
 	})
 
 	it('renders bold text', () => {
-		expect(markdown.to_html('**kit**')).toContain('<strong>kit</strong>')
+		expect(markdown.to_html('**kit**')).toContain(STRONG_KIT_HTML)
 	})
 
 	it('strips script tags', () => {
@@ -27,6 +29,20 @@ describe('markdown.to_html', () => {
 
 		expect(html).not.toContain('onerror')
 		expect(html.toLowerCase()).not.toContain(scheme)
+	})
+})
+
+describe('markdown.to_html renders streaming snapshots safely', () => {
+	it('formats closed markup and leaves an unclosed marker as text without throwing', () => {
+		// A mid-stream snapshot where the bold marker has not been closed yet.
+		const html = markdown.to_html('use `queue` and **ki')
+
+		expect(html).toContain(CODE_QUEUE_HTML)
+		expect(html).not.toContain('<strong>')
+	})
+
+	it('formats bold once the closing marker arrives in a later snapshot', () => {
+		expect(markdown.to_html('use `queue` and **kit**')).toContain(STRONG_KIT_HTML)
 	})
 })
 

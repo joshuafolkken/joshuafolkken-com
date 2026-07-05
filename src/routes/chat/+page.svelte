@@ -38,10 +38,16 @@
 	let input_el = $state<HTMLInputElement>()
 	let is_at_bottom = $state(true)
 	let streaming_index = $state(NO_STREAM_INDEX)
+	// Parsed HTML of the reply that is currently streaming. Re-parsing the growing Markdown per token is
+	// O(n^2), so parse_streaming below throttles it to one parse per frame instead.
+	let streaming_html = $state('')
 
 	let has_rendered_once = false
 	// Tracks the previous streaming state so the plain -> Markdown flip can trigger a follow-scroll.
 	let did_stream = false
+	// False until the streaming reply has been parsed once this exchange, so the first token is parsed
+	// synchronously (no blank frame) while every later token is throttled to one parse per frame.
+	let did_parse_stream = false
 	// Distance in px from the bottom of the page, cached on every scroll so a viewport resize (software
 	// keyboard) can restore it and keep the same content in view rather than letting the keyboard cover it.
 	let bottom_distance = 0
@@ -59,6 +65,14 @@
 	const follow_bottom = scheduling.raf_throttle(() => {
 		window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' })
 	})
+
+	function render_streaming(): void {
+		streaming_html = markdown.to_html(chat_state.get_messages()[streaming_index]?.text ?? '')
+	}
+
+	// Re-parse the streaming reply at most once per frame: a fast token stream schedules this many times,
+	// but marked/DOMPurify run only on the next frame, keeping the parse count off the token count.
+	const parse_streaming = scheduling.raf_throttle(render_streaming)
 
 	function sync_is_at_bottom(): void {
 		bottom_distance = document.documentElement.scrollHeight - window.innerHeight - window.scrollY
@@ -139,6 +153,23 @@
 		did_stream = is_streaming
 	})
 
+	$effect(() => {
+		// Reading the streaming reply's text length registers a dependency so each appended token re-runs
+		// this effect; when nothing streams there is no dependency.
+		if (streaming_index === NO_STREAM_INDEX) return
+
+		const streaming_message = chat_state.get_messages()[streaming_index]
+
+		if (!streaming_message || streaming_message.text.length === 0) return
+
+		// Parse the first token synchronously (flushes before paint, so no blank frame between the dots
+		// turning off and the first parse); throttle every later token to one parse per frame.
+		if (did_parse_stream) parse_streaming.schedule()
+		else render_streaming()
+
+		did_parse_stream = true
+	})
+
 	async function respond(index: number): Promise<void> {
 		// The window is read after start_exchange, so it already includes this turn's question and
 		// excludes the empty assistant placeholder that build_request_messages filters out.
@@ -164,6 +195,10 @@
 		is_loading = true
 		const index = chat_state.start_exchange(question)
 
+		// Drop the previous reply's parsed HTML so its formatted body cannot flash in this new bubble
+		// before the first token of this reply is parsed.
+		streaming_html = ''
+		did_parse_stream = false
 		streaming_index = index
 
 		try {
@@ -230,9 +265,10 @@
 									<span class={DOT_CLASS}></span>
 								</span>
 							{:else if index === streaming_index}
-								<!-- While streaming, show raw text; re-parsing the growing Markdown per
-								token is O(n^2). It is parsed once, on completion, in the branch below. -->
-								<p class={TEXT_CLASS}>{message.text}</p>
+								<!-- Live-formatted while streaming; parse_streaming throttles the Markdown parse
+								to one run per frame so the growing text is not re-parsed per token (O(n^2)). -->
+								<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+								<div class={MARKDOWN_CLASS}>{@html streaming_html}</div>
 							{:else}
 								<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 								<div class={MARKDOWN_CLASS}>{@html markdown.to_html(message.text)}</div>

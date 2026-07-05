@@ -12,6 +12,11 @@ const PERSISTED_QUESTION = 'What did I ask before?'
 const PERSISTED_ANSWER = 'This is the remembered answer.'
 const MARKDOWN_ANSWER = 'use `queue` and **kit**, see [docs](https://example.com)'
 const STREAMED_MARKDOWN = 'use `queue` and **kit**'
+// A tail chunk held back until the test releases it, so a still-streaming frame is observable first.
+// A real word absent from the first chunk, so it is unambiguous whether the tail has arrived yet.
+const STREAM_TAIL = 'Afterward'
+// Window flag the test sets to release the held-back tail chunk (see install_streaming_fetch).
+const STREAM_RELEASE_FLAG = '__release_chat_stream'
 const CHAT_ENDPOINT = '**/api/chat'
 const EVENT_STREAM_CONTENT_TYPE = 'text/event-stream'
 const FOLLOW_UP = 'Tell me more about that.'
@@ -31,6 +36,80 @@ async function mock_chat_stream(page: Page, content: string): Promise<void> {
 			body: `data: ${delta}\n\ndata: [DONE]\n\n`,
 		})
 	})
+}
+
+interface StreamingFetchConfig {
+	chunks: Array<string>
+	endpoint: string
+	content_type: string
+	release_flag: string
+}
+
+// Runs in the browser (serialized by addInitScript). Replaces fetch for the chat endpoint with a real
+// ReadableStream that emits the first chunk, then holds the rest until the test sets globalThis[release_flag].
+// Gating on an explicit flag (not a timer) makes the still-streaming frame observable deterministically —
+// route.fulfill cannot pause mid-body, hence the fetch stub.
+function install_streaming_fetch(config: StreamingFetchConfig): void {
+	const { chunks, endpoint, content_type, release_flag } = config
+	const POLL_MS = 25
+	const encoder = new TextEncoder()
+	const original_fetch = fetch.bind(globalThis)
+
+	function encode_delta(content: string): Uint8Array {
+		return encoder.encode(`data: ${JSON.stringify({ choices: [{ delta: { content } }] })}\n\n`)
+	}
+
+	async function wait_for_release(): Promise<void> {
+		await new Promise<void>((resolve) => {
+			function poll(): void {
+				if (Reflect.get(globalThis, release_flag)) resolve()
+				else setTimeout(poll, POLL_MS)
+			}
+
+			poll()
+		})
+	}
+
+	// eslint-disable-next-line unicorn/no-global-object-property-assignment -- test stub must replace fetch
+	globalThis.fetch = async (input, init) => {
+		// The client posts to the exact string '/api/chat'; matching only that string never constructs a
+		// Request or reads a body, so no other fetch on the page is disturbed.
+		if (typeof input !== 'string' || input !== endpoint) return await original_fetch(input, init)
+
+		const body = new ReadableStream({
+			async start(controller) {
+				const [head, ...tail] = chunks
+
+				controller.enqueue(encode_delta(head ?? ''))
+				await wait_for_release()
+
+				for (const chunk of tail) controller.enqueue(encode_delta(chunk))
+
+				controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+				controller.close()
+			},
+		})
+
+		return new Response(body, { status: 200, headers: { 'content-type': content_type } })
+	}
+}
+
+async function mock_streaming_chat(
+	page: Page,
+	stream_chunks: Array<string>,
+	release_flag: string,
+): Promise<void> {
+	await page.addInitScript(install_streaming_fetch, {
+		chunks: stream_chunks,
+		endpoint: '/api/chat',
+		content_type: EVENT_STREAM_CONTENT_TYPE,
+		release_flag,
+	})
+}
+
+async function send_question(page: Page, question: string): Promise<void> {
+	await page.getByTestId(CHAT_INPUT).fill(question)
+	await page.getByTestId(CHAT_SEND).click()
 }
 
 async function seed_conversation(page: Page): Promise<void> {
@@ -179,6 +258,28 @@ test('renders a streamed reply as formatted markdown once the stream completes',
 	await expect(messages.locator('strong', { hasText: 'kit' })).toBeVisible()
 
 	expect(await messages.innerText()).not.toContain('`')
+})
+
+test('formats the reply live while it is still streaming', async ({ page }) => {
+	// First chunk carries bold markup; the tail chunk is held back until the test releases it.
+	await mock_streaming_chat(page, [STREAMED_MARKDOWN, ` ${STREAM_TAIL}`], STREAM_RELEASE_FLAG)
+	await page.goto('/chat')
+	await send_question(page, 'hello')
+
+	const messages = page.getByTestId(CHAT_MESSAGES)
+
+	// The first chunk's bold renders as a real element while the reply is still streaming. The tail is
+	// gated, so its absence here is deterministic — the old raw-text-while-streaming render only formatted
+	// after completion, when the tail would already be present, so this assertion would fail against it.
+	await expect(messages.locator('strong', { hasText: 'kit' })).toBeVisible()
+	await expect(messages).not.toContainText(STREAM_TAIL)
+
+	// Release the held-back tail; the stream then completes with the full, still-formatted text intact.
+	await page.evaluate((flag) => Reflect.set(globalThis, flag, true), STREAM_RELEASE_FLAG)
+
+	await expect(messages).toContainText(STREAM_TAIL)
+	await expect(messages.locator('strong', { hasText: 'kit' })).toBeVisible()
+	expect(await messages.innerText()).not.toContain('**')
 })
 
 const EMPTY_BOX = { x: 0, y: 0, width: 0, height: 0 }
