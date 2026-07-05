@@ -11,11 +11,26 @@ const STORAGE_KEY = 'chat_log'
 const PERSISTED_QUESTION = 'What did I ask before?'
 const PERSISTED_ANSWER = 'This is the remembered answer.'
 const MARKDOWN_ANSWER = 'use `queue` and **kit**, see [docs](https://example.com)'
+const STREAMED_MARKDOWN = 'use `queue` and **kit**'
+const CHAT_ENDPOINT = '**/api/chat'
+const EVENT_STREAM_CONTENT_TYPE = 'text/event-stream'
 const CHAT_EMPTY = 'chat-empty'
 const DESKTOP_WIDTH = 1280
 const DESKTOP_HEIGHT = 800
 // A full-width AI reply may fall a hair short of the column width only from sub-pixel rounding.
 const FULL_WIDTH_TOLERANCE = 2
+
+async function mock_chat_stream(page: Page, content: string): Promise<void> {
+	await page.route(CHAT_ENDPOINT, async (route) => {
+		const delta = JSON.stringify({ choices: [{ delta: { content } }] })
+
+		await route.fulfill({
+			status: 200,
+			headers: { 'content-type': EVENT_STREAM_CONTENT_TYPE },
+			body: `data: ${delta}\n\ndata: [DONE]\n\n`,
+		})
+	})
+}
 
 async function seed_conversation(page: Page): Promise<void> {
 	await page.evaluate(
@@ -108,6 +123,24 @@ test('renders assistant markdown as formatted html, not raw syntax', async ({ pa
 		'href',
 		/example\.com/u,
 	)
+
+	expect(await messages.innerText()).not.toContain('`')
+})
+
+test('renders a streamed reply as formatted markdown once the stream completes', async ({
+	page,
+}) => {
+	await mock_chat_stream(page, STREAMED_MARKDOWN)
+	await page.goto('/chat')
+
+	await page.getByTestId(CHAT_INPUT).fill('hello')
+	await page.getByTestId(CHAT_SEND).click()
+
+	const messages = page.getByTestId(CHAT_MESSAGES)
+
+	// After the stream completes the raw Markdown is parsed: inline code and bold become real elements.
+	await expect(messages.locator('code', { hasText: 'queue' })).toBeVisible()
+	await expect(messages.locator('strong', { hasText: 'kit' })).toBeVisible()
 
 	expect(await messages.innerText()).not.toContain('`')
 })
