@@ -31,6 +31,13 @@ const CHAT_URL = 'http://localhost/api/chat'
 const JSON_CONTENT_TYPE = 'application/json'
 const QUESTION = 'Who is the author?'
 const EVENT_STREAM = 'text/event-stream'
+const VALID_MESSAGES = [
+	{ role: 'user', content: 'Earlier question' },
+	{ role: 'assistant', content: 'Earlier answer' },
+	{ role: 'user', content: QUESTION },
+]
+const OVER_LENGTH_QUESTION = 'x'.repeat(501)
+const WHITESPACE_QUESTION = ' '.repeat(3)
 
 function make_post_event(
 	body: Record<string, unknown>,
@@ -59,30 +66,57 @@ describe('POST /api/chat', () => {
 
 		vi.mocked(security.validate_request_security).mockResolvedValue(rejection)
 
-		const response = await POST(make_post_event({ question: QUESTION }))
+		const response = await POST(make_post_event({ messages: VALID_MESSAGES }))
 
 		expect(response.status).toBe(HTTP_STATUS.FORBIDDEN)
 	})
 
-	it('rejects an empty question', async () => {
-		const response = await POST(make_post_event({ question: '' }))
-
-		expect(response.status).toBe(HTTP_STATUS.BAD_REQUEST)
-	})
-
-	it('streams the answer directly for a valid question, with a single retrieval', async () => {
-		const response = await POST(make_post_event({ question: QUESTION }))
+	it('streams the answer for a valid history, forwarding it with a single retrieval', async () => {
+		const response = await POST(make_post_event({ messages: VALID_MESSAGES }))
 
 		expect(response.headers.get('Content-Type')).toContain(EVENT_STREAM)
 		// One generation call, no separate pre-stream grounding search: a single retrieval per request.
 		expect(chat.stream_answer).toHaveBeenCalledOnce()
+		expect(chat.stream_answer).toHaveBeenCalledWith(expect.anything(), VALID_MESSAGES)
 	})
 
 	it('returns a server error when the answer stream cannot be created', async () => {
 		vi.mocked(chat.stream_answer).mockRejectedValue(new Error('ai search down'))
 
-		const response = await POST(make_post_event({ question: QUESTION }))
+		const response = await POST(make_post_event({ messages: VALID_MESSAGES }))
 
 		expect(response.status).toBe(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+	})
+})
+
+describe('POST /api/chat validation', () => {
+	it('rejects an empty message list', async () => {
+		const response = await POST(make_post_event({ messages: [] }))
+
+		expect(response.status).toBe(HTTP_STATUS.BAD_REQUEST)
+	})
+
+	it('rejects a whitespace-only final question', async () => {
+		const response = await POST(
+			make_post_event({ messages: [{ role: 'user', content: WHITESPACE_QUESTION }] }),
+		)
+
+		expect(response.status).toBe(HTTP_STATUS.BAD_REQUEST)
+	})
+
+	it('rejects when the final turn is not a user message', async () => {
+		const response = await POST(
+			make_post_event({ messages: [{ role: 'assistant', content: 'orphan reply' }] }),
+		)
+
+		expect(response.status).toBe(HTTP_STATUS.BAD_REQUEST)
+	})
+
+	it('rejects when the final question exceeds the length limit', async () => {
+		const response = await POST(
+			make_post_event({ messages: [{ role: 'user', content: OVER_LENGTH_QUESTION }] }),
+		)
+
+		expect(response.status).toBe(HTTP_STATUS.BAD_REQUEST)
 	})
 })

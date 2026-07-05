@@ -1,7 +1,9 @@
 import { parse_json_array } from '$lib/utils/parse-json-array'
 
+type ChatRole = 'user' | 'assistant'
+
 interface ChatMessage {
-	role: 'user' | 'assistant'
+	role: ChatRole
 	text: string
 }
 
@@ -9,7 +11,7 @@ function has_message_fields(value: unknown): value is Record<'role' | 'text', un
 	return typeof value === 'object' && value !== null
 }
 
-function is_role(value: unknown): boolean {
+function is_role(value: unknown): value is ChatRole {
 	return value === 'user' || value === 'assistant'
 }
 
@@ -23,7 +25,7 @@ function parse(raw: string): Array<ChatMessage> {
 	return parse_json_array(raw, is_chat_message, 'Failed to parse chat log:')
 }
 
-const chat_log_payload = { parse }
+const chat_log_payload = { parse, is_role }
 
 export { chat_log_payload }
-export type { ChatMessage }
+export type { ChatMessage, ChatRole }

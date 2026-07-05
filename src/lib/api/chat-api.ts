@@ -1,5 +1,6 @@
 import { APP } from '$lib/app'
 import { CONTENT_TYPE, HTTP_HEADERS } from '$lib/constants/http'
+import type { ChatRequestMessage } from './chat-history'
 
 const CHAT_ENDPOINT = '/api/chat'
 const SSE_DATA_PREFIX = 'data:'
@@ -77,14 +78,17 @@ async function consume_stream(response: Response, on_token: TokenHandler): Promi
 	handle_line(buffer + decoder.decode(), on_token)
 }
 
-async function ask(question: string, on_token: TokenHandler): Promise<AskOutcome> {
+async function ask(
+	messages: Array<ChatRequestMessage>,
+	on_token: TokenHandler,
+): Promise<AskOutcome> {
 	const response = await fetch(CHAT_ENDPOINT, {
 		method: 'POST',
 		headers: {
 			[HTTP_HEADERS.CONTENT_TYPE]: CONTENT_TYPE.JSON,
 			[HTTP_HEADERS.X_APP_CLIENT]: APP.ID,
 		},
-		body: JSON.stringify({ question }),
+		body: JSON.stringify({ messages }),
 	})
 
 	if (!response.ok) throw new Error(`Chat request failed: ${String(response.status)}`)
