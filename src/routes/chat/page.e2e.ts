@@ -12,7 +12,8 @@ const CHAT_MESSAGE_ASSISTANT = 'chat-message-assistant'
 const STORAGE_KEY = 'chat_log'
 const PERSISTED_QUESTION = 'What did I ask before?'
 const PERSISTED_ANSWER = 'This is the remembered answer.'
-const MARKDOWN_ANSWER = 'use `queue` and **kit**, see [docs](https://example.com)'
+const CODE_LINK_URL = 'https://example.com/kit'
+const MARKDOWN_ANSWER = `use \`queue\` and **kit**, see [docs](https://example.com) and \`${CODE_LINK_URL}\``
 const STREAMED_MARKDOWN = 'use `queue` and **kit**'
 // A tail chunk held back until the test releases it, so a still-streaming frame is observable first.
 // A real word absent from the first chunk, so it is unambiguous whether the tail has arrived yet.
@@ -254,6 +255,10 @@ test('renders assistant markdown as formatted html, not raw syntax', async ({ pa
 	await expect(messages.getByRole('link', { name: 'docs' })).toHaveAttribute(
 		'href',
 		/example\.com/u,
+	)
+	await expect(messages.locator('code a', { hasText: CODE_LINK_URL })).toHaveAttribute(
+		'href',
+		CODE_LINK_URL,
 	)
 
 	expect(await messages.innerText()).not.toContain('`')
