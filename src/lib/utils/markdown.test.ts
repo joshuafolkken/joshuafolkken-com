@@ -5,6 +5,8 @@ import { markdown } from './markdown'
 const LINK_URL = 'https://example.com'
 const CODE_QUEUE_HTML = '<code>queue</code>'
 const STRONG_KIT_HTML = '<strong>kit</strong>'
+const TARGET_BLANK = 'target="_blank"'
+const REL_NOOPENER = 'rel="noopener noreferrer"'
 
 describe('markdown.to_html', () => {
 	it('renders inline code without literal backticks', () => {
@@ -52,12 +54,47 @@ describe('markdown.to_html links', () => {
 
 		expect(html).toContain(`href="${LINK_URL}"`)
 		expect(html).toContain('>docs</a>')
-		expect(html).toContain('target="_blank"')
-		expect(html).toContain('rel="noopener noreferrer"')
+		expect(html).toContain(TARGET_BLANK)
+		expect(html).toContain(REL_NOOPENER)
 	})
 
 	it('autolinks a bare url', () => {
 		expect(markdown.to_html(`see ${LINK_URL}`)).toContain(`href="${LINK_URL}"`)
+	})
+})
+
+describe('markdown.to_html links code spans', () => {
+	it('links a bare url inside backticks, keeping code styling and safe attributes', () => {
+		const html = markdown.to_html(`\`${LINK_URL}\``)
+
+		expect(html).toContain(`<code><a href="${LINK_URL}"`)
+		expect(html).toContain(`>${LINK_URL}</a></code>`)
+		expect(html).toContain(TARGET_BLANK)
+		expect(html).toContain(REL_NOOPENER)
+	})
+
+	it('links a markdown link inside backticks', () => {
+		const html = markdown.to_html(`\`[docs](${LINK_URL})\``)
+
+		expect(html).toContain(`href="${LINK_URL}"`)
+		expect(html).toContain('>docs</a></code>')
+	})
+
+	it('leaves a non-url code span as plain escaped code', () => {
+		const html = markdown.to_html('use `queue` and `<b>&`')
+
+		expect(html).toContain(CODE_QUEUE_HTML)
+		expect(html).toContain('<code>&lt;b&gt;&amp;</code>')
+		expect(html).not.toContain('<a')
+	})
+
+	it('keeps the href of a backtick-delimited url with a non-ascii path', () => {
+		const non_ascii_url = 'https://ja.wikipedia.org/wiki/日本語'
+		const html = markdown.to_html(`\`${non_ascii_url}\``)
+
+		// The url is bounded by the backticks, so the leaked-text guard must not strip its href.
+		expect(html).toContain(`<code><a href="${non_ascii_url}"`)
+		expect(html).toContain(TARGET_BLANK)
 	})
 })
 
