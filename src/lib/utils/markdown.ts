@@ -1,5 +1,6 @@
 import DOMPurify from 'dompurify'
 import { marked, type TokenizerAndRendererExtension, type Tokens } from 'marked'
+import { markup } from './escape'
 
 // A URL written in Markdown is ASCII, so the first non-ASCII character marks where the following
 // Japanese text — a sentence, or punctuation that ends one — begins.
@@ -52,6 +53,50 @@ const bounded_url_extension: TokenizerAndRendererExtension = {
 	tokenizer: bounded_url_tokenizer,
 }
 
+// A code span whose whole content is a bare URL, or a [label](url) markdown link. The model often cites
+// documents inside backticks, where the URL is inert; linkify those so the citation stays clickable.
+const CODE_URL = /^(https?:\/\/[^\s<]+)$/u
+const CODE_MD_LINK = /^\[([^\]]+)\]\((https?:\/\/[^\s<)]+)\)$/u
+
+// marked 18 hands the codespan renderer the raw code text, so escape it with the shared markup helper —
+// which encodes every &, < > " ' exactly as marked's default codespan does — before it reaches {@html}.
+function linked_code(href: string, label: string): string {
+	return `<code><a href="${markup.escape(href)}">${markup.escape(label)}</a></code>`
+}
+
+function url_code_link(text: string): string | undefined {
+	const match = CODE_URL.exec(text)
+	if (!match) return undefined
+
+	return match[1]
+}
+
+function md_code_link(text: string): [string, string] | undefined {
+	const match = CODE_MD_LINK.exec(text)
+	if (!match) return undefined
+
+	const [, label, href] = match
+	if (label === undefined || href === undefined) return undefined
+
+	return [href, label]
+}
+
+// Keep the code styling but make the URL/link clickable; every non-link code span renders exactly as
+// marked's default. harden_link (below) later adds target/rel and drops any leaked-text href.
+function codespan_html(text: string): string {
+	const url = url_code_link(text)
+	if (url) return linked_code(url, url)
+
+	const md_link = md_code_link(text)
+	if (md_link) return linked_code(md_link[0], md_link[1])
+
+	return `<code>${markup.escape(text)}</code>`
+}
+
+function codespan_renderer(token: Tokens.Codespan): string {
+	return codespan_html(token.text)
+}
+
 // LLM answers are untrusted input rendered via {@html}; every link must open safely in a new tab. An
 // inline [label](target) link whose target absorbed a sentence (the tokenizer above only covers bare
 // URLs) has an unusable href, so drop it — the label stays as text and no link points at garbage.
@@ -69,7 +114,7 @@ function harden_link(node: Element): void {
 // to_html is only ever called client-side, so registering the hook behind a window guard is safe.
 if ('window' in globalThis) {
 	DOMPurify.addHook('afterSanitizeAttributes', harden_link)
-	marked.use({ extensions: [bounded_url_extension] })
+	marked.use({ extensions: [bounded_url_extension], renderer: { codespan: codespan_renderer } })
 }
 
 // Render Markdown from the AI chat model to HTML. The bounded_url extension keeps marked from swallowing
