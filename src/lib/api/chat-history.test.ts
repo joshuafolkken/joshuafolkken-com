@@ -51,11 +51,19 @@ describe('chat_history.build_request_messages window bounds', () => {
 	})
 
 	it('drops leading assistant turns so the window starts with a user message', () => {
-		// Nine turns: slice(-8) begins on a1 (an assistant turn), which must be trimmed off the front.
-		const result = chat_history.build_request_messages(alternating_log(9))
+		// One turn past the cap: slice(-cap) begins on a1 (an assistant turn), which must be trimmed off
+		// the front. Deriving the length from the cap keeps this valid whatever MAX_HISTORY_MESSAGES is.
+		const result = chat_history.build_request_messages(
+			alternating_log(chat_history.MAX_HISTORY_MESSAGES + 1),
+		)
 
 		expect(result.at(0)).toEqual({ role: 'user', content: 'u2' })
 		expect(result.every((message, index) => index > 0 || message.role === 'user')).toBe(true)
+	})
+
+	it('pins the cost-lever caps so an accidental increase re-inflates request tokens', () => {
+		expect(chat_history.MAX_HISTORY_MESSAGES).toBe(4)
+		expect(chat_history.MAX_CONTENT_CHARS).toBe(2000)
 	})
 
 	it('truncates an over-long turn so a verbose prior answer never bloats the request', () => {
