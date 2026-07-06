@@ -4,10 +4,10 @@ import type { ChatMessage, ChatRole } from '$lib/hooks/chat-log-payload'
 // Follow-up questions ("それはどういうこと？") only resolve when the model sees the earlier turns they
 // refer back to, so a trimmed window of recent history rides with each request. The window is bounded
 // to keep token cost, latency, and off-topic noise flat however long the conversation grows.
-const MAX_HISTORY_MESSAGES = 8
+const MAX_HISTORY_MESSAGES = 4
 // A long prior answer only needs to seed the follow-up's context; sending it whole would inflate every
 // later request. Cap each turn well under the server limit so a verbose answer never rejects the reply.
-const MAX_CONTENT_CHARS = 4000
+const MAX_CONTENT_CHARS = 2000
 // Client-side status turns the user saw but the model never produced; replaying them as assistant
 // history would pollute query rewrite and grounding, so they are dropped alongside empty placeholders.
 const STATUS_LABELS = new Set<string>([CHAT_LABELS.NOT_FOUND, CHAT_LABELS.ERROR])

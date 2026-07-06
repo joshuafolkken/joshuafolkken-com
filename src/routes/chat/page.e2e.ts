@@ -1,5 +1,7 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page, type Route } from '@playwright/test'
+import { chat_history } from '$lib/api/chat-history'
 import { CHAT_LABELS } from '$lib/constants/chat'
+import { z } from 'zod'
 
 const GREETING = 'Hello'
 const CHAT_INPUT = 'chat-input'
@@ -20,21 +22,53 @@ const STREAM_RELEASE_FLAG = '__release_chat_stream'
 const CHAT_ENDPOINT = '**/api/chat'
 const EVENT_STREAM_CONTENT_TYPE = 'text/event-stream'
 const FOLLOW_UP = 'Tell me more about that.'
+// The very first turn of a long conversation — must be trimmed once the log outgrows the window cap.
+const OLDEST_MARKER = 'oldest question that must fall outside the window'
+// Eight prior messages, comfortably past MAX_HISTORY_MESSAGES, so the earliest ones are dropped.
+const LONG_HISTORY: Array<{ role: 'user' | 'assistant'; text: string }> = [
+	{ role: 'user', text: OLDEST_MARKER },
+	{ role: 'assistant', text: 'ans-1' },
+	{ role: 'user', text: 'q-2' },
+	{ role: 'assistant', text: 'ans-3' },
+	{ role: 'user', text: 'q-4' },
+	{ role: 'assistant', text: 'ans-5' },
+	{ role: 'user', text: 'q-6' },
+	{ role: 'assistant', text: 'ans-7' },
+]
+const CHAT_MESSAGE_SCHEMA = z.object({ role: z.string(), content: z.string() })
+const CHAT_REQUEST_SCHEMA = z.object({ messages: z.array(CHAT_MESSAGE_SCHEMA) })
 const CHAT_EMPTY = 'chat-empty'
 const DESKTOP_WIDTH = 1280
 const DESKTOP_HEIGHT = 800
 // A full-width AI reply may fall a hair short of the column width only from sub-pixel rounding.
 const FULL_WIDTH_TOLERANCE = 2
 
+async function fulfill_single_delta(route: Route, content: string): Promise<void> {
+	const delta = JSON.stringify({ choices: [{ delta: { content } }] })
+
+	await route.fulfill({
+		status: 200,
+		headers: { 'content-type': EVENT_STREAM_CONTENT_TYPE },
+		body: `data: ${delta}\n\ndata: [DONE]\n\n`,
+	})
+}
+
 async function mock_chat_stream(page: Page, content: string): Promise<void> {
 	await page.route(CHAT_ENDPOINT, async (route) => {
-		const delta = JSON.stringify({ choices: [{ delta: { content } }] })
+		await fulfill_single_delta(route, content)
+	})
+}
 
-		await route.fulfill({
-			status: 200,
-			headers: { 'content-type': EVENT_STREAM_CONTENT_TYPE },
-			body: `data: ${delta}\n\ndata: [DONE]\n\n`,
-		})
+// Installs a chat route that captures the request's history messages, then answers with a one-token
+// reply — shared by the tests that assert on what history rides with a request.
+async function route_capturing_messages(
+	page: Page,
+	on_messages: (messages: Array<{ role: string; content: string }>) => void,
+): Promise<void> {
+	await page.route(CHAT_ENDPOINT, async (route) => {
+		on_messages(CHAT_REQUEST_SCHEMA.parse(route.request().postDataJSON()).messages)
+
+		await fulfill_single_delta(route, 'ok')
 	})
 }
 
@@ -107,6 +141,15 @@ async function mock_streaming_chat(
 	})
 }
 
+function expect_window_capped(messages: Array<{ role: string; content: string }>): void {
+	// A conversation longer than the cap sheds its earliest turns to keep request tokens bounded.
+	expect(messages.length).toBeLessThanOrEqual(chat_history.MAX_HISTORY_MESSAGES)
+	expect(messages.some((message) => message.content === OLDEST_MARKER)).toBe(false)
+	// The window is still well-formed (leads with a user turn) and the newest turn always rides along.
+	expect(messages.at(0)?.role).toBe('user')
+	expect(messages.at(-1)).toEqual({ role: 'user', content: FOLLOW_UP })
+}
+
 async function send_question(page: Page, question: string): Promise<void> {
 	await page.getByTestId(CHAT_INPUT).fill(question)
 	await page.getByTestId(CHAT_SEND).click()
@@ -123,6 +166,15 @@ async function seed_conversation(page: Page): Promise<void> {
 			localStorage.setItem(key, JSON.stringify(log))
 		},
 		{ key: STORAGE_KEY, question: PERSISTED_QUESTION, answer: PERSISTED_ANSWER },
+	)
+}
+
+async function seed_long_conversation(page: Page): Promise<void> {
+	await page.evaluate(
+		({ key, log }) => {
+			localStorage.setItem(key, JSON.stringify(log))
+		},
+		{ key: STORAGE_KEY, log: LONG_HISTORY },
 	)
 }
 
@@ -208,18 +260,10 @@ test('renders assistant markdown as formatted html, not raw syntax', async ({ pa
 })
 
 test('sends the recent conversation history with a follow-up question', async ({ page }) => {
-	let captured_body: unknown = undefined
+	let captured_messages: Array<{ role: string; content: string }> = []
 
-	await page.route(CHAT_ENDPOINT, async (route) => {
-		captured_body = route.request().postDataJSON()
-
-		const delta = JSON.stringify({ choices: [{ delta: { content: 'ok' } }] })
-
-		await route.fulfill({
-			status: 200,
-			headers: { 'content-type': EVENT_STREAM_CONTENT_TYPE },
-			body: `data: ${delta}\n\ndata: [DONE]\n\n`,
-		})
+	await route_capturing_messages(page, (messages) => {
+		captured_messages = messages
 	})
 
 	await page.goto('/chat')
@@ -233,13 +277,31 @@ test('sends the recent conversation history with a follow-up question', async ({
 
 	// The follow-up resolves against prior turns because the request now carries the earlier
 	// question and answer, not just the latest message.
-	expect(captured_body).toEqual({
-		messages: [
-			{ role: 'user', content: PERSISTED_QUESTION },
-			{ role: 'assistant', content: PERSISTED_ANSWER },
-			{ role: 'user', content: FOLLOW_UP },
-		],
+	expect(captured_messages).toEqual([
+		{ role: 'user', content: PERSISTED_QUESTION },
+		{ role: 'assistant', content: PERSISTED_ANSWER },
+		{ role: 'user', content: FOLLOW_UP },
+	])
+})
+
+test('caps the history window so the oldest turns are trimmed from a long conversation', async ({
+	page,
+}) => {
+	let captured_messages: Array<{ role: string; content: string }> = []
+
+	await route_capturing_messages(page, (messages) => {
+		captured_messages = messages
 	})
+
+	await page.goto('/chat')
+	await seed_long_conversation(page)
+	await page.reload()
+
+	await send_question(page, FOLLOW_UP)
+
+	await expect(page.getByTestId(CHAT_MESSAGE_ASSISTANT).last()).toContainText('ok')
+
+	expect_window_capped(captured_messages)
 })
 
 test('renders a streamed reply as formatted markdown once the stream completes', async ({
