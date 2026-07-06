@@ -97,17 +97,28 @@ function codespan_renderer(token: Tokens.Codespan): string {
 	return codespan_html(token.text)
 }
 
-// LLM answers are untrusted input rendered via {@html}; every link must open safely in a new tab. An
-// inline [label](target) link whose target absorbed a sentence (the tokenizer above only covers bare
-// URLs) has an unusable href, so drop it — the label stays as text and no link points at garbage.
+// A link inside a code span was explicitly delimited by backticks, so its href is the whole URL by
+// construction — no sentence could have been swallowed. The leaked-text heuristic below must not fire
+// here, or a legitimate non-ASCII URL (e.g. a Japanese Wikipedia path) would lose its href.
+function is_in_code_span(node: Element): boolean {
+	return node.parentElement?.tagName === 'CODE'
+}
+
+// An inline [label](target) link whose target absorbed a Japanese sentence (the tokenizer above only
+// covers bare URLs) has an unusable href, so drop it — the label stays as text, pointing at no garbage.
+function strip_leaked_href(node: Element): void {
+	const href = node.getAttribute('href')
+	if (href && has_leaked_text(href)) node.removeAttribute('href')
+}
+
+// LLM answers are untrusted input rendered via {@html}; every link must open safely in a new tab.
 function harden_link(node: Element): void {
 	if (node.tagName !== 'A') return
 
 	node.setAttribute('target', '_blank')
 	node.setAttribute('rel', 'noopener noreferrer')
 
-	const href = node.getAttribute('href')
-	if (href && has_leaked_text(href)) node.removeAttribute('href')
+	if (!is_in_code_span(node)) strip_leaked_href(node)
 }
 
 // DOMPurify only works where a DOM exists (browser + jsdom tests), not during Workers SSR — and

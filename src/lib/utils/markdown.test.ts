@@ -87,6 +87,15 @@ describe('markdown.to_html links code spans', () => {
 		expect(html).toContain('<code>&lt;b&gt;&amp;</code>')
 		expect(html).not.toContain('<a')
 	})
+
+	it('keeps the href of a backtick-delimited url with a non-ascii path', () => {
+		const non_ascii_url = 'https://ja.wikipedia.org/wiki/日本語'
+		const html = markdown.to_html(`\`${non_ascii_url}\``)
+
+		// The url is bounded by the backticks, so the leaked-text guard must not strip its href.
+		expect(html).toContain(`<code><a href="${non_ascii_url}"`)
+		expect(html).toContain(TARGET_BLANK)
+	})
 })
 
 describe('markdown.to_html repairs leaked links', () => {
