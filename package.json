@@ -1,6 +1,6 @@
 {
 	"name": "joshuafolkken-com",
-	"version": "0.279.0",
+	"version": "0.280.0",
 	"type": "module",
 	"private": true,
 	"scripts": {
@@ -26,7 +26,7 @@
 		"check:upstream": "tsx scripts/check-upstream-drift.ts",
 		"ingest:github-docs": "set -a; [ -f .env ] && . ./.env; set +a; tsx scripts/ingest-github-documentation.ts",
 		"size-limit": "size-limit",
-		"yt:mp3": "yt-dlp -x --audio-format mp3 -P .audio",
+		"yt:mp3": "yt-dlp -x --audio-format mp3 -P .audio --cookies-from-browser chrome",
 		"josh": "josh",
 		"prepare:gen": "[ ! -f wrangler.jsonc ] || pnpm gen",
 		"prepare:sync": "svelte-kit sync || echo ''",
