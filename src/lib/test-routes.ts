@@ -3,7 +3,7 @@ export const TEST_ROUTES = {
 	ABOUT: '/about',
 	BLOG: '/blog',
 	BLOG_POST: '/blog/mnemecha',
-	BLOG_YOUTUBE_POST: '/blog/roblox-game-dev-cambodia',
+	BLOG_YOUTUBE_POST: '/blog/talk-2026-01-22',
 	CONTACT: '/contact',
 	PROJECTS: '/projects',
 } as const

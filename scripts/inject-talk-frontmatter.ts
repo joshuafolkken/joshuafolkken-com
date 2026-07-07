@@ -2,11 +2,11 @@
 /**
  * Inject deterministic YouTube metadata into a talk-derived article's frontmatter.
  *
- * The `prompts/audio-to-article-2.md` prompt emits placeholder tokens for the three
+ * The `prompts/audio-to-article-3.md` prompt emits placeholder tokens for the three
  * fields the summarizing LLM cannot know reliably (it cannot browse YouTube):
- *   date    -> {{PUBLISH_DATE}}   (yt-dlp `upload_date`, formatted YYYY-MM-DD)
- *   updated -> {{GENERATED_DATE}} (this script's run date, YYYY-MM-DD)
- *   youtube -> {{YOUTUBE_URL}}    (https://www.youtube.com/watch?v=<id>)
+ *   date         -> {{PUBLISH_DATE}} (this script's run date = the article's publish date, YYYY-MM-DD)
+ *   youtube      -> {{YOUTUBE_URL}}  (https://www.youtube.com/watch?v=<id>)
+ *   youtube_date -> {{YOUTUBE_DATE}} (yt-dlp `upload_date` = the video's original publish date, YYYY-MM-DD)
  * This post-processor replaces those tokens with values read from the `.info.json`
  * that `pnpm yt:mp3` writes alongside the audio, so the values are never fabricated.
  *
@@ -18,6 +18,7 @@ import path from 'node:path'
 import { youtube } from '$lib/utils/youtube'
 
 const AUDIO_DIR = '.audio'
+const POSTS_DIR = 'src/lib/posts'
 const INFO_JSON_SUFFIX = '.info.json'
 const WATCH_URL_BASE = 'https://www.youtube.com/watch?v='
 const UPLOAD_DATE_PATTERN = /^(\d{4})(\d{2})(\d{2})$/u
@@ -31,8 +32,8 @@ interface VideoMetadata {
 }
 
 interface FrontmatterValues {
-	publish_date: string
-	generated_date: string
+	article_date: string
+	youtube_date: string
 	youtube_url: string
 }
 
@@ -94,8 +95,8 @@ function placeholder_pattern(token: string): RegExp {
 
 function inject_frontmatter_metadata(markdown: string, values: FrontmatterValues): string {
 	return markdown
-		.replace(placeholder_pattern('PUBLISH_DATE'), () => values.publish_date)
-		.replace(placeholder_pattern('GENERATED_DATE'), () => values.generated_date)
+		.replace(placeholder_pattern('PUBLISH_DATE'), () => values.article_date)
+		.replace(placeholder_pattern('YOUTUBE_DATE'), () => values.youtube_date)
 		.replace(placeholder_pattern('YOUTUBE_URL'), () => values.youtube_url)
 }
 
@@ -113,8 +114,8 @@ function find_info_metadata(audio_directory: string, video_id: string): VideoMet
 function build_values(metadata: VideoMetadata, now: Date): FrontmatterValues {
 	return {
 		youtube_url: build_youtube_url(metadata.video_id),
-		publish_date: format_upload_date(metadata.upload_date),
-		generated_date: format_generated_date(now),
+		youtube_date: format_upload_date(metadata.upload_date),
+		article_date: format_generated_date(now),
 	}
 }
 
@@ -131,8 +132,17 @@ function read_cli_arguments(args: ReadonlyArray<string>): {
 	return { article_path, url_or_id }
 }
 
+// A bare filename (no directory part) is resolved under the posts directory so callers can
+// pass just `talk-2026-01-22.md`; an explicit relative or absolute path is used as given.
+function resolve_article_path(article_argument: string): string {
+	if (path.dirname(article_argument) === '.') return path.join(POSTS_DIR, article_argument)
+
+	return article_argument
+}
+
 function main(args: ReadonlyArray<string>, now: Date): void {
-	const { article_path, url_or_id } = read_cli_arguments(args)
+	const { article_path: article_argument, url_or_id } = read_cli_arguments(args)
+	const article_path = resolve_article_path(article_argument)
 	const video_id = resolve_video_id(url_or_id)
 	const metadata = find_info_metadata(AUDIO_DIR, video_id)
 	const values = build_values(metadata, now)
@@ -159,7 +169,9 @@ const talk_frontmatter = {
 	format_generated_date,
 	build_youtube_url,
 	resolve_video_id,
+	resolve_article_path,
 	inject_frontmatter_metadata,
+	build_values,
 	find_info_metadata,
 	main,
 }
