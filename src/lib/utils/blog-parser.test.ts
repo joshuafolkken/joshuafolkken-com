@@ -50,11 +50,12 @@ describe('blog_parser.parse_post', () => {
 		expect(result?.youtube).toBeUndefined()
 	})
 
-	it('returns undefined when youtube is a non-string value', () => {
+	it('keeps the post with youtube undefined when youtube is a non-string value', () => {
 		const file = { metadata: { ...BASE_FILE.metadata, youtube: 42 } }
 
 		const result = blog_parser.parse_post(TEST_PATH, file)
 
-		expect(result).toBeUndefined()
+		expect(result).toBeDefined()
+		expect(result?.youtube).toBeUndefined()
 	})
 })
