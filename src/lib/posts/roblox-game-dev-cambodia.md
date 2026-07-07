@@ -1,11 +1,11 @@
 ---
 title: 'Robloxでのゲーム制作と、カンボジア滞在を見据えた新たな活動方針'
-date: '2026-01-22'
-updated: '2026-07-06 02:23'
+date: '2026-07-06'
 author: 'Joshua Folkken'
 excerpt: 'ゲーム制作プラットフォーム「Roblox」での開発体験から得た知見と、カンボジアへの長期滞在に伴う今後の配信・発信スタイルの変化について綴ります。'
 tags: ['from-talk', 'RobloxStudio', 'ゲーム開発', 'カンボジア', 'デジタルノマド']
 youtube: 'https://www.youtube.com/watch?v=UI3-GR6yvjY'
+youtube_date: '2026-01-22'
 ---
 
 現在、私は「Roblox（ロブロックス）」というプラットフォームでのゲーム制作に挑戦しています。Robloxは、ユーザーが自らゲームを制作し、世界中のプレイヤーに公開できる非常に自由度の高い環境です。開発ツールである「Roblox Studio」を使い、試行錯誤しながら新しい形の発信を模索しています。

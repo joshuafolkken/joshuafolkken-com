@@ -34,6 +34,7 @@
 			<DateDisplay
 				date={post.date}
 				updated={post.updated}
+				youtube_date={post.youtube_date}
 				class="absolute right-6 bottom-6 text-white/40 transition-colors duration-300 group-hover:text-white/60"
 			/>
 		</div>
