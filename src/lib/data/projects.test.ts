@@ -12,9 +12,9 @@ const GAME_KIT_INDEX = 1
 const KIT_INDEX = 2
 const GAME_KIT_GITHUB_URL = 'https://github.com/joshuafolkken/game-kit'
 const GAME_KIT_BLOG_URL = '/blog/mnemecha-2'
-const HAS_IMAGE_TEST = 'has a project image'
-const HAS_REQUIRED_TAGS_TEST = 'tags include all required tools'
-const HAS_BLOG_GITHUB_LINKS_TEST = 'has blog then github links in order'
+const IMAGE_TEST_TITLE = 'has a project image'
+const REQUIRED_TAGS_TEST_TITLE = 'tags include all required tools'
+const BLOG_GITHUB_LINKS_TEST_TITLE = 'has blog then github links in order'
 
 const PRETTIER_TAG = 'Prettier'
 const ESLINT_TAG = 'ESLint'
@@ -90,7 +90,7 @@ describe('PROJECTS - mnemecha entry', () => {
 })
 
 describe('PROJECTS - mnemecha entry: content', () => {
-	it(HAS_IMAGE_TEST, () => {
+	it(IMAGE_TEST_TITLE, () => {
 		const [mnemecha] = PROJECTS
 
 		expect(mnemecha.image).toBeDefined()
@@ -124,7 +124,7 @@ describe('PROJECTS - game-kit entry', () => {
 		expect(game_kit.title).toBe(GAME_KIT_TITLE)
 	})
 
-	it(HAS_BLOG_GITHUB_LINKS_TEST, () => {
+	it(BLOG_GITHUB_LINKS_TEST_TITLE, () => {
 		const game_kit = PROJECTS[GAME_KIT_INDEX]
 		const types = game_kit.links.map((link) => link.type)
 
@@ -147,7 +147,7 @@ describe('PROJECTS - game-kit entry', () => {
 })
 
 describe('PROJECTS - game-kit entry: content', () => {
-	it(HAS_IMAGE_TEST, () => {
+	it(IMAGE_TEST_TITLE, () => {
 		const game_kit = PROJECTS[GAME_KIT_INDEX]
 
 		expect(game_kit.image).toBeDefined()
@@ -160,7 +160,7 @@ describe('PROJECTS - game-kit entry: content', () => {
 		expect(game_kit.image).not.toBe(mnemecha.image)
 	})
 
-	it(HAS_REQUIRED_TAGS_TEST, () => {
+	it(REQUIRED_TAGS_TEST_TITLE, () => {
 		const game_kit = PROJECTS[GAME_KIT_INDEX]
 
 		for (const tag of REQUIRED_GAME_KIT_TAGS) {
@@ -182,7 +182,7 @@ describe('PROJECTS - kit entry', () => {
 		expect(kit.title).toBe(KIT_TITLE)
 	})
 
-	it(HAS_BLOG_GITHUB_LINKS_TEST, () => {
+	it(BLOG_GITHUB_LINKS_TEST_TITLE, () => {
 		const kit = PROJECTS[KIT_INDEX]
 		const types = kit.links.map((link) => link.type)
 
@@ -191,7 +191,7 @@ describe('PROJECTS - kit entry', () => {
 		expect(types[1]).toBe('github')
 	})
 
-	it(HAS_IMAGE_TEST, () => {
+	it(IMAGE_TEST_TITLE, () => {
 		const kit = PROJECTS[KIT_INDEX]
 
 		expect(kit.image).toBeDefined()
@@ -204,7 +204,7 @@ describe('PROJECTS - kit entry', () => {
 		expect(blog_link.href).toBe('/blog/kit-package')
 	})
 
-	it(HAS_REQUIRED_TAGS_TEST, () => {
+	it(REQUIRED_TAGS_TEST_TITLE, () => {
 		const kit = PROJECTS[KIT_INDEX]
 
 		for (const tag of REQUIRED_KIT_TAGS) {
