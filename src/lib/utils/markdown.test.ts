@@ -132,3 +132,40 @@ describe('markdown.to_html repairs leaked links', () => {
 		expect(html).toContain('game-kit')
 	})
 })
+
+describe('markdown.to_html rewrites flattened github__ citation links', () => {
+	const CITATION = '[github__kit__docs__package.md](github__kit__docs__package.md)'
+	const BLOB_URL = 'https://github.com/joshuafolkken/kit/blob/main/docs/package.md'
+
+	it('rewrites a flattened key link to a real GitHub blob URL', () => {
+		const html = markdown.to_html(CITATION)
+
+		expect(html).toContain(`href="${BLOB_URL}"`)
+	})
+
+	it('shows clean display text without the doubled-underscore key', () => {
+		const html = markdown.to_html(CITATION)
+
+		expect(html).toContain('kit/docs/package.md')
+		expect(html).not.toContain('github__kit')
+	})
+
+	it('no longer leaves a relative href that resolves to the site origin', () => {
+		const html = markdown.to_html(CITATION)
+
+		expect(html).not.toContain('href="github__kit__docs__package.md"')
+	})
+
+	it('leaves a normal absolute link unchanged', () => {
+		const html = markdown.to_html(`[docs](${LINK_URL})`)
+
+		expect(html).toContain(`href="${LINK_URL}"`)
+	})
+
+	it('hardens the rewritten link with target and rel', () => {
+		const html = markdown.to_html(CITATION)
+
+		expect(html).toContain(TARGET_BLANK)
+		expect(html).toContain(REL_NOOPENER)
+	})
+})

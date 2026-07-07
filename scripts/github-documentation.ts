@@ -5,6 +5,7 @@
  *
  * Pure helpers here are unit-tested; network helpers are thin wrappers over fetch.
  */
+import { github_document_key } from '$lib/utils/github-document-key'
 import { github_url } from './github-url'
 
 const GITHUB_API = 'https://api.github.com'
@@ -79,12 +80,6 @@ function is_document_path(path: string): boolean {
 	if (EXCLUDED_PATH_PATTERN.test(path)) return false
 
 	return DOCUMENT_PATH_PATTERN.test(path)
-}
-
-function build_document_key(repo_name: string, path: string): string {
-	const flattened = path.replaceAll('/', '__')
-
-	return `github__${repo_name}__${flattened}`
 }
 
 function format_topics(topics: ReadonlyArray<string> | undefined): string {
@@ -180,7 +175,7 @@ async function build_record(
 	const markdown = await fetch_raw(owner, repo.name, repo.default_branch, path)
 
 	return {
-		key: build_document_key(repo.name, path),
+		key: github_document_key.build_key(repo.name, path),
 		content: build_document_content(owner, repo, path, markdown),
 	}
 }
@@ -253,7 +248,7 @@ const github_documentation = {
 	build_tree_url,
 	build_raw_url,
 	build_source_url,
-	build_document_key,
+	build_document_key: github_document_key.build_key,
 	build_document_content,
 	format_topics,
 	github_headers,

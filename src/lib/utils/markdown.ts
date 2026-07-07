@@ -1,6 +1,7 @@
 import DOMPurify from 'dompurify'
-import { marked, type TokenizerAndRendererExtension, type Tokens } from 'marked'
+import { marked, type Token, type TokenizerAndRendererExtension, type Tokens } from 'marked'
 import { markup } from './escape'
+import { github_document_key, type ParsedDocumentKey } from './github-document-key'
 
 // A URL written in Markdown is ASCII, so the first non-ASCII character marks where the following
 // Japanese text — a sentence, or punctuation that ends one — begins.
@@ -121,11 +122,44 @@ function harden_link(node: Element): void {
 	if (!is_in_code_span(node)) strip_leaked_href(node)
 }
 
+// The RAG model cites documents by their flattened index key (github__<repo>__<path>) — often wrapped in
+// a relative link — which would otherwise render as a broken same-origin URL with doubled underscores.
+// The model may place the key in the href, the visible text, or both, so check both.
+// marked's Token union includes a catch-all Generic member, so a bare `token.type === 'link'` check does
+// not narrow to Link on its own — this predicate makes the narrowing explicit for rewrite_citation.
+function is_link_token(token: Token): token is Tokens.Link {
+	return token.type === 'link'
+}
+
+function citation_key(token: Tokens.Link): ParsedDocumentKey | undefined {
+	return github_document_key.parse_key(token.href) ?? github_document_key.parse_key(token.text)
+}
+
+// Deterministic safety net: rewrite any flattened-key citation link into a real GitHub URL with clean
+// display text before marked renders it, so it stays clickable even when the model's prompt-side URL
+// compliance slips. Non-citation links are left untouched.
+function rewrite_citation(token: Token): void {
+	if (!is_link_token(token)) return
+
+	const parsed = citation_key(token)
+	if (!parsed) return
+
+	const text = github_document_key.to_display_text(parsed)
+
+	token.href = github_document_key.to_github_url(parsed)
+	token.text = text
+	token.tokens = [{ type: 'text', raw: text, text }]
+}
+
 // DOMPurify only works where a DOM exists (browser + jsdom tests), not during Workers SSR — and
 // to_html is only ever called client-side, so registering the hook behind a window guard is safe.
 if ('window' in globalThis) {
 	DOMPurify.addHook('afterSanitizeAttributes', harden_link)
-	marked.use({ extensions: [bounded_url_extension], renderer: { codespan: codespan_renderer } })
+	marked.use({
+		extensions: [bounded_url_extension],
+		renderer: { codespan: codespan_renderer },
+		walkTokens: rewrite_citation,
+	})
 }
 
 // Render Markdown from the AI chat model to HTML. The bounded_url extension keeps marked from swallowing
