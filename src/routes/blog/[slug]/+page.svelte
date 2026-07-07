@@ -46,7 +46,12 @@
 
 	<article class="prose mt-6 mb-6 max-w-none prose-invert" use:external_links>
 		<h1 class="mb-3">{blog_title}</h1>
-		<DateDisplay date={data.meta.date} updated={data.meta.updated} author={data.meta.author} />
+		<DateDisplay
+			date={data.meta.date}
+			updated={data.meta.updated}
+			author={data.meta.author}
+			youtube_date={data.meta.youtube_date}
+		/>
 
 		{#if data.meta.youtube}
 			<YouTubeTranscriptNotice url={data.meta.youtube} />
