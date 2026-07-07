@@ -1,0 +1,16 @@
+<script lang="ts">
+	import TalkIcon from '$lib/icons/TalkIcon.svelte'
+
+	const { url }: { url: string } = $props()
+</script>
+
+<aside
+	class="not-prose my-6 flex items-start gap-3 rounded-xl border border-sky-400/20 bg-sky-500/5 p-4 text-sm text-white/60"
+	data-testid="youtube-transcript-notice"
+>
+	<TalkIcon size="1.1rem" class="mt-0.5 shrink-0 text-sky-400" aria_label="音声由来" />
+	<p class="m-0">
+		この記事は、<a href={url} class="text-sky-400 underline">YouTube 動画</a
+		>の音声を文字起こしし、要約・再構成したものです。
+	</p>
+</aside>

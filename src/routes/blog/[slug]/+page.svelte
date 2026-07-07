@@ -9,6 +9,7 @@
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import SupportBox from '$lib/components/SupportBox.svelte'
 	import YouTubeEmbed from '$lib/components/YouTubeEmbed.svelte'
+	import YouTubeTranscriptNotice from '$lib/components/YouTubeTranscriptNotice.svelte'
 	import { blog_images } from '$lib/data/blog-images'
 	import { PAGES } from '$lib/types/page'
 	import type { PageData } from './$types'
@@ -48,6 +49,7 @@
 		<DateDisplay date={data.meta.date} updated={data.meta.updated} author={data.meta.author} />
 
 		{#if data.meta.youtube}
+			<YouTubeTranscriptNotice url={data.meta.youtube} />
 			<YouTubeEmbed url={data.meta.youtube} title={blog_title} />
 		{/if}
 
