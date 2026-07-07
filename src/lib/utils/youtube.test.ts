@@ -27,6 +27,14 @@ describe('youtube.get_video_id', () => {
 		expect(youtube.get_video_id(NON_YOUTUBE_URL)).toBeUndefined()
 	})
 
+	it('returns undefined for an embed-shaped URL on a non-YouTube host', () => {
+		expect(youtube.get_video_id(`https://evil.com/embed/${VIDEO_ID}`)).toBeUndefined()
+	})
+
+	it('returns undefined for a watch-shaped URL on a non-YouTube host', () => {
+		expect(youtube.get_video_id(`https://evil.com/watch?v=${VIDEO_ID}`)).toBeUndefined()
+	})
+
 	it('returns undefined for a non-string value', () => {
 		expect(youtube.get_video_id(undefined)).toBeUndefined()
 	})

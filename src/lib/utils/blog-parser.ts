@@ -29,6 +29,10 @@ function is_optional_string(value: unknown): boolean {
 	return value === undefined || typeof value === 'string'
 }
 
+function to_optional_string(value: unknown): string | undefined {
+	return typeof value === 'string' ? value : undefined
+}
+
 function has_required_string_fields(metadata: MdsvexMetadata): boolean {
 	return (
 		typeof metadata.title === 'string' &&
@@ -42,8 +46,7 @@ function has_valid_metadata(metadata: MdsvexMetadata): metadata is BlogMetadata 
 		has_required_string_fields(metadata) &&
 		is_optional_string(metadata.updated) &&
 		is_optional_string(metadata.author) &&
-		is_optional_string(metadata.cover_image) &&
-		is_optional_string(metadata.youtube)
+		is_optional_string(metadata.cover_image)
 	)
 }
 
@@ -82,7 +85,7 @@ function parse_post(path: string, file: unknown): Post | undefined {
 		author: file.metadata.author,
 		excerpt: file.metadata.excerpt,
 		cover_image,
-		youtube: file.metadata.youtube,
+		youtube: to_optional_string(file.metadata.youtube),
 	}
 }
 
