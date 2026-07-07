@@ -162,6 +162,16 @@ describe('markdown.to_html rewrites flattened github__ citation links', () => {
 		expect(html).toContain(`href="${LINK_URL}"`)
 	})
 
+	it('keeps a valid absolute href even when the link label looks like a key', () => {
+		// The accurate #697 path: the model links the real Source URL (correct branch) but labels it with
+		// the key. Detecting on text would clobber a correct href with a wrong best-effort main URL.
+		const source_url = 'https://github.com/joshuafolkken/kit/blob/master/docs/package.md'
+		const html = markdown.to_html(`[github__kit__docs__package.md](${source_url})`)
+
+		expect(html).toContain(`href="${source_url}"`)
+		expect(html).not.toContain('blob/main')
+	})
+
 	it('hardens the rewritten link with target and rel', () => {
 		const html = markdown.to_html(CITATION)
 

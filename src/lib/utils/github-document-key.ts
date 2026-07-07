@@ -28,8 +28,12 @@ function build_key(repo_name: string, path: string): string {
 function parse_key(key: string): ParsedDocumentKey | undefined {
 	if (!key.startsWith(KEY_PREFIX)) return undefined
 
-	const [repo, ...segments] = key.slice(KEY_PREFIX.length).split(PATH_SEPARATOR)
-	if (repo === undefined || repo === '' || segments.length === 0) return undefined
+	const parts = key.slice(KEY_PREFIX.length).split(PATH_SEPARATOR)
+	const [repo, ...segments] = parts
+	if (repo === undefined || segments.length === 0) return undefined
+	// Reject any empty part (e.g. a trailing separator), which would otherwise build a URL pointing at a
+	// directory root rather than a document.
+	if (parts.includes('')) return undefined
 
 	return { repo, path: segments.join('/') }
 }

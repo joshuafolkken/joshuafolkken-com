@@ -1,7 +1,7 @@
 import DOMPurify from 'dompurify'
 import { marked, type Token, type TokenizerAndRendererExtension, type Tokens } from 'marked'
 import { markup } from './escape'
-import { github_document_key, type ParsedDocumentKey } from './github-document-key'
+import { github_document_key } from './github-document-key'
 
 // A URL written in Markdown is ASCII, so the first non-ASCII character marks where the following
 // Japanese text — a sentence, or punctuation that ends one — begins.
@@ -122,26 +122,22 @@ function harden_link(node: Element): void {
 	if (!is_in_code_span(node)) strip_leaked_href(node)
 }
 
-// The RAG model cites documents by their flattened index key (github__<repo>__<path>) — often wrapped in
-// a relative link — which would otherwise render as a broken same-origin URL with doubled underscores.
-// The model may place the key in the href, the visible text, or both, so check both.
 // marked's Token union includes a catch-all Generic member, so a bare `token.type === 'link'` check does
 // not narrow to Link on its own — this predicate makes the narrowing explicit for rewrite_citation.
 function is_link_token(token: Token): token is Tokens.Link {
 	return token.type === 'link'
 }
 
-function citation_key(token: Tokens.Link): ParsedDocumentKey | undefined {
-	return github_document_key.parse_key(token.href) ?? github_document_key.parse_key(token.text)
-}
-
-// Deterministic safety net: rewrite any flattened-key citation link into a real GitHub URL with clean
-// display text before marked renders it, so it stays clickable even when the model's prompt-side URL
-// compliance slips. Non-citation links are left untouched.
+// Deterministic safety net for the RAG model's broken citations: when the model wraps a document's
+// flattened index key (github__<repo>__<path>) in a relative link, it would otherwise render as a broken
+// same-origin URL with doubled underscores. Rewrite it into a real GitHub URL with clean display text
+// before marked renders it. Detection is on the href only — a link that already carries a valid absolute
+// URL (even one whose label looks like a key) is the accurate citation path and must be left untouched,
+// or a repo on a non-main branch would have its correct href replaced by a wrong best-effort main URL.
 function rewrite_citation(token: Token): void {
 	if (!is_link_token(token)) return
 
-	const parsed = citation_key(token)
+	const parsed = github_document_key.parse_key(token.href)
 	if (!parsed) return
 
 	const text = github_document_key.to_display_text(parsed)

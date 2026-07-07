@@ -44,6 +44,11 @@ describe('github_document_key.parse_key', () => {
 	it('returns undefined when there is no path segment', () => {
 		expect(github_document_key.parse_key('github__kit')).toBeUndefined()
 	})
+
+	it('returns undefined for a trailing separator that yields an empty path', () => {
+		expect(github_document_key.parse_key('github__kit__')).toBeUndefined()
+		expect(github_document_key.parse_key('github__kit__docs__')).toBeUndefined()
+	})
 })
 
 describe('github_document_key.to_github_url', () => {
