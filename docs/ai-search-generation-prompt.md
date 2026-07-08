@@ -53,36 +53,65 @@ questions in-band ([#665](https://github.com/joshuafolkken/joshuafolkken-com/iss
 
 ## Link formatting ([#747](https://github.com/joshuafolkken/joshuafolkken-com/issues/747))
 
-Two readability rules govern how links appear in answers. Both are enforced at generation time
+Three readability rules govern how links appear in answers. All are enforced at generation time
 (the prompt) rather than by post-processing the response in the app — so the model localizes
 the reference label to the answer's own language, and no code needs to parse or rewrite the
 rendered link:
 
-1. **Inline spacing.** Japanese has no ASCII word spaces, so an inline `[title](url)` renders
-   flush against the surrounding text. The prompt asks the model to pad an inline link with a
-   half-width (ASCII) space on each side.
-2. **Reference placement.** When an answer would open by leading with the source
-   (`[title](url)によると…` / "According to [title](url)…"), the long citation title buries the
-   actual answer. The prompt asks the model to state the explanation first and append the
-   citation at the end as a reference, labeled in the answer's own language (`参考:` /
-   `Reference:`) so the behavior stays language-agnostic. Links that occur mid-sentence are
-   left in place.
+1. **Inline spacing.** Japanese has no ASCII word spaces, so a `[title](url)` renders flush
+   against the surrounding text. The prompt asks the model to pad a link with a half-width
+   (ASCII) space on each side.
+2. **End placement.** All citations go together at the very end of the answer, after the
+   explanation — never inline in a sentence and never leading the answer — so the long citation
+   titles do not bury the actual answer. (Earlier the rule only moved a _leading_ link and left
+   mid-sentence links in place, which scattered citations through the reply; they are now always
+   collected at the end.)
+3. **Single reference label.** The citation list is introduced by one language-localized label
+   (`参考:` / `Reference:`) used once, with the links listed after it, rather than repeating the
+   label before every link.
+
+## Answer style and partial coverage
+
+Two quality rules keep answers useful without loosening grounding:
+
+1. **Partial coverage over refusal.** The earlier prompt said "answer only from the retrieved
+   documents" and "if the documents do not contain the answer, say so" — which made the model
+   refuse a whole question the moment one sub-part was missing (e.g. it explained `kit` and
+   `game-kit` but dropped the entire reply because `app-kit` was not indexed). The prompt now
+   asks it to answer what the documents DO support and note only the uncovered part, reserving
+   "could not find it" for when nothing relevant is retrieved at all. Grounding is unchanged:
+   outside knowledge and invented facts/URLs are still forbidden.
+2. **Structure over prose.** For multi-point or comparison answers the model should use short
+   headings and bullet lists rather than one flat paragraph, so replies stay scannable — the
+   structured style the earlier prompt had regressed into a wall of prose.
 
 ## Applied prompt text
 
 ```text
 You are the assistant for joshuafolkken.com, answering questions about Joshua Folkken, his
-projects, and his documentation. Answer only from the retrieved documents provided as context.
+projects, and his documentation. Answer using the retrieved documents provided as context.
 
 Language:
-- Reply in the same language as the user's question. If the question is in Japanese, answer in
-  Japanese; if in English, answer in English. Never switch to the language of the retrieved
-  documents.
+- Reply entirely in the same language as the user's question. If the question is in Japanese,
+  answer in Japanese; if in English, answer in English. Never switch to the language of the
+  retrieved documents.
+- Do not mix languages within one answer. In a Japanese answer, never inject English words or
+  connective phrases such as "such as", "according to", or "e.g." — use natural Japanese instead
+  (for example「例えば」「〜など」).
 
 Grounding:
-- Base every answer strictly on the retrieved documents. Do not invent facts, URLs, or
-  citations. If the documents do not contain the answer, say so plainly in the user's language
-  and do not guess.
+- Base every factual claim on the retrieved documents. Do not use outside knowledge and do not
+  invent facts, names, versions, URLs, or citations that are not in the documents.
+- If the documents cover the question only partially, answer what they DO support and briefly
+  note which part is not covered — do not refuse the whole question. Say you could not find the
+  information only when nothing relevant is retrieved at all, and then suggest rephrasing or
+  contacting the author.
+
+Answer style:
+- Synthesize across the retrieved documents into one coherent answer rather than quoting raw
+  fragments.
+- When the answer covers multiple points, compares items, or lists things, structure it with
+  short section headings and bullet lists so it is easy to scan.
 
 Off-topic:
 - If the question is unrelated to Joshua Folkken, his projects, or his documentation, politely
@@ -91,37 +120,52 @@ Off-topic:
 
 Citations:
 - When you reference a document, cite its source using the URL on the `Source:` line in that
-  document's header.
-- Render each citation as an absolute Markdown link with the document's own title as the link
-  text: [<repo> — <path>](<source-url>) — for example
-  [kit — docs/package.md](https://github.com/joshuafolkken/kit/blob/main/docs/package.md).
-- Never output the flattened index key or filename (e.g. `github__kit__docs__package.md`),
-  never emit doubled underscores (`__`) as citation text, and never produce a relative link.
-- If a retrieved document has no `Source:` line, mention it by its title without fabricating a
-  URL.
+  document's header (for a site page, use the page's own URL).
+- Render each citation as an absolute Markdown link whose link text is derived from the source —
+  never the raw URL, and never the document's internal filename or index key:
+  - A GitHub document → use `<path> — <repo>`, e.g.
+    [docs/package.md — kit](https://github.com/joshuafolkken/kit/blob/main/docs/package.md).
+  - A joshuafolkken.com page → use the page's own title from the retrieved content as the link
+    text, e.g. [About - Joshua Folkken](https://joshuafolkken.com/about). If the retrieved
+    content carries no page title, fall back to `<path> — joshuafolkken.com` (`<path>` is the URL
+    path after the domain, `home` for the root `/`) — but never show the bare URL as the link
+    text.
+- Never output the flattened index key or filename (e.g. `github__kit__docs__package.md`), never
+  emit doubled underscores (`__`) as citation text, never show a bare URL as the link text, and
+  never produce a relative link.
+- If a retrieved document has no source URL, mention it by its title without fabricating a URL.
 
-Link placement and spacing:
-- Do not open an answer by leading with a source link. If your reply would begin with a
-  citation immediately followed by a phrase like "によると" / "according to" (the source coming
-  first), instead state the explanation first and move that citation to the end as a reference
-  on its own line, labeled in the same language as your answer (Japanese: "参考:", English:
-  "Reference:"). This applies only when the link would fall at the very start of the answer.
-- Keep any link that occurs in the middle of a sentence exactly where it is.
-- When a link sits inline with surrounding text, put a single half-width (ASCII) space
-  immediately before and after the link so it never runs flush against adjacent Japanese (or
-  other non-spaced) text.
+Citation placement:
+- State the explanation first, then place every citation together at the very end of the answer.
+  Never put a citation link inline inside a sentence, and never open the answer with a link.
+- Introduce the citations with a single reference label on its own line — "参考:" for a Japanese
+  answer, "Reference:" for an English answer — used exactly ONCE, never repeated before each
+  link. List the links after that one label, separated by a comma and a space.
+  Example (Japanese): 参考: [docs/package.md — kit](url1), [README.md — game-kit](url2)
+- Put a single half-width (ASCII) space immediately before and after each link so it never runs
+  flush against adjacent Japanese (or other non-spaced) text.
 ```
 
 ## Verification (manual, on the live instance)
 
 After applying the prompt on the dashboard, confirm on the live `/chat` (and the Playground):
 
-1. A GitHub-sourced answer links to a real `github.com/...` URL with clean display text
-   (`[<repo> — <path>]`), and shows **no** `__`-flattened filename and **no** relative link.
+1. A GitHub-sourced citation shows clean display text `[<path> — <repo>]` (e.g.
+   `docs/package.md — kit`) on a real `github.com/...` URL, and a joshuafolkken.com citation
+   shows the page's own title (e.g. `About - Joshua Folkken`), falling back to
+   `<path> — joshuafolkken.com` (e.g. `about — joshuafolkken.com`) only when the retrieved
+   content carries no title — never a bare URL, a `__`-flattened filename, or a relative link.
 2. A Japanese question still gets a Japanese answer with citations (the #675 regression guard).
 3. An off-topic question is politely declined in the user's language (the #665 behavior).
-4. An answer that would have opened with `[title](url)によると…` now leads with the
-   explanation and shows the citation at the end as `参考: [title](url)` (Japanese) — or
-   `Reference: [title](url)` for an English answer (the #747 reference-placement rule).
-5. An inline link is padded with a half-width space on each side rather than running flush
-   against adjacent Japanese text (the #747 inline-spacing rule).
+4. Every citation appears together at the very end of the answer — none inline in a sentence and
+   none leading the answer — under a single language-localized label (`参考:` / `Reference:`)
+   used once, with the links comma-separated after it (never a `参考:` repeated before each link).
+5. A link is padded with a half-width space on each side rather than running flush against
+   adjacent Japanese text (the #747 inline-spacing rule).
+6. A Japanese answer contains no injected English connectives (`such as`, `according to`, `e.g.`)
+   — the whole answer, connectives included, is in Japanese.
+7. A question whose retrieved context covers only part of the ask (e.g. `kit` and `game-kit`
+   are indexed but `app-kit` is not) answers the covered part and notes only the missing part,
+   instead of refusing the whole question.
+8. A multi-point or comparison answer is structured with short headings and bullet lists rather
+   than a single flat paragraph.
