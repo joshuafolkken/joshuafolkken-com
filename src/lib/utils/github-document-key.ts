@@ -16,6 +16,12 @@ interface ParsedDocumentKey {
 	path: string
 }
 
+// Identifies keys that belong to the GitHub ingestion namespace, so the pruning reconcile can scope
+// deletions to github-sourced items without re-hardcoding the prefix.
+function is_github_key(key: string): boolean {
+	return key.startsWith(KEY_PREFIX)
+}
+
 function build_key(repo_name: string, path: string): string {
 	const flattened = path.split('/').join(PATH_SEPARATOR)
 
@@ -26,7 +32,7 @@ function build_key(repo_name: string, path: string): string {
 // indistinguishable from a separator); that edge case is accepted. Returns undefined for anything that
 // is not a well-formed key, so callers can leave non-citation links untouched.
 function parse_key(key: string): ParsedDocumentKey | undefined {
-	if (!key.startsWith(KEY_PREFIX)) return undefined
+	if (!is_github_key(key)) return undefined
 
 	const parts = key.slice(KEY_PREFIX.length).split(PATH_SEPARATOR)
 	const [repo, ...segments] = parts
@@ -46,7 +52,7 @@ function to_display_text(parsed: ParsedDocumentKey): string {
 	return `${parsed.repo}/${parsed.path}`
 }
 
-const github_document_key = { build_key, parse_key, to_github_url, to_display_text }
+const github_document_key = { is_github_key, build_key, parse_key, to_github_url, to_display_text }
 
 export type { ParsedDocumentKey }
 export { github_document_key }

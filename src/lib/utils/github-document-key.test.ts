@@ -6,6 +6,16 @@ const DOC_PATH = 'docs/package.md'
 const DOC_KEY = 'github__kit__docs__package.md'
 const README_KEY = 'github__kit__README.md'
 
+describe('github_document_key.is_github_key', () => {
+	it('is true for a key carrying the github prefix', () => {
+		expect(github_document_key.is_github_key(DOC_KEY)).toBe(true)
+	})
+
+	it('is false for a key without the github prefix', () => {
+		expect(github_document_key.is_github_key('site__docs__page.md')).toBe(false)
+	})
+})
+
 describe('github_document_key.build_key', () => {
 	it('flattens path separators and keeps the markdown extension', () => {
 		expect(github_document_key.build_key(REPO, DOC_PATH)).toBe(DOC_KEY)
