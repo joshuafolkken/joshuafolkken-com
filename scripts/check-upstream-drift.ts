@@ -9,10 +9,10 @@
  */
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
+import { github_url } from './github-url'
 
 const TASKS_UPSTREAM_SHA = 'e3df052ec3fe08eba67f2d98fa33eef0a5b75bf5'
 const TASKS_REPO = 'joshuafolkken/tasks'
-const RAW_HOST = 'https://raw.githubusercontent.com'
 const HTTP_NOT_FOUND = 404
 
 type DriftStatus = 'match' | 'drifted' | 'missing_local' | 'missing_upstream'
@@ -83,12 +83,7 @@ const SYNCED_FILES: ReadonlyArray<string> = [
 ]
 
 function build_raw_url(sha: string, file_path: string): string {
-	const encoded = file_path
-		.split('/')
-		.map((segment) => encodeURIComponent(segment))
-		.join('/')
-
-	return `${RAW_HOST}/${TASKS_REPO}/${sha}/${encoded}`
+	return `${github_url.RAW_HOST}/${TASKS_REPO}/${sha}/${github_url.encode_url_path(file_path)}`
 }
 
 function classify(local: string | undefined, upstream: string | undefined): DriftStatus {

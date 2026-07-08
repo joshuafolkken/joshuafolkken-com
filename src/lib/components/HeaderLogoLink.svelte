@@ -15,7 +15,7 @@
 <a
 	href={resolve('/')}
 	class="cyber-glow-hover group flex shrink-0 items-center gap-3 rounded-lg px-2 py-1 hover:scale-105 active:scale-95"
-	aria-label="ホーム"
+	aria-label="Home"
 >
 	<LogoWithGlow size={HEADER_ICON_SIZE} />
 	<span

@@ -5,6 +5,8 @@ export interface BlogMetadata {
 	author?: string
 	excerpt: string
 	cover_image?: string
+	youtube?: string
+	youtube_date?: string
 }
 
 export interface Post {
@@ -15,4 +17,6 @@ export interface Post {
 	author?: string | undefined
 	excerpt: string
 	cover_image?: string | undefined
+	youtube?: string | undefined
+	youtube_date?: string | undefined
 }

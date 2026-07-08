@@ -9,6 +9,8 @@ interface MdsvexMetadata {
 	author?: unknown
 	excerpt?: unknown
 	cover_image?: unknown
+	youtube?: unknown
+	youtube_date?: unknown
 }
 
 interface MdsvexFile {
@@ -26,6 +28,10 @@ function is_mdsvex_file(file: unknown): file is MdsvexFile {
 
 function is_optional_string(value: unknown): boolean {
 	return value === undefined || typeof value === 'string'
+}
+
+function to_optional_string(value: unknown): string | undefined {
+	return typeof value === 'string' ? value : undefined
 }
 
 function has_required_string_fields(metadata: MdsvexMetadata): boolean {
@@ -80,6 +86,8 @@ function parse_post(path: string, file: unknown): Post | undefined {
 		author: file.metadata.author,
 		excerpt: file.metadata.excerpt,
 		cover_image,
+		youtube: to_optional_string(file.metadata.youtube),
+		youtube_date: to_optional_string(file.metadata.youtube_date),
 	}
 }
 

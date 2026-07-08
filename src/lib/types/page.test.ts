@@ -25,4 +25,11 @@ describe('PAGES registry', () => {
 	it('includes About in MAIN_NAV_PAGES', () => {
 		expect(MAIN_NAV_PAGES).toContain(PAGES.ABOUT)
 	})
+
+	it('links AI Chat to /chat and shows it in MAIN_NAV_PAGES', () => {
+		expect(PAGES.CHAT.link).toBe('/chat')
+		expect(PAGES.CHAT.title).toBe('AI Chat')
+		expect(PAGES.CHAT.icon).toBeDefined()
+		expect(MAIN_NAV_PAGES).toContain(PAGES.CHAT)
+	})
 })

@@ -2,6 +2,7 @@
 	import { resolve } from '$app/paths'
 	import CardImage from '$lib/components/CardImage.svelte'
 	import DateDisplay from '$lib/components/DateDisplay.svelte'
+	import YouTubeThumbnail from '$lib/components/YouTubeThumbnail.svelte'
 	import {
 		CARD_DESCRIPTION_CLASS,
 		CARD_TITLE_CLASS,
@@ -18,6 +19,8 @@
 	<a href={resolve('/blog/[slug]', { slug: post.slug })} class="flex flex-1 flex-col">
 		{#if cover_image_source}
 			<CardImage src={cover_image_source} alt={post.title} />
+		{:else if post.youtube}
+			<YouTubeThumbnail />
 		{/if}
 		<div class="flex flex-1 flex-col p-6 pb-16">
 			<h3 class="flex items-center gap-2 text-lg font-semibold">
@@ -31,6 +34,7 @@
 			<DateDisplay
 				date={post.date}
 				updated={post.updated}
+				youtube_date={post.youtube_date}
 				class="absolute right-6 bottom-6 text-white/40 transition-colors duration-300 group-hover:text-white/60"
 			/>
 		</div>

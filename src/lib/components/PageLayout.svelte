@@ -4,8 +4,13 @@
 	import PageFooter from './PageFooter.svelte'
 	import PageFooterLine from './PageFooterLine.svelte'
 
-	const { max_width = '6xl', children } = $props<{
+	const {
+		max_width = '6xl',
+		has_footer = true,
+		children,
+	} = $props<{
 		max_width?: MaxWidthKey
+		has_footer?: boolean
 		children: Snippet
 	}>()
 
@@ -17,8 +22,12 @@
 		<main class="{max_width_class} {PAGE_PADDING_CLASS} flex w-full flex-col">
 			{@render children()}
 
-			<PageFooter />
+			{#if has_footer}
+				<PageFooter />
+			{/if}
 		</main>
 	</div>
-	<PageFooterLine />
+	{#if has_footer}
+		<PageFooterLine />
+	{/if}
 </div>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { afterNavigate } from '$app/navigation'
 	import { page } from '$app/state'
 	import HeaderLogoLink from '$lib/components/HeaderLogoLink.svelte'
 	import HeaderPageLink from '$lib/components/HeaderPageLink.svelte'
@@ -7,7 +8,6 @@
 	import SearchNavItem from '$lib/components/SearchNavItem.svelte'
 	import StickyHeaderDrawer from '$lib/components/StickyHeaderDrawer.svelte'
 	import StickyHeaderOverlay from '$lib/components/StickyHeaderOverlay.svelte'
-	import { SEARCH_LABELS } from '$lib/constants/search'
 	import {
 		HEADER_CONTAINER_CLASSES,
 		HEADER_FADE_DURATION_MS,
@@ -20,9 +20,9 @@
 	import { page_title_visibility_state } from '$lib/hooks/PageTitleVisibilityState.svelte'
 	import { search_state } from '$lib/hooks/SearchState.svelte'
 	import { sticky_header_state } from '$lib/hooks/StickyHeaderState.svelte'
+	import ChatIcon from '$lib/icons/ChatIcon.svelte'
 	import CloseIcon from '$lib/icons/CloseIcon.svelte'
 	import MenuIcon from '$lib/icons/MenuIcon.svelte'
-	import SearchIcon from '$lib/icons/SearchIcon.svelte'
 	import { link_utilities } from '$lib/utils/link-utilities'
 	import { page_title } from '$lib/utils/page-title'
 	import { sticky_header_menu } from '$lib/utils/sticky-header-menu'
@@ -39,6 +39,16 @@
 	const link_info = $derived(link_utilities.get_link_info(current_page.link))
 
 	const { menu_items } = sticky_header_menu
+
+	const CHAT_PATH = '/chat'
+	const CHAT_LABEL = 'AI Chat'
+	const is_chat_active = $derived(page.url.pathname === CHAT_PATH)
+
+	// Close the mobile drawer on any route change so navigation from controls outside
+	// the drawer (logo link, mobile chat icon) does not leave it open.
+	afterNavigate(() => {
+		sticky_header_state.close_menu()
+	})
 </script>
 
 <header class={HEADER_CONTAINER_CLASSES} inert={is_search_open} data-testid="site-header">
@@ -54,28 +64,25 @@
 			</div>
 		{/if}
 
-		<nav class="hidden items-center gap-2 desktop:flex" aria-label="ページナビゲーション">
+		<nav class="hidden items-center gap-2 desktop:flex" aria-label="Page navigation">
 			<MenuNavList {menu_items} variant="desktop" />
 			<SearchNavItem />
 		</nav>
 	</div>
 
 	<div class={HEADER_RIGHT_SECTION_CLASSES}>
-		<button
-			type="button"
-			aria-label={SEARCH_LABELS.OPEN}
-			class={`${SEARCH_BUTTON_CLASSES} desktop:hidden`}
-			data-testid="search-trigger-mobile"
-			onclick={() => {
-				search_state.open()
-			}}
+		<a
+			href={CHAT_PATH}
+			aria-label={CHAT_LABEL}
+			class={`${SEARCH_BUTTON_CLASSES} desktop:hidden ${is_chat_active ? 'text-sky-400!' : ''}`}
+			data-testid="chat-trigger-mobile"
 		>
-			<SearchIcon size={NAV_ICON_SIZE} aria_label={SEARCH_LABELS.OPEN} />
-		</button>
+			<ChatIcon size={NAV_ICON_SIZE} aria_label={CHAT_LABEL} />
+		</a>
 		<HeaderSocialLinks variant="desktop" />
 		<button
 			type="button"
-			aria-label={is_menu_open ? 'メニューを閉じる' : 'メニューを開く'}
+			aria-label={is_menu_open ? 'Close menu' : 'Open menu'}
 			aria-expanded={is_menu_open}
 			class={MENU_TOGGLE_BUTTON_CLASSES}
 			onclick={sticky_header_state.handle_toggle_click}

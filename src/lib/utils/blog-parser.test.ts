@@ -34,4 +34,54 @@ describe('blog_parser.parse_post', () => {
 
 		expect(result).toBeUndefined()
 	})
+
+	it('includes youtube in parsed post when frontmatter has youtube', () => {
+		const youtube_url = 'https://www.youtube.com/watch?v=UI3-GR6yvjY'
+		const file = { metadata: { ...BASE_FILE.metadata, youtube: youtube_url } }
+
+		const result = blog_parser.parse_post(TEST_PATH, file)
+
+		expect(result?.youtube).toBe(youtube_url)
+	})
+
+	it('sets youtube to undefined when frontmatter has no youtube', () => {
+		const result = blog_parser.parse_post(TEST_PATH, BASE_FILE)
+
+		expect(result?.youtube).toBeUndefined()
+	})
+
+	it('keeps the post with youtube undefined when youtube is a non-string value', () => {
+		const file = { metadata: { ...BASE_FILE.metadata, youtube: 42 } }
+
+		const result = blog_parser.parse_post(TEST_PATH, file)
+
+		expect(result).toBeDefined()
+		expect(result?.youtube).toBeUndefined()
+	})
+})
+
+describe('blog_parser.parse_post youtube_date', () => {
+	it('includes youtube_date in parsed post when frontmatter has youtube_date', () => {
+		const youtube_date = '2026-01-22'
+		const file = { metadata: { ...BASE_FILE.metadata, youtube_date } }
+
+		const result = blog_parser.parse_post(TEST_PATH, file)
+
+		expect(result?.youtube_date).toBe(youtube_date)
+	})
+
+	it('sets youtube_date to undefined when frontmatter has no youtube_date', () => {
+		const result = blog_parser.parse_post(TEST_PATH, BASE_FILE)
+
+		expect(result?.youtube_date).toBeUndefined()
+	})
+
+	it('keeps the post with youtube_date undefined when youtube_date is a non-string value', () => {
+		const file = { metadata: { ...BASE_FILE.metadata, youtube_date: 42 } }
+
+		const result = blog_parser.parse_post(TEST_PATH, file)
+
+		expect(result).toBeDefined()
+		expect(result?.youtube_date).toBeUndefined()
+	})
 })

@@ -4,10 +4,21 @@
 @theme {
 	/* 768px */
 	--breakpoint-md: 48rem;
-	/* 832px — header switches between the desktop nav and the mobile drawer here,
-	   just above the width where the desktop nav would overlap the social icons */
-	--breakpoint-desktop: 52rem;
+	/* 992px — header switches between the desktop nav and the mobile drawer here,
+	   just above the width where the four-item desktop nav would overlap the social icons */
+	--breakpoint-desktop: 62rem;
 	--font-display: 'Shippori Mincho', serif;
+	--animate-thinking: thinking-bounce 0.6s ease-in-out infinite;
+}
+
+@keyframes thinking-bounce {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-3px);
+	}
 }
 
 html {

@@ -30,7 +30,7 @@
 			{@const Icon = menu_page.icon}
 			<Icon size={NAV_ICON_SIZE} class={icon_class} />
 		{/if}
-		<span>{menu_page.title}</span>
+		<span class="whitespace-nowrap">{menu_page.title}</span>
 		{#if is_desktop && is_active}
 			<span class="absolute right-1.5 bottom-1 left-1.5 h-px bg-sky-400/50"></span>
 		{/if}

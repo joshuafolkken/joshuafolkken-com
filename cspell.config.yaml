@@ -18,6 +18,8 @@ words:
   - androidstudio
   - apos
   - appleboy
+  - autolink
+  - autolinks
   - bigram
   - bigrams
   - Caddyfile
@@ -38,13 +40,16 @@ words:
   - godotengine
   - googlesyndication
   - gstatic
+  - ingestable
   - inlang
   - intellijidea
   - jgame
   - Kaku
   - KAWAII
   - letsencrypt
+  - libopus
   - libsql
+  - linkify
   - Mcpjson
   - Mdsvex
   - minisearch
@@ -54,6 +59,7 @@ words:
   - narratively
   - navigations
   - neverthrow
+  - nocookie
   - nodedotjs
   - octocat
   - oneline
@@ -64,6 +70,7 @@ words:
   - Platformer
   - Platformers
   - prgm
+  - qwen
   - ratelimits
   - redir
   - SAMEORIGIN
@@ -83,7 +90,9 @@ words:
   - sveltejs
   - udemy
   - undici
+  - unparseable
   - unstub
   - upscayl
   - viewports
   - vuedotjs
+  - youtu

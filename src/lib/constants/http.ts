@@ -19,6 +19,8 @@ export const ERROR_MESSAGES = {
 	FAILED_TO_FETCH_CONTRIBUTORS: 'Failed to fetch contributors',
 	FAILED_TO_GET_LIKES: 'Failed to get likes',
 	FAILED_TO_INCREMENT_LIKES: 'Failed to increment likes',
+	QUESTION_INVALID: 'Question must be a non-empty string within the length limit',
+	FAILED_TO_ANSWER: 'Failed to answer the question',
 } as const
 
 export const HTTP_HEADERS = {
@@ -31,4 +33,5 @@ export const HTTP_HEADERS = {
 export const CONTENT_TYPE = {
 	JSON: 'application/json',
 	XML: 'application/xml',
+	EVENT_STREAM: 'text/event-stream',
 } as const
