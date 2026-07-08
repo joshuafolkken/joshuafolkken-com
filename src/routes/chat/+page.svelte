@@ -3,6 +3,7 @@
 	import { chat_api } from '$lib/api/chat-api'
 	import { chat_history } from '$lib/api/chat-history'
 	import { APP, AUTHOR } from '$lib/app'
+	import ChatTimestamp from '$lib/components/ChatTimestamp.svelte'
 	import MetaTags from '$lib/components/MetaTags.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import { CHAT_LABELS } from '$lib/constants/chat'
@@ -272,6 +273,9 @@
 							{:else}
 								<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 								<div class={MARKDOWN_CLASS}>{@html markdown.to_html(message.text)}</div>
+								{#if message.timestamp}
+									<ChatTimestamp iso={message.timestamp} />
+								{/if}
 							{/if}
 						</div>
 					{/if}
