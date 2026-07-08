@@ -23,6 +23,14 @@ function is_non_null_object(value: unknown): boolean {
 	return typeof value === 'object' && value !== null
 }
 
+// Surface the underlying failure (AI Search / binding diagnostics) so it is debuggable from the chat
+// UI, per #751. Falls back to the generic message only when the thrown error carries no text.
+function extract_error_detail(error: unknown): string {
+	const message = error instanceof Error ? error.message : String(error)
+
+	return message.length > 0 ? message : ERROR_MESSAGES.FAILED_TO_ANSWER
+}
+
 function is_chat_request_body(value: unknown): value is ChatRequestBody {
 	return is_non_null_object(value)
 }
@@ -115,6 +123,6 @@ export const POST: RequestHandler = async ({
 	} catch (error) {
 		logger.error(error)
 
-		return security.json_error(ERROR_MESSAGES.FAILED_TO_ANSWER, HTTP_STATUS.INTERNAL_SERVER_ERROR)
+		return security.json_error(extract_error_detail(error), HTTP_STATUS.INTERNAL_SERVER_ERROR)
 	}
 }

@@ -38,6 +38,7 @@ const VALID_MESSAGES = [
 ]
 const OVER_LENGTH_QUESTION = 'x'.repeat(501)
 const WHITESPACE_QUESTION = ' '.repeat(3)
+const STREAM_ERROR_DETAIL = 'ai search down'
 
 function make_post_event(
 	body: Record<string, unknown>,
@@ -81,11 +82,20 @@ describe('POST /api/chat', () => {
 	})
 
 	it('returns a server error when the answer stream cannot be created', async () => {
-		vi.mocked(chat.stream_answer).mockRejectedValue(new Error('ai search down'))
+		vi.mocked(chat.stream_answer).mockRejectedValue(new Error(STREAM_ERROR_DETAIL))
 
 		const response = await POST(make_post_event({ messages: VALID_MESSAGES }))
 
 		expect(response.status).toBe(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+	})
+
+	it('surfaces the real error detail in the failure body', async () => {
+		vi.mocked(chat.stream_answer).mockRejectedValue(new Error(STREAM_ERROR_DETAIL))
+
+		const response = await POST(make_post_event({ messages: VALID_MESSAGES }))
+		const body: unknown = await response.json()
+
+		expect(body).toEqual({ error: STREAM_ERROR_DETAIL })
 	})
 })
 
