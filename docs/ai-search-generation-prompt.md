@@ -51,6 +51,23 @@ questions in-band ([#665](https://github.com/joshuafolkken/joshuafolkken-com/iss
 > safety net (rewriting citations from the retrieved documents) is tracked as a separate
 > follow-up and should be executed only after this prompt is confirmed working live.
 
+## Link formatting ([#747](https://github.com/joshuafolkken/joshuafolkken-com/issues/747))
+
+Two readability rules govern how links appear in answers. Both are enforced at generation time
+(the prompt) rather than by post-processing the response in the app — so the model localizes
+the reference label to the answer's own language, and no code needs to parse or rewrite the
+rendered link:
+
+1. **Inline spacing.** Japanese has no ASCII word spaces, so an inline `[title](url)` renders
+   flush against the surrounding text. The prompt asks the model to pad an inline link with a
+   half-width (ASCII) space on each side.
+2. **Reference placement.** When an answer would open by leading with the source
+   (`[title](url)によると…` / "According to [title](url)…"), the long citation title buries the
+   actual answer. The prompt asks the model to state the explanation first and append the
+   citation at the end as a reference, labeled in the answer's own language (`参考:` /
+   `Reference:`) so the behavior stays language-agnostic. Links that occur mid-sentence are
+   left in place.
+
 ## Applied prompt text
 
 ```text
@@ -82,6 +99,17 @@ Citations:
   never emit doubled underscores (`__`) as citation text, and never produce a relative link.
 - If a retrieved document has no `Source:` line, mention it by its title without fabricating a
   URL.
+
+Link placement and spacing:
+- Do not open an answer by leading with a source link. If your reply would begin with a
+  citation immediately followed by a phrase like "によると" / "according to" (the source coming
+  first), instead state the explanation first and move that citation to the end as a reference
+  on its own line, labeled in the same language as your answer (Japanese: "参考:", English:
+  "Reference:"). This applies only when the link would fall at the very start of the answer.
+- Keep any link that occurs in the middle of a sentence exactly where it is.
+- When a link sits inline with surrounding text, put a single half-width (ASCII) space
+  immediately before and after the link so it never runs flush against adjacent Japanese (or
+  other non-spaced) text.
 ```
 
 ## Verification (manual, on the live instance)
@@ -92,3 +120,8 @@ After applying the prompt on the dashboard, confirm on the live `/chat` (and the
    (`[<repo> — <path>]`), and shows **no** `__`-flattened filename and **no** relative link.
 2. A Japanese question still gets a Japanese answer with citations (the #675 regression guard).
 3. An off-topic question is politely declined in the user's language (the #665 behavior).
+4. An answer that would have opened with `[title](url)によると…` now leads with the
+   explanation and shows the citation at the end as `参考: [title](url)` (Japanese) — or
+   `Reference: [title](url)` for an English answer (the #747 reference-placement rule).
+5. An inline link is padded with a half-width space on each side rather than running flush
+   against adjacent Japanese text (the #747 inline-spacing rule).
