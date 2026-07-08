@@ -73,7 +73,12 @@ class ChatStateStore {
 	}
 
 	start_exchange(question: string): number {
-		this.#messages.push({ role: 'user', text: question }, { role: 'assistant', text: '' })
+		// The assistant reply carries the capture time (shown at the end of the bubble); the user question
+		// intentionally does not, per the feature scope.
+		this.#messages.push(
+			{ role: 'user', text: question },
+			{ role: 'assistant', text: '', timestamp: new Date().toISOString() },
+		)
 		this.#enforce_limit()
 		this.#persist.schedule()
 

@@ -20,8 +20,20 @@ describe('chat_state messages', () => {
 
 		expect(messages).toHaveLength(2)
 		expect(messages[0]).toEqual({ role: 'user', text: 'hi' })
-		expect(messages[1]).toEqual({ role: 'assistant', text: '' })
+		expect(messages[1]).toMatchObject({ role: 'assistant', text: '' })
 		expect(index).toBe(1)
+	})
+
+	it('stamps the assistant reply with an ISO timestamp but leaves the user question unstamped', () => {
+		chat_state.start_exchange('hi')
+		const messages = chat_state.get_messages()
+		const user_stamp = messages[0]?.timestamp
+		const assistant_stamp = messages[1]?.timestamp ?? ''
+
+		expect(user_stamp).toBeUndefined()
+		expect(typeof messages[1]?.timestamp).toBe('string')
+		// Round-trips through Date, so it is a real ISO 8601 instant, not an arbitrary string.
+		expect(new Date(assistant_stamp).toISOString()).toBe(assistant_stamp)
 	})
 
 	it('append accumulates tokens and set replaces the text at the index', () => {
@@ -73,6 +85,6 @@ describe('chat_state cap', () => {
 
 		chat_state.append(index, 'answer')
 
-		expect(chat_state.get_messages()[index]).toEqual({ role: 'assistant', text: 'answer' })
+		expect(chat_state.get_messages()[index]).toMatchObject({ role: 'assistant', text: 'answer' })
 	})
 })

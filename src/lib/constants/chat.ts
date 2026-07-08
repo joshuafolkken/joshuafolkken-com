@@ -13,6 +13,7 @@ const CHAT_LABELS = {
 		"I couldn't find that in the site content. Try rephrasing, or check the About and Blog pages.",
 	ERROR: 'Something went wrong. Please try again.',
 	CLEAR_COMMAND: '/clear',
+	ANSWERED_AT: 'Answered at',
 } as const
 
 export { CHAT_LABELS }
