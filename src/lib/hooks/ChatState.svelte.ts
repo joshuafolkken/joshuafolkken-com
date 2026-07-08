@@ -94,12 +94,15 @@ class ChatStateStore {
 		this.#persist.schedule()
 	}
 
-	set(index: number, text: string): void {
+	// A failure keeps a friendly headline as the text and carries the technical detail (HTTP code +
+	// server message) separately, so the reply can render the reassuring line above a muted sub-message.
+	set_error(index: number, text: string, detail: string): void {
 		const message = this.#messages[index]
 
 		if (!message) return
 
 		message.text = text
+		message.detail = detail
 		this.#persist.schedule()
 	}
 
