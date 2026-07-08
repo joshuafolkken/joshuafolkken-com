@@ -33,6 +33,21 @@ test('parses a legacy message that predates the timestamp field', () => {
 	expect(chat_log_payload.parse(raw)).toStrictEqual([{ role: 'assistant', text: 'hi' }])
 })
 
+test('keeps an error detail sub-message on an assistant message', () => {
+	const raw =
+		'[{"role":"assistant","text":"Something went wrong.","detail":"[500] ai search down"}]'
+
+	expect(chat_log_payload.parse(raw)).toStrictEqual([
+		{ role: 'assistant', text: 'Something went wrong.', detail: '[500] ai search down' },
+	])
+})
+
+test('filters out a message whose detail is not a string', () => {
+	const raw = '[{"role":"assistant","text":"ok","detail":42}]'
+
+	expect(chat_log_payload.parse(raw)).toStrictEqual([])
+})
+
 test('filters out a message whose timestamp is not a string', () => {
 	const raw = '[{"role":"assistant","text":"ok","timestamp":42}]'
 

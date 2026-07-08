@@ -3,6 +3,7 @@
 	import { chat_api } from '$lib/api/chat-api'
 	import { chat_history } from '$lib/api/chat-history'
 	import { APP, AUTHOR } from '$lib/app'
+	import ChatErrorDetail from '$lib/components/ChatErrorDetail.svelte'
 	import ChatTimestamp from '$lib/components/ChatTimestamp.svelte'
 	import MetaTags from '$lib/components/MetaTags.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
@@ -171,6 +172,12 @@
 		did_parse_stream = true
 	})
 
+	// The raw failure detail (HTTP code + server message, see chat_api.format_error) shown as a muted
+	// sub-message; '' when the failure carries no text, so only the friendly headline renders (#751).
+	function error_detail(error: unknown): string {
+		return error instanceof Error ? error.message : ''
+	}
+
 	async function respond(index: number): Promise<void> {
 		// The window is read after start_exchange, so it already includes this turn's question and
 		// excludes the empty assistant placeholder that build_request_messages filters out.
@@ -183,8 +190,8 @@
 
 			// Covers both not-grounded (no stream) and a grounded stream that yielded no tokens.
 			chat_state.set_if_empty(index, CHAT_LABELS.NOT_FOUND)
-		} catch {
-			chat_state.set(index, CHAT_LABELS.ERROR)
+		} catch (error) {
+			chat_state.set_error(index, CHAT_LABELS.ERROR, error_detail(error))
 		}
 	}
 
@@ -273,6 +280,9 @@
 							{:else}
 								<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 								<div class={MARKDOWN_CLASS}>{@html markdown.to_html(message.text)}</div>
+								{#if message.detail}
+									<ChatErrorDetail detail={message.detail} />
+								{/if}
 								{#if message.timestamp}
 									<ChatTimestamp iso={message.timestamp} />
 								{/if}

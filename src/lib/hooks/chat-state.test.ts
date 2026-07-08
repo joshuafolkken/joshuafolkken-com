@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { chat_state } from './ChatState.svelte'
 
 const MAX_MESSAGES = 100
+const ERROR_HEADLINE = 'Something went wrong.'
+const ERROR_DETAIL = '[500] ai search down'
 
 function seed_exchanges(count: number): void {
 	for (let index = 0; index < count; index += 1) {
@@ -36,15 +38,12 @@ describe('chat_state messages', () => {
 		expect(new Date(assistant_stamp).toISOString()).toBe(assistant_stamp)
 	})
 
-	it('append accumulates tokens and set replaces the text at the index', () => {
+	it('append accumulates tokens at the index', () => {
 		const index = chat_state.start_exchange('hi')
 
 		chat_state.append(index, 'ans')
 		chat_state.append(index, 'wer')
 		expect(chat_state.get_messages()[index]?.text).toBe('answer')
-
-		chat_state.set(index, 'replaced')
-		expect(chat_state.get_messages()[index]?.text).toBe('replaced')
 	})
 
 	it('reset clears the conversation', () => {
@@ -52,6 +51,20 @@ describe('chat_state messages', () => {
 		chat_state.reset()
 
 		expect(chat_state.get_messages()).toHaveLength(0)
+	})
+})
+
+describe('chat_state set_error', () => {
+	it('sets a friendly headline as the text and the technical detail alongside it', () => {
+		const index = chat_state.start_exchange('hi')
+
+		chat_state.set_error(index, ERROR_HEADLINE, ERROR_DETAIL)
+
+		expect(chat_state.get_messages()[index]).toMatchObject({
+			role: 'assistant',
+			text: ERROR_HEADLINE,
+			detail: ERROR_DETAIL,
+		})
 	})
 })
 

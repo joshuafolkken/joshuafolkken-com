@@ -29,6 +29,31 @@ function extract_content(value: unknown): string | undefined {
 	return typeof content === 'string' ? content : undefined
 }
 
+function is_error_body(value: unknown): value is { error: string } {
+	if (typeof value !== 'object' || value === null) return false
+
+	return typeof Reflect.get(value, 'error') === 'string'
+}
+
+async function read_error_detail(response: Response): Promise<string> {
+	try {
+		const body: unknown = await response.json()
+
+		return is_error_body(body) ? body.error : ''
+	} catch {
+		return ''
+	}
+}
+
+// Surface the failure's HTTP status and server detail as-is so the chat bubble can show the real
+// error and code rather than a generic message (#751).
+async function format_error(response: Response): Promise<string> {
+	const code = `[${String(response.status)}]`
+	const detail = await read_error_detail(response)
+
+	return detail.length > 0 ? `${code} ${detail}` : code
+}
+
 function parse_delta(data: string): string | undefined {
 	const trimmed = data.trim()
 
@@ -91,7 +116,7 @@ async function ask(
 		body: JSON.stringify({ messages }),
 	})
 
-	if (!response.ok) throw new Error(`Chat request failed: ${String(response.status)}`)
+	if (!response.ok) throw new Error(await format_error(response))
 
 	const content_type = response.headers.get(HTTP_HEADERS.CONTENT_TYPE) ?? ''
 

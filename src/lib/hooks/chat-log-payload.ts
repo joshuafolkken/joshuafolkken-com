@@ -7,11 +7,14 @@ interface ChatMessage {
 	text: string
 	// ISO 8601 capture time; optional so pre-existing stored logs (written before this field) still parse.
 	timestamp?: string
+	// Technical failure detail (HTTP code + server message) shown as a sub-message under a friendly
+	// error; optional so it is absent on every non-error message and on pre-existing stored logs.
+	detail?: string
 }
 
 function has_message_fields(
 	value: unknown,
-): value is Record<'role' | 'text' | 'timestamp', unknown> {
+): value is Record<'role' | 'text' | 'timestamp' | 'detail', unknown> {
 	return typeof value === 'object' && value !== null
 }
 
@@ -26,7 +29,12 @@ function is_optional_string(value: unknown): boolean {
 function is_chat_message(item: unknown): item is ChatMessage {
 	if (!has_message_fields(item)) return false
 
-	return is_role(item.role) && typeof item.text === 'string' && is_optional_string(item.timestamp)
+	return (
+		is_role(item.role) &&
+		typeof item.text === 'string' &&
+		is_optional_string(item.timestamp) &&
+		is_optional_string(item.detail)
+	)
 }
 
 function parse(raw: string): Array<ChatMessage> {

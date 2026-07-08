@@ -12,6 +12,7 @@ const MESSAGES: Array<ChatRequestMessage> = [
 	{ role: 'user', content: 'q' },
 ]
 const SERVER_ERROR_STATUS = 500
+const SERVER_ERROR_DETAIL = 'ai search down'
 
 function make_stream(body: string): ReadableStream<Uint8Array> {
 	return new ReadableStream({
@@ -79,6 +80,29 @@ describe('chat_api.ask', () => {
 		stub_fetch(new Response('', { status: SERVER_ERROR_STATUS }))
 
 		await expect(chat_api.ask(MESSAGES, vi.fn())).rejects.toThrow()
+	})
+})
+
+describe('chat_api.ask error responses', () => {
+	it('surfaces the status code and server error detail as-is when the response fails', async () => {
+		stub_fetch(
+			Response.json(
+				{ error: SERVER_ERROR_DETAIL },
+				{ status: SERVER_ERROR_STATUS, headers: { [CONTENT_TYPE_HEADER]: JSON_TYPE } },
+			),
+		)
+
+		await expect(chat_api.ask(MESSAGES, vi.fn())).rejects.toThrow(
+			`[${String(SERVER_ERROR_STATUS)}] ${SERVER_ERROR_DETAIL}`,
+		)
+	})
+
+	it('falls back to just the status code when the failure body has no detail', async () => {
+		stub_fetch(new Response('', { status: SERVER_ERROR_STATUS }))
+
+		await expect(chat_api.ask(MESSAGES, vi.fn())).rejects.toThrow(
+			`[${String(SERVER_ERROR_STATUS)}]`,
+		)
 	})
 })
 
