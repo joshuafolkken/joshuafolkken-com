@@ -1,6 +1,6 @@
 {
 	"name": "joshuafolkken-com",
-	"version": "0.292.0",
+	"version": "0.293.0",
 	"type": "module",
 	"private": true,
 	"scripts": {
@@ -26,7 +26,7 @@
 		"check:upstream": "tsx scripts/check-upstream-drift.ts",
 		"ingest:github-docs": "set -a; [ -f .env ] && . ./.env; set +a; tsx scripts/ingest-github-documentation.ts",
 		"size-limit": "size-limit",
-		"yt:mp3": "yt-dlp -x --audio-format opus -P .audio --cookies-from-browser chrome --write-info-json --postprocessor-args \"ffmpeg:-c:a libopus -b:a 16k -ac 1\"",
+		"yt:audio": "yt-dlp -x --audio-format opus -P .audio --cookies-from-browser chrome --write-info-json --postprocessor-args \"ffmpeg:-c:a libopus -b:a 16k -ac 1\"",
 		"article:frontmatter": "tsx scripts/inject-talk-frontmatter.ts",
 		"josh": "josh",
 		"prepare:gen": "[ ! -f wrangler.jsonc ] || pnpm gen",
