@@ -8,7 +8,7 @@
  *   youtube      -> {{YOUTUBE_URL}}  (https://www.youtube.com/watch?v=<id>)
  *   youtube_date -> {{YOUTUBE_DATE}} (yt-dlp `upload_date` = the video's original publish date, YYYY-MM-DD)
  * This post-processor replaces those tokens with values read from the `.info.json`
- * that `pnpm yt:mp3` writes alongside the audio, so the values are never fabricated.
+ * that `pnpm yt:audio` writes alongside the audio, so the values are never fabricated.
  *
  * Usage:
  *   pnpm article:frontmatter <article.md> <youtube-url-or-id>
