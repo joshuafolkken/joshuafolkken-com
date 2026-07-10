@@ -80,6 +80,12 @@ function download_audio(url: string): void {
 		stdio: 'inherit',
 	})
 
+	// A spawn failure (e.g. binary not found) sets `error` and leaves `status` null; surface that
+	// underlying reason rather than the misleading "exited with null" of the status check below.
+	if (result.error !== undefined) {
+		throw new Error(`Audio download failed: ${result.error.message}`)
+	}
+
 	if (result.status !== 0) {
 		throw new Error(`Audio download failed: pnpm yt:audio exited with ${String(result.status)}`)
 	}
