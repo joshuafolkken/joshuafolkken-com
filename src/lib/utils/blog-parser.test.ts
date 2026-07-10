@@ -85,3 +85,29 @@ describe('blog_parser.parse_post youtube_date', () => {
 		expect(result?.youtube_date).toBeUndefined()
 	})
 })
+
+describe('blog_parser.parse_post youtube_title', () => {
+	it('includes youtube_title in parsed post when frontmatter has youtube_title', () => {
+		const youtube_title = 'Original video title'
+		const file = { metadata: { ...BASE_FILE.metadata, youtube_title } }
+
+		const result = blog_parser.parse_post(TEST_PATH, file)
+
+		expect(result?.youtube_title).toBe(youtube_title)
+	})
+
+	it('sets youtube_title to undefined when frontmatter has no youtube_title', () => {
+		const result = blog_parser.parse_post(TEST_PATH, BASE_FILE)
+
+		expect(result?.youtube_title).toBeUndefined()
+	})
+
+	it('keeps the post with youtube_title undefined when youtube_title is a non-string value', () => {
+		const file = { metadata: { ...BASE_FILE.metadata, youtube_title: 42 } }
+
+		const result = blog_parser.parse_post(TEST_PATH, file)
+
+		expect(result).toBeDefined()
+		expect(result?.youtube_title).toBeUndefined()
+	})
+})

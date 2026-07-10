@@ -11,7 +11,7 @@
 
 {#if embed_url}
 	<div
-		class="relative my-6 aspect-video w-full overflow-hidden rounded-xl border border-white/5"
+		class="relative aspect-video w-full overflow-hidden rounded-xl border border-white/5"
 		data-testid="youtube-embed"
 	>
 		<iframe

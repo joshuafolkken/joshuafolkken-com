@@ -11,6 +11,7 @@ interface MdsvexMetadata {
 	cover_image?: unknown
 	youtube?: unknown
 	youtube_date?: unknown
+	youtube_title?: unknown
 }
 
 interface MdsvexFile {
@@ -88,6 +89,7 @@ function parse_post(path: string, file: unknown): Post | undefined {
 		cover_image,
 		youtube: to_optional_string(file.metadata.youtube),
 		youtube_date: to_optional_string(file.metadata.youtube_date),
+		youtube_title: to_optional_string(file.metadata.youtube_title),
 	}
 }
 

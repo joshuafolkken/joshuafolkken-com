@@ -2,11 +2,12 @@
 /**
  * Inject deterministic YouTube metadata into a talk-derived article's frontmatter.
  *
- * The `prompts/audio-to-article-3.md` prompt emits placeholder tokens for the three
+ * The `prompts/audio-to-article-3.md` prompt emits placeholder tokens for the
  * fields the summarizing LLM cannot know reliably (it cannot browse YouTube):
- *   date         -> {{PUBLISH_DATE}} (this script's run date = the article's publish date, YYYY-MM-DD)
- *   youtube      -> {{YOUTUBE_URL}}  (https://www.youtube.com/watch?v=<id>)
- *   youtube_date -> {{YOUTUBE_DATE}} (yt-dlp `upload_date` = the video's original publish date, YYYY-MM-DD)
+ *   date          -> {{PUBLISH_DATE}}  (this script's run date = the article's publish date, YYYY-MM-DD)
+ *   youtube       -> {{YOUTUBE_URL}}   (https://www.youtube.com/watch?v=<id>)
+ *   youtube_date  -> {{YOUTUBE_DATE}}  (yt-dlp `upload_date` = the video's original publish date, YYYY-MM-DD)
+ *   youtube_title -> {{YOUTUBE_TITLE}} (yt-dlp `title` = the original video title)
  * This post-processor replaces those tokens with values read from the `.info.json`
  * that `pnpm yt:audio` writes alongside the audio, so the values are never fabricated.
  *
@@ -29,30 +30,39 @@ const CLI_ARGS_START = 2
 interface VideoMetadata {
 	video_id: string
 	upload_date: string
+	video_title: string
 }
 
 interface FrontmatterValues {
 	article_date: string
 	youtube_date: string
 	youtube_url: string
+	youtube_title: string
 }
 
 interface RawInfoJson {
 	id?: unknown
 	upload_date?: unknown
+	title?: unknown
 }
 
-// Extracts id + upload_date from a yt-dlp `--write-info-json` payload, rejecting a
-// payload missing either field so a partial download never yields a blank frontmatter.
+// Extracts id + upload_date + title from a yt-dlp `--write-info-json` payload, rejecting a
+// payload missing any field so a partial download never yields a blank frontmatter.
 function parse_info_json(raw: string): VideoMetadata {
 	const parsed = JSON.parse(raw) as RawInfoJson
-	const { id, upload_date } = parsed
+	const { id, upload_date, title } = parsed
 
-	if (typeof id !== 'string' || typeof upload_date !== 'string') {
-		throw new TypeError('info.json is missing a string id or upload_date')
+	if (typeof id !== 'string' || typeof upload_date !== 'string' || typeof title !== 'string') {
+		throw new TypeError('info.json is missing a string id, upload_date, or title')
 	}
 
-	return { video_id: id, upload_date }
+	return { video_id: id, upload_date, video_title: title }
+}
+
+// The frontmatter wraps the title in a YAML single-quoted scalar; the only character that
+// needs escaping there is the single quote itself, which YAML represents by doubling it.
+function escape_yaml_single_quoted(value: string): string {
+	return value.replaceAll("'", "''")
 }
 
 // yt-dlp `upload_date` is a bare YYYYMMDD; the blog frontmatter uses YYYY-MM-DD.
@@ -98,6 +108,7 @@ function inject_frontmatter_metadata(markdown: string, values: FrontmatterValues
 		.replace(placeholder_pattern('PUBLISH_DATE'), () => values.article_date)
 		.replace(placeholder_pattern('YOUTUBE_DATE'), () => values.youtube_date)
 		.replace(placeholder_pattern('YOUTUBE_URL'), () => values.youtube_url)
+		.replace(placeholder_pattern('YOUTUBE_TITLE'), () => values.youtube_title)
 }
 
 function find_info_metadata(audio_directory: string, video_id: string): VideoMetadata {
@@ -115,6 +126,7 @@ function build_values(metadata: VideoMetadata, now: Date): FrontmatterValues {
 	return {
 		youtube_url: build_youtube_url(metadata.video_id),
 		youtube_date: format_upload_date(metadata.upload_date),
+		youtube_title: escape_yaml_single_quoted(metadata.video_title),
 		article_date: format_generated_date(now),
 	}
 }
@@ -165,6 +177,7 @@ if (is_main_module) {
 
 const talk_frontmatter = {
 	parse_info_json,
+	escape_yaml_single_quoted,
 	format_upload_date,
 	format_generated_date,
 	build_youtube_url,

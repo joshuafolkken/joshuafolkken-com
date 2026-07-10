@@ -5,6 +5,8 @@ const VIDEO_ID = 'UI3-GR6yvjY'
 const WATCH_URL = `https://www.youtube.com/watch?v=${VIDEO_ID}`
 const EMBED_URL = `https://www.youtube-nocookie.com/embed/${VIDEO_ID}`
 const NON_YOUTUBE_URL = 'https://example.com/video'
+const NO_ID_TITLE = 'returns undefined when no id can be extracted'
+const NON_STRING_TITLE = 'returns undefined for a non-string value'
 
 describe('youtube.get_video_id', () => {
 	it('extracts the id from a watch URL', () => {
@@ -35,7 +37,7 @@ describe('youtube.get_video_id', () => {
 		expect(youtube.get_video_id(`https://evil.com/watch?v=${VIDEO_ID}`)).toBeUndefined()
 	})
 
-	it('returns undefined for a non-string value', () => {
+	it(NON_STRING_TITLE, () => {
 		expect(youtube.get_video_id(undefined)).toBeUndefined()
 	})
 })
@@ -45,7 +47,7 @@ describe('youtube.get_embed_url', () => {
 		expect(youtube.get_embed_url(WATCH_URL)).toBe(EMBED_URL)
 	})
 
-	it('returns undefined when no id can be extracted', () => {
+	it(NO_ID_TITLE, () => {
 		expect(youtube.get_embed_url(NON_YOUTUBE_URL)).toBeUndefined()
 	})
 })

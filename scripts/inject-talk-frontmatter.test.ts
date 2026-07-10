@@ -6,10 +6,13 @@ const WATCH_URL = `https://www.youtube.com/watch?v=${VIDEO_ID}`
 const UPLOAD_DATE_RAW = '20250514'
 const YOUTUBE_DATE = '2025-05-14'
 const ARTICLE_DATE = '2026-07-07'
+const VIDEO_TITLE = '#Division2'
+const TITLE_WITH_QUOTE = "Josh's talk"
+const TITLE_WITH_QUOTE_ESCAPED = "Josh''s talk"
 const INFO_JSON = JSON.stringify({
 	id: VIDEO_ID,
 	upload_date: UPLOAD_DATE_RAW,
-	title: '#Division2',
+	title: VIDEO_TITLE,
 	uploader: 'Joshua Folkken',
 	duration: 7200,
 })
@@ -22,6 +25,7 @@ excerpt: 'A faithful summary of the talk.'
 tags: ['from-talk', 'Division 2']
 youtube: '{{YOUTUBE_URL}}'
 youtube_date: '{{YOUTUBE_DATE}}'
+youtube_title: '{{YOUTUBE_TITLE}}'
 ---
 
 Body stays untouched.`
@@ -30,22 +34,44 @@ const VALUES = {
 	article_date: ARTICLE_DATE,
 	youtube_date: YOUTUBE_DATE,
 	youtube_url: WATCH_URL,
+	youtube_title: VIDEO_TITLE,
 }
 
 describe('talk_frontmatter.parse_info_json', () => {
-	it('extracts id and upload_date from a yt-dlp info.json payload', () => {
+	it('extracts id, upload_date, and title from a yt-dlp info.json payload', () => {
 		expect(talk_frontmatter.parse_info_json(INFO_JSON)).toEqual({
 			video_id: VIDEO_ID,
 			upload_date: UPLOAD_DATE_RAW,
+			video_title: VIDEO_TITLE,
 		})
 	})
 
 	it('throws when id is missing', () => {
-		expect(() => talk_frontmatter.parse_info_json(`{"upload_date":"${UPLOAD_DATE_RAW}"}`)).toThrow()
+		expect(() =>
+			talk_frontmatter.parse_info_json(`{"upload_date":"${UPLOAD_DATE_RAW}","title":"x"}`),
+		).toThrow()
 	})
 
 	it('throws when upload_date is missing', () => {
-		expect(() => talk_frontmatter.parse_info_json(`{"id":"${VIDEO_ID}"}`)).toThrow()
+		expect(() => talk_frontmatter.parse_info_json(`{"id":"${VIDEO_ID}","title":"x"}`)).toThrow()
+	})
+
+	it('throws when title is missing', () => {
+		expect(() =>
+			talk_frontmatter.parse_info_json(`{"id":"${VIDEO_ID}","upload_date":"${UPLOAD_DATE_RAW}"}`),
+		).toThrow()
+	})
+})
+
+describe('talk_frontmatter.escape_yaml_single_quoted', () => {
+	it('doubles single quotes so the value stays a valid YAML single-quoted scalar', () => {
+		expect(talk_frontmatter.escape_yaml_single_quoted(TITLE_WITH_QUOTE)).toBe(
+			TITLE_WITH_QUOTE_ESCAPED,
+		)
+	})
+
+	it('leaves a quote-free value untouched', () => {
+		expect(talk_frontmatter.escape_yaml_single_quoted(VIDEO_TITLE)).toBe(VIDEO_TITLE)
 	})
 })
 
@@ -113,12 +139,13 @@ describe('talk_frontmatter.resolve_article_path', () => {
 })
 
 describe('talk_frontmatter.inject_frontmatter_metadata', () => {
-	it('replaces the three {{...}} placeholders with real values', () => {
+	it('replaces the four {{...}} placeholders with real values', () => {
 		const result = talk_frontmatter.inject_frontmatter_metadata(FRONTMATTER, VALUES)
 
 		expect(result).toContain(`date: '${ARTICLE_DATE}'`)
 		expect(result).toContain(`youtube: '${WATCH_URL}'`)
 		expect(result).toContain(`youtube_date: '${YOUTUBE_DATE}'`)
+		expect(result).toContain(`youtube_title: '${VIDEO_TITLE}'`)
 	})
 
 	it('leaves title, excerpt, and tags untouched', () => {
@@ -142,18 +169,31 @@ describe('talk_frontmatter.inject_frontmatter_metadata', () => {
 	it('leaves no placeholder token unresolved', () => {
 		const result = talk_frontmatter.inject_frontmatter_metadata(FRONTMATTER, VALUES)
 
-		expect(result).not.toMatch(/PUBLISH_DATE|YOUTUBE_DATE|YOUTUBE_URL/u)
+		expect(result).not.toMatch(/PUBLISH_DATE|YOUTUBE_DATE|YOUTUBE_URL|YOUTUBE_TITLE/u)
 	})
 })
 
 describe('talk_frontmatter.build_values', () => {
 	it('maps the run date to article_date and the upload date to youtube_date', () => {
-		const metadata = { video_id: VIDEO_ID, upload_date: UPLOAD_DATE_RAW }
+		const metadata = { video_id: VIDEO_ID, upload_date: UPLOAD_DATE_RAW, video_title: VIDEO_TITLE }
 
 		expect(talk_frontmatter.build_values(metadata, new Date(2026, 6, 7))).toEqual({
 			article_date: ARTICLE_DATE,
 			youtube_date: YOUTUBE_DATE,
 			youtube_url: WATCH_URL,
+			youtube_title: VIDEO_TITLE,
 		})
+	})
+
+	it('escapes single quotes in the video title for the YAML scalar', () => {
+		const metadata = {
+			video_id: VIDEO_ID,
+			upload_date: UPLOAD_DATE_RAW,
+			video_title: TITLE_WITH_QUOTE,
+		}
+
+		expect(talk_frontmatter.build_values(metadata, new Date(2026, 6, 7)).youtube_title).toBe(
+			TITLE_WITH_QUOTE_ESCAPED,
+		)
 	})
 })
