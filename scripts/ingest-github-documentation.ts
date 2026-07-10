@@ -15,6 +15,7 @@
  */
 import { github_document_key } from '$lib/utils/github-document-key'
 import { ai_search_items, type ItemsConfig, type StoredItem } from './ai-search-items'
+import { environment } from './environment'
 import { github_documentation, type DocumentRecord } from './github-documentation'
 
 const DEFAULT_INSTANCE = 'joshuafolkken-com-chat'
@@ -36,31 +37,16 @@ interface IngestDependencies {
 	remove: (id: string) => Promise<void>
 }
 
-function require_environment(name: string): string {
-	const value = process.env[name]
-
-	if (value === undefined || value === '') throw new Error(`Missing required env: ${name}`)
-
-	return value
-}
-
-function optional_environment(name: string, fallback: string): string {
-	const value = process.env[name]
-
-	return value === undefined || value === '' ? fallback : value
-}
-
-function read_environment(name: string): string | undefined {
-	return process.env[name]
-}
-
 function read_config(): IngestConfig {
 	return {
-		account_id: require_environment('CLOUDFLARE_ACCOUNT_ID'),
-		api_token: require_environment('CLOUDFLARE_API_TOKEN'),
-		instance: optional_environment('AI_SEARCH_INSTANCE', DEFAULT_INSTANCE),
-		owner: optional_environment('GITHUB_DOCS_OWNER', github_documentation.DEFAULT_OWNER),
-		github_token: read_environment('GITHUB_TOKEN'),
+		account_id: environment.require_environment('CLOUDFLARE_ACCOUNT_ID'),
+		api_token: environment.require_environment('CLOUDFLARE_API_TOKEN'),
+		instance: environment.optional_environment('AI_SEARCH_INSTANCE', DEFAULT_INSTANCE),
+		owner: environment.optional_environment(
+			'GITHUB_DOCS_OWNER',
+			github_documentation.DEFAULT_OWNER,
+		),
+		github_token: environment.read_environment('GITHUB_TOKEN'),
 	}
 }
 
@@ -165,7 +151,7 @@ if (is_main_module) {
 
 const github_documentation_ingest = {
 	DEFAULT_INSTANCE,
-	require_environment,
+	require_environment: environment.require_environment,
 	read_config,
 	select_stale_items,
 	run_ingest,

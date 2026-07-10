@@ -8,6 +8,8 @@ allowBuilds:
   better-sqlite3: true
   '@joshuafolkken/kit': false # project postinstall handles lefthook install
   '@joshuafolkken/app-kit': false # consumer does not run app-kit's own preinstall (safe-chain setup-ci)
+  '@google/genai': false # REST client (`pnpm yt:article`); no native build needed
+  protobufjs: false # pulled in by @google/genai; prebuilt JS, postinstall not required
 
 # Security fixes often require same-day vite releases; minimum-release-age in .npmrc would block them.
 # `@types/node` and `tsx` are also excluded so routine Dependabot-style bumps are not

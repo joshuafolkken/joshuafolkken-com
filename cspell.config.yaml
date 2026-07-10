@@ -30,6 +30,7 @@ words:
   - ENOENT
   - fastcgi
   - Frontmatter
+  - genai
   - ghcr
   - githubactions
   - googlegemini
@@ -70,6 +71,7 @@ words:
   - Platformer
   - Platformers
   - prgm
+  - protobufjs
   - qwen
   - ratelimits
   - redir
