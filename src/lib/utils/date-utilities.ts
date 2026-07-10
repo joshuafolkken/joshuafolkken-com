@@ -47,9 +47,15 @@ function format_chat_time(iso: string, time_zone?: string): string {
 	return join_parts(formatter.formatToParts(date))
 }
 
+// Strips the optional " HH:MM" time portion, leaving the leading YYYY-MM-DD for date-only display.
+function format_date_only(value: string): string {
+	return value.split(' ', 1)[0] ?? ''
+}
+
 const date_utilities = {
 	format_date_to_w3c,
 	format_chat_time,
+	format_date_only,
 }
 
 export { date_utilities }

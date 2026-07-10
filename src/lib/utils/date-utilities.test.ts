@@ -3,13 +3,23 @@ import { date_utilities } from './date-utilities'
 
 const ISO_1345_UTC = '2026-07-08T13:45:00.000Z'
 const UTC = 'UTC'
+const DATE_ONLY = '2026-07-08'
+const DATE_TIME = '2026-07-08 13:45'
 
 test('format_date_to_w3c returns the ISO 8601 string of a date', () => {
 	expect(date_utilities.format_date_to_w3c(new Date(ISO_1345_UTC))).toBe(ISO_1345_UTC)
 })
 
+test('format_date_only strips the time portion of a "YYYY-MM-DD HH:MM" value', () => {
+	expect(date_utilities.format_date_only(DATE_TIME)).toBe(DATE_ONLY)
+})
+
+test('format_date_only returns a bare date unchanged', () => {
+	expect(date_utilities.format_date_only(DATE_ONLY)).toBe(DATE_ONLY)
+})
+
 test('format_chat_time renders an ISO instant as "YYYY-MM-DD HH:MM" in the given time zone', () => {
-	expect(date_utilities.format_chat_time(ISO_1345_UTC, UTC)).toBe('2026-07-08 13:45')
+	expect(date_utilities.format_chat_time(ISO_1345_UTC, UTC)).toBe(DATE_TIME)
 })
 
 test('format_chat_time keeps midnight as 00, not 24', () => {
