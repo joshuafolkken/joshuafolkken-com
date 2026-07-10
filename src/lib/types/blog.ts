@@ -7,6 +7,7 @@ export interface BlogMetadata {
 	cover_image?: string
 	youtube?: string
 	youtube_date?: string
+	youtube_title?: string
 }
 
 export interface Post {
@@ -19,4 +20,5 @@ export interface Post {
 	cover_image?: string | undefined
 	youtube?: string | undefined
 	youtube_date?: string | undefined
+	youtube_title?: string | undefined
 }

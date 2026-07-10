@@ -160,15 +160,17 @@ excerpt: '扱う主要な話題を挙げた、記事内容の1〜2文のメタ�
 tags: ['from-talk', '扱った主要トピックを網羅的に(5〜10個程度)']
 youtube: '{{YOUTUBE_URL}}'
 youtube_date: '{{YOUTUBE_DATE}}'
+youtube_title: '{{YOUTUBE_TITLE}}'
 ---
 
-`date` / `youtube` / `youtube_date` の3フィールドは、**あなた(LLM)が値を決めてはいけない**。
-`date`(記事の公開日=生成日)・動画 id・動画のオリジナル公開日は
+`date` / `youtube` / `youtube_date` / `youtube_title` の4フィールドは、**あなた(LLM)が値を決めてはいけない**。
+`date`(記事の公開日=生成日)・動画 id・動画のオリジナル公開日・動画のオリジナルタイトルは
 音声からは確定できない確定メタデータであり、後処理スクリプトが `yt-dlp` の情報から差し込む。
 `youtube_date` は元動画のオリジナル公開日であり、記事の `date` とは別物として扱う。
+`youtube_title` は元動画のオリジナルタイトルであり、記事の `title` とは別物として扱う。
 `updated`(更新日)は記事を後から改稿したときにだけ手で足すフィールドで、初回生成時は付けない。
 したがって上記のプレースホルダ文字列
-(`{{PUBLISH_DATE}}` / `{{YOUTUBE_URL}}` / `{{YOUTUBE_DATE}}`)を、一字一句そのまま出力する。
+(`{{PUBLISH_DATE}}` / `{{YOUTUBE_URL}}` / `{{YOUTUBE_DATE}}` / `{{YOUTUBE_TITLE}}`)を、一字一句そのまま出力する。
 波括弧2つの形を崩さない。これらを太字などの Markdown 記法として解釈・変換しない
 (例: `__X__` のようなアンダースコア2つは太字に化けるため使わない。波括弧のまま残す)。
 推測して日付や URL を書き込まない(誤った値の捏造を防ぐため)。

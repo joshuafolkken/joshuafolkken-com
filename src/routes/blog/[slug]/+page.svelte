@@ -8,8 +8,7 @@
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import SupportBox from '$lib/components/SupportBox.svelte'
-	import YouTubeEmbed from '$lib/components/YouTubeEmbed.svelte'
-	import YouTubeTranscriptNotice from '$lib/components/YouTubeTranscriptNotice.svelte'
+	import TalkArticleLayout from '$lib/components/TalkArticleLayout.svelte'
 	import { blog_images } from '$lib/data/blog-images'
 	import { PAGES } from '$lib/types/page'
 	import type { PageData } from './$types'
@@ -41,33 +40,41 @@
 	<AdSenseScript />
 {/if}
 
-<PageLayout>
-	<PageHeader page={PAGES.BLOG} />
+{#if data.meta.youtube}
+	<TalkArticleLayout
+		url={data.meta.youtube}
+		title={blog_title}
+		slug={data.slug}
+		author={data.meta.author}
+		date={data.meta.date}
+		updated={data.meta.updated}
+		youtube_date={data.meta.youtube_date}
+		content={data.content}
+	/>
+{:else}
+	<PageLayout>
+		<PageHeader page={PAGES.BLOG} />
 
-	<article class="prose mt-6 mb-6 max-w-none prose-invert" use:external_links>
-		<h1 class="mb-3">{blog_title}</h1>
-		<DateDisplay
-			date={data.meta.date}
-			updated={data.meta.updated}
-			author={data.meta.author}
-			youtube_date={data.meta.youtube_date}
-		/>
+		<article class="prose mt-6 mb-6 max-w-none prose-invert" use:external_links>
+			<h1 class="mb-3">{blog_title}</h1>
+			<DateDisplay date={data.meta.date} updated={data.meta.updated} author={data.meta.author} />
 
-		{#if data.meta.youtube}
-			<YouTubeTranscriptNotice url={data.meta.youtube} />
-			<YouTubeEmbed url={data.meta.youtube} title={blog_title} />
-		{/if}
+			{#if cover_image_source}
+				<div class="-mx-4 overflow-hidden">
+					<img
+						src={cover_image_source}
+						alt={blog_title}
+						class="mb-0 h-auto w-full"
+						loading="lazy"
+					/>
+				</div>
+			{/if}
 
-		{#if cover_image_source}
-			<div class="-mx-4 overflow-hidden">
-				<img src={cover_image_source} alt={blog_title} class="mb-0 h-auto w-full" loading="lazy" />
-			</div>
-		{/if}
+			<data.content />
+		</article>
 
-		<data.content />
-	</article>
+		<SupportBox />
 
-	<SupportBox />
-
-	<EngagementButtons slug={data.slug} title={blog_title} />
-</PageLayout>
+		<EngagementButtons slug={data.slug} title={blog_title} />
+	</PageLayout>
+{/if}

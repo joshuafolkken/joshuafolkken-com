@@ -4,7 +4,11 @@ import type { VideoMetadata } from './inject-talk-frontmatter'
 
 const VIDEO_ID = 'testVideo12'
 const INFO_BASENAME = 'My Talk [testVideo12]'
-const METADATA: VideoMetadata = { video_id: VIDEO_ID, upload_date: '20251204' }
+const METADATA: VideoMetadata = {
+	video_id: VIDEO_ID,
+	upload_date: '20251204',
+	video_title: 'My Talk',
+}
 const NOW = new Date(2026, 6, 10)
 const OUTPUT_PATH = 'src/lib/posts/talk-2025-12-04.md'
 const AUDIO_SOURCE: AudioSource = {
