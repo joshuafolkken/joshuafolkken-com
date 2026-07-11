@@ -2,14 +2,16 @@ import { describe, expect, it } from 'vitest'
 import { PROJECT_SLUGS } from './project-slugs'
 import { FEATURED_PROJECTS, PROJECTS } from './projects'
 
+const AI_CHAT_TITLE = 'AI Chat'
 const MNEMECHA_TITLE = 'Mnemecha'
 const GAME_KIT_TITLE = '@joshuafolkken/game-kit'
 const KIT_TITLE = '@joshuafolkken/kit'
 const GODOT_2D_TITLE = 'Godot 2D Platformer'
 const FEATURED_COUNT = 4
 const MNEMECHA_DEMO_URL = 'https://mnemecha.joshuafolkken.com'
-const GAME_KIT_INDEX = 1
-const KIT_INDEX = 2
+const MNEMECHA_INDEX = 1
+const GAME_KIT_INDEX = 2
+const KIT_INDEX = 3
 const GAME_KIT_GITHUB_URL = 'https://github.com/joshuafolkken/game-kit'
 const GAME_KIT_BLOG_URL = '/blog/mnemecha-2'
 const IMAGE_TEST_TITLE = 'has a project image'
@@ -23,6 +25,17 @@ const CLAUDE_CODE_TAG = 'Claude Code'
 const CURSOR_TAG = 'Cursor'
 const GEMINI_TAG = 'Gemini'
 const CLOUDFLARE_WORKERS_TAG = 'Cloudflare Workers'
+
+const REQUIRED_AI_CHAT_TAGS = [
+	'SvelteKit',
+	'TypeScript',
+	CLOUDFLARE_WORKERS_TAG,
+	'Cloudflare Workers AI',
+	'Cloudflare AI Search',
+	'RAG',
+	CLAUDE_CODE_TAG,
+	GEMINI_TAG,
+]
 
 const REQUIRED_GAME_KIT_TAGS = [
 	'TypeScript',
@@ -58,15 +71,63 @@ const REQUIRED_KIT_TAGS = [
 	AI_WORKFLOW_TAG,
 ]
 
+describe('PROJECTS - ai-chat entry', () => {
+	it('is the first entry (newest project)', () => {
+		const [ai_chat] = PROJECTS
+
+		expect(ai_chat.title).toBe(AI_CHAT_TITLE)
+	})
+
+	it('has the ai-chat slug', () => {
+		const [ai_chat] = PROJECTS
+
+		expect(ai_chat.slug).toBe('ai-chat')
+	})
+
+	it('has demo then github links in order', () => {
+		const [ai_chat] = PROJECTS
+		const types = ai_chat.links.map((link) => link.type)
+
+		expect(types).toEqual(['demo', 'github'])
+	})
+
+	it('demo link points to the on-site /chat page', () => {
+		const [ai_chat] = PROJECTS
+		const demo_link = ai_chat.links.find((link) => link.type === 'demo')
+
+		expect(demo_link?.href).toBe('/chat')
+	})
+
+	it(IMAGE_TEST_TITLE, () => {
+		const [ai_chat] = PROJECTS
+
+		expect(ai_chat.image).toBeDefined()
+	})
+
+	it('tags include the core RAG stack', () => {
+		const [ai_chat] = PROJECTS
+
+		for (const tag of REQUIRED_AI_CHAT_TAGS) {
+			expect(ai_chat.tags).toContain(tag)
+		}
+	})
+
+	it('description mentions retrieval-augmented grounding', () => {
+		const [ai_chat] = PROJECTS
+
+		expect(ai_chat.description).toContain('retrieval-augmented')
+	})
+})
+
 describe('PROJECTS - mnemecha entry', () => {
-	it('is the first entry', () => {
-		const [mnemecha] = PROJECTS
+	it('is the second entry, directly after AI Chat', () => {
+		const mnemecha = PROJECTS[MNEMECHA_INDEX]
 
 		expect(mnemecha.title).toBe(MNEMECHA_TITLE)
 	})
 
 	it('has play, blog, github links in order', () => {
-		const [mnemecha] = PROJECTS
+		const mnemecha = PROJECTS[MNEMECHA_INDEX]
 		const types = mnemecha.links.map((link) => link.type)
 
 		expect(types[0]).toBe('play')
@@ -75,14 +136,14 @@ describe('PROJECTS - mnemecha entry', () => {
 	})
 
 	it('play link points to mnemecha.joshuafolkken.com', () => {
-		const [mnemecha] = PROJECTS
+		const mnemecha = PROJECTS[MNEMECHA_INDEX]
 		const [play_link] = mnemecha.links
 
 		expect(play_link.href).toBe(MNEMECHA_DEMO_URL)
 	})
 
 	it('blog link points to /blog/mnemecha', () => {
-		const [mnemecha] = PROJECTS
+		const mnemecha = PROJECTS[MNEMECHA_INDEX]
 		const blog_link = mnemecha.links.find((link) => link.type === 'blog')
 
 		expect(blog_link?.href).toBe('/blog/mnemecha')
@@ -91,26 +152,26 @@ describe('PROJECTS - mnemecha entry', () => {
 
 describe('PROJECTS - mnemecha entry: content', () => {
 	it(IMAGE_TEST_TITLE, () => {
-		const [mnemecha] = PROJECTS
+		const mnemecha = PROJECTS[MNEMECHA_INDEX]
 
 		expect(mnemecha.image).toBeDefined()
 	})
 
 	it('has SvelteKit and Threlte tags', () => {
-		const [mnemecha] = PROJECTS
+		const mnemecha = PROJECTS[MNEMECHA_INDEX]
 
 		expect(mnemecha.tags).toContain('SvelteKit')
 		expect(mnemecha.tags).toContain('Threlte')
 	})
 
 	it('has Claude Code tag', () => {
-		const [mnemecha] = PROJECTS
+		const mnemecha = PROJECTS[MNEMECHA_INDEX]
 
 		expect(mnemecha.tags).toContain(CLAUDE_CODE_TAG)
 	})
 
 	it('description references the Simon format, not the unrelated Simon Says verbal game', () => {
-		const [mnemecha] = PROJECTS
+		const mnemecha = PROJECTS[MNEMECHA_INDEX]
 
 		expect(mnemecha.description).toContain('Simon format')
 		expect(mnemecha.description).not.toContain('Simon Says')
@@ -118,7 +179,7 @@ describe('PROJECTS - mnemecha entry: content', () => {
 })
 
 describe('PROJECTS - game-kit entry', () => {
-	it('is the second entry (directly after Mnemecha)', () => {
+	it('is the third entry (after AI Chat and Mnemecha)', () => {
 		const game_kit = PROJECTS[GAME_KIT_INDEX]
 
 		expect(game_kit.title).toBe(GAME_KIT_TITLE)
@@ -154,7 +215,7 @@ describe('PROJECTS - game-kit entry: content', () => {
 	})
 
 	it('uses a dedicated image (not the Mnemecha image)', () => {
-		const [mnemecha] = PROJECTS
+		const mnemecha = PROJECTS[MNEMECHA_INDEX]
 		const game_kit = PROJECTS[GAME_KIT_INDEX]
 
 		expect(game_kit.image).not.toBe(mnemecha.image)
@@ -176,7 +237,7 @@ describe('PROJECTS - game-kit entry: content', () => {
 })
 
 describe('PROJECTS - kit entry', () => {
-	it('is the third entry', () => {
+	it('is the fourth entry (after AI Chat, Mnemecha, and game-kit)', () => {
 		const kit = PROJECTS[KIT_INDEX]
 
 		expect(kit.title).toBe(KIT_TITLE)
@@ -301,16 +362,16 @@ describe('FEATURED_PROJECTS', () => {
 		expect(FEATURED_PROJECTS).toHaveLength(FEATURED_COUNT)
 	})
 
-	it('has Mnemecha as the first featured project', () => {
+	it('has AI Chat as the first featured project', () => {
 		const [first] = FEATURED_PROJECTS
 
-		expect(first?.title).toBe(MNEMECHA_TITLE)
+		expect(first?.title).toBe(AI_CHAT_TITLE)
 	})
 
-	it(`has ${GAME_KIT_TITLE} as the second featured project`, () => {
+	it('has Mnemecha as the second featured project', () => {
 		const [, second] = FEATURED_PROJECTS
 
-		expect(second?.title).toBe(GAME_KIT_TITLE)
+		expect(second?.title).toBe(MNEMECHA_TITLE)
 	})
 
 	it(`still includes ${KIT_TITLE} in the featured set`, () => {
