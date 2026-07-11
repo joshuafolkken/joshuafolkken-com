@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { TEST_ROUTES } from '$lib/test-routes'
 
+const AI_CHAT_TITLE = 'AI Chat'
 const MNEMECHA_TITLE = 'Mnemecha'
 const KIT_TITLE = '@joshuafolkken/kit'
 const BLOG_LABEL = 'Blog'
@@ -8,15 +9,22 @@ const GITHUB_LABEL = 'GitHub'
 const KIT_GITHUB_URL = 'https://github.com/joshuafolkken/kit'
 const KIT_BLOG_URL = '/blog/kit-package'
 const CARD_SELECTOR = '.cyber-card'
+const MNEMECHA_DETAIL_LINK = 'a[href="/projects/mnemecha"]'
 const GODOT_2D_TITLE = 'Godot 2D Platformer'
 
 test.describe('Projects page', () => {
-	test('mnemecha card appears first on /projects', async ({ page }) => {
+	test('AI Chat card appears first on /projects', async ({ page }) => {
 		await page.goto(TEST_ROUTES.PROJECTS)
 
 		const first_card = page.locator(CARD_SELECTOR).first()
 
-		await expect(first_card).toContainText(MNEMECHA_TITLE)
+		await expect(first_card).toContainText(AI_CHAT_TITLE)
+	})
+
+	test('mnemecha card is visible on /projects', async ({ page }) => {
+		await page.goto(TEST_ROUTES.PROJECTS)
+
+		await expect(page.getByText(MNEMECHA_TITLE, { exact: true })).toBeVisible()
 	})
 
 	test('kit card is visible on /projects', async ({ page }) => {
@@ -56,9 +64,11 @@ test.describe('Projects page detail navigation', () => {
 	test('mnemecha card links to its detail page', async ({ page }) => {
 		await page.goto(TEST_ROUTES.PROJECTS)
 
-		const first_card = page.locator(CARD_SELECTOR).first()
+		const mnemecha_card = page
+			.locator(CARD_SELECTOR)
+			.filter({ has: page.locator(MNEMECHA_DETAIL_LINK) })
 
-		await first_card.locator('a[href="/projects/mnemecha"]').click()
+		await mnemecha_card.locator(MNEMECHA_DETAIL_LINK).click()
 
 		await expect(page).toHaveURL(/\/projects\/mnemecha$/u)
 		await expect(page.getByRole('heading', { level: 1, name: MNEMECHA_TITLE })).toBeVisible()
@@ -78,12 +88,12 @@ test.describe('Projects page card links', () => {
 })
 
 test.describe('Home page featured projects', () => {
-	test('mnemecha card appears first in featured projects on /', async ({ page }) => {
+	test('AI Chat card appears first in featured projects on /', async ({ page }) => {
 		await page.goto(TEST_ROUTES.HOME)
 
 		const first_card = page.locator(CARD_SELECTOR).first()
 
-		await expect(first_card).toContainText(MNEMECHA_TITLE)
+		await expect(first_card).toContainText(AI_CHAT_TITLE)
 	})
 
 	test('kit card is visible in featured projects on /', async ({ page }) => {

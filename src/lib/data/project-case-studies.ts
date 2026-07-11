@@ -5,6 +5,29 @@ const APPROACH = 'The Approach'
 const TECH_CHOICES = 'Tech Choices'
 const LEARNINGS = 'What I Learned'
 
+const ai_chat: CaseStudy = {
+	overview:
+		'AI Chat is a retrieval-augmented assistant embedded in this site. It lets visitors ask about the author, the projects and the blog in plain language and get grounded, cited answers, instead of hunting through pages themselves. The goal was a helper that feels instant and trustworthy without inventing facts the site never states.',
+	sections: [
+		{
+			heading: CHALLENGE,
+			body: 'A chat bot bolted onto a portfolio is only useful if it stays honest. A general model happily fabricates project details, dates and tech choices, which is worse than no answer at all. I needed responses anchored strictly to the real site content, follow-up questions that understood what came before, and answers that appeared quickly enough to feel like a conversation rather than a form submission.',
+		},
+		{
+			heading: APPROACH,
+			body: 'Every question is rewritten into a standalone query using the recent conversation, matched against the indexed site content, and answered only from what retrieval returns. When nothing relevant is found, the assistant says so plainly and points to the About and Blog pages instead of guessing. Answers stream token-by-token over Server-Sent Events, and a short window of prior turns rides with each request so follow-ups resolve against earlier context without inflating cost.',
+		},
+		{
+			heading: TECH_CHOICES,
+			body: 'The interface is built with SvelteKit and TypeScript and runs at the edge on Cloudflare Workers. Cloudflare AI Search handles retrieval and generation in a single pass — a Llama 3.3 model grounds each reply in the retrieved passages — while the system prompt and retrieval thresholds live on the AI Search instance as the single source of truth, so production never drifts from the dashboard playground. The Worker streams the response straight to the browser.',
+		},
+		{
+			heading: LEARNINGS,
+			body: 'Grounding turned out to be a product decision as much as a technical one: the honest "I could not find that" answer earns more trust than a confident guess. Keeping the model and prompt configuration on the managed instance rather than in code removed a whole class of production-versus-playground divergence, and streaming taught me how much perceived speed depends on showing the first token fast rather than the last token sooner.',
+		},
+	],
+}
+
 const mnemecha: CaseStudy = {
 	overview:
 		'Mnemecha reinvents the classic Simon memory toy as a 3D first-person experience that runs smoothly in the browser, even on mobile. The goal was to keep the rules instantly understandable for a three-year-old while making the presentation feel modern and alive.',
@@ -259,6 +282,7 @@ const godot_multiplayer: CaseStudy = {
 }
 
 const CASE_STUDY_ENTRIES: ReadonlyArray<[string, CaseStudy]> = [
+	['ai-chat', ai_chat],
 	['mnemecha', mnemecha],
 	['game-kit', game_kit],
 	['kit', kit],

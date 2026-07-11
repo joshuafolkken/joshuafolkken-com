@@ -39,6 +39,8 @@ const KIT_PROJECT_TAGS = [
 	AI_WORKFLOW_NAME,
 ]
 
+const AI_CHAT_LOGO_TAGS = ['Cloudflare Workers AI', 'Cloudflare AI Search']
+
 const SKILL_NAMES = [
 	'Teaching & Mentoring',
 	'SvelteKit',
@@ -89,6 +91,26 @@ describe('TECH_LOGO_MAP - Kit project tags', () => {
 
 	it(`maps ${AI_WORKFLOW_NAME} to the Claude icon`, () => {
 		expect(TECH_LOGO_MAP.get(AI_WORKFLOW_NAME)).toBe(AI_WORKFLOW_SLUG)
+	})
+})
+
+describe('TECH_LOGO_MAP - AI Chat project tags', () => {
+	it.each(AI_CHAT_LOGO_TAGS)(RESOLVES_TAG_TITLE, (tag) => {
+		const slug = TECH_LOGO_MAP.get(tag)
+
+		expect(slug, `expected ${tag} to have a logo slug`).toBeDefined()
+		expect(slug?.length ?? 0).toBeGreaterThan(0)
+	})
+
+	it.each(AI_CHAT_LOGO_TAGS)(SLUG_IN_ICONS_TITLE, (tag) => {
+		const slug = TECH_LOGO_MAP.get(tag)
+
+		expect(slug).toBeDefined()
+		expect(ALL_ICONS.has(slug as string)).toBe(true)
+	})
+
+	it.each(AI_CHAT_LOGO_TAGS)('maps %s to the Cloudflare icon', (tag) => {
+		expect(TECH_LOGO_MAP.get(tag)).toBe('cloudflare')
 	})
 })
 

@@ -1,6 +1,7 @@
 // Dependency-free slug list (no Svelte/asset imports) so Playwright e2e tests can
 // import it directly. The unit test in projects.test.ts keeps it in sync with PROJECTS.
 export const PROJECT_SLUGS = [
+	'ai-chat',
 	'mnemecha',
 	'game-kit',
 	'kit',
