@@ -49,6 +49,8 @@ const TECH_COLOR_ENTRIES = [
 	['Redis', '#dc382d'],
 	// Cloud & Edge
 	['Cloudflare Workers', '#f97316'],
+	['Cloudflare Workers AI', '#f97316'],
+	['Cloudflare AI Search', '#f97316'],
 	['Cloudflare KV', '#fdba74'],
 	['Cloudflare D1', '#fb923c'],
 	['Cloudflare R2', '#fcd34d'],

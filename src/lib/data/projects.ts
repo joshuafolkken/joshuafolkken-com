@@ -1,5 +1,6 @@
 import { SUBTITLE_DEVELOPMENT_TOOL, SUBTITLE_NPM_PACKAGE, URLS } from '$lib/app'
 import kit_package from '$lib/assets/images/blog/kit-package.png'
+import ai_chat from '$lib/assets/images/projects/ai-chat.png'
 import game_kit from '$lib/assets/images/projects/game-kit.png'
 import godot_2d_platformer from '$lib/assets/images/projects/godot-2d-platformer.png'
 import godot_multiplayer from '$lib/assets/images/projects/godot-multiplayer-v2.png'
@@ -19,6 +20,7 @@ import {
 	GODOT,
 	WEB_EXPORT,
 } from '$lib/data/tech-names'
+import ChatIcon from '$lib/icons/ChatIcon.svelte'
 import FilmIcon from '$lib/icons/FilmIcon.svelte'
 import GlobeIcon from '$lib/icons/GlobeIcon.svelte'
 import ListIcon from '$lib/icons/ListIcon.svelte'
@@ -39,6 +41,31 @@ const CLAUDE_CODE_TAG = 'Claude Code'
 const FEATURED_COUNT = 4
 
 export const PROJECTS = [
+	{
+		icon: ChatIcon,
+		slug: 'ai-chat',
+		title: 'AI Chat',
+		subtitle: 'RAG Assistant',
+		description:
+			'A retrieval-augmented chat assistant built into this site that answers questions about the author, projects, and blog in natural language. Cloudflare AI Search retrieves grounded context from the site content, and the reply streams back token-by-token over Server-Sent Events with links to its sources.',
+		links: [
+			{ href: '/chat', type: 'demo' },
+			{ href: `${URLS.GITHUB}/joshuafolkken-com`, type: 'github' },
+		],
+		image: ai_chat,
+		tags: [
+			'SvelteKit',
+			'TypeScript',
+			CLOUDFLARE_WORKERS,
+			'Cloudflare Workers AI',
+			'Cloudflare AI Search',
+			'RAG',
+			'Llama 3.3',
+			'Server-Sent Events',
+			CLAUDE_CODE_TAG,
+			'Gemini',
+		],
+	},
 	{
 		icon: SparklesIcon,
 		slug: 'mnemecha',

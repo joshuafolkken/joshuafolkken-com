@@ -27,5 +27,12 @@ overrides:
   cookie: '^0.7.0'
   svelte: ^5.55.7
   devalue: ^5.8.1
+  # TypeScript 7.x is the native (Go) port: `require('typescript')` returns a stub with no
+  # SyntaxKind, which crashes the type-aware ESLint stack (eslint-plugin-sonarjs, ts-api-utils,
+  # typescript-eslint). Pin every resolution to 6.x until that ecosystem supports TS7-native.
+  # `josh latest` bumps the typescript devDependency to 7.x, so this override is what actually
+  # holds the toolchain on 6.x (the direct devDependency alone does not constrain transitives).
+  # Tracking: https://github.com/joshuafolkken/kit/issues/658 — remove once kit gates TS7.
+  typescript: '^6.0.3'
 
 trustLockfile: true

@@ -26,6 +26,8 @@ const TECH_LOGO_MAP_ENTRIES = [
 	['CSpell', 'cspell'],
 	// Cloud & Edge
 	[CLOUDFLARE_WORKERS, 'cloudflare'],
+	['Cloudflare Workers AI', 'cloudflare'],
+	['Cloudflare AI Search', 'cloudflare'],
 	[CLOUDFLARE_KV, 'cloudflare'],
 	[CLOUDFLARE_D1, 'cloudflare'],
 	[CLOUDFLARE_R2, 'cloudflare'],
