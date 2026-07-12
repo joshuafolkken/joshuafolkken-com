@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
-import { audio_to_opus, type OpusConversionDependencies } from './audio-to-opus'
+import {
+	audio_to_opus,
+	type FileSystemProbe,
+	type OpusConversionDependencies,
+} from './audio-to-opus'
 
 const AAC_FILE = 'dir/a.aac'
 const OPUS_FILE = 'dir/b.opus'
@@ -38,13 +42,31 @@ function build_fakes(
 ): ConversionFakes {
 	const convert = vi.fn()
 	const dependencies: OpusConversionDependencies = {
-		list_files: vi.fn().mockReturnValue(files),
+		collect_files: vi.fn().mockReturnValue(files),
 		has_audio_stream: vi.fn((file_path: string) => audio_files.includes(file_path)),
 		convert,
 	}
 
 	return { dependencies, convert }
 }
+
+describe('audio_to_opus.resolve_inputs', () => {
+	it('scans the directory when the input path is a directory', () => {
+		const list_directory = vi.fn().mockReturnValue([AAC_FILE, OPUS_FILE])
+		const probe: FileSystemProbe = { is_directory: vi.fn().mockReturnValue(true), list_directory }
+
+		expect(audio_to_opus.resolve_inputs(probe, 'dir')).toEqual([AAC_FILE, OPUS_FILE])
+		expect(list_directory).toHaveBeenCalledWith('dir')
+	})
+
+	it('returns the single file as a one-element list when the input path is a file', () => {
+		const list_directory = vi.fn()
+		const probe: FileSystemProbe = { is_directory: vi.fn().mockReturnValue(false), list_directory }
+
+		expect(audio_to_opus.resolve_inputs(probe, AAC_FILE)).toEqual([AAC_FILE])
+		expect(list_directory).not.toHaveBeenCalled()
+	})
+})
 
 describe('audio_to_opus.run_conversion classification', () => {
 	it('converts decodable audio and skips opus and non-audio files', () => {
