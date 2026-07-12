@@ -29,6 +29,7 @@ words:
   - eclipseide
   - ENOENT
   - fastcgi
+  - ffprobe
   - Frontmatter
   - genai
   - ghcr
@@ -47,6 +48,7 @@ words:
   - jgame
   - Kaku
   - KAWAII
+  - kbps
   - letsencrypt
   - libopus
   - libsql
