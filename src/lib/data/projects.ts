@@ -33,6 +33,7 @@ import TennisIcon from '$lib/icons/TennisIcon.svelte'
 import ToolIcon from '$lib/icons/ToolIcon.svelte'
 import type { Project } from '$lib/types/project'
 
+const AI_CHAT_BLOG_URL = '/blog/ai-chat'
 const KIT_BLOG_URL = '/blog/kit-package'
 const MNEMECHA_BLOG_URL = '/blog/mnemecha'
 const GAME_KIT_BLOG_URL = '/blog/mnemecha-2'
@@ -50,6 +51,7 @@ export const PROJECTS = [
 			'A retrieval-augmented chat assistant built into this site that answers questions about the author, projects, and blog in natural language. Cloudflare AI Search retrieves grounded context from the site content, and the reply streams back token-by-token over Server-Sent Events with links to its sources.',
 		links: [
 			{ href: '/chat', type: 'demo' },
+			{ href: AI_CHAT_BLOG_URL, type: 'blog' },
 			{ href: `${URLS.GITHUB}/joshuafolkken-com`, type: 'github' },
 		],
 		image: ai_chat,
