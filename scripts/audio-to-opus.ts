@@ -1,15 +1,16 @@
 #!/usr/bin/env tsx
 /**
- * Batch-converts every audio file in a directory to opus at the shared 16 kbps mono
- * quality (`opus-encoding`, the same profile `yt:audio` uses).
+ * Converts audio to opus at the shared 16 kbps mono quality (`opus-encoding`, the same
+ * profile `yt:audio` uses). The input path may be a single audio file or a directory of
+ * mixed audio files.
  *
  * Format detection is content-based via `ffprobe`, so files whose extension is missing,
- * wrong, or mixed within the directory are still handled; a file with no decodable audio
- * stream is skipped and reported rather than crashing the run. Existing `.opus` files are
- * left untouched so a re-run never lossy-re-encodes its own output.
+ * wrong, or mixed are still handled; a file with no decodable audio stream is skipped and
+ * reported rather than crashing the run. Existing `.opus` files are left untouched so a
+ * re-run never lossy-re-encodes its own output.
  *
  * Usage:
- *   pnpm audio:to-opus <directory>
+ *   pnpm audio:to-opus <file-or-directory>
  */
 import { spawnSync } from 'node:child_process'
 import fs from 'node:fs'
@@ -18,7 +19,7 @@ import { cli } from './cli'
 import { opus_encoding } from './opus-encoding'
 
 const CLI_ARGS_START = 2
-const USAGE = 'Usage: pnpm audio:to-opus <directory>'
+const USAGE = 'Usage: pnpm audio:to-opus <file-or-directory>'
 const OPUS_EXTENSION = '.opus'
 const FFPROBE_BINARY = 'ffprobe'
 const FFMPEG_BINARY = 'ffmpeg'
@@ -44,10 +45,23 @@ interface ConversionBuckets {
 	seen_outputs: Set<string>
 }
 
+interface FileSystemProbe {
+	is_directory: (target: string) => boolean
+	list_directory: (directory: string) => ReadonlyArray<string>
+}
+
 interface OpusConversionDependencies {
-	list_files: (directory: string) => ReadonlyArray<string>
+	collect_files: (input_path: string) => ReadonlyArray<string>
 	has_audio_stream: (file_path: string) => boolean
 	convert: (input_path: string, output_path: string) => void
+}
+
+// Resolves the input path to the list of files to consider: a directory is scanned, a lone
+// file becomes a one-element list so a single audio file can be converted directly.
+function resolve_inputs(probe: FileSystemProbe, input_path: string): ReadonlyArray<string> {
+	if (probe.is_directory(input_path)) return probe.list_directory(input_path)
+
+	return [input_path]
 }
 
 // Derives the sibling opus output path, replacing whatever extension the input carried.
@@ -120,7 +134,7 @@ function classify_and_convert(
 
 function run_conversion(
 	dependencies: OpusConversionDependencies,
-	directory: string,
+	input_path: string,
 ): ConversionSummary {
 	const buckets: ConversionBuckets = {
 		converted: [],
@@ -129,14 +143,18 @@ function run_conversion(
 		seen_outputs: new Set<string>(),
 	}
 
-	for (const file_path of dependencies.list_files(directory)) {
+	for (const file_path of dependencies.collect_files(input_path)) {
 		classify_and_convert(dependencies, file_path, buckets)
 	}
 
 	return { converted: buckets.converted, skipped: buckets.skipped, failed: buckets.failed }
 }
 
-function list_files(directory: string): ReadonlyArray<string> {
+function is_directory(target: string): boolean {
+	return fs.statSync(target).isDirectory()
+}
+
+function list_directory(directory: string): ReadonlyArray<string> {
 	return fs
 		.readdirSync(directory, { withFileTypes: true })
 		.filter((entry) => entry.isFile())
@@ -177,8 +195,14 @@ function convert(input_path: string, output_path: string): void {
 	}
 }
 
+const REAL_PROBE: FileSystemProbe = { is_directory, list_directory }
+
 function build_dependencies(): OpusConversionDependencies {
-	return { list_files, has_audio_stream, convert }
+	return {
+		collect_files: (input_path: string) => resolve_inputs(REAL_PROBE, input_path),
+		has_audio_stream,
+		convert,
+	}
 }
 
 function report(summary: ConversionSummary): void {
@@ -194,9 +218,9 @@ function report(summary: ConversionSummary): void {
 }
 
 function main(args: ReadonlyArray<string>): void {
-	const directory = cli.read_required_argument(args, USAGE)
+	const input_path = cli.read_required_argument(args, USAGE)
 
-	report(run_conversion(build_dependencies(), directory))
+	report(run_conversion(build_dependencies(), input_path))
 }
 
 const is_main_module = import.meta.url === `file://${process.argv[1] ?? ''}`
@@ -213,11 +237,12 @@ if (is_main_module) {
 const audio_to_opus = {
 	build_output_path,
 	is_opus_file,
+	resolve_inputs,
 	run_conversion,
 	build_dependencies,
 	report,
 	main,
 }
 
-export type { ConversionSummary, FileNote, OpusConversionDependencies }
+export type { ConversionSummary, FileNote, FileSystemProbe, OpusConversionDependencies }
 export { audio_to_opus }
