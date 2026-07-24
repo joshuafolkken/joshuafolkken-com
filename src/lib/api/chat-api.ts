@@ -57,7 +57,7 @@ async function format_error(response: Response): Promise<string> {
 function parse_delta(data: string): string | undefined {
 	const trimmed = data.trim()
 
-	if (trimmed.length === 0 || trimmed === SSE_DONE) return undefined
+	if (trimmed === SSE_DONE || trimmed.length === 0) return undefined
 
 	try {
 		const parsed: unknown = JSON.parse(trimmed)

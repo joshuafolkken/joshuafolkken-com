@@ -80,52 +80,20 @@ beforeEach(() => {
 })
 
 describe('security.add_security_headers', () => {
-	it('sets X-Content-Type-Options to nosniff', () => {
+	it.each([
+		['X-Content-Type-Options', 'nosniff'],
+		// Regression: X-Frame-Options converged to DENY (was SAMEORIGIN) via the app-kit baseline.
+		['X-Frame-Options', 'DENY'],
+		['Referrer-Policy', 'strict-origin-when-cross-origin'],
+		['Strict-Transport-Security', HSTS_VALUE],
+		['Permissions-Policy', PERMISSIONS_POLICY_VALUE],
+		['Content-Security-Policy', CSP_VALUE],
+	])('sets %s', (header, value) => {
 		const response = new Response()
 
 		security.add_security_headers(response)
 
-		expect(response.headers.get('X-Content-Type-Options')).toBe('nosniff')
-	})
-
-	it('sets X-Frame-Options to SAMEORIGIN', () => {
-		const response = new Response()
-
-		security.add_security_headers(response)
-
-		expect(response.headers.get('X-Frame-Options')).toBe('SAMEORIGIN')
-	})
-
-	it('sets Referrer-Policy to strict-origin-when-cross-origin', () => {
-		const response = new Response()
-
-		security.add_security_headers(response)
-
-		expect(response.headers.get('Referrer-Policy')).toBe('strict-origin-when-cross-origin')
-	})
-
-	it('sets Strict-Transport-Security', () => {
-		const response = new Response()
-
-		security.add_security_headers(response)
-
-		expect(response.headers.get('Strict-Transport-Security')).toBe(HSTS_VALUE)
-	})
-
-	it('sets Permissions-Policy', () => {
-		const response = new Response()
-
-		security.add_security_headers(response)
-
-		expect(response.headers.get('Permissions-Policy')).toBe(PERMISSIONS_POLICY_VALUE)
-	})
-
-	it('sets Content-Security-Policy', () => {
-		const response = new Response()
-
-		security.add_security_headers(response)
-
-		expect(response.headers.get('Content-Security-Policy')).toBe(CSP_VALUE)
+		expect(response.headers.get(header)).toBe(value)
 	})
 })
 
@@ -146,6 +114,10 @@ describe('security.add_security_headers — CSP directives', () => {
 
 	it('disables object-src', () => {
 		expect(CSP_VALUE).toContain("object-src 'none'")
+	})
+
+	it("denies framing via frame-ancestors 'none' (aligned with X-Frame-Options: DENY)", () => {
+		expect(CSP_VALUE).toContain("frame-ancestors 'none'")
 	})
 })
 
