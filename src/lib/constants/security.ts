@@ -15,7 +15,7 @@ const CSP_DIRECTIVES: ReadonlyArray<string> = [
 	"object-src 'none'",
 	"base-uri 'self'",
 	"form-action 'self'",
-	"frame-ancestors 'self'",
+	"frame-ancestors 'none'",
 ]
 
 const CSP_VALUE = CSP_DIRECTIVES.join('; ')

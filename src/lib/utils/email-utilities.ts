@@ -1,11 +1,12 @@
 const XOR_KEY = 5
+const EMAIL_PART_COUNT = 2
 
 function assemble(local: string, domain: string): string {
 	return `${local}@${domain}`
 }
 
 function split(email: string): { local: string; domain: string } {
-	const [local = '', domain = ''] = email.split('@')
+	const [local = '', domain = ''] = email.split('@', EMAIL_PART_COUNT)
 
 	return { local, domain }
 }
