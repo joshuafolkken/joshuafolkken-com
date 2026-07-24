@@ -49,7 +49,7 @@ class SearchStateStore {
 	}
 
 	async #load(): Promise<void> {
-		if (this.#is_loaded || this.#is_loading || !browser) return
+		if (!browser || this.#is_loaded || this.#is_loading) return
 
 		this.#is_loading = true
 

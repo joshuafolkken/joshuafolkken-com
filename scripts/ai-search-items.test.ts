@@ -95,7 +95,7 @@ function list_response(
 	return {
 		ok: true,
 		status: 200,
-		json: async (): Promise<unknown> => await Promise.resolve(body),
+		json: async (): Promise<unknown> => body,
 	}
 }
 

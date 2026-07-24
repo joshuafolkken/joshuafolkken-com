@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/triple-slash-reference -- tsgo needs explicit reference for Cloudflare types */
 /// <reference path="../../../worker-configuration.d.ts" />
+import { security_headers } from '@joshuafolkken/app-kit/security'
 import { json } from '@sveltejs/kit'
 import { APP } from '$lib/app'
 import { CONTENT_TYPE, ERROR_MESSAGES, HTTP_HEADERS, HTTP_STATUS } from '$lib/constants/http'
@@ -25,12 +26,14 @@ interface SecurityContext {
 }
 
 function add_security_headers(response: Response): void {
-	response.headers.set('X-Content-Type-Options', 'nosniff')
-	response.headers.set('X-Frame-Options', 'SAMEORIGIN')
-	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-	response.headers.set('Strict-Transport-Security', HSTS_VALUE)
-	response.headers.set('Permissions-Policy', PERMISSIONS_POLICY_VALUE)
-	response.headers.set('Content-Security-Policy', CSP_VALUE)
+	// Baseline (nosniff, X-Frame-Options: DENY, Referrer-Policy, Permissions-Policy) is
+	// single-sourced from app-kit; `extra` layers this site's SSR-only headers on top
+	// (last-write-wins), overriding Permissions-Policy with the stricter payment=() value.
+	security_headers.apply_security_headers(response, [
+		['Permissions-Policy', PERMISSIONS_POLICY_VALUE],
+		['Strict-Transport-Security', HSTS_VALUE],
+		['Content-Security-Policy', CSP_VALUE],
+	])
 }
 
 function json_error(message: string, status: number): Response {
