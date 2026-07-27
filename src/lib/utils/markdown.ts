@@ -1,7 +1,7 @@
 import DOMPurify from 'dompurify'
 import { marked, type Token, type TokenizerAndRendererExtension, type Tokens } from 'marked'
 import { markup } from './escape'
-import { github_document_key } from './github-document-key'
+import { github_document_key, type ParsedDocumentKey } from './github-document-key'
 
 // A URL written in Markdown is ASCII, so the first non-ASCII character marks where the following
 // Japanese text — a sentence, or punctuation that ends one — begins.
@@ -128,23 +128,32 @@ function is_link_token(token: Token): token is Tokens.Link {
 	return token.type === 'link'
 }
 
+// The label carries the whole citation, so replacing it wholesale (rather than substituting the key in
+// place) also drops the ' — <repo>' suffix the model appends after the key, which to_display_text re-adds.
+function set_display_text(token: Tokens.Link, parsed: ParsedDocumentKey): void {
+	const text = github_document_key.to_display_text(parsed)
+
+	token.text = text
+	token.tokens = [{ type: 'text', raw: text, text }]
+}
+
 // Deterministic safety net for the RAG model's broken citations: when the model wraps a document's
 // flattened index key (github__<repo>__<path>) in a relative link, it would otherwise render as a broken
 // same-origin URL with doubled underscores. Rewrite it into a real GitHub URL with clean display text
-// before marked renders it. Detection is on the href only — a link that already carries a valid absolute
-// URL (even one whose label looks like a key) is the accurate citation path and must be left untouched,
-// or a repo on a non-main branch would have its correct href replaced by a wrong best-effort main URL.
+// before marked renders it. The key can also leak into the label alone (#788), on a link whose href is the
+// accurate absolute Source URL; that case rewrites the label only — replacing the href would swap a
+// correct non-main-branch URL for a wrong best-effort main one.
 function rewrite_citation(token: Token): void {
 	if (!is_link_token(token)) return
 
-	const parsed = github_document_key.parse_key(token.href)
+	const href_parsed = github_document_key.parse_key(token.href)
+
+	if (href_parsed) token.href = github_document_key.to_github_url(href_parsed)
+
+	const parsed = href_parsed ?? github_document_key.parse_label_key(token.text)
 	if (!parsed) return
 
-	const text = github_document_key.to_display_text(parsed)
-
-	token.href = github_document_key.to_github_url(parsed)
-	token.text = text
-	token.tokens = [{ type: 'text', raw: text, text }]
+	set_display_text(token, parsed)
 }
 
 // DOMPurify only works where a DOM exists (browser + jsdom tests), not during Workers SSR — and

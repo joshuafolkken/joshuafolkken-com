@@ -7,6 +7,10 @@ const CODE_QUEUE_HTML = '<code>queue</code>'
 const STRONG_KIT_HTML = '<strong>kit</strong>'
 const TARGET_BLANK = 'target="_blank"'
 const REL_NOOPENER = 'rel="noopener noreferrer"'
+const DOC_KEY = 'github__kit__docs__package.md'
+const DOC_DISPLAY = 'docs/package.md — kit'
+// A Source URL on a non-default branch: proof that a correct href is never re-derived from a key.
+const SOURCE_URL = 'https://github.com/joshuafolkken/kit/blob/master/docs/package.md'
 
 describe('markdown.to_html', () => {
 	it('renders inline code without literal backticks', () => {
@@ -134,7 +138,7 @@ describe('markdown.to_html repairs leaked links', () => {
 })
 
 describe('markdown.to_html rewrites flattened github__ citation links', () => {
-	const CITATION = '[github__kit__docs__package.md](github__kit__docs__package.md)'
+	const CITATION = `[${DOC_KEY}](${DOC_KEY})`
 	const BLOB_URL = 'https://github.com/joshuafolkken/kit/blob/main/docs/package.md'
 
 	it('rewrites a flattened key link to a real GitHub blob URL', () => {
@@ -146,14 +150,14 @@ describe('markdown.to_html rewrites flattened github__ citation links', () => {
 	it('shows clean display text without the doubled-underscore key', () => {
 		const html = markdown.to_html(CITATION)
 
-		expect(html).toContain('kit/docs/package.md')
+		expect(html).toContain(DOC_DISPLAY)
 		expect(html).not.toContain('github__kit')
 	})
 
 	it('no longer leaves a relative href that resolves to the site origin', () => {
 		const html = markdown.to_html(CITATION)
 
-		expect(html).not.toContain('href="github__kit__docs__package.md"')
+		expect(html).not.toContain(`href="${DOC_KEY}"`)
 	})
 
 	it('leaves a normal absolute link unchanged', () => {
@@ -162,20 +166,51 @@ describe('markdown.to_html rewrites flattened github__ citation links', () => {
 		expect(html).toContain(`href="${LINK_URL}"`)
 	})
 
-	it('keeps a valid absolute href even when the link label looks like a key', () => {
-		// The accurate #697 path: the model links the real Source URL (correct branch) but labels it with
-		// the key. Detecting on text would clobber a correct href with a wrong best-effort main URL.
-		const source_url = 'https://github.com/joshuafolkken/kit/blob/master/docs/package.md'
-		const html = markdown.to_html(`[github__kit__docs__package.md](${source_url})`)
-
-		expect(html).toContain(`href="${source_url}"`)
-		expect(html).not.toContain('blob/main')
-	})
-
 	it('hardens the rewritten link with target and rel', () => {
 		const html = markdown.to_html(CITATION)
 
 		expect(html).toContain(TARGET_BLANK)
 		expect(html).toContain(REL_NOOPENER)
+	})
+})
+
+describe('markdown.to_html cleans a flattened key out of a citation label', () => {
+	// The accurate #697 path: the model links the real Source URL (correct branch) but labels it with the
+	// key. Only the label is rewritten — re-deriving the href would clobber a correct branch with main.
+	it('keeps a valid absolute href even when the link label looks like a key', () => {
+		const html = markdown.to_html(`[${DOC_KEY}](${SOURCE_URL})`)
+
+		expect(html).toContain(`href="${SOURCE_URL}"`)
+		expect(html).not.toContain('blob/main')
+	})
+
+	it('replaces the key label with the path and repo display text (#788)', () => {
+		const html = markdown.to_html(`[${DOC_KEY}](${SOURCE_URL})`)
+
+		expect(html).toContain(DOC_DISPLAY)
+		expect(html).not.toContain('github__kit')
+	})
+
+	it('drops the repo suffix the model appends after the key (#788)', () => {
+		const readme_url = 'https://github.com/joshuafolkken/joshuafolkken/blob/main/README.md'
+		const html = markdown.to_html(
+			`[github__joshuafolkken__README.md — joshuafolkken](${readme_url})`,
+		)
+
+		expect(html).toContain('>README.md — joshuafolkken<')
+		expect(html).not.toContain('github__joshuafolkken')
+	})
+
+	it('leaves a correctly labelled citation untouched', () => {
+		const html = markdown.to_html(`[${DOC_DISPLAY}](${SOURCE_URL})`)
+
+		expect(html).toContain(DOC_DISPLAY)
+		expect(html).toContain(`href="${SOURCE_URL}"`)
+	})
+
+	it('leaves a label that only mentions a key in prose intact', () => {
+		const html = markdown.to_html(`[the ${DOC_KEY} format](${SOURCE_URL})`)
+
+		expect(html).toContain(`the ${DOC_KEY} format`)
 	})
 })

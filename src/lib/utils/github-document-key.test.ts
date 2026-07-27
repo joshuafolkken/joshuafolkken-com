@@ -5,6 +5,7 @@ const REPO = 'kit'
 const DOC_PATH = 'docs/package.md'
 const DOC_KEY = 'github__kit__docs__package.md'
 const README_KEY = 'github__kit__README.md'
+const DOC_DISPLAY = 'docs/package.md — kit'
 
 describe('github_document_key.is_github_key', () => {
 	it('is true for a key carrying the github prefix', () => {
@@ -69,10 +70,43 @@ describe('github_document_key.to_github_url', () => {
 	})
 })
 
+describe('github_document_key.parse_label_key', () => {
+	it('parses a key the model wrote as the whole citation label', () => {
+		expect(github_document_key.parse_label_key(README_KEY)).toStrictEqual({
+			repo: REPO,
+			path: 'README.md',
+		})
+	})
+
+	it('stops at the repo suffix the model appends after the key', () => {
+		expect(github_document_key.parse_label_key(`${DOC_KEY} — ${REPO}`)).toStrictEqual({
+			repo: REPO,
+			path: DOC_PATH,
+		})
+	})
+
+	it('leaves prose that merely mentions a key-shaped token alone', () => {
+		// A rewrite replaces the whole label, so matching mid-sentence would discard the sentence.
+		expect(github_document_key.parse_label_key(`See ${DOC_KEY} for details`)).toBeUndefined()
+	})
+
+	it('returns undefined for text carrying no key', () => {
+		expect(github_document_key.parse_label_key(DOC_DISPLAY)).toBeUndefined()
+	})
+
+	it('returns undefined for a prefix that never completes into a key', () => {
+		expect(github_document_key.parse_label_key('github__kit')).toBeUndefined()
+	})
+})
+
 describe('github_document_key.to_display_text', () => {
-	it('joins repo and path without the flattened separators', () => {
-		expect(github_document_key.to_display_text({ repo: REPO, path: DOC_PATH })).toBe(
-			'kit/docs/package.md',
-		)
+	it('renders the prompt-mandated path and repo without the flattened separators', () => {
+		expect(github_document_key.to_display_text({ repo: REPO, path: DOC_PATH })).toBe(DOC_DISPLAY)
+	})
+
+	it('round-trips a parsed key into a clean label', () => {
+		const parsed = github_document_key.parse_key(README_KEY)
+
+		expect(parsed && github_document_key.to_display_text(parsed)).toBe('README.md — kit')
 	})
 })
