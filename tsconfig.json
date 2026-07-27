@@ -1,6 +1,6 @@
 {
 	"extends": [
-		"./node_modules/@joshuafolkken/app-kit/tsconfig/sveltekit.jsonc",
+		"./node_modules/@joshuafolkken/app-kit/tsconfig/sveltekit.json",
 		"./.svelte-kit/tsconfig.json"
 	],
 	"include": [
