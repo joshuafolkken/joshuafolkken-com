@@ -6,6 +6,7 @@ const DOC_PATH = 'docs/package.md'
 const DOC_KEY = 'github__kit__docs__package.md'
 const README_KEY = 'github__kit__README.md'
 const DOC_DISPLAY = 'docs/package.md — kit'
+const DOC_URL = 'https://github.com/joshuafolkken/kit/blob/main/docs/package.md'
 
 describe('github_document_key.is_github_key', () => {
 	it('is true for a key carrying the github prefix', () => {
@@ -64,9 +65,7 @@ describe('github_document_key.parse_key', () => {
 
 describe('github_document_key.to_github_url', () => {
 	it('builds a blob URL on the default branch', () => {
-		expect(github_document_key.to_github_url({ repo: REPO, path: DOC_PATH })).toBe(
-			'https://github.com/joshuafolkken/kit/blob/main/docs/package.md',
-		)
+		expect(github_document_key.to_github_url({ repo: REPO, path: DOC_PATH })).toBe(DOC_URL)
 	})
 })
 
@@ -96,6 +95,72 @@ describe('github_document_key.parse_label_key', () => {
 
 	it('returns undefined for a prefix that never completes into a key', () => {
 		expect(github_document_key.parse_label_key('github__kit')).toBeUndefined()
+	})
+})
+
+describe('github_document_key.parse_repo_prefixed_label', () => {
+	it('parses a label that leads with the repo and repeats it after the path', () => {
+		const label = `${REPO} — ${DOC_PATH} — ${REPO}`
+
+		expect(github_document_key.parse_repo_prefixed_label(DOC_URL, label)).toStrictEqual({
+			repo: REPO,
+			path: DOC_PATH,
+		})
+	})
+
+	it('parses the suffix-less variant, which is the bare document H1', () => {
+		expect(
+			github_document_key.parse_repo_prefixed_label(DOC_URL, `${REPO} — ${DOC_PATH}`),
+		).toStrictEqual({ repo: REPO, path: DOC_PATH })
+	})
+
+	it('reads the repo and path off a URL on a non-default branch', () => {
+		const url = 'https://github.com/joshuafolkken/.github/blob/master/README.md'
+
+		expect(github_document_key.parse_repo_prefixed_label(url, '.github — README.md')).toStrictEqual(
+			{
+				repo: '.github',
+				path: 'README.md',
+			},
+		)
+	})
+})
+
+describe('github_document_key.parse_repo_prefixed_label leaves other labels alone', () => {
+	it('returns undefined for a correctly labelled citation', () => {
+		expect(github_document_key.parse_repo_prefixed_label(DOC_URL, DOC_DISPLAY)).toBeUndefined()
+	})
+
+	it('returns undefined for a descriptive label that does not lead with the repo', () => {
+		expect(
+			github_document_key.parse_repo_prefixed_label(DOC_URL, 'the package doc — kit'),
+		).toBeUndefined()
+	})
+
+	it('returns undefined when the href is not a GitHub blob URL', () => {
+		expect(
+			github_document_key.parse_repo_prefixed_label(
+				'https://joshuafolkken.com/about',
+				'kit — x.md',
+			),
+		).toBeUndefined()
+	})
+
+	it('returns undefined for a repo root URL carrying no document path', () => {
+		expect(
+			github_document_key.parse_repo_prefixed_label(
+				'https://github.com/joshuafolkken/kit',
+				'kit — ',
+			),
+		).toBeUndefined()
+	})
+
+	it('returns undefined when the path carries markup characters', () => {
+		// The href is untrusted model output and the path becomes visible label text, so a path that could
+		// smuggle HTML must not parse at all.
+		const url = 'https://github.com/joshuafolkken/kit/blob/main/"><img src=x>'
+
+		expect(github_document_key.parse_repo_prefixed_label(url, 'kit — x')).toBeUndefined()
 	})
 })
 

@@ -8,9 +8,12 @@ const STRONG_KIT_HTML = '<strong>kit</strong>'
 const TARGET_BLANK = 'target="_blank"'
 const REL_NOOPENER = 'rel="noopener noreferrer"'
 const DOC_KEY = 'github__kit__docs__package.md'
-const DOC_DISPLAY = 'docs/package.md — kit'
+const DOC_PATH = 'docs/package.md'
+const DOC_DISPLAY = `${DOC_PATH} — kit`
 // A Source URL on a non-default branch: proof that a correct href is never re-derived from a key.
 const SOURCE_URL = 'https://github.com/joshuafolkken/kit/blob/master/docs/package.md'
+const README_URL = 'https://github.com/joshuafolkken/joshuafolkken/blob/main/README.md'
+const README_DISPLAY = 'README.md — joshuafolkken'
 
 describe('markdown.to_html', () => {
 	it('renders inline code without literal backticks', () => {
@@ -192,12 +195,11 @@ describe('markdown.to_html cleans a flattened key out of a citation label', () =
 	})
 
 	it('drops the repo suffix the model appends after the key (#788)', () => {
-		const readme_url = 'https://github.com/joshuafolkken/joshuafolkken/blob/main/README.md'
 		const html = markdown.to_html(
-			`[github__joshuafolkken__README.md — joshuafolkken](${readme_url})`,
+			`[github__joshuafolkken__README.md — joshuafolkken](${README_URL})`,
 		)
 
-		expect(html).toContain('>README.md — joshuafolkken<')
+		expect(html).toContain(`>${README_DISPLAY}<`)
 		expect(html).not.toContain('github__joshuafolkken')
 	})
 
@@ -212,5 +214,46 @@ describe('markdown.to_html cleans a flattened key out of a citation label', () =
 		const html = markdown.to_html(`[the ${DOC_KEY} format](${SOURCE_URL})`)
 
 		expect(html).toContain(`the ${DOC_KEY} format`)
+	})
+})
+
+// The model cites the document's '<repo> — <path>' H1 as the label, then appends its own ' — <repo>'.
+describe('markdown.to_html normalizes a citation label that repeats the repo (#794)', () => {
+	it('collapses the repeated repo around the path', () => {
+		const html = markdown.to_html(`[joshuafolkken — README.md — joshuafolkken](${README_URL})`)
+
+		expect(html).toContain(`>${README_DISPLAY}<`)
+	})
+
+	it('normalizes a repo whose name starts with a dot', () => {
+		const url = 'https://github.com/joshuafolkken/.github/blob/main/README.md'
+		const html = markdown.to_html(`[.github — README.md — .github](${url})`)
+
+		expect(html).toContain('>README.md — .github<')
+	})
+
+	it('reorders the bare document H1 that carries no repeated suffix', () => {
+		const html = markdown.to_html(`[joshuafolkken — README.md](${README_URL})`)
+
+		expect(html).toContain(`>${README_DISPLAY}<`)
+	})
+
+	it('keeps the cited source URL rather than rebuilding it from the label', () => {
+		const html = markdown.to_html(`[kit — ${DOC_PATH} — kit](${SOURCE_URL})`)
+
+		expect(html).toContain(`href="${SOURCE_URL}"`)
+		expect(html).not.toContain('blob/main')
+	})
+
+	it('leaves a descriptive label that does not lead with the repo', () => {
+		const html = markdown.to_html(`[the package doc — kit](${SOURCE_URL})`)
+
+		expect(html).toContain('the package doc — kit')
+	})
+
+	it('leaves a repo-prefixed label on a non-GitHub link', () => {
+		const html = markdown.to_html('[kit — README.md — kit](https://joshuafolkken.com/projects)')
+
+		expect(html).toContain('kit — README.md — kit')
 	})
 })

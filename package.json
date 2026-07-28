@@ -1,6 +1,6 @@
 {
 	"name": "joshuafolkken-com",
-	"version": "0.307.0",
+	"version": "0.308.0",
 	"type": "module",
 	"private": true,
 	"scripts": {
@@ -78,7 +78,7 @@
 		"eslint-plugin-sonarjs": "^4.2.0",
 		"eslint-plugin-svelte": "^3.22.0",
 		"eslint-plugin-unicorn": "^72.0.0",
-		"globals": "^17.7.0",
+		"globals": "^17.8.0",
 		"jsdom": "^29.1.1",
 		"kill-port": "^2.0.1",
 		"lefthook": "2.1.10",
