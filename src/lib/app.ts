@@ -72,8 +72,20 @@ function link_label(type: keyof typeof LINK_LABELS): string {
 	return LINK_LABELS[type]
 }
 
+// An em dash, not a hyphen: the names this joins contain hyphens of their own (game-kit, app-kit,
+// godot-project-template), so a hyphen separator would be indistinguishable from one inside the title it
+// separates. The /chat assistant cites a site page by this exact title, where it sits beside GitHub
+// citations that already use the em dash — one separator keeps a citation list readable (#795).
+const TITLE_SEPARATOR = ' — '
+
+// Single source for every page's <title> and OGP title, so the format can never drift per route.
+function page_title(title: string): string {
+	return `${title}${TITLE_SEPARATOR}${AUTHOR.NAME}`
+}
+
 const app = {
 	link_label,
+	page_title,
 }
 
 export {

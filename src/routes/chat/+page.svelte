@@ -2,7 +2,7 @@
 	import { afterNavigate } from '$app/navigation'
 	import { chat_api } from '$lib/api/chat-api'
 	import { chat_history } from '$lib/api/chat-history'
-	import { APP, AUTHOR } from '$lib/app'
+	import { APP, app } from '$lib/app'
 	import ChatErrorDetail from '$lib/components/ChatErrorDetail.svelte'
 	import ChatTimestamp from '$lib/components/ChatTimestamp.svelte'
 	import MetaTags from '$lib/components/MetaTags.svelte'
@@ -15,7 +15,7 @@
 	import { scheduling } from '$lib/utils/scheduling'
 	import { fade } from 'svelte/transition'
 
-	const PAGE_TITLE = `${CHAT_LABELS.TITLE} - ${AUTHOR.NAME}`
+	const PAGE_TITLE = app.page_title(CHAT_LABELS.TITLE)
 
 	// Sentinel for "no reply is streaming": the streaming message renders as plain text (see the each
 	// block), every settled message as Markdown.

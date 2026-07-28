@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { external_links } from '$lib/actions/external-links'
-	import { APP, AUTHOR } from '$lib/app'
+	import { APP, app } from '$lib/app'
 	import AdSenseScript from '$lib/components/AdSenseScript.svelte'
 	import DateDisplay from '$lib/components/DateDisplay.svelte'
 	import EngagementButtons from '$lib/components/EngagementButtons.svelte'
@@ -17,7 +17,7 @@
 	const cover_image_source = $derived(blog_images.get_cover_image_url(data.meta.cover_image))
 	const image_url = $derived(cover_image_source ? `${APP.URL}${cover_image_source}` : '')
 	const blog_title = $derived(data.meta.title)
-	const page_title = $derived(`${blog_title} - ${AUTHOR.NAME}`)
+	const page_title = $derived(app.page_title(blog_title))
 </script>
 
 <svelte:head>

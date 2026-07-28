@@ -147,7 +147,7 @@ Citations:
   - A GitHub document → use `<path> — <repo>`, e.g.
     [docs/package.md — kit](https://github.com/joshuafolkken/kit/blob/main/docs/package.md).
   - A joshuafolkken.com page → use the page's own title from the retrieved content as the link
-    text, e.g. [About - Joshua Folkken](https://joshuafolkken.com/about). If the retrieved
+    text, e.g. [About — Joshua Folkken](https://joshuafolkken.com/about). If the retrieved
     content carries no page title, fall back to `<path> — joshuafolkken.com` (`<path>` is the URL
     path after the domain, `home` for the root `/`) — but never show the bare URL as the link
     text.
@@ -178,7 +178,7 @@ After applying the prompt on the dashboard, confirm on the live `/chat` (and the
 
 1. A GitHub-sourced citation shows clean display text `[<path> — <repo>]` (e.g.
    `docs/package.md — kit`) on a real `github.com/...` URL, and a joshuafolkken.com citation
-   shows the page's own title (e.g. `About - Joshua Folkken`), falling back to
+   shows the page's own title (e.g. `About — Joshua Folkken`), falling back to
    `<path> — joshuafolkken.com` (e.g. `about — joshuafolkken.com`) only when the retrieved
    content carries no title — never a bare URL, a `__`-flattened filename, or a relative link.
    The repository is named exactly once: never `joshuafolkken — README.md — joshuafolkken` or

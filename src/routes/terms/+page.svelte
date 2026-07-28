@@ -1,6 +1,6 @@
 <script lang="ts">
 	/* eslint-disable max-len */
-	import { APP, AUTHOR, LAST_UPDATED } from '$lib/app'
+	import { APP, app, AUTHOR, LAST_UPDATED } from '$lib/app'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
 	import PageSection from '$lib/components/PageSection.svelte'
@@ -9,10 +9,11 @@
 	import { PAGES } from '$lib/types/page'
 
 	const last_updated = LAST_UPDATED.TERMS_OF_SERVICE
+	const page_title = app.page_title(PAGES.TERMS_OF_SERVICE.title)
 </script>
 
 <svelte:head>
-	<title>{PAGES.TERMS_OF_SERVICE.title} - {AUTHOR.NAME}</title>
+	<title>{page_title}</title>
 	<meta name="description" content={PAGES.TERMS_OF_SERVICE.description} />
 </svelte:head>
 
