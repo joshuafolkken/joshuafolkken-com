@@ -47,9 +47,19 @@ existing behaviors: answering in the user's language
 ([#675](https://github.com/joshuafolkken/joshuafolkken-com/issues/675)) and handling off-topic
 questions in-band ([#665](https://github.com/joshuafolkken/joshuafolkken-com/issues/665)).
 
-> **Note:** LLM compliance for exact URLs is not 100% reliable. A deterministic, code-side
-> safety net (rewriting citations from the retrieved documents) is tracked as a separate
-> follow-up and should be executed only after this prompt is confirmed working live.
+> **Note:** LLM compliance for exact URLs is not 100% reliable, so `src/lib/utils/markdown.ts` →
+> `rewrite_citation` is the deterministic, code-side safety net. It covers both ways the flattened
+> key leaks past the prompt:
+>
+> 1. The key is the **href** (a relative link) → rewrite the href into a real GitHub blob URL on the
+>    default branch, and the label into `<path> — <repo>`.
+> 2. The key is only the **label** of a link whose href is the accurate `Source:` URL
+>    ([#788](https://github.com/joshuafolkken/joshuafolkken-com/issues/788)) → rewrite the label
+>    alone. The href is never derived from a label, because the flattened key does not encode the
+>    branch and a best-effort `main` URL would clobber a correct non-`main` one.
+>
+> The clean label is built by `github_document_key.to_display_text`, which emits the same
+> `<path> — <repo>` shape this prompt mandates, so a model-written and a rewritten citation read alike.
 
 ## Link formatting ([#747](https://github.com/joshuafolkken/joshuafolkken-com/issues/747))
 

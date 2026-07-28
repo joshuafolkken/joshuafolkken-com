@@ -5,6 +5,11 @@
 
 const KEY_PREFIX = 'github__'
 const PATH_SEPARATOR = '__'
+// A citation label the model built out of the flattened key. The match runs to the first character a key
+// can never contain, so the ' — <repo>' suffix the model appends stays out of it, and it is anchored to
+// the start of the label: a rewrite replaces the label wholesale, so prose that merely mentions a
+// key-shaped token ('See github__kit__docs for the format') must not qualify.
+const LEADING_KEY = new RegExp(String.raw`^${KEY_PREFIX}[\w.-]+`, 'u')
 const GITHUB_HOST = 'https://github.com'
 const DEFAULT_OWNER = 'joshuafolkken'
 // The flattened key does not encode the source branch; ingestion labels each document with its repo's
@@ -44,15 +49,34 @@ function parse_key(key: string): ParsedDocumentKey | undefined {
 	return { repo, path: segments.join('/') }
 }
 
+// Finds a key the model wrote into a visible label rather than into an href — the whole label is the key
+// ('github__<repo>__README.md'), optionally with the model's own ' — <repo>' suffix after it. Returns
+// undefined for anything else, so a citation the model labelled correctly is left alone.
+function parse_label_key(text: string): ParsedDocumentKey | undefined {
+	const match = LEADING_KEY.exec(text.trim())
+	if (!match) return undefined
+
+	return parse_key(match[0])
+}
+
 function to_github_url(parsed: ParsedDocumentKey): string {
 	return `${GITHUB_HOST}/${DEFAULT_OWNER}/${parsed.repo}/blob/${DEFAULT_BRANCH}/${parsed.path}`
 }
 
+// '<path> — <repo>' is the citation label the generation prompt mandates (docs/ai-search-generation-prompt.md);
+// keeping the renderer's fallback on the same shape means a model-written and a rewritten citation read alike.
 function to_display_text(parsed: ParsedDocumentKey): string {
-	return `${parsed.repo}/${parsed.path}`
+	return `${parsed.path} — ${parsed.repo}`
 }
 
-const github_document_key = { is_github_key, build_key, parse_key, to_github_url, to_display_text }
+const github_document_key = {
+	is_github_key,
+	build_key,
+	parse_key,
+	parse_label_key,
+	to_github_url,
+	to_display_text,
+}
 
 export type { ParsedDocumentKey }
 export { github_document_key }
