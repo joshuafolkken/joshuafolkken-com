@@ -13,6 +13,9 @@ const LABELLED_KEY = 'github__joshuafolkken__README.md'
 const LABELLED_URL = 'https://github.com/joshuafolkken/joshuafolkken/blob/main/README.md'
 const LABELLED_ANSWER = `Reference: [${LABELLED_KEY} — joshuafolkken](${LABELLED_URL})`
 const LABELLED_DISPLAY = 'README.md — joshuafolkken'
+// A third shape: the model cites the document's '<repo> — <path>' H1 and appends its own ' — <repo>'.
+const REPEATED_LABEL = 'joshuafolkken — README.md — joshuafolkken'
+const REPEATED_ANSWER = `Reference: [${REPEATED_LABEL}](${LABELLED_URL})`
 
 // Seed a stored assistant answer so the reply renders through the real {@html markdown.to_html(...)} path
 // on reload — no chat backend required to exercise the rendered output.
@@ -59,4 +62,17 @@ test('cleans a flattened key out of a citation label while keeping its source UR
 	// The accurate Source URL the model cited is preserved; only the leaked key is cleaned out.
 	await expect(link).toHaveAttribute('href', LABELLED_URL)
 	expect(await messages.innerText()).not.toContain(LABELLED_KEY)
+})
+
+test('collapses a citation label that repeats the repo around the path', async ({ page }) => {
+	await page.goto('/chat')
+	await seed_answer(page, REPEATED_ANSWER)
+	await page.reload()
+
+	const messages = page.getByTestId(CHAT_MESSAGES)
+	const link = messages.getByRole('link', { name: LABELLED_DISPLAY, exact: true })
+
+	await expect(link).toHaveAttribute('href', LABELLED_URL)
+	// The duplicated repo prefix must not survive into the rendered label.
+	expect(await messages.innerText()).not.toContain(REPEATED_LABEL)
 })

@@ -12,6 +12,18 @@ const PATH_SEPARATOR = '__'
 const LEADING_KEY = new RegExp(String.raw`^${KEY_PREFIX}[\w.-]+`, 'u')
 const GITHUB_HOST = 'https://github.com'
 const DEFAULT_OWNER = 'joshuafolkken'
+// ' — ' joins a citation label; it is also what ingestion puts between repo and path in a document's H1,
+// which is why a label can end up carrying both (see parse_repo_prefixed_label).
+const DISPLAY_SEPARATOR = ' — '
+const HOST_PATTERN = GITHUB_HOST.replaceAll('.', String.raw`\.`)
+// Inverse shape of to_github_url, but for any owner and branch — a real Source: URL names the repo's own
+// default branch, which the flattened key never encodes. The trailing group keeps nested path segments,
+// while excluding the markup characters a URL would percent-encode: this href is untrusted model output,
+// and the captured path becomes visible label text, so it must not be able to carry HTML.
+const BLOB_URL = new RegExp(
+	String.raw`^${HOST_PATTERN}/[^/]+/([^/]+)/blob/[^/]+/([^\s"'<>]+)$`,
+	'u',
+)
 // The flattened key does not encode the source branch; ingestion labels each document with its repo's
 // real default_branch (the accurate Source: URL), so main is a best-effort fallback for the renderer.
 const DEFAULT_BRANCH = 'main'
@@ -63,10 +75,32 @@ function to_github_url(parsed: ParsedDocumentKey): string {
 	return `${GITHUB_HOST}/${DEFAULT_OWNER}/${parsed.repo}/blob/${DEFAULT_BRANCH}/${parsed.path}`
 }
 
+function parse_github_url(href: string): ParsedDocumentKey | undefined {
+	const match = BLOB_URL.exec(href)
+	if (!match) return undefined
+
+	const [, repo, path] = match
+	if (repo === undefined || path === undefined) return undefined
+
+	return { repo, path }
+}
+
+// Ingestion titles each document '# <repo> — <path>' (scripts/github-documentation.ts). The model
+// sometimes cites that H1 as the label and then appends its own ' — <repo>', yielding
+// '<repo> — <path> — <repo>'. Detect only that shape — a label opening with the href's own repo — so the
+// renderer can rebuild it from the href, which is the authority here; a descriptive label that does not
+// lead with the repo is a deliberate one and must survive untouched.
+function parse_repo_prefixed_label(href: string, text: string): ParsedDocumentKey | undefined {
+	const parsed = parse_github_url(href)
+	if (!parsed) return undefined
+
+	return text.trim().startsWith(`${parsed.repo}${DISPLAY_SEPARATOR}`) ? parsed : undefined
+}
+
 // '<path> — <repo>' is the citation label the generation prompt mandates (docs/ai-search-generation-prompt.md);
 // keeping the renderer's fallback on the same shape means a model-written and a rewritten citation read alike.
 function to_display_text(parsed: ParsedDocumentKey): string {
-	return `${parsed.path} — ${parsed.repo}`
+	return `${parsed.path}${DISPLAY_SEPARATOR}${parsed.repo}`
 }
 
 const github_document_key = {
@@ -74,6 +108,7 @@ const github_document_key = {
 	build_key,
 	parse_key,
 	parse_label_key,
+	parse_repo_prefixed_label,
 	to_github_url,
 	to_display_text,
 }
