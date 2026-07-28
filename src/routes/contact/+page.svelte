@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { APP, AUTHOR } from '$lib/app'
+	import { APP, app } from '$lib/app'
 	import MetaTags from '$lib/components/MetaTags.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
@@ -12,7 +12,7 @@
 
 	const SOCIAL_LINK_CLASS =
 		'inline-flex items-center gap-3 rounded-lg border border-white/10 bg-slate-800/30 px-4 py-2 text-white/80 transition hover:border-white/30 hover:bg-slate-800/70 hover:text-white'
-	const contact_title = `${PAGES.CONTACT.title} - ${AUTHOR.NAME}`
+	const contact_title = app.page_title(PAGES.CONTACT.title)
 </script>
 
 <svelte:head>

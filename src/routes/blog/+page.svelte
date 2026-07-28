@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { APP, AUTHOR } from '$lib/app'
+	import { APP, app } from '$lib/app'
 	import AdSenseScript from '$lib/components/AdSenseScript.svelte'
 	import BlogList from '$lib/components/BlogList.svelte'
 	import MetaTags from '$lib/components/MetaTags.svelte'
@@ -9,7 +9,7 @@
 	import type { PageData } from './$types'
 
 	const { data }: { data: PageData } = $props()
-	const blog_title = `${PAGES.BLOG.title} - ${AUTHOR.NAME}`
+	const blog_title = app.page_title(PAGES.BLOG.title)
 </script>
 
 <svelte:head>

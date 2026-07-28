@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { APP, AUTHOR, OPENCOLLECTIVE, URLS } from '$lib/app'
+	import { APP, app, AUTHOR, OPENCOLLECTIVE, URLS } from '$lib/app'
 	import AdSenseScript from '$lib/components/AdSenseScript.svelte'
 	import EngagementButtons from '$lib/components/EngagementButtons.svelte'
 	import ExternalLink from '$lib/components/ExternalLink.svelte'
@@ -20,7 +20,7 @@
 	import { CONTACT_HREF } from '$lib/constants/page-routes'
 	import { PAGES } from '$lib/types/page'
 
-	const title = `${PAGES.ABOUT.title} - ${AUTHOR.NAME}`
+	const title = app.page_title(PAGES.ABOUT.title)
 </script>
 
 <svelte:head>
