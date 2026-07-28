@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { external_links } from '$lib/actions/external-links'
-	import { APP, AUTHOR } from '$lib/app'
+	import { APP, app } from '$lib/app'
 	import CardImage from '$lib/components/CardImage.svelte'
 	import EngagementButtons from '$lib/components/EngagementButtons.svelte'
 	import MetaTags from '$lib/components/MetaTags.svelte'
@@ -17,7 +17,7 @@
 	const project = $derived(data.project)
 	const case_study = $derived(data.case_study)
 	const header_page = $derived(project_utilities.get_project_page(project))
-	const page_title = $derived(`${project.title} - ${AUTHOR.NAME}`)
+	const page_title = $derived(app.page_title(project.title))
 	const description = $derived(case_study?.overview ?? project.description)
 	const detail_url = $derived(`${APP.URL}/projects/${data.slug}`)
 	const image_url = $derived(project.image ? `${APP.URL}${project.image}` : undefined)

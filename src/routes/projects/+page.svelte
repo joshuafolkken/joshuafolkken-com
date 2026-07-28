@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { APP, AUTHOR } from '$lib/app'
+	import { APP, app } from '$lib/app'
 	import EngagementButtons from '$lib/components/EngagementButtons.svelte'
 	import MetaTags from '$lib/components/MetaTags.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
@@ -9,7 +9,7 @@
 	import { PROJECTS } from '$lib/data/projects'
 	import { PAGES } from '$lib/types/page'
 
-	const title = `${PAGES.PROJECTS.title} - ${AUTHOR.NAME}`
+	const title = app.page_title(PAGES.PROJECTS.title)
 </script>
 
 <svelte:head>
