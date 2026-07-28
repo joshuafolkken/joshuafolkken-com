@@ -137,12 +137,23 @@ function set_display_text(token: Tokens.Link, parsed: ParsedDocumentKey): void {
 	token.tokens = [{ type: 'text', raw: text, text }]
 }
 
-// Deterministic safety net for the RAG model's broken citations: when the model wraps a document's
-// flattened index key (github__<repo>__<path>) in a relative link, it would otherwise render as a broken
-// same-origin URL with doubled underscores. Rewrite it into a real GitHub URL with clean display text
-// before marked renders it. The key can also leak into the label alone (#788), on a link whose href is the
-// accurate absolute Source URL; that case rewrites the label only — replacing the href would swap a
-// correct non-main-branch URL for a wrong best-effort main one.
+// The label alone is malformed, so the href — an accurate Source URL — is the only authority left for
+// rebuilding it. Ordered after the key checks because those also carry the (possibly broken) href.
+function parse_label_only(token: Tokens.Link): ParsedDocumentKey | undefined {
+	return (
+		github_document_key.parse_label_key(token.text) ??
+		github_document_key.parse_repo_prefixed_label(token.href, token.text)
+	)
+}
+
+// Deterministic safety net for the RAG model's broken citations, covering every way a document's identity
+// leaks into what the reader sees:
+//   1. The flattened index key (github__<repo>__<path>) as the href of a relative link — it would render
+//      as a broken same-origin URL with doubled underscores, so href and label are both rewritten.
+//   2. The key as the label of a link whose href is already the accurate Source URL (#788).
+//   3. The document's '<repo> — <path>' H1 as the label, with the model's own ' — <repo>' appended (#794).
+// Only case 1 touches the href: deriving one from a label would swap a correct non-main-branch URL for a
+// wrong best-effort main one, since the key encodes no branch.
 function rewrite_citation(token: Token): void {
 	if (!is_link_token(token)) return
 
@@ -150,7 +161,7 @@ function rewrite_citation(token: Token): void {
 
 	if (href_parsed) token.href = github_document_key.to_github_url(href_parsed)
 
-	const parsed = href_parsed ?? github_document_key.parse_label_key(token.text)
+	const parsed = href_parsed ?? parse_label_only(token)
 	if (!parsed) return
 
 	set_display_text(token, parsed)

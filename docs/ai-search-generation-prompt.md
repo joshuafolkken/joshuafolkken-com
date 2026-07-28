@@ -48,18 +48,29 @@ existing behaviors: answering in the user's language
 questions in-band ([#665](https://github.com/joshuafolkken/joshuafolkken-com/issues/665)).
 
 > **Note:** LLM compliance for exact URLs is not 100% reliable, so `src/lib/utils/markdown.ts` →
-> `rewrite_citation` is the deterministic, code-side safety net. It covers both ways the flattened
-> key leaks past the prompt:
+> `rewrite_citation` is the deterministic, code-side safety net. It covers every way a document's
+> internal identity leaks into what the reader sees:
 >
-> 1. The key is the **href** (a relative link) → rewrite the href into a real GitHub blob URL on the
->    default branch, and the label into `<path> — <repo>`.
+> 1. The flattened key is the **href** (a relative link) → rewrite the href into a real GitHub blob
+>    URL on the default branch, and the label into `<path> — <repo>`.
 > 2. The key is only the **label** of a link whose href is the accurate `Source:` URL
 >    ([#788](https://github.com/joshuafolkken/joshuafolkken-com/issues/788)) → rewrite the label
->    alone. The href is never derived from a label, because the flattened key does not encode the
->    branch and a best-effort `main` URL would clobber a correct non-`main` one.
+>    alone.
+> 3. The **H1 above** (`# <repo> — <path>`) is the label, with the model's own ` — <repo>` appended,
+>    giving `<repo> — <path> — <repo>`
+>    ([#794](https://github.com/joshuafolkken/joshuafolkken-com/issues/794)) → rebuild the label from
+>    the href. Detection requires the label to open with the href's own repo, so a deliberate
+>    descriptive label is never rewritten.
+>
+> Only case 1 touches the href. A label never determines a URL: the flattened key encodes no branch,
+> so a best-effort `main` URL would clobber a correct non-`main` one.
 >
 > The clean label is built by `github_document_key.to_display_text`, which emits the same
 > `<path> — <repo>` shape this prompt mandates, so a model-written and a rewritten citation read alike.
+>
+> Case 3 exists because the H1 and the citation convention share the `—` separator, which invites
+> the model to treat the H1 as the "page title" the site-page rule asks for. The prompt rule below
+> ("never use the document's own H1 heading") is the primary guard; the renderer is the net.
 
 ## Link formatting ([#747](https://github.com/joshuafolkken/joshuafolkken-com/issues/747))
 
@@ -143,6 +154,11 @@ Citations:
 - Never output the flattened index key or filename (e.g. `github__kit__docs__package.md`), never
   emit doubled underscores (`__`) as citation text, never show a bare URL as the link text, and
   never produce a relative link.
+- For a GitHub document, never use the document's own H1 heading (`# <repo> — <path>`) as the link
+  text, and never put the repository name before the path. The label is exactly `<path> — <repo>`,
+  with the repository named once — write `README.md — kit`, never `kit — README.md` or
+  `kit — README.md — kit`. The "use the page's own title" rule applies only to joshuafolkken.com
+  pages.
 - If a retrieved document has no source URL, mention it by its title without fabricating a URL.
 
 Citation placement:
@@ -165,6 +181,8 @@ After applying the prompt on the dashboard, confirm on the live `/chat` (and the
    shows the page's own title (e.g. `About - Joshua Folkken`), falling back to
    `<path> — joshuafolkken.com` (e.g. `about — joshuafolkken.com`) only when the retrieved
    content carries no title — never a bare URL, a `__`-flattened filename, or a relative link.
+   The repository is named exactly once: never `joshuafolkken — README.md — joshuafolkken` or
+   `kit — README.md` (the #794 guard).
 2. A Japanese question still gets a Japanese answer with citations (the #675 regression guard).
 3. An off-topic question is politely declined in the user's language (the #665 behavior).
 4. Every citation appears together at the very end of the answer — none inline in a sentence and
