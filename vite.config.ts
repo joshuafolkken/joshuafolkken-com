@@ -69,7 +69,9 @@ export default defineConfig({
 				test: {
 					name: 'server',
 					environment: 'node',
-					include: ['src/**/*.{test,spec}.{js,ts}'],
+					// Root-level entry covers config files (e.g. svelte.config.test.ts), which the
+					// project convention colocates beside the file they test.
+					include: ['src/**/*.{test,spec}.{js,ts}', '*.{test,spec}.{js,ts}'],
 					exclude: ['src/**/*.svelte.{test,spec}.{js,ts}'],
 				},
 			},
