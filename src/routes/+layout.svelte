@@ -15,7 +15,6 @@
 	} from '$lib/constants/navigation-progress'
 	import { search_state } from '$lib/hooks/SearchState.svelte'
 	import { sticky_header_state } from '$lib/hooks/StickyHeaderState.svelte'
-	import { font_load_handler } from '$lib/utils/font-load-handler'
 	import type { Snippet } from 'svelte'
 
 	interface Props {
@@ -40,12 +39,20 @@
 	<meta name="description" content={APP.DESCRIPTION} />
 	<link rel="canonical" href={page.url.href} />
 	<link rel="preload" as="style" href={GOOGLE_FONTS_URL} />
-	<link
-		rel="stylesheet"
-		href={GOOGLE_FONTS_URL}
-		media="print"
-		onload={font_load_handler.on_font_load}
-	/>
+	<!-- Loaded as `print` so it never blocks first paint, then swapped to `all` once ready.
+	     Svelte strips this comment in production, so the full rationale lives here rather than
+	     in `src/app.html`, whose comments are served on every request.
+
+	     The swap runs in the nonce-tagged bootstrap at the end of `src/app.html`'s head, which
+	     matches this link by `data-font-css`. It cannot be an inline `onload=` attribute: that
+	     is what forced `script-src-attr 'unsafe-inline'` into the CSP (#799). It also cannot
+	     wait for `onMount`, which would push the swap past hydration and lengthen FOUT. The
+	     bootstrap has to handle a stylesheet that finished loading before it ran (a cached
+	     response), hence the `link.sheet` branch — no load event is left to listen for.
+
+	     Measured on a throttled connection: dropping `media="print"` for a plain render-blocking
+	     stylesheet costs ~3.7s of FCP, so the swap is worth its complexity. -->
+	<link rel="stylesheet" href={GOOGLE_FONTS_URL} media="print" data-font-css />
 	<noscript>
 		<link rel="stylesheet" href={GOOGLE_FONTS_URL} />
 	</noscript>

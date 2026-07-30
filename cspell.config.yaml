@@ -33,6 +33,7 @@ words:
   - ENOENT
   - fastcgi
   - ffprobe
+  - FOUT
   - Frontmatter
   - genai
   - ghcr
