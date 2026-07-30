@@ -9,7 +9,9 @@
 # [10063]. Removing a line re-opens the corresponding finding and fails the scan.
 #
 # Not set here: Content-Security-Policy. A useful CSP for SvelteKit needs nonce/hash wiring in
-# `svelte.config.js` (kit.csp) rather than a static header, so it is tracked separately.
+# `svelte.config.js` (kit.csp) rather than a static header, so it is configured there and emitted
+# per rendered page with a fresh nonce. Adding a CSP line here would override it with a nonce-less
+# copy and block every inline script.
 /*
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY

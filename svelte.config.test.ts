@@ -1,0 +1,52 @@
+import { describe, expect, it } from 'vitest'
+import config from './svelte.config.js'
+
+const csp = config.kit?.csp
+const directives = csp?.directives ?? {}
+const UNSAFE_INLINE = 'unsafe-inline'
+
+describe('kit.csp', () => {
+	it('generates a nonce for server-rendered pages', () => {
+		expect(csp?.mode).toBe('auto')
+	})
+
+	// The whole point of the nonce migration: an inline script must carry the nonce, so
+	// 'unsafe-inline' has to be gone. Re-adding it would silently disable the nonce for
+	// CSP2 browsers and re-open the ZAP 10055 script-src finding.
+	it("omits 'unsafe-inline' from script-src", () => {
+		expect(directives['script-src']).not.toContain(UNSAFE_INLINE)
+	})
+
+	it('keeps script-src restricted to self plus the Google tag origins', () => {
+		expect(directives['script-src']).toStrictEqual([
+			'self',
+			'https://www.googletagmanager.com',
+			'https://*.googlesyndication.com',
+			'https://*.doubleclick.net',
+		])
+	})
+
+	// Svelte transitions inject inline <style> at runtime, and SvelteKit only skips adding a
+	// style nonce while 'unsafe-inline' is present — a nonce there would make CSP3 browsers
+	// ignore 'unsafe-inline' and break the transitions.
+	it("keeps 'unsafe-inline' in style-src", () => {
+		expect(directives['style-src']).toContain(UNSAFE_INLINE)
+	})
+
+	it('allows the Google Fonts origins', () => {
+		expect(directives['style-src']).toContain('https://fonts.googleapis.com')
+		expect(directives['font-src']).toContain('https://fonts.gstatic.com')
+	})
+
+	it('allows the YouTube embed origin in frame-src', () => {
+		expect(directives['frame-src']).toContain('https://www.youtube-nocookie.com')
+	})
+
+	it('disables object-src', () => {
+		expect(directives['object-src']).toStrictEqual(['none'])
+	})
+
+	it("denies framing via frame-ancestors 'none' (aligned with X-Frame-Options: DENY)", () => {
+		expect(directives['frame-ancestors']).toStrictEqual(['none'])
+	})
+})

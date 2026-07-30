@@ -5,7 +5,8 @@
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
 
 		<!-- Consent Mode v2: must execute before gtag config -->
-		<script>
+		<!-- nonce: script-src has no 'unsafe-inline' (see kit.csp in svelte.config.js) -->
+		<script nonce="%sveltekit.nonce%">
 			window.dataLayer = window.dataLayer ?? []
 			function gtag() {
 				dataLayer.push(arguments)
@@ -20,9 +21,14 @@
 			})
 		</script>
 
-		<!-- Google tag (gtag.js) -->
-		<script async src="https://www.googletagmanager.com/gtag/js?id=G-P5HFC2TERE"></script>
-		<script>
+		<!-- Google tag (gtag.js). The nonce on the external tag is what lets gtag.js copy it onto
+		     the scripts it injects at runtime, so they pass the nonce-based script-src too. -->
+		<script
+			async
+			nonce="%sveltekit.nonce%"
+			src="https://www.googletagmanager.com/gtag/js?id=G-P5HFC2TERE"
+		></script>
+		<script nonce="%sveltekit.nonce%">
 			gtag('js', new Date())
 			gtag('config', 'G-P5HFC2TERE')
 		</script>
