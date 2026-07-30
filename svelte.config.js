@@ -43,17 +43,12 @@ const csp = {
 	directives: {
 		'default-src': ['self'],
 		'script-src': ['self', GOOGLE_TAG_MANAGER, GOOGLE_SYNDICATION, DOUBLE_CLICK],
-		// Inline event-handler *attributes* only — this is not `script-src`, so injected
-		// `<script>` blocks stay blocked. Svelte 5's SSR event replay stamps `onload="this.__e=event"`
-		// onto an element so a load/error event firing before hydration is not lost. It does this
-		// only for `onload`/`onerror` on the load/error elements (body embed iframe img link object
-		// script style track) — never for `onclick` or ordinary interactive elements. This site has
-		// exactly one such handler: the non-blocking webfont `<link media="print" onload=...>` in
-		// `src/routes/+layout.svelte`. Without this directive that attribute falls back to
-		// `script-src` and the font media swap is blocked.
-		// The one path that renders untrusted HTML (chat markdown) strips handlers via DOMPurify.
-		// Removing that single `onload` retires this directive — tracked in #799.
-		'script-src-attr': ['unsafe-inline'],
+		// No `script-src-attr` entry: it falls back to `script-src`, so inline event-handler
+		// attributes are nonce-checked like everything else and therefore blocked. Svelte 5's SSR
+		// event replay emits `onload="this.__e=event"` for `onload`/`onerror` on the load/error
+		// elements (body embed iframe img link object script style track), so adding such a handler
+		// re-breaks the page — put the logic in a nonce-tagged script instead, as the webfont media
+		// swap in `src/app.html` does (#799).
 		'style-src': ['self', 'unsafe-inline', 'https://fonts.googleapis.com'],
 		'font-src': ['self', 'https://fonts.gstatic.com'],
 		'img-src': [
