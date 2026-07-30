@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/triple-slash-reference -- tsgo needs explicit reference for Cloudflare types */
 /// <reference path="../../../worker-configuration.d.ts" />
-import { CSP_VALUE, HSTS_VALUE, PERMISSIONS_POLICY_VALUE } from '$lib/constants/security'
+import { HSTS_VALUE, PERMISSIONS_POLICY_VALUE } from '$lib/constants/security'
 import { logger } from '$lib/logger'
 import { platform_binding } from '$lib/server/platform-binding'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -87,7 +87,6 @@ describe('security.add_security_headers', () => {
 		['Referrer-Policy', 'strict-origin-when-cross-origin'],
 		['Strict-Transport-Security', HSTS_VALUE],
 		['Permissions-Policy', PERMISSIONS_POLICY_VALUE],
-		['Content-Security-Policy', CSP_VALUE],
 	])('sets %s', (header, value) => {
 		const response = new Response()
 
@@ -95,29 +94,16 @@ describe('security.add_security_headers', () => {
 
 		expect(response.headers.get(header)).toBe(value)
 	})
-})
 
-describe('security.add_security_headers — CSP directives', () => {
-	it('includes required third-party script origins', () => {
-		expect(CSP_VALUE).toContain('https://www.googletagmanager.com')
-		expect(CSP_VALUE).toContain('https://*.googlesyndication.com')
-	})
+	// Regression: the CSP moved to `kit.csp` (svelte.config.js) so SvelteKit can attach the
+	// per-request nonce. Re-adding it here would overwrite that header with a nonce-less copy
+	// and block every inline script on the page.
+	it('leaves Content-Security-Policy to SvelteKit', () => {
+		const response = new Response()
 
-	it('includes Google Fonts origins', () => {
-		expect(CSP_VALUE).toContain('https://fonts.googleapis.com')
-		expect(CSP_VALUE).toContain('https://fonts.gstatic.com')
-	})
+		security.add_security_headers(response)
 
-	it('allows the YouTube embed origin in frame-src', () => {
-		expect(CSP_VALUE).toContain('https://www.youtube-nocookie.com')
-	})
-
-	it('disables object-src', () => {
-		expect(CSP_VALUE).toContain("object-src 'none'")
-	})
-
-	it("denies framing via frame-ancestors 'none' (aligned with X-Frame-Options: DENY)", () => {
-		expect(CSP_VALUE).toContain("frame-ancestors 'none'")
+		expect(response.headers.get('Content-Security-Policy')).toBeNull()
 	})
 })
 
