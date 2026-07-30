@@ -26,6 +26,12 @@ describe('kit.csp', () => {
 		])
 	})
 
+	// Leaving script-src-attr unset makes it fall back to the nonce-checked script-src, so inline
+	// event-handler attributes stay blocked. Re-adding it would silently re-open that surface.
+	it('does not relax script-src-attr', () => {
+		expect(directives['script-src-attr']).toBeUndefined()
+	})
+
 	// Svelte transitions inject inline <style> at runtime, and SvelteKit only skips adding a
 	// style nonce while 'unsafe-inline' is present — a nonce there would make CSP3 browsers
 	// ignore 'unsafe-inline' and break the transitions.
