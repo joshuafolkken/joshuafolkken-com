@@ -1,5 +1,6 @@
 import { security_headers_e2e } from '@joshuafolkken/app-kit/security/e2e'
 import { expect, test } from '@playwright/test'
+import { SECURITY_HEADERS_EXTRA } from '$lib/constants/security'
 
 // Seeded once by `josh-app sync`, then yours to extend. This is the Docker-free per-PR safety net
 // that lets the full ZAP baseline scan (`.github/workflows/dast.yml`) run nightly instead of on
@@ -11,6 +12,13 @@ import { expect, test } from '@playwright/test'
 // header added upstream starts being checked here on the next update — nothing to copy forward.
 // Add your INSTANCE-specific cases alongside them: the third-party origins your policy allowlists,
 // a route carrying an embed, or proof that a site-specific inline bootstrap actually executed.
+//
+// SECURITY_HEADERS_EXTRA is the array `src/lib/server/security.ts` hands to `apply_security_headers`,
+// hoisted into `$lib/constants/security` so one list drives both the headers served and the ones
+// expected here. Without it the expectation is the bare app-kit baseline, and this site's
+// deliberately stronger `Permissions-Policy` (it denies `payment` as well) reads as a departure —
+// the failure app-kit#154 fixed. Passing it also brings the header this site ADDS,
+// `Strict-Transport-Security`, under the same assertion.
 
 // `_headers` is a Cloudflare directive file applied by the Worker runtime — `pnpm run preview` and
 // production. The vite dev server does not process it, and Playwright runs against dev locally (see
@@ -35,7 +43,7 @@ test('serves the baseline headers and a nonce-based CSP', async ({ page }) => {
 	// Each baseline header pins a ZAP finding closed by `_headers` (10020 / 10021 / 10063); the CSP
 	// check pins 10038, which `kit.csp` in `svelte.config.js` closes instead. Both report a list of
 	// departures rather than throwing, so a failure names every problem at once.
-	expect(security_headers_e2e.baseline_problems(response)).toStrictEqual([])
+	expect(security_headers_e2e.baseline_problems(response, SECURITY_HEADERS_EXTRA)).toStrictEqual([])
 	expect(security_headers_e2e.csp_problems(response)).toStrictEqual([])
 })
 

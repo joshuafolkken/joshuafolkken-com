@@ -252,8 +252,8 @@ importers:
         specifier: ^4.7.1
         version: 4.7.1(prettier@3.9.6)(supports-color@10.2.2)
       '@joshuafolkken/app-kit':
-        specifier: 0.65.0
-        version: 0.65.0(@joshuafolkken/kit@1.52.0(@playwright/test@1.62.1)(@typescript-eslint/utils@8.65.0(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3)
+        specifier: 0.66.0
+        version: 0.66.0(@joshuafolkken/kit@1.52.0(@playwright/test@1.62.1)(@typescript-eslint/utils@8.65.0(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3)
       '@joshuafolkken/kit':
         specifier: 1.52.0
         version: 1.52.0(@playwright/test@1.62.1)(@typescript-eslint/utils@8.65.0(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3)
@@ -1404,8 +1404,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@joshuafolkken/app-kit@0.65.0':
-    resolution: {integrity: sha512-MAm6XYA3pGQQ2t8KIxWTGHlcUtjwAG/Pll7N1n4u6eE/CJzmymhaNdw0UxJwh7cEoxoB+Fw+c6h0T+FHlyABFw==, tarball: https://npm.pkg.github.com/download/@joshuafolkken/app-kit/0.65.0/c8b5c8e6c636b955a3aca3f8f643dff097704a41}
+  '@joshuafolkken/app-kit@0.66.0':
+    resolution: {integrity: sha512-2dIWgtf7Rs4DNq/X7qHa3wfvTmnevSFoaDKws7OQ6wvDxBfQjRkiL7nq1Gj3OoZDZCVHgvUe29t53nNMGBUabg==, tarball: https://npm.pkg.github.com/download/@joshuafolkken/app-kit/0.66.0/8883bd34b1860d71d4b6655ff55c046959fc8ae9}
     hasBin: true
     peerDependencies:
       '@joshuafolkken/kit': '>=1.12.0'
@@ -1446,13 +1446,6 @@ packages:
     cpu: [x64]
     os: [linux]
     libc: [glibc]
-
-  '@napi-rs/wasm-runtime@1.2.0':
-    resolution: {integrity: sha512-kDoONqMa+VnZ4vvvu/ZUurpJ4gkZU57e7g69qpNgWhYcZFPUHZM2CEMKm+cG6ufDVALbjMvfmMjFVqaK7uEMnA==}
-    engines: {node: ^20.19.0 || ^22.13.0 || >=23.5.0}
-    peerDependencies:
-      '@emnapi/core': ^2.0.0-alpha.3
-      '@emnapi/runtime': ^2.0.0-alpha.3
 
   '@napi-rs/wasm-runtime@1.2.2':
     resolution: {integrity: sha512-JfB4kuJQjaoHuCTseIINHtHWeJnvgEcxjwA5t/Y00ZgaOO1Crz3fjT/p8kT28zA/Caz7oiUMn3d6H2yOVCVwuw==}
@@ -5411,7 +5404,7 @@ snapshots:
   '@img/sharp-win32-x64@0.35.3':
     optional: true
 
-  '@joshuafolkken/app-kit@0.65.0(@joshuafolkken/kit@1.52.0(@playwright/test@1.62.1)(@typescript-eslint/utils@8.65.0(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3)':
+  '@joshuafolkken/app-kit@0.66.0(@joshuafolkken/kit@1.52.0(@playwright/test@1.62.1)(@typescript-eslint/utils@8.65.0(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3)':
     dependencies:
       '@joshuafolkken/kit': 1.52.0(@playwright/test@1.62.1)(@typescript-eslint/utils@8.65.0(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3)
       eslint: 10.8.0(jiti@2.7.0)(supports-color@10.2.2)
@@ -5480,17 +5473,17 @@ snapshots:
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     optional: true
 
-  '@napi-rs/wasm-runtime@1.2.0(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)':
-    dependencies:
-      '@emnapi/core': 2.0.0-alpha.3
-      '@emnapi/runtime': 2.0.0-alpha.3
-      '@tybys/wasm-util': 0.10.3
-    optional: true
-
   '@napi-rs/wasm-runtime@1.2.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
     dependencies:
       '@emnapi/core': 1.10.0
       '@emnapi/runtime': 1.10.0
+      '@tybys/wasm-util': 0.10.3
+    optional: true
+
+  '@napi-rs/wasm-runtime@1.2.2(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)':
+    dependencies:
+      '@emnapi/core': 2.0.0-alpha.3
+      '@emnapi/runtime': 2.0.0-alpha.3
       '@tybys/wasm-util': 0.10.3
     optional: true
 
@@ -5579,7 +5572,7 @@ snapshots:
     dependencies:
       '@emnapi/core': 2.0.0-alpha.3
       '@emnapi/runtime': 2.0.0-alpha.3
-      '@napi-rs/wasm-runtime': 1.2.0(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)
+      '@napi-rs/wasm-runtime': 1.2.2(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)
     optional: true
 
   '@rolldown/binding-win32-arm64-msvc@1.2.1':

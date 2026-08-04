@@ -4,7 +4,7 @@ import { security_headers } from '@joshuafolkken/app-kit/security'
 import { json } from '@sveltejs/kit'
 import { APP } from '$lib/app'
 import { CONTENT_TYPE, ERROR_MESSAGES, HTTP_HEADERS, HTTP_STATUS } from '$lib/constants/http'
-import { HSTS_VALUE, LOCALHOST_HOSTNAMES, PERMISSIONS_POLICY_VALUE } from '$lib/constants/security'
+import { LOCALHOST_HOSTNAMES, SECURITY_HEADERS_EXTRA } from '$lib/constants/security'
 import { logger } from '$lib/logger'
 import { platform_binding } from '$lib/server/platform-binding'
 import {
@@ -22,16 +22,15 @@ interface SecurityContext {
 
 function add_security_headers(response: Response): void {
 	// Baseline (nosniff, X-Frame-Options: DENY, Referrer-Policy, Permissions-Policy) is
-	// single-sourced from app-kit; `extra` layers this site's SSR-only headers on top
-	// (last-write-wins), overriding Permissions-Policy with the stricter payment=() value.
+	// single-sourced from app-kit; SECURITY_HEADERS_EXTRA layers this site's SSR-only headers on top
+	// (last-write-wins), overriding Permissions-Policy with the stricter payment=() value. The same
+	// array is handed to `baseline_problems` in `security-headers.e2e.ts`, so what is served and what
+	// is asserted come from one place.
 	//
 	// Content-Security-Policy is deliberately absent: SvelteKit emits it per rendered page from
 	// `kit.csp` (svelte.config.js) with the per-request nonce baked in. Setting it here would
 	// overwrite that header with a nonce-less copy and block every inline script on the page.
-	security_headers.apply_security_headers(response, [
-		['Permissions-Policy', PERMISSIONS_POLICY_VALUE],
-		['Strict-Transport-Security', HSTS_VALUE],
-	])
+	security_headers.apply_security_headers(response, SECURITY_HEADERS_EXTRA)
 }
 
 function json_error(message: string, status: number): Response {
