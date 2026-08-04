@@ -56,6 +56,11 @@ const csp = {
 			'data:',
 			'https://*.opencollective.com',
 			GOOGLE_ANALYTICS,
+			// The Google tag sends its /td? measurement beacon as an image, so leaving this origin out
+			// of img-src drops analytics silently — the page still renders and only the browser
+			// console reports the block. It is already trusted for script-src and connect-src, so
+			// allowing an image from it widens nothing that was not already open.
+			GOOGLE_TAG_MANAGER,
 			GOOGLE_SYNDICATION,
 			DOUBLE_CLICK,
 			AD_TRAFFIC_QUALITY,

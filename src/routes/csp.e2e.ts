@@ -1,81 +1,33 @@
-import { expect, test, type Page } from '@playwright/test'
+import { security_headers_e2e } from '@joshuafolkken/app-kit/security/e2e'
+import { expect, test } from '@playwright/test'
+import { TEST_IDS } from '$lib/test-ids'
 import { TEST_ROUTES } from '$lib/test-routes'
 
 declare global {
 	/** Populated by the nonce-tagged Consent Mode bootstrap in `src/app.html`. */
 	// eslint-disable-next-line @typescript-eslint/naming-convention -- Google-owned global name
 	var dataLayer: Array<unknown> | undefined
-	/** Bridge installed by `watch_violations` below; test-only. */
-	var report_csp_violation: (detail: string) => void
 }
 
-const CSP_HEADER = 'content-security-policy'
-// Ad slots keep polling, so a page carrying AdSense may never reach `networkidle`. Bound the
-// settle window and assert on whatever the browser has reported by then.
-const SETTLE_TIMEOUT_MS = 8000
+// Ad slots keep polling, so the post carrying AdSense may never reach `networkidle`; the bounded
+// settle window app-kit ships plus this ceiling keep the run finite.
 const VIOLATION_TEST_TIMEOUT_MS = 45_000
-const SCRIPT_SRC_PATTERN = /script-src ([^;]*)/u
-const STYLE_SRC_PATTERN = /style-src ([^;]*)/u
-const UNSAFE_INLINE = "'unsafe-inline'"
 
-async function get_csp(page: Page, route: string): Promise<string> {
-	const response = await page.goto(route, { waitUntil: 'domcontentloaded' })
-	const header = response?.headers()[CSP_HEADER]
-
-	expect(header, `no ${CSP_HEADER} header on ${route}`).toBeTruthy()
-
-	return header ?? ''
-}
-
-function match_directive(csp: string, pattern: RegExp): string {
-	const directive = pattern.exec(csp)?.[1]
-
-	expect(directive, `directive ${pattern.source} missing from: ${csp}`).toBeDefined()
-
-	return directive ?? ''
-}
-
-/** Give the page a bounded window to finish loading; ad polling may never reach idle. */
-async function settle(page: Page): Promise<void> {
-	try {
-		await page.waitForLoadState('networkidle', { timeout: SETTLE_TIMEOUT_MS })
-	} catch {
-		// Still busy after the window — assert on what has been reported so far.
-	}
-}
-
-/** Collect the CSP violations the browser reports while the page runs. */
-async function watch_violations(page: Page): Promise<Array<string>> {
-	const violations: Array<string> = []
-
-	await page.exposeFunction('report_csp_violation', (detail: string) => {
-		violations.push(detail)
-	})
-
-	await page.addInitScript(() => {
-		document.addEventListener('securitypolicyviolation', (event) => {
-			globalThis.report_csp_violation(
-				`${event.violatedDirective}: ${event.blockedURI} (${event.sourceFile || 'inline'})`,
-			)
-		})
-	})
-
-	return violations
-}
-
+// The INSTANCE-specific half of the CSP coverage. The stack-universal half lives in
+// `security-headers.e2e.ts`, seeded from `@joshuafolkken/app-kit/security/e2e`, so nothing here
+// restates a directive rule — every check below calls the shared helpers.
+//
+// Why a site-level CSP check exists here at all, given the seeded spec already asserts one: that
+// spec skips unless the run targets the preview server, because its baseline half reads headers
+// `_headers` only supplies through the Worker runtime. Playwright runs against the vite dev server
+// locally, so adopting the seeded spec alone would leave `pnpm josh test` with NO CSP coverage
+// until CI. The policy comes from `kit.csp` in `svelte.config.js`, not from `_headers`, so it IS
+// served in dev — and this check runs in both environments.
 test.describe('Content Security Policy', () => {
-	test('script-src is nonce-based, not unsafe-inline', async ({ page }) => {
-		const csp = await get_csp(page, TEST_ROUTES.HOME)
-		const script_source = match_directive(csp, SCRIPT_SRC_PATTERN)
+	test('serves the nonce-based policy in every environment', async ({ page }) => {
+		const response = await page.goto(TEST_ROUTES.HOME)
 
-		expect(script_source).toContain("'nonce-")
-		expect(script_source).not.toContain(UNSAFE_INLINE)
-	})
-
-	test("style-src keeps 'unsafe-inline' for Svelte transitions", async ({ page }) => {
-		const csp = await get_csp(page, TEST_ROUTES.HOME)
-
-		expect(match_directive(csp, STYLE_SRC_PATTERN)).toContain(UNSAFE_INLINE)
+		expect(security_headers_e2e.csp_problems(response)).toStrictEqual([])
 	})
 
 	test('the nonce-tagged Consent Mode bootstrap still executes', async ({ page }) => {
@@ -88,21 +40,41 @@ test.describe('Content Security Policy', () => {
 		expect(consent_entries).toBeGreaterThan(0)
 	})
 
-	const VIOLATION_ROUTES = [
-		['home', TEST_ROUTES.HOME],
-		['blog post (YouTube embed, AdSense)', TEST_ROUTES.BLOG_YOUTUBE_POST],
-	] as const
+	// Kept rather than delegated to the seeded spec, which watches the home page too but only against
+	// the preview server: on the local dev run that check does not execute, so removing this one
+	// would drop home-page violation coverage that exists today. The post below is not a substitute —
+	// it renders neither the hero, the project cards nor the skills section.
+	test('reports no violations on the home page', async ({ page }) => {
+		test.setTimeout(VIOLATION_TEST_TIMEOUT_MS)
 
-	for (const [name, route] of VIOLATION_ROUTES) {
-		test(`reports no violations on the ${name}`, async ({ page }) => {
-			test.setTimeout(VIOLATION_TEST_TIMEOUT_MS)
+		const violations = await security_headers_e2e.watch_violations(page)
 
-			const violations = await watch_violations(page)
+		await page.goto(TEST_ROUTES.HOME, { waitUntil: 'load' })
+		await security_headers_e2e.settle(page)
 
-			await page.goto(route, { waitUntil: 'load' })
-			await settle(page)
+		expect(violations).toStrictEqual([])
+	})
 
-			expect(violations).toStrictEqual([])
-		})
-	}
+	test('reports no violations on the post carrying the YouTube embed and AdSense', async ({
+		page,
+	}) => {
+		test.setTimeout(VIOLATION_TEST_TIMEOUT_MS)
+
+		const violations = await security_headers_e2e.watch_violations(page)
+
+		await page.goto(TEST_ROUTES.BLOG_YOUTUBE_POST, { waitUntil: 'load' })
+
+		// Self-validating: the embed is the reason this route is tested (it is what exercises
+		// frame-src), and it is loading="lazy" — so without forcing it into view a content edit that
+		// dropped the video would leave this test green on a page that never loaded a frame at all.
+		// The talk layout renders two players, one per breakpoint, so select the one this viewport
+		// actually shows; strict mode still reports it if the layout ever shows both.
+		const embed = page.getByTestId(TEST_IDS.YOUTUBE_EMBED).filter({ visible: true })
+
+		await expect(embed).toBeVisible()
+		await embed.scrollIntoViewIfNeeded()
+		await security_headers_e2e.settle(page)
+
+		expect(violations).toStrictEqual([])
+	})
 })
