@@ -252,11 +252,11 @@ importers:
         specifier: ^4.7.1
         version: 4.7.1(prettier@3.9.6)(supports-color@10.2.2)
       '@joshuafolkken/app-kit':
-        specifier: 0.66.0
-        version: 0.66.0(@joshuafolkken/kit@1.52.0(@playwright/test@1.62.1)(@typescript-eslint/utils@8.65.0(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3)
+        specifier: 0.67.0
+        version: 0.67.0(@joshuafolkken/kit@1.57.0(@playwright/test@1.62.1)(@typescript-eslint/utils@8.65.0(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3)
       '@joshuafolkken/kit':
-        specifier: 1.52.0
-        version: 1.52.0(@playwright/test@1.62.1)(@typescript-eslint/utils@8.65.0(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3)
+        specifier: 1.57.0
+        version: 1.57.0(@playwright/test@1.62.1)(@typescript-eslint/utils@8.65.0(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3)
       '@playwright/test':
         specifier: ^1.62.1
         version: 1.62.1
@@ -1404,16 +1404,16 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@joshuafolkken/app-kit@0.66.0':
-    resolution: {integrity: sha512-2dIWgtf7Rs4DNq/X7qHa3wfvTmnevSFoaDKws7OQ6wvDxBfQjRkiL7nq1Gj3OoZDZCVHgvUe29t53nNMGBUabg==, tarball: https://npm.pkg.github.com/download/@joshuafolkken/app-kit/0.66.0/8883bd34b1860d71d4b6655ff55c046959fc8ae9}
+  '@joshuafolkken/app-kit@0.67.0':
+    resolution: {integrity: sha512-LGz1zRR0Apy/QIvnGsHo4CeApi5btuKlyNL7PIuugr0HUKHRy3K8ePb/tHtQEzYuLFdNyZz7XLipDLCP1gppkw==, tarball: https://npm.pkg.github.com/download/@joshuafolkken/app-kit/0.67.0/771d90e286659ad4815253a075c20c15f756ec24}
     hasBin: true
     peerDependencies:
       '@joshuafolkken/kit': '>=1.12.0'
       eslint: ^10.0.0
       svelte: ^5.55.7
 
-  '@joshuafolkken/kit@1.52.0':
-    resolution: {integrity: sha512-qO30VgGZw4fA7HCH/8GHR/fG+xrkn/1WMIkrCQPyw41d3k9RGhALkUAwKnVKu7QhvdG0n1nPzIS2AoKccBkEiQ==, tarball: https://npm.pkg.github.com/download/@joshuafolkken/kit/1.52.0/22df0ed6af66964f97e74299bbfed6fdb3f145f7}
+  '@joshuafolkken/kit@1.57.0':
+    resolution: {integrity: sha512-tQuiqnpfdZu4VEsMoIEZGEbn9ELuxnqKuzM/WmvQFCEPqLOVyY8TnU1cyQMbOGWlsnoHKtJG4FzkKCJNL4TdYg==, tarball: https://npm.pkg.github.com/download/@joshuafolkken/kit/1.57.0/893546ca09d4bcd6ea35ea0355bb895e7520474b}
     engines: {node: '>=22.19.0'}
     hasBin: true
     peerDependencies:
@@ -5404,9 +5404,9 @@ snapshots:
   '@img/sharp-win32-x64@0.35.3':
     optional: true
 
-  '@joshuafolkken/app-kit@0.66.0(@joshuafolkken/kit@1.52.0(@playwright/test@1.62.1)(@typescript-eslint/utils@8.65.0(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3)':
+  '@joshuafolkken/app-kit@0.67.0(@joshuafolkken/kit@1.57.0(@playwright/test@1.62.1)(@typescript-eslint/utils@8.65.0(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3)':
     dependencies:
-      '@joshuafolkken/kit': 1.52.0(@playwright/test@1.62.1)(@typescript-eslint/utils@8.65.0(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3)
+      '@joshuafolkken/kit': 1.57.0(@playwright/test@1.62.1)(@typescript-eslint/utils@8.65.0(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3)
       eslint: 10.8.0(jiti@2.7.0)(supports-color@10.2.2)
       eslint-plugin-svelte: 3.22.0(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(svelte@5.56.8(@typescript-eslint/types@8.65.0))
       svelte: 5.56.8(@typescript-eslint/types@8.65.0)
@@ -5416,7 +5416,7 @@ snapshots:
       - ts-node
       - typescript
 
-  '@joshuafolkken/kit@1.52.0(@playwright/test@1.62.1)(@typescript-eslint/utils@8.65.0(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3)':
+  '@joshuafolkken/kit@1.57.0(@playwright/test@1.62.1)(@typescript-eslint/utils@8.65.0(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(svelte@5.56.8(@typescript-eslint/types@8.65.0))(typescript@6.0.3)':
     dependencies:
       '@eslint/compat': 2.1.0(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))
       '@eslint/js': 10.0.1(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))
