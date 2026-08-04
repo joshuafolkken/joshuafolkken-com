@@ -1,0 +1,21 @@
+# GitHub Packages credential for build platforms that have no user-level npmrc —
+# Cloudflare Workers Builds, which is this project's deploy path.
+#
+# pnpm 11 ignores registry credentials found in a project `.npmrc` unless `npmrcAuthFile`
+# names that file as trusted, because a committed file could leak a literal token to an
+# attacker-controlled registry. The builder opts in through its own environment:
+#
+#   PNPM_CONFIG_NPMRC_AUTH_FILE = .npmrc.auth      (Workers Builds variable)
+#   NODE_AUTH_TOKEN             = <PAT>            (Workers Builds secret)
+#
+# No secret lives here: the value is an env-var placeholder, expanded at install time from
+# the encrypted build secret. Locally and in GitHub Actions this file is never read —
+# `npmrcAuthFile` is unset there, and `actions/setup-node` writes its own npmrc instead.
+#
+# Why this is NOT in `.npmrc`: that file is distributed by `josh sync`, which strips this
+# exact line (kit's OBSOLETE_NPMRC_LINES). It did so during the kit 1.52.0 upgrade and the
+# deploy started failing with ERR_PNPM_FETCH_401 on the first `@joshuafolkken/*` version
+# that was not already in the builder's store. Keeping the credential in a file kit does
+# not manage makes the deploy independent of what a sync rewrites.
+# Tracking the upstream half: https://github.com/joshuafolkken/kit/issues/759
+//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
