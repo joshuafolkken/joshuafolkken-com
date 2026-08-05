@@ -1,6 +1,6 @@
 {
 	"name": "joshuafolkken-com",
-	"version": "0.315.0",
+	"version": "0.316.0",
 	"type": "module",
 	"private": true,
 	"scripts": {
@@ -42,7 +42,7 @@
 		"dompurify": "^3.4.13",
 		"dotenv": "^17.4.2",
 		"drizzle-orm": "^0.45.2",
-		"marked": "^18.0.7",
+		"marked": "^18.0.9",
 		"minisearch": "^7.2.0",
 		"sharp": "^0.35.3",
 		"simple-icons": "^16.28.0",
@@ -52,7 +52,7 @@
 		"@eslint/compat": "^2.1.0",
 		"@eslint/js": "^10.0.1",
 		"@ianvs/prettier-plugin-sort-imports": "^4.7.1",
-		"@joshuafolkken/app-kit": "0.70.0",
+		"@joshuafolkken/app-kit": "0.71.0",
 		"@joshuafolkken/kit": "1.63.0",
 		"@playwright/test": "^1.62.1",
 		"@prgm/sveltekit-progress-bar": "^3.0.2",
