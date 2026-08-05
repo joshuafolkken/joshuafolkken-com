@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import { CHAT_LABELS } from '$lib/constants/chat'
+import { test_hydration } from '$lib/test-hydration'
 
 const CHAT_INPUT = 'chat-input'
 const CHAT_SEND = 'chat-send'
@@ -29,7 +30,7 @@ test('shows a friendly error headline with the code and detail as a sub-message'
 	page,
 }) => {
 	await mock_chat_error(page)
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 
 	await send_question(page, 'hello')
 
