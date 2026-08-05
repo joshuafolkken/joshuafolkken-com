@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { test_hydration } from '$lib/test-hydration'
 
 const HOME_PATH = '/'
 const CYBER_GLOW_HOVER_CLASS = 'cyber-glow-hover'
@@ -22,7 +23,7 @@ async function open_drawer_on(page: Page, path: string): Promise<void> {
 		width: NARROW_VIEWPORT_WIDTH,
 		height: NARROW_VIEWPORT_HEIGHT,
 	})
-	await page.goto(path)
+	await test_hydration.goto_hydrated(page, path)
 	await page.getByRole('button', { name: MENU_OPEN_ARIA_LABEL }).click()
 	await expect(page.getByRole('button', { name: MENU_CLOSE_ARIA_LABEL })).toBeVisible()
 }
@@ -54,7 +55,7 @@ test.describe('Sticky header drawer', () => {
 			width: NARROW_VIEWPORT_WIDTH,
 			height: NARROW_VIEWPORT_HEIGHT,
 		})
-		await page.goto(HOME_PATH)
+		await test_hydration.goto_hydrated(page, HOME_PATH)
 
 		await page.getByRole('button', { name: MENU_OPEN_ARIA_LABEL }).click()
 
@@ -74,7 +75,9 @@ test.describe('Sticky header drawer', () => {
 			width: NARROW_VIEWPORT_WIDTH,
 			height: NARROW_VIEWPORT_HEIGHT,
 		})
-		await page.goto(MNEMECHA_PATH)
+		// Scrolling is a one-shot interaction too: the sticky-title logic listens for scroll
+		// events wired at hydration, so a pre-hydration scroll is never observed (#807).
+		await test_hydration.goto_hydrated(page, MNEMECHA_PATH)
 
 		const sticky_link = page.locator(`header a[href="${MNEMECHA_PATH}"]`)
 

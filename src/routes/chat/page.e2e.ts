@@ -1,6 +1,7 @@
 import { expect, test, type Page, type Route } from '@playwright/test'
 import { chat_history } from '$lib/api/chat-history'
 import { CHAT_LABELS } from '$lib/constants/chat'
+import { test_hydration } from '$lib/test-hydration'
 import { z } from 'zod'
 
 const GREETING = 'Hello'
@@ -194,7 +195,7 @@ async function seed_markdown_answer(page: Page): Promise<void> {
 }
 
 test('chat page shows the input and send button', async ({ page }) => {
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 
 	await expect(page.getByTestId(CHAT_INPUT)).toBeVisible()
 	await expect(page.getByTestId(CHAT_SEND)).toBeVisible()
@@ -206,18 +207,18 @@ test('chat page shows the input and send button', async ({ page }) => {
 })
 
 test('shows the empty-state greeting only when there is no conversation', async ({ page }) => {
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 
 	await expect(page.getByTestId(CHAT_EMPTY)).toHaveText(CHAT_LABELS.EMPTY_GREETING)
 
 	await seed_conversation(page)
-	await page.reload()
+	await test_hydration.reload_hydrated(page)
 
 	await expect(page.getByTestId(CHAT_EMPTY)).toHaveCount(0)
 })
 
 test('renders the send control as an icon only, labelled for assistive tech', async ({ page }) => {
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 
 	const send = page.getByTestId(CHAT_SEND)
 
@@ -228,25 +229,25 @@ test('renders the send control as an icon only, labelled for assistive tech', as
 })
 
 test('does not render the page title or description block', async ({ page }) => {
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 
 	await expect(page.getByRole('heading', { name: CHAT_LABELS.TITLE })).toHaveCount(0)
 	await expect(page.getByText(CHAT_LABELS.DESCRIPTION)).toHaveCount(0)
 })
 
 test('restores a persisted conversation from localStorage after reload', async ({ page }) => {
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 	await seed_conversation(page)
-	await page.reload()
+	await test_hydration.reload_hydrated(page)
 
 	await expect(page.getByText(PERSISTED_QUESTION)).toBeVisible()
 	await expect(page.getByText(PERSISTED_ANSWER)).toBeVisible()
 })
 
 test('renders assistant markdown as formatted html, not raw syntax', async ({ page }) => {
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 	await seed_markdown_answer(page)
-	await page.reload()
+	await test_hydration.reload_hydrated(page)
 
 	const messages = page.getByTestId(CHAT_MESSAGES)
 
@@ -271,9 +272,9 @@ test('sends the recent conversation history with a follow-up question', async ({
 		captured_messages = messages
 	})
 
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 	await seed_conversation(page)
-	await page.reload()
+	await test_hydration.reload_hydrated(page)
 
 	await page.getByTestId(CHAT_INPUT).fill(FOLLOW_UP)
 	await page.getByTestId(CHAT_SEND).click()
@@ -298,9 +299,9 @@ test('caps the history window so the oldest turns are trimmed from a long conver
 		captured_messages = messages
 	})
 
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 	await seed_long_conversation(page)
-	await page.reload()
+	await test_hydration.reload_hydrated(page)
 
 	await send_question(page, FOLLOW_UP)
 
@@ -313,7 +314,7 @@ test('renders a streamed reply as formatted markdown once the stream completes',
 	page,
 }) => {
 	await mock_chat_stream(page, STREAMED_MARKDOWN)
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 
 	await page.getByTestId(CHAT_INPUT).fill('hello')
 	await page.getByTestId(CHAT_SEND).click()
@@ -330,7 +331,7 @@ test('renders a streamed reply as formatted markdown once the stream completes',
 test('formats the reply live while it is still streaming', async ({ page }) => {
 	// First chunk carries bold markup; the tail chunk is held back until the test releases it.
 	await mock_streaming_chat(page, [STREAMED_MARKDOWN, ` ${STREAM_TAIL}`], STREAM_RELEASE_FLAG)
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 	await send_question(page, 'hello')
 
 	const messages = page.getByTestId(CHAT_MESSAGES)
@@ -369,9 +370,9 @@ async function message_layout(page: Page): Promise<{
 
 test('renders AI replies full width and user messages as constrained bubbles', async ({ page }) => {
 	await page.setViewportSize({ width: DESKTOP_WIDTH, height: DESKTOP_HEIGHT })
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 	await seed_conversation(page)
-	await page.reload()
+	await test_hydration.reload_hydrated(page)
 
 	await expect(page.getByTestId(CHAT_MESSAGE_USER)).toBeVisible()
 	await expect(page.getByTestId(CHAT_MESSAGE_ASSISTANT)).toBeVisible()
@@ -387,9 +388,9 @@ test('renders AI replies full width and user messages as constrained bubbles', a
 })
 
 test('clears the conversation when /clear is submitted', async ({ page }) => {
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 	await seed_conversation(page)
-	await page.reload()
+	await test_hydration.reload_hydrated(page)
 
 	await expect(page.getByText(PERSISTED_QUESTION)).toBeVisible()
 

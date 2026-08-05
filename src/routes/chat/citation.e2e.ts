@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { test_hydration } from '$lib/test-hydration'
 
 const CHAT_MESSAGES = 'chat-messages'
 const STORAGE_KEY = 'chat_log'
@@ -34,9 +35,9 @@ async function seed_answer(page: Page, answer: string): Promise<void> {
 }
 
 test('rewrites a flattened github__ citation into a real GitHub link', async ({ page }) => {
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 	await seed_answer(page, CITATION_ANSWER)
-	await page.reload()
+	await test_hydration.reload_hydrated(page)
 
 	const messages = page.getByTestId(CHAT_MESSAGES)
 	const link = messages.getByRole('link', { name: CITATION_DISPLAY })
@@ -52,9 +53,9 @@ test('rewrites a flattened github__ citation into a real GitHub link', async ({ 
 test('cleans a flattened key out of a citation label while keeping its source URL', async ({
 	page,
 }) => {
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 	await seed_answer(page, LABELLED_ANSWER)
-	await page.reload()
+	await test_hydration.reload_hydrated(page)
 
 	const messages = page.getByTestId(CHAT_MESSAGES)
 	const link = messages.getByRole('link', { name: LABELLED_DISPLAY })
@@ -65,9 +66,9 @@ test('cleans a flattened key out of a citation label while keeping its source UR
 })
 
 test('collapses a citation label that repeats the repo around the path', async ({ page }) => {
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 	await seed_answer(page, REPEATED_ANSWER)
-	await page.reload()
+	await test_hydration.reload_hydrated(page)
 
 	const messages = page.getByTestId(CHAT_MESSAGES)
 	const link = messages.getByRole('link', { name: LABELLED_DISPLAY, exact: true })
