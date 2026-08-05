@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test'
+import { TEST_IDS } from '$lib/test-ids'
 import { TEST_ROUTES } from '$lib/test-routes'
 
 const EMBED_SRC = 'https://www.youtube-nocookie.com/embed/UI3-GR6yvjY'
-const EMBED_TESTID = 'youtube-embed'
+const EMBED_TESTID = TEST_IDS.YOUTUBE_EMBED
 const STICKY_VIDEO_TESTID = 'talk-sticky-video'
 
 // The talk layout renders two players — the mobile sticky one and the desktop sidebar one — each

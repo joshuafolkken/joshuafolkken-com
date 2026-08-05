@@ -1,9 +1,10 @@
 import { expect, test } from '@playwright/test'
+import { TEST_IDS } from '$lib/test-ids'
 import { TEST_ROUTES } from '$lib/test-routes'
 
 const STICKY_VIDEO_TESTID = 'talk-sticky-video'
 const META_TESTID = 'talk-meta'
-const EMBED_TESTID = 'youtube-embed'
+const EMBED_TESTID = TEST_IDS.YOUTUBE_EMBED
 const NOTICE_TESTID = 'youtube-transcript-notice'
 const DATE_TESTID = 'date-display'
 const PAGE_HEADER_TEXT = 'Unwritten Chapters'

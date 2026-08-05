@@ -13,7 +13,8 @@ name: DAST
 # which ephemeral runners re-pull on every run — wasteful to pay on every PR, and since this file
 # is a distributed default that cost would land on every consumer's CI. The per-PR value (the
 # security-header findings this scan actually reports) is already asserted in the Docker-free E2E
-# job (`security-headers.e2e.ts`), so the full scan only needs to run periodically as the broad
+# job by `src/routes/security-headers.e2e.ts`, which `josh-app sync` seeds into this project
+# alongside this workflow (app-kit#120), so the full scan only needs to run periodically as the broad
 # safety net. Run it on demand via the Actions "Run workflow" button (workflow_dispatch) or locally
 # with `pnpm josh-app dast`. A failed scheduled run is surfaced by GitHub (email to repo admins +
 # red in the Actions tab); it never blocks a PR. See app-kit#103.
@@ -37,12 +38,12 @@ jobs:
       packages: read
     steps:
       - name: Checkout code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '24'
           registry-url: 'https://npm.pkg.github.com'
