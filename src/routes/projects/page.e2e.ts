@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { test_hydration } from '$lib/test-hydration'
 import { TEST_ROUTES } from '$lib/test-routes'
 
 const AI_CHAT_TITLE = 'AI Chat'
@@ -62,7 +63,10 @@ test.describe('Projects page', () => {
 
 test.describe('Projects page detail navigation', () => {
 	test('mnemecha card links to its detail page', async ({ page }) => {
-		await page.goto(TEST_ROUTES.PROJECTS)
+		// Hydration-dependent twice over (#807): the click must land on a live handler, and the
+		// `a[href="/projects/mnemecha"]` selector only matches after hydration — SvelteKit's
+		// resolve() emits `./projects/mnemecha` in the SSR markup and normalizes it client-side.
+		await test_hydration.goto_hydrated(page, TEST_ROUTES.PROJECTS)
 
 		const mnemecha_card = page
 			.locator(CARD_SELECTOR)
@@ -70,7 +74,10 @@ test.describe('Projects page detail navigation', () => {
 
 		await mnemecha_card.locator(MNEMECHA_DETAIL_LINK).click()
 
-		await expect(page).toHaveURL(/\/projects\/mnemecha$/u)
+		// waitForURL, not expect(page).toHaveURL: this is a navigation, and on a cold dev server
+		// the destination route's first compile can exceed the 5s expect window (#807). The
+		// navigation timeout is the budget sized for exactly this.
+		await page.waitForURL(/\/projects\/mnemecha$/u)
 		await expect(page.getByRole('heading', { level: 1, name: MNEMECHA_TITLE })).toBeVisible()
 	})
 })

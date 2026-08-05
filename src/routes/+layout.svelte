@@ -15,7 +15,7 @@
 	} from '$lib/constants/navigation-progress'
 	import { search_state } from '$lib/hooks/SearchState.svelte'
 	import { sticky_header_state } from '$lib/hooks/StickyHeaderState.svelte'
-	import type { Snippet } from 'svelte'
+	import { onMount, type Snippet } from 'svelte'
 
 	interface Props {
 		children: Snippet
@@ -31,6 +31,18 @@
 
 	const is_menu_open = $derived(sticky_header_state.get_is_menu_open())
 	const is_page_inert = $derived(is_menu_open || search_state.get_is_open())
+
+	// E2E hydration marker (#807). SSR markup is actionable before the client has attached its
+	// event handlers, and Playwright's actionability checks cannot see that gap — on the vite dev
+	// server it stretches to 1.6s+ under parallel-worker contention, so one-shot clicks and
+	// key presses fired at first visibility are silently lost. This layout's onMount runs after
+	// every child has mounted, so the attribute below flips exactly when interactions become
+	// safe; `test_hydration.goto_hydrated` waits for it before interacting.
+	let is_hydrated = $state(false)
+
+	onMount(() => {
+		is_hydrated = true
+	})
 </script>
 
 <svelte:head>
@@ -68,6 +80,11 @@
 />
 <StickyHeader />
 <SearchDialog />
-<main id={SKIP_LINK_TARGET_ID} class="pt-16" inert={is_page_inert}>
+<main
+	id={SKIP_LINK_TARGET_ID}
+	class="pt-16"
+	inert={is_page_inert}
+	data-hydrated={is_hydrated ? 'true' : undefined}
+>
 	{@render children()}
 </main>

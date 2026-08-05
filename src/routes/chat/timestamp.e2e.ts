@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { test_hydration } from '$lib/test-hydration'
 
 // Pin the browser time zone so the rendered wall-clock string is deterministic across machines/CI.
 test.use({ timezoneId: 'UTC' })
@@ -20,12 +21,12 @@ async function seed_log(page: Page, log: Array<Record<string, string>>): Promise
 }
 
 test('renders the capture time at the end of an AI reply', async ({ page }) => {
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 	await seed_log(page, [
 		{ role: 'user', text: 'q' },
 		{ role: 'assistant', text: ANSWER_TEXT, timestamp: ANSWER_ISO },
 	])
-	await page.reload()
+	await test_hydration.reload_hydrated(page)
 
 	const stamp = page.getByTestId(CHAT_MESSAGE_TIME)
 
@@ -35,12 +36,12 @@ test('renders the capture time at the end of an AI reply', async ({ page }) => {
 })
 
 test('shows the timestamp only on the AI reply, not the user question', async ({ page }) => {
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 	await seed_log(page, [
 		{ role: 'user', text: 'q' },
 		{ role: 'assistant', text: ANSWER_TEXT, timestamp: ANSWER_ISO },
 	])
-	await page.reload()
+	await test_hydration.reload_hydrated(page)
 
 	// One exchange → exactly one timestamp, and it sits inside the assistant bubble.
 	await expect(page.getByTestId(CHAT_MESSAGE_TIME)).toHaveCount(1)
@@ -50,12 +51,12 @@ test('shows the timestamp only on the AI reply, not the user question', async ({
 })
 
 test('renders no timestamp for a legacy reply that has none', async ({ page }) => {
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 	await seed_log(page, [
 		{ role: 'user', text: 'q' },
 		{ role: 'assistant', text: ANSWER_TEXT },
 	])
-	await page.reload()
+	await test_hydration.reload_hydrated(page)
 
 	await expect(page.getByTestId(CHAT_MESSAGE_ASSISTANT)).toBeVisible()
 	await expect(page.getByTestId(CHAT_MESSAGE_TIME)).toHaveCount(0)

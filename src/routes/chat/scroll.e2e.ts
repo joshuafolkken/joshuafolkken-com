@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import { CHAT_LABELS } from '$lib/constants/chat'
+import { test_hydration } from '$lib/test-hydration'
 
 const CHAT_SCROLL_BOTTOM = 'chat-scroll-bottom'
 const CHAT_TRIGGER_MOBILE = 'chat-trigger-mobile'
@@ -92,9 +93,9 @@ async function open_keyboard(page: Page): Promise<void> {
 
 async function open_long_conversation(page: Page): Promise<void> {
 	await page.setViewportSize({ width: DESKTOP_WIDTH, height: DESKTOP_HEIGHT })
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 	await seed_many_messages(page, LONG_MESSAGE_COUNT)
-	await page.reload()
+	await test_hydration.reload_hydrated(page)
 	await page.getByText(`message number ${String(LONG_MESSAGE_COUNT - 1)}`).waitFor({
 		state: 'attached',
 	})
@@ -103,9 +104,9 @@ async function open_long_conversation(page: Page): Promise<void> {
 
 test('scrolls the whole page natively for a long conversation', async ({ page }) => {
 	await page.setViewportSize({ width: DESKTOP_WIDTH, height: DESKTOP_HEIGHT })
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 	await seed_many_messages(page, LONG_MESSAGE_COUNT)
-	await page.reload()
+	await test_hydration.reload_hydrated(page)
 
 	// Messages load client-side after hydration; wait for the last one before measuring the page height.
 	await expect(page.getByText(`message number ${String(LONG_MESSAGE_COUNT - 1)}`)).toBeVisible()
@@ -121,9 +122,9 @@ test('opens scrolled to the newest message on page display, not animating from t
 	page,
 }) => {
 	await page.setViewportSize({ width: DESKTOP_WIDTH, height: DESKTOP_HEIGHT })
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 	await seed_many_messages(page, LONG_MESSAGE_COUNT)
-	await page.reload()
+	await test_hydration.reload_hydrated(page)
 
 	// Wait for the newest message to attach, then measure on the first frame — before any
 	// smooth-scroll animation could carry the view down from the top.
@@ -138,12 +139,12 @@ test('stays scrolled to the newest message when navigated into from another page
 	page,
 }) => {
 	await page.setViewportSize({ width: MOBILE_WIDTH, height: MOBILE_HEIGHT })
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 	await seed_many_messages(page, LONG_MESSAGE_COUNT)
-	// Full load so the message store picks up the seeded log, then land on another page.
-	await page.goto('/')
-	// The mobile chat link only navigates client-side once the header has hydrated.
-	await page.waitForLoadState('networkidle')
+	// Full load so the message store picks up the seeded log, then land on another page. The
+	// hydration marker replaces the former networkidle wait: the mobile chat link only
+	// navigates client-side once the header has hydrated, and the marker states exactly that.
+	await test_hydration.goto_hydrated(page, '/')
 
 	// Client-side navigation into /chat (not a reload); SvelteKit resets scroll to the top afterwards.
 	await page.getByTestId(CHAT_TRIGGER_MOBILE).click()
@@ -248,7 +249,7 @@ test('fades the scroll-to-bottom button in rather than popping it', async ({ pag
 test('is a full-height app view: no site footer, and the viewport resizes for the keyboard', async ({
 	page,
 }) => {
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 
 	await expect(page.locator('meta[name="viewport"]')).toHaveAttribute(
 		'content',
@@ -263,7 +264,7 @@ test('is a full-height app view: no site footer, and the viewport resizes for th
 
 test('pins the input to the bottom on desktop, like mobile', async ({ page }) => {
 	await page.setViewportSize({ width: DESKTOP_WIDTH, height: DESKTOP_HEIGHT })
-	await page.goto('/chat')
+	await test_hydration.goto_hydrated(page, '/chat')
 
 	const bottom_gap = await page.evaluate(() => {
 		const input = document.querySelector('[data-testid="chat-input"]')

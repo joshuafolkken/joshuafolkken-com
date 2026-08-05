@@ -171,7 +171,7 @@
 
 			<div bind:this={results_el} class="overflow-y-auto py-2">
 				{#if is_loading}
-					<p class={STATE_TEXT_CLASS}>{SEARCH_LABELS.LOADING}</p>
+					<p class={STATE_TEXT_CLASS} data-testid="search-loading">{SEARCH_LABELS.LOADING}</p>
 				{:else if !has_query}
 					<p class={STATE_TEXT_CLASS}>{SEARCH_LABELS.HINT}</p>
 				{:else if !has_results}
