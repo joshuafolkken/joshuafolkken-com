@@ -11,6 +11,10 @@
  *   pnpm yt:talk '<youtube-url-or-id>'
  *
  * Required/optional env: same as `pnpm yt:article` (GEMINI_API_KEY, GEMINI_MODEL, ...).
+ *
+ * The end-to-end workflow, including the manual pre-publish review the generated draft still
+ * needs (the trailing 【要確認】 list, speaker names, tone), is documented in
+ * `docs/blog-from-youtube.md`.
  */
 import { spawnSync } from 'node:child_process'
 import { audio_to_article } from './audio-to-article'
