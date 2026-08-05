@@ -4,8 +4,9 @@ import config from './svelte.config.js'
 const csp = config.kit?.csp
 const directives = csp?.directives ?? {}
 const UNSAFE_INLINE = 'unsafe-inline'
+const GOOGLE_TAG_MANAGER = 'https://www.googletagmanager.com'
 
-describe('kit.csp', () => {
+describe('kit.csp: script policy', () => {
 	it('generates a nonce for server-rendered pages', () => {
 		expect(csp?.mode).toBe('auto')
 	})
@@ -20,7 +21,7 @@ describe('kit.csp', () => {
 	it('keeps script-src restricted to self plus the Google tag origins', () => {
 		expect(directives['script-src']).toStrictEqual([
 			'self',
-			'https://www.googletagmanager.com',
+			GOOGLE_TAG_MANAGER,
 			'https://*.googlesyndication.com',
 			'https://*.doubleclick.net',
 		])
@@ -31,7 +32,9 @@ describe('kit.csp', () => {
 	it('does not relax script-src-attr', () => {
 		expect(directives['script-src-attr']).toBeUndefined()
 	})
+})
 
+describe('kit.csp: style and framing policy', () => {
 	// Svelte transitions inject inline <style> at runtime, and SvelteKit only skips adding a
 	// style nonce while 'unsafe-inline' is present — a nonce there would make CSP3 browsers
 	// ignore 'unsafe-inline' and break the transitions.
@@ -39,6 +42,16 @@ describe('kit.csp', () => {
 		expect(directives['style-src']).toContain(UNSAFE_INLINE)
 	})
 
+	it('disables object-src', () => {
+		expect(directives['object-src']).toStrictEqual(['none'])
+	})
+
+	it("denies framing via frame-ancestors 'none' (aligned with X-Frame-Options: DENY)", () => {
+		expect(directives['frame-ancestors']).toStrictEqual(['none'])
+	})
+})
+
+describe('kit.csp: third-party origins', () => {
 	it('allows the Google Fonts origins', () => {
 		expect(directives['style-src']).toContain('https://fonts.googleapis.com')
 		expect(directives['font-src']).toContain('https://fonts.gstatic.com')
@@ -48,11 +61,10 @@ describe('kit.csp', () => {
 		expect(directives['frame-src']).toContain('https://www.youtube-nocookie.com')
 	})
 
-	it('disables object-src', () => {
-		expect(directives['object-src']).toStrictEqual(['none'])
-	})
-
-	it("denies framing via frame-ancestors 'none' (aligned with X-Frame-Options: DENY)", () => {
-		expect(directives['frame-ancestors']).toStrictEqual(['none'])
+	// The Google tag delivers its /td? measurement beacon as an image. Dropping this origin from
+	// img-src blocks the beacon while the page keeps rendering, so analytics stops with nothing
+	// but a console entry to say so — the failure mode this assertion exists to catch.
+	it('allows the Google tag origin in img-src for the measurement beacon', () => {
+		expect(directives['img-src']).toContain(GOOGLE_TAG_MANAGER)
 	})
 })

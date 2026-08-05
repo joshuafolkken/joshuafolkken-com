@@ -1,8 +1,5 @@
 {
-	"extends": [
-		"./node_modules/@joshuafolkken/app-kit/tsconfig/sveltekit.json",
-		"./.svelte-kit/tsconfig.json"
-	],
+	"extends": ["@joshuafolkken/app-kit/tsconfig/sveltekit", "./.svelte-kit/tsconfig.json"],
 	"include": [
 		"./.svelte-kit/ambient.d.ts",
 		"./.svelte-kit/non-ambient.d.ts",
@@ -11,5 +8,5 @@
 		"./**/*.ts",
 		"./**/*.svelte"
 	],
-	"exclude": ["node_modules", "build", "dist"]
+	"exclude": ["node_modules", "build", "dist", "playwright-report", "test-results"]
 }
