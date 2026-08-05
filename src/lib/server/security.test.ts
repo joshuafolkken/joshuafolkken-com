@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/triple-slash-reference -- tsgo needs explicit reference for Cloudflare types */
 /// <reference path="../../../worker-configuration.d.ts" />
-import { COOP_VALUE, HSTS_VALUE, PERMISSIONS_POLICY_VALUE } from '$lib/constants/security'
+import { HSTS_VALUE, PERMISSIONS_POLICY_VALUE } from '$lib/constants/security'
 import { logger } from '$lib/logger'
 import { platform_binding } from '$lib/server/platform-binding'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -87,9 +87,12 @@ describe('security.add_security_headers', () => {
 		['Referrer-Policy', 'strict-origin-when-cross-origin'],
 		['Strict-Transport-Security', HSTS_VALUE],
 		['Permissions-Policy', PERMISSIONS_POLICY_VALUE],
-		// Regression for #803: COOP severs the window.opener channel; dropping it would silently
-		// re-open the ZAP 90004 COOP sub-alert the narrowed IGNORE no longer covers.
-		['Cross-Origin-Opener-Policy', COOP_VALUE],
+		// Literal, like the other baseline-owned values above and unlike the site-owned constants:
+		// app-kit applies COOP itself since 0.71.0 (#810), so importing a local constant would
+		// re-create the second source that change removed. Pinning the value here is what makes an
+		// upstream relaxation to `same-origin-allow-popups` fail loudly instead of silently
+		// weakening this site, and it still catches the header being dropped entirely (#803).
+		['Cross-Origin-Opener-Policy', 'same-origin'],
 	])('sets %s', (header, value) => {
 		const response = new Response()
 
