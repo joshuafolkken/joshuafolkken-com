@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/triple-slash-reference -- tsgo needs explicit reference for Cloudflare types */
 /// <reference path="../../../worker-configuration.d.ts" />
-import { HSTS_VALUE, PERMISSIONS_POLICY_VALUE } from '$lib/constants/security'
+import { COOP_VALUE, HSTS_VALUE, PERMISSIONS_POLICY_VALUE } from '$lib/constants/security'
 import { logger } from '$lib/logger'
 import { platform_binding } from '$lib/server/platform-binding'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -87,6 +87,9 @@ describe('security.add_security_headers', () => {
 		['Referrer-Policy', 'strict-origin-when-cross-origin'],
 		['Strict-Transport-Security', HSTS_VALUE],
 		['Permissions-Policy', PERMISSIONS_POLICY_VALUE],
+		// Regression for #803: COOP severs the window.opener channel; dropping it would silently
+		// re-open the ZAP 90004 COOP sub-alert the narrowed IGNORE no longer covers.
+		['Cross-Origin-Opener-Policy', COOP_VALUE],
 	])('sets %s', (header, value) => {
 		const response = new Response()
 

@@ -21,8 +21,13 @@
 # exist to allow. Adjust the directives in `kit.csp` instead (app-kit's `svelte.config.js` carries
 # the block to copy; `josh-app sync` does not distribute it). A project that genuinely needs a
 # header-based CSP on SSR passes it to `apply_security_headers`'s `extra` in `hooks.server.ts`.
+#
+# Cross-Origin-Opener-Policy is site-owned (#803), not part of the app-kit template: COOP is
+# document-scoped, so on true assets it is inert, but any prerendered/static HTML this rule ever
+# covers must carry the same value the SSR hook applies or the hardening silently varies by route.
 /*
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Cross-Origin-Opener-Policy: same-origin
