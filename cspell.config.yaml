@@ -19,12 +19,14 @@ words:
   - androidstudio
   - apos
   - appleboy
+  - autoexit
   - autolink
   - autolinks
   - bigram
   - bigrams
   - Caddyfile
   - CCPA
+  - CLDR
   - COEP
   - colocates
   - Csvg
@@ -32,6 +34,7 @@ words:
   - eclipseide
   - ENOENT
   - fastcgi
+  - ffplay
   - ffprobe
   - FOUT
   - Frontmatter
@@ -68,6 +71,7 @@ words:
   - neverthrow
   - nocookie
   - nodedotjs
+  - nodisp
   - octocat
   - oneline
   - opencollective

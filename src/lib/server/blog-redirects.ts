@@ -1,6 +1,11 @@
 const BLOG_PATH_PREFIX = '/blog/'
 
-const LEGACY_SLUG_MAP = new Map<string, string>([['simon', 'mnemecha']])
+// Slugs that were published under one name and later renamed. A talk post's slug is its broadcast
+// date, so correcting a date (archive publish day -> JST broadcast day) retires a live URL.
+const LEGACY_SLUG_MAP = new Map<string, string>([
+	['simon', 'mnemecha'],
+	['talk-2025-12-12', 'talk-2025-12-11'],
+])
 
 function strip_trailing_slashes(value: string): string {
 	let result = value

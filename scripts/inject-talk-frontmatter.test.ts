@@ -16,6 +16,12 @@ const INFO_JSON = JSON.stringify({
 	uploader: 'Joshua Folkken',
 	duration: 7200,
 })
+// Real values from the 2026-07-28 20:35 JST broadcast whose archive YouTube published the next
+// morning, so `upload_date` says 20260729 while the stream itself went out on the 28th.
+const LATE_ARCHIVE_UPLOAD_DATE = '20260729'
+const LATE_ARCHIVE_RELEASE_TIMESTAMP = 1_785_238_541
+const LATE_ARCHIVE_PUBLISH_TIMESTAMP = 1_785_287_870
+const BROADCAST_DATE = '2026-07-28'
 
 const FRONTMATTER = `---
 title: 'Sample talk title'
@@ -42,8 +48,21 @@ describe('talk_frontmatter.parse_info_json', () => {
 		expect(talk_frontmatter.parse_info_json(INFO_JSON)).toEqual({
 			video_id: VIDEO_ID,
 			upload_date: UPLOAD_DATE_RAW,
+			broadcast_date: YOUTUBE_DATE,
 			video_title: VIDEO_TITLE,
 		})
+	})
+
+	it('dates a live archive by its JST broadcast day, not the day the archive was published', () => {
+		const payload = JSON.stringify({
+			id: VIDEO_ID,
+			upload_date: LATE_ARCHIVE_UPLOAD_DATE,
+			release_timestamp: LATE_ARCHIVE_RELEASE_TIMESTAMP,
+			timestamp: LATE_ARCHIVE_PUBLISH_TIMESTAMP,
+			title: VIDEO_TITLE,
+		})
+
+		expect(talk_frontmatter.parse_info_json(payload).broadcast_date).toBe(BROADCAST_DATE)
 	})
 
 	it('throws when id is missing', () => {
@@ -83,6 +102,35 @@ describe('talk_frontmatter.format_upload_date', () => {
 	it('throws on an already-formatted or malformed value', () => {
 		expect(() => talk_frontmatter.format_upload_date(YOUTUBE_DATE)).toThrow()
 		expect(() => talk_frontmatter.format_upload_date('2025051')).toThrow()
+	})
+})
+
+describe('talk_frontmatter.resolve_broadcast_date', () => {
+	it('prefers the broadcast start over the archive publish time', () => {
+		const resolved = talk_frontmatter.resolve_broadcast_date(
+			LATE_ARCHIVE_RELEASE_TIMESTAMP,
+			LATE_ARCHIVE_PUBLISH_TIMESTAMP,
+			LATE_ARCHIVE_UPLOAD_DATE,
+		)
+
+		expect(resolved).toBe(BROADCAST_DATE)
+	})
+
+	it('falls back to the publish time for a non-live upload, read in JST', () => {
+		const resolved = talk_frontmatter.resolve_broadcast_date(
+			undefined,
+			LATE_ARCHIVE_PUBLISH_TIMESTAMP,
+			LATE_ARCHIVE_UPLOAD_DATE,
+		)
+
+		// 1785287870 is 2026-07-29 10:17 JST, so the JST day matches upload_date here.
+		expect(resolved).toBe('2026-07-29')
+	})
+
+	it('falls back to upload_date when no timestamp is present', () => {
+		expect(talk_frontmatter.resolve_broadcast_date(undefined, undefined, UPLOAD_DATE_RAW)).toBe(
+			YOUTUBE_DATE,
+		)
 	})
 })
 
@@ -174,12 +222,17 @@ describe('talk_frontmatter.inject_frontmatter_metadata', () => {
 })
 
 describe('talk_frontmatter.build_values', () => {
-	it('maps the run date to article_date and the upload date to youtube_date', () => {
-		const metadata = { video_id: VIDEO_ID, upload_date: UPLOAD_DATE_RAW, video_title: VIDEO_TITLE }
+	it('maps the run date to article_date and the broadcast date to youtube_date', () => {
+		const metadata = {
+			video_id: VIDEO_ID,
+			upload_date: LATE_ARCHIVE_UPLOAD_DATE,
+			broadcast_date: BROADCAST_DATE,
+			video_title: VIDEO_TITLE,
+		}
 
 		expect(talk_frontmatter.build_values(metadata, new Date(2026, 6, 7))).toEqual({
 			article_date: ARTICLE_DATE,
-			youtube_date: YOUTUBE_DATE,
+			youtube_date: BROADCAST_DATE,
 			youtube_url: WATCH_URL,
 			youtube_title: VIDEO_TITLE,
 		})
@@ -189,6 +242,7 @@ describe('talk_frontmatter.build_values', () => {
 		const metadata = {
 			video_id: VIDEO_ID,
 			upload_date: UPLOAD_DATE_RAW,
+			broadcast_date: YOUTUBE_DATE,
 			video_title: TITLE_WITH_QUOTE,
 		}
 

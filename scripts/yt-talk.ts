@@ -9,6 +9,7 @@
  *
  * Usage:
  *   pnpm yt:talk '<youtube-url-or-id>'
+ *   pnpm yt:talk '<youtube-url-or-id>' a.opus b.opus   # override the voice samples, target first
  *
  * Required/optional env: same as `pnpm yt:article` (GEMINI_API_KEY, GEMINI_MODEL, ...).
  *
@@ -25,7 +26,8 @@ import { preview } from './preview'
 
 const AUDIO_DIR = '.audio'
 const CLI_ARGS_START = 2
-const USAGE = 'Usage: pnpm yt:talk <youtube-url-or-id>'
+const USAGE =
+	'Usage: pnpm yt:talk <youtube-url-or-id> [target-speaker-sample] [excluded-speaker-sample]'
 const DOWNLOAD_ARGS = ['run', 'yt:audio']
 
 interface TalkResult {
@@ -95,7 +97,7 @@ function download_audio(url: string): void {
 	}
 }
 
-function build_talk_dependencies(): TalkDependencies {
+function build_talk_dependencies(reference_paths: ReadonlyArray<string> = []): TalkDependencies {
 	const config = audio_to_article.read_config()
 
 	return {
@@ -104,14 +106,24 @@ function build_talk_dependencies(): TalkDependencies {
 		},
 		download_audio,
 		async generate(url_or_id: string, now: Date): Promise<string> {
-			return await audio_to_article.run(audio_to_article.build_dependencies(config), url_or_id, now)
+			return await audio_to_article.run(
+				audio_to_article.build_dependencies(config, reference_paths),
+				url_or_id,
+				now,
+			)
 		},
 	}
 }
 
 async function main(args: ReadonlyArray<string>, now: Date): Promise<void> {
-	const url_or_id = cli.read_required_argument(args, USAGE)
-	const { output_path, did_download } = await run_talk(build_talk_dependencies(), url_or_id, now)
+	// Trailing paths are optional overrides for the voice samples; none means the defaults are used.
+	const { value: url_or_id, rest: reference_paths } = cli.read_argument_with_rest(
+		args,
+		USAGE,
+		audio_to_article.REFERENCE_SAMPLE_COUNT,
+	)
+	const dependencies = build_talk_dependencies(reference_paths)
+	const { output_path, did_download } = await run_talk(dependencies, url_or_id, now)
 	const lead = did_download ? 'Downloaded audio and wrote' : 'Reused existing audio and wrote'
 
 	console.info(

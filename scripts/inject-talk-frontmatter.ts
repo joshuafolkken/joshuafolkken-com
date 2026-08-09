@@ -2,11 +2,11 @@
 /**
  * Inject deterministic YouTube metadata into a talk-derived article's frontmatter.
  *
- * The `prompts/audio-to-article-3.md` prompt emits placeholder tokens for the
+ * The `prompts/audio-to-article-4.md` prompt emits placeholder tokens for the
  * fields the summarizing LLM cannot know reliably (it cannot browse YouTube):
  *   date          -> {{PUBLISH_DATE}}  (this script's run date = the article's publish date, YYYY-MM-DD)
  *   youtube       -> {{YOUTUBE_URL}}   (https://www.youtube.com/watch?v=<id>)
- *   youtube_date  -> {{YOUTUBE_DATE}}  (yt-dlp `upload_date` = the video's original publish date, YYYY-MM-DD)
+ *   youtube_date  -> {{YOUTUBE_DATE}}  (the day the stream went out, YYYY-MM-DD in JST — see resolve_broadcast_date)
  *   youtube_title -> {{YOUTUBE_TITLE}} (yt-dlp `title` = the original video title)
  * This post-processor replaces those tokens with values read from the `.info.json`
  * that `pnpm yt:audio` writes alongside the audio, so the values are never fabricated.
@@ -26,10 +26,25 @@ const UPLOAD_DATE_PATTERN = /^(\d{4})(\d{2})(\d{2})$/u
 const BARE_ID_PATTERN = /^[\w-]{11}$/u
 const DATE_PAD_WIDTH = 2
 const CLI_ARGS_START = 2
+const MILLISECONDS_PER_SECOND = 1000
+
+// The stream's own timezone. Broadcasts start in the evening JST, so a JST calendar date names the
+// session the way the host and viewers experienced it. Read through `formatToParts` rather than the
+// formatted string: the field order of any locale's short date is a CLDR pattern, not a contract,
+// and a silent change to it would put slashes into a post filename.
+const BROADCAST_DATE_FORMAT = new Intl.DateTimeFormat('en-CA', {
+	timeZone: 'Asia/Tokyo',
+	year: 'numeric',
+	month: '2-digit',
+	day: '2-digit',
+})
 
 interface VideoMetadata {
 	video_id: string
 	upload_date: string
+	// The day the stream actually went out, YYYY-MM-DD in JST. Drives both the post filename and
+	// the `youtube_date` frontmatter, so the two can never disagree.
+	broadcast_date: string
 	video_title: string
 }
 
@@ -43,26 +58,9 @@ interface FrontmatterValues {
 interface RawInfoJson {
 	id?: unknown
 	upload_date?: unknown
+	release_timestamp?: unknown
+	timestamp?: unknown
 	title?: unknown
-}
-
-// Extracts id + upload_date + title from a yt-dlp `--write-info-json` payload, rejecting a
-// payload missing any field so a partial download never yields a blank frontmatter.
-function parse_info_json(raw: string): VideoMetadata {
-	const parsed = JSON.parse(raw) as RawInfoJson
-	const { id, upload_date, title } = parsed
-
-	if (typeof id !== 'string' || typeof upload_date !== 'string' || typeof title !== 'string') {
-		throw new TypeError('info.json is missing a string id, upload_date, or title')
-	}
-
-	return { video_id: id, upload_date, video_title: title }
-}
-
-// The frontmatter wraps the title in a YAML single-quoted scalar; the only character that
-// needs escaping there is the single quote itself, which YAML represents by doubling it.
-function escape_yaml_single_quoted(value: string): string {
-	return value.replaceAll("'", "''")
 }
 
 // yt-dlp `upload_date` is a bare YYYYMMDD; the blog frontmatter uses YYYY-MM-DD.
@@ -72,6 +70,65 @@ function format_upload_date(upload_date: string): string {
 	}
 
 	return upload_date.replace(UPLOAD_DATE_PATTERN, '$1-$2-$3')
+}
+
+// Assembles YYYY-MM-DD from the named parts, so the output shape is ours rather than the locale's.
+function format_jst_date(instant: Date): string {
+	const parts = new Map(
+		BROADCAST_DATE_FORMAT.formatToParts(instant).map(({ type, value }) => [type, value]),
+	)
+
+	const year = parts.get('year')
+	const month = parts.get('month')
+	const day = parts.get('day')
+
+	// Bailing out beats emitting `-07-28`, which would become a post filename and a frontmatter date.
+	if (year === undefined || month === undefined || day === undefined) {
+		throw new TypeError(`Cannot read a JST date from: ${instant.toISOString()}`)
+	}
+
+	return `${year}-${month}-${day}`
+}
+
+// Picks the day the stream went out, in JST. `upload_date` is the archive's publish day in UTC,
+// which rolls to the next day whenever YouTube finishes processing after 09:00 JST — that is how
+// a 2026-07-28 evening broadcast was filed as 2026-07-29. `release_timestamp` is the broadcast
+// start and wins; `timestamp` covers a normal (non-live) upload; the bare `upload_date` is the
+// last resort, and the only one carrying no time of day to convert.
+function resolve_broadcast_date(
+	release_timestamp: unknown,
+	timestamp: unknown,
+	upload_date: string,
+): string {
+	const seconds = typeof release_timestamp === 'number' ? release_timestamp : timestamp
+
+	if (typeof seconds !== 'number') return format_upload_date(upload_date)
+
+	return format_jst_date(new Date(seconds * MILLISECONDS_PER_SECOND))
+}
+
+// Extracts id + dates + title from a yt-dlp `--write-info-json` payload, rejecting a payload
+// missing any required field so a partial download never yields a blank frontmatter.
+function parse_info_json(raw: string): VideoMetadata {
+	const parsed = JSON.parse(raw) as RawInfoJson
+	const { id, upload_date, title, release_timestamp, timestamp } = parsed
+
+	if (typeof id !== 'string' || typeof upload_date !== 'string' || typeof title !== 'string') {
+		throw new TypeError('info.json is missing a string id, upload_date, or title')
+	}
+
+	return {
+		video_id: id,
+		upload_date,
+		broadcast_date: resolve_broadcast_date(release_timestamp, timestamp, upload_date),
+		video_title: title,
+	}
+}
+
+// The frontmatter wraps the title in a YAML single-quoted scalar; the only character that
+// needs escaping there is the single quote itself, which YAML represents by doubling it.
+function escape_yaml_single_quoted(value: string): string {
+	return value.replaceAll("'", "''")
 }
 
 function format_generated_date(now: Date): string {
@@ -125,7 +182,7 @@ function find_info_metadata(audio_directory: string, video_id: string): VideoMet
 function build_values(metadata: VideoMetadata, now: Date): FrontmatterValues {
 	return {
 		youtube_url: build_youtube_url(metadata.video_id),
-		youtube_date: format_upload_date(metadata.upload_date),
+		youtube_date: metadata.broadcast_date,
 		youtube_title: escape_yaml_single_quoted(metadata.video_title),
 		article_date: format_generated_date(now),
 	}
@@ -179,6 +236,7 @@ const talk_frontmatter = {
 	parse_info_json,
 	escape_yaml_single_quoted,
 	format_upload_date,
+	resolve_broadcast_date,
 	format_generated_date,
 	build_youtube_url,
 	resolve_video_id,
