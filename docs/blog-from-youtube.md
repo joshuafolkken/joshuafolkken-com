@@ -10,13 +10,43 @@ manual and **must not be skipped** — there is no draft flag, so every `.md` un
 
 ## Prerequisites
 
-| Requirement                   | Notes                                                                                                       |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `yt-dlp` on `PATH`            | `brew install yt-dlp` (macOS). Keep it current — YouTube changes break old builds.                          |
-| Chrome, signed in to YouTube  | The download reads Chrome's cookies (`--cookies-from-browser chrome`); Chrome is also used for the preview. |
-| `ffmpeg` on `PATH`            | `brew install ffmpeg` — a separate formula, not a `yt-dlp` dependency. Without it the opus re-encode fails. |
-| `GEMINI_API_KEY` in `.env`    | Create a key at <https://aistudio.google.com/apikey>. See [Model choice](#model-choice).                    |
-| `pnpm dev` running (optional) | Only needed for the preview tab the pipeline opens at the end.                                              |
+| Requirement                   | Notes                                                                                                                 |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `yt-dlp` on `PATH`            | `brew install yt-dlp` (macOS). Keep it current — YouTube changes break old builds.                                    |
+| Chrome, signed in to YouTube  | The download reads Chrome's cookies (`--cookies-from-browser chrome`); Chrome is also used for the preview.           |
+| `ffmpeg` on `PATH`            | `brew install ffmpeg` — a separate formula, not a `yt-dlp` dependency. Without it the opus re-encode fails.           |
+| `GEMINI_API_KEY` in `.env`    | Create a key at <https://aistudio.google.com/apikey>. See [Model choice](#model-choice).                              |
+| Voice reference samples       | `.audio/joshua_sample.opus` + `.audio/longinus_sample.opus`. See [Voice reference samples](#voice-reference-samples). |
+| `pnpm dev` running (optional) | Only needed for the preview tab the pipeline opens at the end.                                                        |
+
+## Voice reference samples
+
+The generator uploads two ~60 second single-speaker clips **before** the talk audio, so the model
+matches every utterance against a known anchor instead of working out who is who on its own.
+Self-anchoring over a multi-hour stream is unreliable: it is what let a co-host's topics land in
+the article as Joshua's own opinions. `pnpm yt:article` fails with `Missing reference sample …`
+when either clip is absent — deliberately, because silently falling back would bring the
+misattribution back without any visible signal.
+
+| File                          | Contents                                            |
+| ----------------------------- | --------------------------------------------------- |
+| `.audio/joshua_sample.opus`   | ~60s of Joshua speaking alone (the target speaker). |
+| `.audio/longinus_sample.opus` | ~60s of the co-host speaking alone (never adopted). |
+
+Cut them from streams already in `.audio/` rather than recording new ones — a reference only helps
+when it went through the same microphone, stream path and codec as the target audio. Pick a stretch
+where one person talks continuously, background game audio is quiet, and the delivery is normal
+(no shouting or sustained laughter). The opening minutes of any stream are usually Joshua alone.
+
+```bash
+# 60 seconds starting at 00:01:30
+ffmpeg -ss 00:01:30 -t 60 -i '.audio/<stream>.opus' -c copy .audio/joshua_sample.opus
+
+# check that only the intended speaker is audible (QuickTime cannot play opus)
+ffplay -autoexit -nodisp .audio/joshua_sample.opus
+```
+
+The clips are reused across runs — cut them once. `.audio/` is git-ignored, so they stay local.
 
 ## Generate the draft
 
@@ -39,11 +69,17 @@ own (see [Running a single stage](#running-a-single-stage)).
    re-encoded to 16 kbps mono opus ([`scripts/opus-encoding.ts`](../scripts/opus-encoding.ts)) so a
    multi-hour stream stays small enough to upload. **If the audio for that video id is already in
    `.audio/`, the download is skipped** and only the article is regenerated.
-2. **Generate** — [`scripts/audio-to-article.ts`](../scripts/audio-to-article.ts) uploads the audio
-   through the Gemini File API, waits for it to finish processing (up to 3 minutes), and runs
-   [`prompts/audio-to-article-3.md`](../prompts/audio-to-article-3.md) over it. That prompt is where
-   the editorial rules live: speaker attribution by voice, exhaustive topic coverage, first-person
-   です・ます prose, and no other participant's name anywhere in the output.
+2. **Generate** — [`scripts/audio-to-article.ts`](../scripts/audio-to-article.ts) uploads the two
+   [voice reference samples](#voice-reference-samples) and then the talk audio through the Gemini
+   File API, waits for each to finish processing (up to 3 minutes), and runs
+   [`prompts/audio-to-article-4.md`](../prompts/audio-to-article-4.md) over all three. The upload
+   order is part of the contract — the prompt addresses the audio by position (target-speaker
+   reference, excluded-speaker reference, then the stream to write about). That prompt is where the
+   editorial rules live: speaker attribution by voice, exhaustive topic coverage, first-person
+   です・ます prose, and no other participant's name anywhere in the output. The article is
+   streamed back (a running character count is printed) rather than awaited in one piece: a
+   non-streaming call withholds its response headers until generation finishes, which Node's HTTP
+   client cuts off after 300 seconds.
 3. **Inject frontmatter** — [`scripts/inject-talk-frontmatter.ts`](../scripts/inject-talk-frontmatter.ts)
    replaces the `{{PUBLISH_DATE}}` / `{{YOUTUBE_URL}}` / `{{YOUTUBE_DATE}}` / `{{YOUTUBE_TITLE}}`
    placeholders with values read from `.info.json`. The model is forbidden from writing these four
@@ -61,7 +97,7 @@ author: 'Joshua Folkken'
 excerpt: '…' # chosen by the model
 tags: ['from-talk', …] # chosen by the model
 youtube: 'https://www.youtube.com/watch?v=…'
-youtube_date: '2026-01-22' # the video's own publish date — not the article's
+youtube_date: '2026-01-22' # the day the stream went out, in JST — not the article's date
 youtube_title: '…' # the video's own title — not the article's
 ```
 
@@ -101,6 +137,22 @@ separate index to update. `docs/**.md` and `prompts/**.md` are also picked up by
 | `pnpm yt:article '<url-or-id>'`                       | The audio is already downloaded and you want to regenerate the article — the common re-run. |
 | `pnpm article:frontmatter <article.md> '<url-or-id>'` | A hand-edited draft still has `{{…}}` placeholders to fill.                                 |
 
+### Trying different voice samples
+
+`yt:talk` and `yt:article` both take the two [voice reference samples](#voice-reference-samples) as
+optional trailing arguments, **target speaker first**, so a different pair can be compared without
+moving files around:
+
+```bash
+pnpm yt:talk '<url-or-id>'                                   # both defaults
+pnpm yt:talk '<url-or-id>' .audio/alt_joshua.opus            # override the target speaker only
+pnpm yt:talk '<url-or-id>' .audio/alt_a.opus .audio/alt_b.opus
+```
+
+Each position falls back to its default independently, so passing only the first argument leaves the
+excluded-speaker sample at `.audio/longinus_sample.opus`. Any container in the MIME table works —
+the type is read from the path you pass, not assumed to be opus.
+
 ## Configuration
 
 Set in `.env` (see `.env.example`):
@@ -109,7 +161,7 @@ Set in `.env` (see `.env.example`):
 | ---------------------- | ------------------------------- | --------------------------------------------------------------------------- |
 | `GEMINI_API_KEY`       | —                               | Required.                                                                   |
 | `GEMINI_MODEL`         | `gemini-3.5-flash`              | See [Model choice](#model-choice).                                          |
-| `AUDIO_ARTICLE_PROMPT` | `prompts/audio-to-article-3.md` | Point at another prompt file to try a revision without editing the default. |
+| `AUDIO_ARTICLE_PROMPT` | `prompts/audio-to-article-4.md` | Point at another prompt file to try a revision without editing the default. |
 | `PREVIEW_BASE_URL`     | `http://localhost:5173/blog`    | Where the finished draft is opened.                                         |
 
 ### Model choice
@@ -122,11 +174,12 @@ audio request outright. Free-tier inputs may also be used to improve Google's mo
 
 ## Troubleshooting
 
-| Symptom                                              | Cause and fix                                                                                                                                  |
-| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `yt-dlp exited with 1`                               | Usually stale cookies or an outdated `yt-dlp`. Open the video in Chrome while signed in, then `brew upgrade yt-dlp`.                           |
-| `No audio file for "…" in .audio`                    | A partial download left the `.info.json` without its audio. Delete both files for that video and re-run.                                       |
-| `Timed out waiting for the audio to process`         | The File API stayed in `PROCESSING` for over 3 minutes. Re-run — the audio is cached locally, so only the upload repeats.                      |
-| `Gemini returned an empty response`                  | Typically a quota rejection on a long free-tier request. Switch to a billed key or a smaller model, and see [Model choice](#model-choice).     |
-| Article attributes someone else's opinions to Joshua | A model-quality problem, not a code bug. Regenerate with a Pro model; if it persists, tighten the attribution rules in the prompt.             |
-| Placeholders such as `{{YOUTUBE_URL}}` survive       | The model reformatted them (e.g. into bold). Re-run `pnpm article:frontmatter` on the file, which also accepts the `__X__` / `**X**` variants. |
+| Symptom                                              | Cause and fix                                                                                                                                                                                                        |
+| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `yt-dlp exited with 1`                               | Usually stale cookies or an outdated `yt-dlp`. Open the video in Chrome while signed in, then `brew upgrade yt-dlp`.                                                                                                 |
+| `No audio file for "…" in .audio`                    | A partial download left the `.info.json` without its audio. Delete both files for that video and re-run.                                                                                                             |
+| `Timed out waiting for the audio to process`         | The File API stayed in `PROCESSING` for over 3 minutes. Re-run — the audio is cached locally, so only the upload repeats.                                                                                            |
+| `Gemini returned an empty response`                  | Typically a quota rejection on a long free-tier request. Switch to a billed key or a smaller model, and see [Model choice](#model-choice).                                                                           |
+| `fetch failed` / `UND_ERR_HEADERS_TIMEOUT`           | Node's built-in HTTP client gives up after 300s of silence. Generation is streamed precisely so headers arrive up front; if this returns, the gap between chunks exceeded 5 minutes — retry, or move to a Pro model. |
+| Article attributes someone else's opinions to Joshua | A model-quality problem, not a code bug. Regenerate with a Pro model; if it persists, tighten the attribution rules in the prompt.                                                                                   |
+| Placeholders such as `{{YOUTUBE_URL}}` survive       | The model reformatted them (e.g. into bold). Re-run `pnpm article:frontmatter` on the file, which also accepts the `__X__` / `**X**` variants.                                                                       |

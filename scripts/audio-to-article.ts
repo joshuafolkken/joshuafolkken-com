@@ -2,22 +2,27 @@
 /**
  * Turn a downloaded talk audio into a ready-to-publish blog article via the Gemini API.
  *
- * Replaces the manual "paste the audio + prompt into AI Studio" step: it uploads the
- * `pnpm yt:audio` output through the Gemini File API, runs `prompts/audio-to-article-3.md`
- * over it, strips any stray Markdown fences, injects the deterministic YouTube frontmatter
- * (reusing `inject-talk-frontmatter`), and writes `src/lib/posts/talk-<youtube_date>.md`.
+ * Replaces the manual "paste the audio + prompt into AI Studio" step: it uploads the two voice
+ * reference samples plus the `pnpm yt:audio` output through the Gemini File API, runs
+ * `prompts/audio-to-article-4.md` over them, strips any stray Markdown fences, injects the
+ * deterministic YouTube frontmatter (reusing `inject-talk-frontmatter`), and writes
+ * `src/lib/posts/talk-<youtube_date>.md`.
+ *
+ * Requires `.audio/joshua_sample.opus` and `.audio/longinus_sample.opus` (~60s each, one speaker
+ * per file) — see docs/blog-from-youtube.md for how to cut them.
  *
  * Usage:
  *   pnpm yt:audio '<youtube-url>'      # download audio first (writes .audio/*.opus + *.info.json)
- *   pnpm yt:article '<youtube-url>'    # then generate the article
+ *   pnpm yt:article '<youtube-url>'    # then generate the article, with the default samples
+ *   pnpm yt:article '<youtube-url>' a.opus b.opus   # override the samples, target speaker first
  *
  * Required env (see .env.example):
  *   GEMINI_API_KEY
  * Optional env:
  *   GEMINI_MODEL          (default gemini-3.5-flash)
- *   AUDIO_ARTICLE_PROMPT  (default prompts/audio-to-article-3.md)
+ *   AUDIO_ARTICLE_PROMPT  (default prompts/audio-to-article-4.md)
  */
-import { readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { setTimeout as sleep } from 'node:timers/promises'
 import {
@@ -26,8 +31,9 @@ import {
 	FileState,
 	GoogleGenAI,
 	type File as GeminiFile,
+	type Part,
 } from '@google/genai'
-import { cli } from './cli'
+import { cli, type PositionalInput } from './cli'
 import { environment } from './environment'
 import { talk_frontmatter, type VideoMetadata } from './inject-talk-frontmatter'
 import { preview } from './preview'
@@ -36,11 +42,27 @@ const AUDIO_DIR = '.audio'
 const POSTS_DIR = 'src/lib/posts'
 const INFO_JSON_SUFFIX = '.info.json'
 const DEFAULT_MODEL = 'gemini-3.5-flash'
-const DEFAULT_PROMPT_PATH = 'prompts/audio-to-article-3.md'
+const DEFAULT_PROMPT_PATH = 'prompts/audio-to-article-4.md'
 const DEFAULT_AUDIO_MIME = 'audio/ogg'
 const CLI_ARGS_START = 2
 const POLL_INTERVAL_MS = 2000
 const MAX_POLL_ATTEMPTS = 90
+const STREAM_PROGRESS_CHUNKS = 20
+const ARTICLE_USAGE =
+	'Usage: pnpm yt:article <youtube-url-or-id> [target-speaker-sample] [excluded-speaker-sample]'
+
+// Voice samples uploaded ahead of the talk audio so the model matches every utterance against a
+// known anchor instead of clustering the speakers itself — self-anchoring over a multi-hour stream
+// is what let a co-host's topics land in the article as Joshua's own. The order is part of the
+// contract: `prompts/audio-to-article-*.md` refers to these by position, target speaker first.
+const REFERENCE_SAMPLES: ReadonlyArray<readonly [string, string]> = [
+	['joshua_sample.opus', 'reference-target-speaker'],
+	['longinus_sample.opus', 'reference-excluded-speaker'],
+]
+
+// How many trailing sample paths either command reads. Shared so `yt:talk` rejects a stray extra
+// argument on the same terms as `yt:article` instead of dropping it.
+const REFERENCE_SAMPLE_COUNT = REFERENCE_SAMPLES.length
 
 // Maps the audio container `pnpm yt:audio` (and common fallbacks) can produce to a MIME type
 // Gemini accepts, keyed by the extension without its leading dot. Opus lives in an Ogg
@@ -79,11 +101,18 @@ interface UploadRequest {
 	config: { mimeType: string; displayName: string }
 }
 
+// The slice of a streamed response this script needs, kept structural so a test can feed a plain
+// async generator instead of building SDK response objects.
+interface TextChunk {
+	text?: string | undefined
+}
+
 interface ArticleDependencies {
 	find_metadata: (video_id: string) => VideoMetadata
 	find_audio: (video_id: string) => AudioSource
+	find_references: () => ReadonlyArray<AudioSource>
 	read_prompt: () => string
-	generate: (source: AudioSource, prompt: string) => Promise<string>
+	generate: (sources: ReadonlyArray<AudioSource>, prompt: string) => Promise<string>
 	write_article: (output_path: string, content: string) => void
 }
 
@@ -141,6 +170,27 @@ function find_audio(directory: string, video_id: string): AudioSource {
 	throw new Error(`No ${INFO_JSON_SUFFIX} with id ${video_id} in ${directory}`)
 }
 
+// Resolves the voice samples, taking `overrides` positionally (target speaker first) and falling
+// back to the fixed name in `directory` for each position left unspecified. Missing files fail
+// loudly: a silent fallback to "no references" would restore the old self-anchoring behavior
+// without any visible signal, which is exactly the misattribution this guards against.
+function find_reference_samples(
+	directory: string,
+	overrides: ReadonlyArray<string> = [],
+): ReadonlyArray<AudioSource> {
+	return REFERENCE_SAMPLES.map(([filename, display_name], index) => {
+		const audio_path = overrides[index] ?? path.join(directory, filename)
+
+		if (!existsSync(audio_path)) {
+			throw new Error(
+				`Missing reference sample ${audio_path}; see docs/blog-from-youtube.md for how to cut one`,
+			)
+		}
+
+		return { audio_path, mime_type: mime_for_audio(audio_path), display_name }
+	})
+}
+
 function resolve_output_path(youtube_date: string): string {
 	return path.join(POSTS_DIR, `talk-${youtube_date}.md`)
 }
@@ -167,10 +217,11 @@ async function run(
 ): Promise<string> {
 	const video_id = talk_frontmatter.resolve_video_id(url_or_id)
 	const metadata = dependencies.find_metadata(video_id)
-	const source = dependencies.find_audio(video_id)
-	const raw_output = await dependencies.generate(source, dependencies.read_prompt())
+	// References lead so the model fixes both voice anchors before it hears the talk itself.
+	const sources = [...dependencies.find_references(), dependencies.find_audio(video_id)]
+	const raw_output = await dependencies.generate(sources, dependencies.read_prompt())
 	const article = assemble_article(raw_output, metadata, now)
-	const output_path = resolve_output_path(talk_frontmatter.format_upload_date(metadata.upload_date))
+	const output_path = resolve_output_path(metadata.broadcast_date)
 
 	dependencies.write_article(output_path, article)
 
@@ -229,31 +280,74 @@ async function upload_active_audio(client: GoogleGenAI, source: AudioSource): Pr
 	return await wait_until_active(client, uploaded)
 }
 
-async function generate_with_gemini(
-	config: ArticleConfig,
-	source: AudioSource,
-	prompt: string,
-): Promise<string> {
-	const client = new GoogleGenAI({ apiKey: config.api_key })
+async function upload_audio_part(client: GoogleGenAI, source: AudioSource): Promise<Part> {
 	const active = await upload_active_audio(client, source)
 
 	if (active.uri === undefined || active.mimeType === undefined) {
 		throw new Error('Uploaded file is missing a uri or mimeType')
 	}
 
-	console.info(`Generating the article with ${config.model} (this can take a few minutes)...`)
-	const response = await client.models.generateContent({
-		model: config.model,
-		contents: createUserContent([createPartFromUri(active.uri, active.mimeType), prompt]),
-	})
+	return createPartFromUri(active.uri, active.mimeType)
+}
 
-	const { text } = response
-	if (text === undefined || text === '') throw new Error('Gemini returned an empty response')
+// Joins a streamed generation into the full article, reporting progress as it goes.
+async function collect_stream_text(
+	stream: AsyncIterable<TextChunk>,
+	on_progress: (characters: number, chunk_index: number) => void,
+): Promise<string> {
+	const parts: Array<string> = []
+	let characters = 0
+
+	for await (const chunk of stream) {
+		const { text } = chunk
+
+		if (text === undefined || text === '') continue
+
+		parts.push(text)
+		characters += text.length
+		on_progress(characters, parts.length)
+	}
+
+	return parts.join('')
+}
+
+function report_stream_progress(characters: number, chunk_index: number): void {
+	if (chunk_index % STREAM_PROGRESS_CHUNKS !== 0) return
+
+	console.info(`  received ${String(characters)} characters so far...`)
+}
+
+// Streams rather than awaiting the whole generation: a non-streaming call only sends its response
+// headers once the article is finished, so anything past undici's 300s headersTimeout dies with
+// UND_ERR_HEADERS_TIMEOUT — reachable on a multi-hour stream. That limit cannot be raised through
+// the SDK (its `httpOptions.timeout` only aborts earlier), but streaming returns headers up front.
+async function generate_with_gemini(
+	config: ArticleConfig,
+	sources: ReadonlyArray<AudioSource>,
+	prompt: string,
+): Promise<string> {
+	const client = new GoogleGenAI({ apiKey: config.api_key })
+	// Parts keep `sources` order, which is the contract the prompt reads the audio by.
+	const parts = await Promise.all(
+		sources.map(async (source) => await upload_audio_part(client, source)),
+	)
+
+	console.info(`Generating the article with ${config.model} (this can take a few minutes)...`)
+	const stream = await client.models.generateContentStream({
+		model: config.model,
+		contents: createUserContent([...parts, prompt]),
+	})
+	const text = await collect_stream_text(stream, report_stream_progress)
+
+	if (text === '') throw new Error('Gemini returned an empty response')
 
 	return text
 }
 
-function build_dependencies(config: ArticleConfig): ArticleDependencies {
+function build_dependencies(
+	config: ArticleConfig,
+	reference_paths: ReadonlyArray<string> = [],
+): ArticleDependencies {
 	return {
 		find_metadata(video_id: string): VideoMetadata {
 			return talk_frontmatter.find_info_metadata(AUDIO_DIR, video_id)
@@ -261,11 +355,14 @@ function build_dependencies(config: ArticleConfig): ArticleDependencies {
 		find_audio(video_id: string): AudioSource {
 			return find_audio(AUDIO_DIR, video_id)
 		},
+		find_references(): ReadonlyArray<AudioSource> {
+			return find_reference_samples(AUDIO_DIR, reference_paths)
+		},
 		read_prompt(): string {
 			return readFileSync(config.prompt_path, 'utf8')
 		},
-		async generate(source: AudioSource, prompt: string): Promise<string> {
-			return await generate_with_gemini(config, source, prompt)
+		async generate(sources: ReadonlyArray<AudioSource>, prompt: string): Promise<string> {
+			return await generate_with_gemini(config, sources, prompt)
 		},
 		write_article(output_path: string, content: string): void {
 			writeFileSync(output_path, content)
@@ -273,13 +370,14 @@ function build_dependencies(config: ArticleConfig): ArticleDependencies {
 	}
 }
 
-function read_cli_argument(args: ReadonlyArray<string>): string {
-	return cli.read_required_argument(args, 'Usage: pnpm yt:article <youtube-url-or-id>')
+function read_cli_input(args: ReadonlyArray<string>): PositionalInput {
+	return cli.read_argument_with_rest(args, ARTICLE_USAGE, REFERENCE_SAMPLE_COUNT)
 }
 
 async function main(args: ReadonlyArray<string>, now: Date): Promise<void> {
 	const config = read_config()
-	const output_path = await run(build_dependencies(config), read_cli_argument(args), now)
+	const { value: url_or_id, rest: reference_paths } = read_cli_input(args)
+	const output_path = await run(build_dependencies(config, reference_paths), url_or_id, now)
 
 	console.info(
 		`Wrote ${output_path}. Review the article and the trailing 【要確認】 list before publishing.`,
@@ -299,17 +397,20 @@ if (is_main_module) {
 }
 
 const audio_to_article = {
+	REFERENCE_SAMPLE_COUNT,
 	read_config,
 	mime_for_audio,
 	select_audio_file,
 	find_audio,
+	find_reference_samples,
 	resolve_output_path,
+	collect_stream_text,
 	strip_code_fences,
 	assemble_article,
 	build_upload_request,
 	run,
 	build_dependencies,
-	read_cli_argument,
+	read_cli_input,
 	main,
 }
 
