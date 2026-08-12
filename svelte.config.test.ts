@@ -61,6 +61,12 @@ describe('kit.csp: third-party origins', () => {
 		expect(directives['frame-src']).toContain('https://www.youtube-nocookie.com')
 	})
 
+	// The embed origin does not serve the stills: talk posts render their card image and social
+	// preview from i.ytimg.com, so dropping it leaves every talk card with a blocked image.
+	it('allows the YouTube thumbnail CDN in img-src', () => {
+		expect(directives['img-src']).toContain('https://i.ytimg.com')
+	})
+
 	// The Google tag delivers its /td? measurement beacon as an image. Dropping this origin from
 	// img-src blocks the beacon while the page keeps rendering, so analytics stops with nothing
 	// but a console entry to say so — the failure mode this assertion exists to catch.

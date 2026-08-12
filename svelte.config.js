@@ -30,6 +30,10 @@ const GOOGLE_SYNDICATION = 'https://*.googlesyndication.com'
 const AD_TRAFFIC_QUALITY = 'https://*.adtrafficquality.google'
 const GOOGLE_ANALYTICS = 'https://*.google-analytics.com'
 const GOOGLE_TAG_MANAGER = 'https://www.googletagmanager.com'
+// Static thumbnail CDN for YouTube video stills — the image every talk post shows on the blog
+// list card and in its social preview. Cookieless and unrelated to the youtube-nocookie embed
+// origin in frame-src, so it needs its own img-src entry.
+const YOUTUBE_THUMBNAILS = 'https://i.ytimg.com'
 
 /** @type {import('@sveltejs/kit').KitConfig['csp']} */
 const csp = {
@@ -65,6 +69,7 @@ const csp = {
 			DOUBLE_CLICK,
 			AD_TRAFFIC_QUALITY,
 			'https://ssl.gstatic.com',
+			YOUTUBE_THUMBNAILS,
 		],
 		'connect-src': [
 			'self',
