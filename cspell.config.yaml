@@ -29,6 +29,7 @@ words:
   - CLDR
   - COEP
   - colocates
+  - cookieless
   - Csvg
   - devicon
   - eclipseide
@@ -42,6 +43,7 @@ words:
   - ghcr
   - githubactions
   - googlegemini
+  - hqdefault
   - hrefs
   - HSTS
   - GHSA
@@ -56,10 +58,12 @@ words:
   - Kaku
   - KAWAII
   - kbps
+  - letterboxed
   - letsencrypt
   - libopus
   - libsql
   - linkify
+  - maxresdefault
   - Mcpjson
   - Mdsvex
   - minisearch
@@ -110,3 +114,4 @@ words:
   - viewports
   - vuedotjs
   - youtu
+  - ytimg

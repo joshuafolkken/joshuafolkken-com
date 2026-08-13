@@ -20,7 +20,7 @@
 		{#if cover_image_source}
 			<CardImage src={cover_image_source} alt={post.title} />
 		{:else if post.youtube}
-			<YouTubeThumbnail />
+			<YouTubeThumbnail url={post.youtube} title={post.title} />
 		{/if}
 		<div class="flex flex-1 flex-col p-6 pb-16">
 			<h3 class="flex items-center gap-2 text-lg font-semibold">

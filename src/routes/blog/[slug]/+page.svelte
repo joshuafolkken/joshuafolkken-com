@@ -11,11 +11,12 @@
 	import TalkArticleLayout from '$lib/components/TalkArticleLayout.svelte'
 	import { blog_images } from '$lib/data/blog-images'
 	import { PAGES } from '$lib/types/page'
+	import { social_image } from '$lib/utils/social-image'
 	import type { PageData } from './$types'
 
 	const { data }: { data: PageData } = $props()
 	const cover_image_source = $derived(blog_images.get_cover_image_url(data.meta.cover_image))
-	const image_url = $derived(cover_image_source ? `${APP.URL}${cover_image_source}` : '')
+	const image_url = $derived(social_image.resolve_url(cover_image_source, data.meta.youtube))
 	const blog_title = $derived(data.meta.title)
 	const page_title = $derived(app.page_title(blog_title))
 </script>
@@ -33,7 +34,7 @@
 	description={data.meta.excerpt}
 	url="{APP.URL}/blog/{data.slug}"
 	type="article"
-	image={image_url || undefined}
+	image={image_url}
 />
 
 {#if data.should_show_ads}
