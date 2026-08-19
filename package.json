@@ -1,6 +1,6 @@
 {
 	"name": "joshuafolkken-com",
-	"version": "0.321.0",
+	"version": "0.322.0",
 	"type": "module",
 	"private": true,
 	"scripts": {
@@ -38,7 +38,7 @@
 		"prepare:gh-packages": "[ -n \"$CI\" ] || ! command -v tsx >/dev/null 2>&1 || tsx node_modules/@joshuafolkken/kit/scripts/fix-gh-packages.ts"
 	},
 	"dependencies": {
-		"@google/genai": "^2.16.0",
+		"@google/genai": "^2.17.1",
 		"dompurify": "^3.4.13",
 		"dotenv": "^17.4.2",
 		"drizzle-orm": "^0.45.2",
@@ -52,8 +52,8 @@
 		"@eslint/compat": "^2.1.0",
 		"@eslint/js": "^10.0.1",
 		"@ianvs/prettier-plugin-sort-imports": "^4.7.1",
-		"@joshuafolkken/app-kit": "0.71.0",
-		"@joshuafolkken/kit": "1.64.0",
+		"@joshuafolkken/app-kit": "0.74.0",
+		"@joshuafolkken/kit": "1.82.0",
 		"@playwright/test": "^1.62.1",
 		"@prgm/sveltekit-progress-bar": "^3.0.2",
 		"@secretlint/secretlint-rule-preset-recommend": "^13.0.4",
@@ -76,9 +76,9 @@
 		"eslint-plugin-import-x": "^4.17.1",
 		"eslint-plugin-promise": "^7.3.0",
 		"eslint-plugin-sonarjs": "^4.2.0",
-		"eslint-plugin-svelte": "^3.22.0",
+		"eslint-plugin-svelte": "^3.23.0",
 		"eslint-plugin-unicorn": "^73.0.0",
-		"globals": "^17.9.0",
+		"globals": "^17.11.0",
 		"jsdom": "^30.0.1",
 		"kill-port": "^2.0.1",
 		"lefthook": "2.1.10",
@@ -88,11 +88,11 @@
 		"prettier": "^3.9.6",
 		"prettier-plugin-svelte": "^4.1.1",
 		"prettier-plugin-tailwindcss": "^0.8.1",
-		"rollup-plugin-visualizer": "^7.0.1",
+		"rollup-plugin-visualizer": "^7.1.1",
 		"secretlint": "^13.0.4",
 		"size-limit": "^13.0.3",
 		"svelte": "^5.56.8",
-		"svelte-check": "^4.7.5",
+		"svelte-check": "^4.7.6",
 		"svelte-fast-check": "^0.4.5",
 		"tailwindcss": "^4.3.3",
 		"tsx": "^4.23.12",
@@ -103,16 +103,16 @@
 		"vite-plugin-devtools-json": "^1.1.0",
 		"vitest": "^4.1.10",
 		"vitest-browser-svelte": "^3.0.0",
-		"wrangler": "4.120.1"
+		"wrangler": "4.123.0"
 	},
-	"packageManager": "pnpm@11.21.0+sha512.521705bce689924eac72f5a3587122f362689ef6571e55ba80076fd637c11132ecffada26fad4ea79c485bfddbfd3d5a2a5b05805a77e893de71ec8a6cca3bb1",
+	"packageManager": "pnpm@11.22.0+sha512.1ff870c4c6133dfd88fb2afc46dd13d47f09c9794b438c6fdb47ca98caf3bc16381ee0be93a091b8e3824cf01f889f46d7d9e20910fb0be1ab0fb5baa80dd621",
 	"engines": {
 		"node": ">=22.19.0"
 	},
 	"devEngines": {
 		"packageManager": {
 			"name": "pnpm",
-			"version": "11.21.0+sha512.521705bce689924eac72f5a3587122f362689ef6571e55ba80076fd637c11132ecffada26fad4ea79c485bfddbfd3d5a2a5b05805a77e893de71ec8a6cca3bb1",
+			"version": "11.22.0+sha512.1ff870c4c6133dfd88fb2afc46dd13d47f09c9794b438c6fdb47ca98caf3bc16381ee0be93a091b8e3824cf01f889f46d7d9e20910fb0be1ab0fb5baa80dd621",
 			"onFail": "error"
 		}
 	},

@@ -62,7 +62,6 @@ function handle_keydown(event: KeyboardEvent): void {
 	if (is_menu_open && keyboard_utilities.is_escape(event)) close_menu()
 }
 
-// eslint-disable-next-line unicorn/consistent-boolean-name -- accessor mirrors the is_menu_open $state; a boolean-prefixed name would shadow it
 function get_is_menu_open(): boolean {
 	return is_menu_open
 }
