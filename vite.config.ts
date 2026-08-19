@@ -13,7 +13,6 @@ function make_stats_plugin(filename: string, is_ssr: boolean): Plugin {
 	let active = false
 	const viz = visualizer({ open: !IS_CI, filename })
 	const viz_generate = typeof viz.generateBundle === 'function' ? viz.generateBundle : null
-	const viz_close = typeof viz.closeBundle === 'function' ? viz.closeBundle : null
 
 	return {
 		name: `visualizer-${is_ssr ? 'server' : 'client'}`,
@@ -24,9 +23,6 @@ function make_stats_plugin(filename: string, is_ssr: boolean): Plugin {
 		async generateBundle(options, bundle, isWrite) {
 			if (active && viz_generate)
 				await Reflect.apply(viz_generate, this, [options, bundle, isWrite])
-		},
-		async closeBundle() {
-			if (active && viz_close) await Reflect.apply(viz_close, this, [])
 		},
 	}
 }
