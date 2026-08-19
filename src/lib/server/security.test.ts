@@ -3,7 +3,7 @@
 import { HSTS_VALUE, PERMISSIONS_POLICY_VALUE } from '$lib/constants/security'
 import { logger } from '$lib/logger'
 import { platform_binding } from '$lib/server/platform-binding'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
 import { security, type SecurityContext } from './security'
 
 vi.mock('$lib/logger', () => ({
@@ -21,29 +21,56 @@ const BASE_URL = 'https://joshuafolkken.com/api/test'
 const SAME_ORIGIN = 'https://joshuafolkken.com'
 const DIFFERENT_ORIGIN = 'https://evil.example.com'
 const LOCALHOST_ORIGIN = 'http://localhost:5173'
+const LOOPBACK_IP = '127.0.0.1'
+const PROBE_KEY = 'e2e-rate-limit-probe-1'
 const INVALID_ORIGIN = 'not-a-url'
 // eslint-disable-next-line sonarjs/no-hardcoded-ip -- test fixture
 const DUMMY_IP = '10.0.0.1'
 const RATE_LIMITER_ERROR_MSG = 'Rate limiter not available'
 
-function make_rate_limiter(is_success: boolean): RateLimit {
+// `limit` is declared as a property rather than a method so a test can hand the stub straight to
+// `expect` — a method reference would trip `@typescript-eslint/unbound-method`.
+interface RateLimiterStub {
+	limit: Mock
+}
+
+interface RequestOptions {
+	origin?: string
+	client?: string
+	probe?: string
+}
+
+interface ContextOptions extends RequestOptions {
+	platform?: App.Platform
+	ip?: string
+}
+
+function make_rate_limiter(is_success: boolean): RateLimiterStub {
 	return { limit: vi.fn().mockResolvedValue({ success: is_success }) }
 }
 
-function make_request(options: { origin?: string; client?: string } = {}): Request {
+// The bucket key is the whole point of `resolve_rate_limit_key`, and it is only observable as the
+// argument handed to the binding — so a test that asserts on it builds the stub itself and passes
+// it through here, instead of the stub being created and discarded inside `make_platform`.
+function bind_rate_limiter(rate_limiter: RateLimiterStub): App.Platform {
+	vi.mocked(platform_binding.get_rate_limiter).mockReturnValue(rate_limiter)
+
+	// eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- mock stub; App.Platform shape not needed in test
+	return {} as App.Platform
+}
+
+function make_request(options: RequestOptions = {}): Request {
 	const headers = new Headers({ 'X-App-Client': APP_ID })
 
 	if (options.origin !== undefined) headers.set('origin', options.origin)
 	if (options.client !== undefined) headers.set('X-App-Client', options.client)
+	if (options.probe !== undefined) headers.set('X-Rate-Limit-Probe', options.probe)
 
 	return new Request(BASE_URL, { headers })
 }
 
 function make_platform(is_success: boolean): App.Platform {
-	vi.mocked(platform_binding.get_rate_limiter).mockReturnValue(make_rate_limiter(is_success))
-
-	// eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- mock stub; App.Platform shape not needed in test
-	return {} as App.Platform
+	return bind_rate_limiter(make_rate_limiter(is_success))
 }
 
 function make_platform_no_limiter(): App.Platform {
@@ -55,22 +82,11 @@ function make_platform_no_limiter(): App.Platform {
 	return {} as App.Platform
 }
 
-function make_context(
-	options: {
-		origin?: string
-		client?: string
-		platform?: App.Platform
-	} = {},
-): SecurityContext {
-	const request_options: { origin?: string; client?: string } = {}
-
-	if (options.origin !== undefined) request_options.origin = options.origin
-	if (options.client !== undefined) request_options.client = options.client
-
+function make_context(options: ContextOptions = {}): SecurityContext {
 	return {
-		request: make_request(request_options),
+		request: make_request(options),
 		url: new URL(BASE_URL),
-		ip: DUMMY_IP,
+		ip: options.ip ?? DUMMY_IP,
 		platform: options.platform,
 	}
 }
@@ -167,6 +183,81 @@ describe('security.validate_request_security — rate limit', () => {
 		await security.validate_request_security(make_context({ platform: make_platform_no_limiter() }))
 
 		expect(logger.error).toHaveBeenCalledWith(expect.stringContaining('[RateLimit]'))
+	})
+})
+
+// Regression for #824: every E2E request comes from one loopback address, so keying the limit on the
+// client IP made the whole suite share a single 4-per-60s bucket and answered 73 requests with 429
+// instead of the real response.
+describe('security.validate_request_security — rate limit key (local run)', () => {
+	it('skips the limit for a loopback request with no probe header', async () => {
+		const rate_limiter = make_rate_limiter(false)
+
+		const result = await security.validate_request_security(
+			make_context({ platform: bind_rate_limiter(rate_limiter), ip: LOOPBACK_IP }),
+		)
+
+		expect(result).toBeUndefined()
+		expect(rate_limiter.limit).not.toHaveBeenCalled()
+	})
+
+	it('skips the limit for a loopback request whose probe header is empty', async () => {
+		const rate_limiter = make_rate_limiter(false)
+
+		const result = await security.validate_request_security(
+			make_context({ platform: bind_rate_limiter(rate_limiter), ip: LOOPBACK_IP, probe: '' }),
+		)
+
+		expect(result).toBeUndefined()
+		expect(rate_limiter.limit).not.toHaveBeenCalled()
+	})
+
+	// The escape hatch that keeps the protection covered end to end: the probe value is the bucket
+	// key, so the E2E gets a bucket no other test shares and no rerun inherits.
+	it('keys the limit on the probe header value', async () => {
+		const rate_limiter = make_rate_limiter(true)
+
+		await security.validate_request_security(
+			make_context({
+				platform: bind_rate_limiter(rate_limiter),
+				ip: LOOPBACK_IP,
+				probe: PROBE_KEY,
+			}),
+		)
+
+		expect(rate_limiter.limit).toHaveBeenCalledWith({ key: PROBE_KEY })
+	})
+
+	it('returns 429 for a loopback probe request over the limit', async () => {
+		const result = await security.validate_request_security(
+			make_context({ platform: make_platform(false), ip: LOOPBACK_IP, probe: PROBE_KEY }),
+		)
+
+		expect(result?.status).toBe(429)
+	})
+})
+
+// Production is unchanged: a request that reached this Worker over the network is still keyed on its
+// own address, and cannot opt out of that by sending the probe header.
+describe('security.validate_request_security — rate limit key (routable client)', () => {
+	it('keys the limit on the client IP', async () => {
+		const rate_limiter = make_rate_limiter(true)
+
+		await security.validate_request_security(
+			make_context({ platform: bind_rate_limiter(rate_limiter) }),
+		)
+
+		expect(rate_limiter.limit).toHaveBeenCalledWith({ key: DUMMY_IP })
+	})
+
+	it('ignores the probe header', async () => {
+		const rate_limiter = make_rate_limiter(true)
+
+		await security.validate_request_security(
+			make_context({ platform: bind_rate_limiter(rate_limiter), probe: PROBE_KEY }),
+		)
+
+		expect(rate_limiter.limit).toHaveBeenCalledWith({ key: DUMMY_IP })
 	})
 })
 

@@ -28,6 +28,9 @@ export const HTTP_HEADERS = {
 	CONTENT_TYPE: 'Content-Type',
 	ORIGIN: 'origin',
 	X_APP_CLIENT: 'X-App-Client',
+	// Opt back in to rate limiting from a localhost request, whose limit is otherwise skipped so the
+	// E2E suite is not throttled. See `resolve_rate_limit_key` in `src/lib/server/security.ts`.
+	X_RATE_LIMIT_PROBE: 'X-Rate-Limit-Probe',
 } as const
 
 export const CONTENT_TYPE = {

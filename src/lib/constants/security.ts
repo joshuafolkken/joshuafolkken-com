@@ -1,5 +1,24 @@
 const LOCALHOST_HOSTNAMES: ReadonlySet<string> = new Set(['localhost', '127.0.0.1'])
 
+// What `getClientAddress()` reports for a request that never left this machine. On Cloudflare it
+// returns the CF-Connecting-IP header verbatim (see `adapter-cloudflare/files/worker.js`), and the
+// edge sets that header itself, replacing anything the client sent — so production traffic cannot
+// present a loopback address. That is what makes this set usable as the "this is a local run"
+// switch in `resolve_rate_limit_key`.
+//
+// The trust boundary is not widened by relying on it: the limiter already used this same value as
+// its bucket key, so a client able to forge CF-Connecting-IP could defeat an IP-keyed limit simply
+// by varying the address per request, with or without this set. Whatever that header is worth, it
+// was already load-bearing here.
+//
+// All three spellings are listed because which one arrives depends on the host: `localhost` reaches
+// wrangler over IPv6 (`::1`) on macOS and over IPv4 in most Linux CI images, and a dual-stack
+// socket reports the IPv4-mapped form.
+// Naming the addresses is the point of this set — it exists to identify them — so the hardcoded-IP
+// rule is suppressed rather than satisfied by moving the values somewhere else.
+// eslint-disable-next-line sonarjs/no-hardcoded-ip -- see above
+const LOOPBACK_ADDRESSES: ReadonlySet<string> = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1'])
+
 const HSTS_VALUE = 'max-age=31536000; includeSubDomains'
 
 const PERMISSIONS_POLICY_VALUE = 'camera=(), microphone=(), geolocation=(), payment=()'
@@ -28,4 +47,10 @@ const SECURITY_HEADERS_EXTRA = [
 // so SvelteKit can stamp a per-request nonce onto its own inline hydration script. See the
 // comment there before adding a CSP header back to `src/lib/server/security.ts`.
 
-export { LOCALHOST_HOSTNAMES, HSTS_VALUE, PERMISSIONS_POLICY_VALUE, SECURITY_HEADERS_EXTRA }
+export {
+	LOCALHOST_HOSTNAMES,
+	LOOPBACK_ADDRESSES,
+	HSTS_VALUE,
+	PERMISSIONS_POLICY_VALUE,
+	SECURITY_HEADERS_EXTRA,
+}
