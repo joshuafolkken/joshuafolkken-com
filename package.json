@@ -1,6 +1,6 @@
 {
 	"name": "joshuafolkken-com",
-	"version": "0.323.0",
+	"version": "0.324.0",
 	"type": "module",
 	"private": true,
 	"scripts": {
@@ -11,6 +11,7 @@
 		"build": "vite build",
 		"build:preview": "pnpm build && pnpm preview",
 		"deploy": "pnpm build && wrangler deploy",
+		"prepreview": "pnpm db:migrate:local",
 		"preview": "wrangler dev .svelte-kit/cloudflare/_worker.js --port 4173 --local",
 		"preview:normal": "vite preview",
 		"preview:stop": "kill-port 4173 || true",
@@ -22,6 +23,7 @@
 		"db:push": "drizzle-kit push",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
+		"db:migrate:local": "wrangler d1 migrations apply DB --local < /dev/null",
 		"db:studio": "export LOCAL_DB_PATH=$(find .wrangler/state/v3/d1 -name '*.sqlite' -type f 2>/dev/null | head -1) && drizzle-kit studio",
 		"check:upstream": "tsx scripts/check-upstream-drift.ts",
 		"ingest:github-docs": "set -a; [ -f .env ] && . ./.env; set +a; tsx scripts/ingest-github-documentation.ts",
@@ -42,7 +44,7 @@
 		"dompurify": "^3.4.13",
 		"dotenv": "^17.4.2",
 		"drizzle-orm": "^0.45.2",
-		"marked": "^18.0.9",
+		"marked": "^18.0.10",
 		"minisearch": "^7.2.0",
 		"sharp": "^0.35.3",
 		"simple-icons": "^16.28.0",
