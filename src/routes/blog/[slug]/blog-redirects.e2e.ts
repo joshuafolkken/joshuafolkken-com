@@ -9,6 +9,9 @@ const CANONICAL_LIKE_BUTTON_PATH = '/blog/like-button'
 // Distinctive to the merged article, so this asserts the surviving post is the merged one and not
 // just any page that happens to answer at the canonical URL.
 const MERGED_HEADING_PATTERN = /いいねボタンを作ってから/u
+const MERGED_SHARE_PATH = '/blog/share-buttons'
+const CANONICAL_SIMPLIFY_PATH = '/blog/simplify-ui'
+const SIMPLIFY_HEADING_PATTERN = /消したら良くなった/u
 const HTTP_PERMANENT_REDIRECT = 308
 
 test.describe('Blog legacy slug redirects — renames', () => {
@@ -51,6 +54,17 @@ test.describe('Blog legacy slug redirects — merges', () => {
 		await expect(page).toHaveURL(new RegExp(`${CANONICAL_LIKE_BUTTON_PATH}$`, 'u'))
 		await expect(
 			page.getByRole('heading', { level: 1, name: MERGED_HEADING_PATTERN }),
+		).toBeVisible()
+	})
+
+	// Regression for #840: the share-buttons post was folded into the design-subtraction post it was
+	// already the case study for.
+	test(`following ${MERGED_SHARE_PATH} renders ${CANONICAL_SIMPLIFY_PATH}`, async ({ page }) => {
+		await page.goto(MERGED_SHARE_PATH)
+
+		await expect(page).toHaveURL(new RegExp(`${CANONICAL_SIMPLIFY_PATH}$`, 'u'))
+		await expect(
+			page.getByRole('heading', { level: 1, name: SIMPLIFY_HEADING_PATTERN }),
 		).toBeVisible()
 	})
 })

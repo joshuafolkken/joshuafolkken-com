@@ -7,6 +7,8 @@ const LEGACY_TALK_PATH = '/blog/talk-2025-12-12'
 const CANONICAL_TALK_PATH = '/blog/talk-2025-12-11'
 const MERGED_ORM_PATH = '/blog/like-button-orm'
 const CANONICAL_LIKE_BUTTON_PATH = '/blog/like-button'
+const MERGED_SHARE_PATH = '/blog/share-buttons'
+const CANONICAL_SIMPLIFY_PATH = '/blog/simplify-ui'
 
 describe('blog_redirects.get_redirect_target — retired slugs', () => {
 	it(`maps ${SIMON_PATH} to ${MNEMECHA_PATH}`, () => {
@@ -26,6 +28,10 @@ describe('blog_redirects.get_redirect_target — retired slugs', () => {
 	it(`maps ${MERGED_ORM_PATH} to ${CANONICAL_LIKE_BUTTON_PATH} after the two posts were merged`, () => {
 		expect(blog_redirects.get_redirect_target(MERGED_ORM_PATH)).toBe(CANONICAL_LIKE_BUTTON_PATH)
 	})
+
+	it(`maps ${MERGED_SHARE_PATH} to ${CANONICAL_SIMPLIFY_PATH} after the two posts were merged`, () => {
+		expect(blog_redirects.get_redirect_target(MERGED_SHARE_PATH)).toBe(CANONICAL_SIMPLIFY_PATH)
+	})
 })
 
 describe('blog_redirects.get_redirect_target — paths that must not redirect', () => {
@@ -39,6 +45,10 @@ describe('blog_redirects.get_redirect_target — paths that must not redirect', 
 
 	it(`returns undefined for the surviving path ${CANONICAL_LIKE_BUTTON_PATH}`, () => {
 		expect(blog_redirects.get_redirect_target(CANONICAL_LIKE_BUTTON_PATH)).toBeUndefined()
+	})
+
+	it(`returns undefined for the surviving path ${CANONICAL_SIMPLIFY_PATH}`, () => {
+		expect(blog_redirects.get_redirect_target(CANONICAL_SIMPLIFY_PATH)).toBeUndefined()
 	})
 
 	it('returns undefined for an unknown blog slug', () => {
