@@ -9,6 +9,9 @@ const LEGACY_SLUG_MAP = new Map<string, string>([
 	['talk-2025-12-12', 'talk-2025-12-11'],
 	// Merged into the like-button post, which now covers the whole TURSO -> Drizzle -> D1 arc (#837).
 	['like-button-orm', 'like-button'],
+	// Merged into the design-subtraction post, whose thesis this post was already the case study for
+	// (#840).
+	['share-buttons', 'simplify-ui'],
 ])
 
 function strip_trailing_slashes(value: string): string {
