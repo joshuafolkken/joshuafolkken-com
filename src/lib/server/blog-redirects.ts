@@ -1,10 +1,14 @@
 const BLOG_PATH_PREFIX = '/blog/'
 
-// Slugs that were published under one name and later renamed. A talk post's slug is its broadcast
-// date, so correcting a date (archive publish day -> JST broadcast day) retires a live URL.
+// Slugs that were published under one name and later renamed, or retired when two posts were
+// merged into one. A talk post's slug is its broadcast date, so correcting a date (archive publish
+// day -> JST broadcast day) retires a live URL; a merge retires the absorbed post's URL the same
+// way. Either case leaves a live URL that must keep resolving.
 const LEGACY_SLUG_MAP = new Map<string, string>([
 	['simon', 'mnemecha'],
 	['talk-2025-12-12', 'talk-2025-12-11'],
+	// Merged into the like-button post, which now covers the whole TURSO -> Drizzle -> D1 arc (#837).
+	['like-button-orm', 'like-button'],
 ])
 
 function strip_trailing_slashes(value: string): string {
