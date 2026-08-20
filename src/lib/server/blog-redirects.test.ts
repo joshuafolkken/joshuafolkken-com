@@ -5,8 +5,10 @@ const SIMON_PATH = '/blog/simon'
 const MNEMECHA_PATH = '/blog/mnemecha'
 const LEGACY_TALK_PATH = '/blog/talk-2025-12-12'
 const CANONICAL_TALK_PATH = '/blog/talk-2025-12-11'
+const MERGED_ORM_PATH = '/blog/like-button-orm'
+const CANONICAL_LIKE_BUTTON_PATH = '/blog/like-button'
 
-describe('blog_redirects.get_redirect_target', () => {
+describe('blog_redirects.get_redirect_target — retired slugs', () => {
 	it(`maps ${SIMON_PATH} to ${MNEMECHA_PATH}`, () => {
 		expect(blog_redirects.get_redirect_target(SIMON_PATH)).toBe(MNEMECHA_PATH)
 	})
@@ -15,16 +17,28 @@ describe('blog_redirects.get_redirect_target', () => {
 		expect(blog_redirects.get_redirect_target(`${SIMON_PATH}/`)).toBe(MNEMECHA_PATH)
 	})
 
-	it(`returns undefined for the new canonical path ${MNEMECHA_PATH}`, () => {
-		expect(blog_redirects.get_redirect_target(MNEMECHA_PATH)).toBeUndefined()
-	})
-
 	it(`maps ${LEGACY_TALK_PATH} to ${CANONICAL_TALK_PATH} after the broadcast-date correction`, () => {
 		expect(blog_redirects.get_redirect_target(LEGACY_TALK_PATH)).toBe(CANONICAL_TALK_PATH)
 	})
 
+	// A merge retires a URL for a different reason than a rename: the absorbed post's file is
+	// deleted, so without this entry the URL is a plain 404 rather than a stale name.
+	it(`maps ${MERGED_ORM_PATH} to ${CANONICAL_LIKE_BUTTON_PATH} after the two posts were merged`, () => {
+		expect(blog_redirects.get_redirect_target(MERGED_ORM_PATH)).toBe(CANONICAL_LIKE_BUTTON_PATH)
+	})
+})
+
+describe('blog_redirects.get_redirect_target — paths that must not redirect', () => {
+	it(`returns undefined for the new canonical path ${MNEMECHA_PATH}`, () => {
+		expect(blog_redirects.get_redirect_target(MNEMECHA_PATH)).toBeUndefined()
+	})
+
 	it(`returns undefined for the corrected talk path ${CANONICAL_TALK_PATH}`, () => {
 		expect(blog_redirects.get_redirect_target(CANONICAL_TALK_PATH)).toBeUndefined()
+	})
+
+	it(`returns undefined for the surviving path ${CANONICAL_LIKE_BUTTON_PATH}`, () => {
+		expect(blog_redirects.get_redirect_target(CANONICAL_LIKE_BUTTON_PATH)).toBeUndefined()
 	})
 
 	it('returns undefined for an unknown blog slug', () => {
