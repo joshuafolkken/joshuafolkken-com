@@ -38,12 +38,22 @@
 			<span class="sr-only">Author: </span>{author}
 		</span>
 	{/if}
-	<time datetime={date} class="flex items-center gap-1" title="Published">
+	<time
+		datetime={date}
+		class="flex items-center gap-1"
+		title="Published"
+		data-testid="published-date"
+	>
 		<CalendarIcon size={ICON_SIZE_SM} />
 		{date_utilities.format_date_only(date)}
 	</time>
 	{#if updated}
-		<time datetime={updated} class="flex items-center gap-1" title="Updated">
+		<time
+			datetime={updated}
+			class="flex items-center gap-1"
+			title="Updated"
+			data-testid="updated-date"
+		>
 			<RefreshIcon size={ICON_SIZE_SM} />
 			{date_utilities.format_date_only(updated)}
 		</time>

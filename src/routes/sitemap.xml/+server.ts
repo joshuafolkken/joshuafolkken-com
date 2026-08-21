@@ -14,6 +14,7 @@ import { content_quality } from '$lib/utils/content-quality'
 import { date_utilities } from '$lib/utils/date-utilities'
 import { markup } from '$lib/utils/escape'
 import { post_length } from '$lib/utils/post-length'
+import { post_order } from '$lib/utils/post-order'
 import { project_utilities } from '$lib/utils/project-utilities'
 import type { RequestHandler } from './$types'
 
@@ -69,7 +70,7 @@ async function get_blog_posts(): Promise<Array<SitemapUrl>> {
 	return measured
 		.filter(({ is_substantial }) => is_substantial)
 		.map(({ post }) =>
-			create_sitemap_entry(`/blog/${post.slug}`, new Date(post.updated ?? post.date)),
+			create_sitemap_entry(`/blog/${post.slug}`, new Date(post_order.get_effective_date(post))),
 		)
 }
 
