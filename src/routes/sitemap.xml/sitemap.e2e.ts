@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { PROJECT_SLUGS } from '$lib/data/project-slugs'
+import { TEST_ROUTES } from '$lib/test-routes'
 
 const SITE_ORIGIN = 'https://joshuafolkken.com'
 const SITEMAP_PATH = '/sitemap.xml'
@@ -33,6 +34,6 @@ test.describe('sitemap.xml', () => {
 		const body = await response.text()
 
 		expect(response.ok()).toBeTruthy()
-		expect(body).not.toContain(`<loc>${SITE_ORIGIN}/blog/first-post</loc>`)
+		expect(body).not.toContain(`<loc>${SITE_ORIGIN}${TEST_ROUTES.BLOG_THIN_POST}</loc>`)
 	})
 })
