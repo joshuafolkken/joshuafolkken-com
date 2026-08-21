@@ -51,8 +51,8 @@ test.describe('SEO: blog article page', () => {
 
 test.describe('SEO: low-value posts are excluded from indexing', () => {
 	const ROBOTS_NOINDEX = 'meta[name="robots"]'
-	const THIN_POST = '/blog/first-post'
-	const SUBSTANTIAL_POST = '/blog/mnemecha'
+	const THIN_POST = TEST_ROUTES.BLOG_THIN_POST
+	const SUBSTANTIAL_POST = TEST_ROUTES.BLOG_POST
 
 	test('a thin, low-value post is marked noindex', async ({ page }) => {
 		await page.goto(THIN_POST)

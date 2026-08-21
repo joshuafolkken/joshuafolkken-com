@@ -1,6 +1,6 @@
 {
 	"name": "joshuafolkken-com",
-	"version": "0.329.0",
+	"version": "0.330.0",
 	"type": "module",
 	"private": true,
 	"scripts": {
@@ -40,8 +40,8 @@
 		"prepare:gh-packages": "[ -n \"$CI\" ] || ! command -v tsx >/dev/null 2>&1 || tsx node_modules/@joshuafolkken/kit/scripts/fix-gh-packages.ts"
 	},
 	"dependencies": {
-		"@google/genai": "^2.17.1",
-		"dompurify": "^3.4.13",
+		"@google/genai": "^2.18.0",
+		"dompurify": "^3.4.14",
 		"dotenv": "^17.4.2",
 		"drizzle-orm": "^0.45.2",
 		"marked": "^18.0.10",
