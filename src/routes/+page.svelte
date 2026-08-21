@@ -6,6 +6,7 @@
 	import ProjectCard from '$lib/components/ProjectCard.svelte'
 	import RevealSection from '$lib/components/RevealSection.svelte'
 	import SectionHeading from '$lib/components/SectionHeading.svelte'
+	import SiteIntroSection from '$lib/components/SiteIntroSection.svelte'
 	import SkillsSection from '$lib/components/SkillsSection.svelte'
 	import {
 		CARD_BASE_CLASS,
@@ -26,6 +27,11 @@
 
 <PageLayout max_width="6xl">
 	<div id={MAIN_CONTENT_ID} class="scroll-mt-20"></div>
+
+	<!-- What this site is, who writes it, what it holds -->
+	<RevealSection>
+		<SiteIntroSection />
+	</RevealSection>
 
 	<!-- Featured Projects -->
 	<RevealSection>
