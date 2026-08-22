@@ -1,17 +1,26 @@
+import { environment_flags } from '@joshuafolkken/kit/env'
 import { sveltekit } from '@sveltejs/kit/vite'
 import tailwindcss from '@tailwindcss/vite'
-import { visualizer } from 'rollup-plugin-visualizer'
+import { visualizer, type PluginVisualizerOptions } from 'rollup-plugin-visualizer'
 import { type Plugin, type ResolvedConfig } from 'vite'
 import { imagetools } from 'vite-imagetools'
 // import { playwright } from '@vitest/browser-playwright'
 import { defineConfig } from 'vitest/config'
 import pkg from './package.json'
 
-const IS_CI = Boolean(process.env['CI'])
+// The bundle-stats reports are cheap to write, so they are always generated — but SvelteKit
+// builds twice, so auto-opening them popped two browser tabs on every `pnpm build`. Opening is
+// therefore opt-in via `ANALYZE=1 pnpm build`. The truthy-flag vocabulary is single-sourced in
+// `@joshuafolkken/kit/env` (kit#828), so `ANALYZE` accepts the same spellings as every other
+// flag (`1` / `true` / `yes` / `on`). This wrapper is the one place the opt-in reaches the
+// visualizer, exported so a test can assert the wiring instead of only the predicate behind it.
+function make_visualizer_options(filename: string): PluginVisualizerOptions {
+	return { open: environment_flags.is_flag_enabled(process.env['ANALYZE']), filename }
+}
 
 function make_stats_plugin(filename: string, is_ssr: boolean): Plugin {
 	let active = false
-	const viz = visualizer({ open: !IS_CI, filename })
+	const viz = visualizer(make_visualizer_options(filename))
 	const viz_generate = typeof viz.generateBundle === 'function' ? viz.generateBundle : null
 
 	return {
@@ -82,3 +91,5 @@ export default defineConfig({
 		],
 	},
 })
+
+export { make_visualizer_options }
