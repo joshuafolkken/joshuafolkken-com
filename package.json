@@ -1,6 +1,6 @@
 {
 	"name": "joshuafolkken-com",
-	"version": "0.333.0",
+	"version": "0.334.0",
 	"type": "module",
 	"private": true,
 	"scripts": {
@@ -9,6 +9,7 @@
 		"dev:remote": "set -a; [ -f .env ] && . ./.env; set +a; REMOTE_BINDINGS=true pnpm dev",
 		"dev:cloudflare": "pnpm build && wrangler dev --remote",
 		"build": "vite build",
+		"analyze": "ANALYZE=1 pnpm build",
 		"build:preview": "pnpm build && pnpm preview",
 		"deploy": "pnpm build && wrangler deploy",
 		"prepreview": "pnpm db:migrate:local",
@@ -55,7 +56,7 @@
 		"@eslint/js": "^10.0.1",
 		"@ianvs/prettier-plugin-sort-imports": "^4.7.1",
 		"@joshuafolkken/app-kit": "0.80.0",
-		"@joshuafolkken/kit": "1.90.0",
+		"@joshuafolkken/kit": "1.91.0",
 		"@playwright/test": "^1.62.1",
 		"@prgm/sveltekit-progress-bar": "^3.0.2",
 		"@secretlint/secretlint-rule-preset-recommend": "^13.0.4",
