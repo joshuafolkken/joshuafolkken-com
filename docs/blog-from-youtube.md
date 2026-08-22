@@ -86,7 +86,8 @@ own (see [Running a single stage](#running-a-single-stage)).
    fields itself precisely so they cannot be fabricated.
 4. **Write and preview** — the article is written to `src/lib/posts/talk-<video-upload-date>.md`
    (**an existing file at that path is overwritten**) and opened at
-   `http://localhost:5173/blog/talk-<video-upload-date>` in Chrome.
+   `http://localhost:<dev port>/blog/talk-<video-upload-date>` in Chrome. The dev port is `5173`
+   plus the personal `PORT_SEED` from `.env` (unset means `5173`).
 
 ### The resulting frontmatter
 
@@ -157,12 +158,12 @@ the type is read from the path you pass, not assumed to be opus.
 
 Set in `.env` (see `.env.example`):
 
-| Variable               | Default                         | Effect                                                                      |
-| ---------------------- | ------------------------------- | --------------------------------------------------------------------------- |
-| `GEMINI_API_KEY`       | —                               | Required.                                                                   |
-| `GEMINI_MODEL`         | `gemini-3.5-flash`              | See [Model choice](#model-choice).                                          |
-| `AUDIO_ARTICLE_PROMPT` | `prompts/audio-to-article-4.md` | Point at another prompt file to try a revision without editing the default. |
-| `PREVIEW_BASE_URL`     | `http://localhost:5173/blog`    | Where the finished draft is opened.                                         |
+| Variable               | Default                            | Effect                                                                      |
+| ---------------------- | ---------------------------------- | --------------------------------------------------------------------------- |
+| `GEMINI_API_KEY`       | —                                  | Required.                                                                   |
+| `GEMINI_MODEL`         | `gemini-3.5-flash`                 | See [Model choice](#model-choice).                                          |
+| `AUDIO_ARTICLE_PROMPT` | `prompts/audio-to-article-4.md`    | Point at another prompt file to try a revision without editing the default. |
+| `PREVIEW_BASE_URL`     | `http://localhost:<dev port>/blog` | Where the finished draft is opened. The port follows `PORT_SEED`.           |
 
 ### Model choice
 
