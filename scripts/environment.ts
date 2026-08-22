@@ -15,11 +15,19 @@ function require_environment(name: string): string {
 	return value
 }
 
-// Reads an optional variable, falling back to the default when unset or empty.
-function optional_environment(name: string, fallback: string): string {
+type Fallback = string | (() => string)
+
+function resolve_fallback(fallback: Fallback): string {
+	return typeof fallback === 'function' ? fallback() : fallback
+}
+
+// Reads an optional variable, falling back to the default when unset or empty. The fallback may be
+// a thunk so a default that is costly — or that can throw, like a port resolved from `PORT_SEED` —
+// is only computed when the variable really is absent.
+function optional_environment(name: string, fallback: Fallback): string {
 	const value = process.env[name]
 
-	return value === undefined || value === '' ? fallback : value
+	return value === undefined || value === '' ? resolve_fallback(fallback) : value
 }
 
 // Reads a variable that may legitimately be absent (returns undefined, empty preserved as-is).
