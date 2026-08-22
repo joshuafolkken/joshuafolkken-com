@@ -35,6 +35,24 @@ describe('environment.optional_environment', () => {
 
 		expect(environment.optional_environment(NAME, FALLBACK)).toBe(FALLBACK)
 	})
+
+	it('calls a thunk fallback only when the variable is absent', () => {
+		vi.stubEnv(NAME, '')
+		const fallback = vi.fn(() => FALLBACK)
+
+		expect(environment.optional_environment(NAME, fallback)).toBe(FALLBACK)
+		expect(fallback).toHaveBeenCalledTimes(1)
+	})
+
+	it('never calls a thunk fallback when the variable is set', () => {
+		vi.stubEnv(NAME, SET_VALUE)
+		const fallback = vi.fn(() => {
+			throw new Error('fallback must stay lazy')
+		})
+
+		expect(environment.optional_environment(NAME, fallback)).toBe(SET_VALUE)
+		expect(fallback).not.toHaveBeenCalled()
+	})
 })
 
 describe('environment.read_environment', () => {
