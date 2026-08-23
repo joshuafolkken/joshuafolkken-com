@@ -2,6 +2,12 @@ import type { LogoSlug } from '$lib/data/si-icons'
 import { TECH_LOGO_MAP } from '$lib/data/tech-logo-map'
 import type { Category } from '$lib/types/tech-stack'
 
+// TECH_STACK is the About page's career inventory: technologies worked with over 25+ years,
+// not the stack this site currently runs on. Angular, VB.NET, Unity, Xcode and CentOS sit here
+// for the same reason TURSO and LibSQL do -- they were used on past work and stay listed after
+// a project moves on. The site's live stack is documented per feature in the blog posts, and
+// proficiency is a separate concern owned by SKILLS (see `skills.ts`).
+
 type CategoryInput = readonly [title: string, names: ReadonlyArray<string>]
 
 const CATEGORIES: ReadonlyArray<CategoryInput> = [
