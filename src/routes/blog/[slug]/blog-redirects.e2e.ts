@@ -45,9 +45,8 @@ test.describe('Blog legacy slug redirects — renames', () => {
 // months, and is what external links and search results still resolve to.
 test.describe('Blog legacy slug redirects — merges', () => {
 	// Regression for #837: the ORM post was merged into the like-button post, which now covers the
-	// whole TURSO -> Drizzle -> D1 arc. The heading is matched by name rather than by level alone
-	// because a regular post page carries two `h1` elements — the "Blog" page header and the article
-	// title (#838) — so a level-only locator is ambiguous here.
+	// whole TURSO -> Drizzle -> D1 arc. The heading is matched by name rather than by level alone so
+	// the assertion proves the merged post is what was served, not merely that some `h1` rendered.
 	test(`following ${MERGED_ORM_PATH} renders ${CANONICAL_LIKE_BUTTON_PATH}`, async ({ page }) => {
 		await page.goto(MERGED_ORM_PATH)
 
