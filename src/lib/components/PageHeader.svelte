@@ -5,9 +5,17 @@
 	import LogoIcon from '$lib/icons/LogoIcon.svelte'
 	import { PAGES, type Page } from '$lib/types/page'
 
-	const { page } = $props<{ page: Page }>()
+	interface Props {
+		page: Page
+		// On a detail page the article's own title is the `h1`, so this header only labels the
+		// section it belongs to and must not compete for the page's topic signal.
+		is_page_title?: boolean
+	}
+
+	const { page, is_page_title = true }: Props = $props()
 	const { icon, title, description } = $derived(page)
 	const is_top_page = $derived(page === PAGES.TOP)
+	const title_tag = $derived(is_page_title ? 'h1' : 'p')
 
 	function observe_visibility(element: HTMLElement): { destroy: () => void } {
 		// eslint-disable-next-line unicorn/no-useless-undefined -- explicit "no previous reading yet" sentinel; init-declarations requires an initializer
@@ -41,14 +49,18 @@
 			<LogoIcon />
 		</div>
 	{/if}
-	<h1 class="flex items-center justify-center gap-2 text-4xl font-light tracking-tight">
+	<svelte:element
+		this={title_tag}
+		data-testid="page-header-title"
+		class="flex items-center justify-center gap-2 text-4xl font-light tracking-tight"
+	>
 		{#if icon}
 			<!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
 			{@const Icon = icon}
 			<Icon size={ICON_SIZE_XL} />
 		{/if}
 		{title}
-	</h1>
+	</svelte:element>
 	{#if description}
 		<p class="mt-3 text-right text-white/80 italic">{description}</p>
 	{/if}

@@ -54,7 +54,7 @@
 	/>
 {:else}
 	<PageLayout>
-		<PageHeader page={PAGES.BLOG} />
+		<PageHeader page={PAGES.BLOG} is_page_title={false} />
 
 		<article class="prose mt-6 mb-6 max-w-none prose-invert" use:external_links>
 			<h1 class="mb-3">{blog_title}</h1>
