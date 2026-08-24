@@ -12,7 +12,7 @@ function throw_not_found(): never {
 	throw error(HTTP_STATUS.NOT_FOUND, ERROR_MESSAGES.NOT_FOUND)
 }
 
-export const load: PageLoad = async ({ params }) => {
+export const load: PageLoad = async ({ params, data }) => {
 	const slug = slug_validator.parse_slug(params.slug)
 
 	if (!slug) {
@@ -28,6 +28,7 @@ export const load: PageLoad = async ({ params }) => {
 		const is_substantial = content_quality.is_substantial(await post_length.measure(slug))
 
 		return {
+			...data,
 			content: post.default,
 			meta: post.metadata,
 			excerpt: post.metadata.excerpt,

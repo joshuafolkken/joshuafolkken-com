@@ -7,6 +7,7 @@
 	import MetaTags from '$lib/components/MetaTags.svelte'
 	import PageHeader from '$lib/components/PageHeader.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
+	import RelatedPosts from '$lib/components/RelatedPosts.svelte'
 	import SupportBox from '$lib/components/SupportBox.svelte'
 	import TalkArticleLayout from '$lib/components/TalkArticleLayout.svelte'
 	import { blog_images } from '$lib/data/blog-images'
@@ -46,6 +47,7 @@
 		url={data.meta.youtube}
 		title={blog_title}
 		slug={data.slug}
+		related_posts={data.related_posts}
 		author={data.meta.author}
 		date={data.meta.date}
 		updated={data.meta.updated}
@@ -77,5 +79,7 @@
 		<SupportBox />
 
 		<EngagementButtons slug={data.slug} title={blog_title} />
+
+		<RelatedPosts posts={data.related_posts} />
 	</PageLayout>
 {/if}
