@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { external_links } from '$lib/actions/external-links'
+	import AuthorBox from '$lib/components/AuthorBox.svelte'
 	import DateDisplay from '$lib/components/DateDisplay.svelte'
 	import EngagementButtons from '$lib/components/EngagementButtons.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
@@ -69,6 +70,8 @@
 	<SupportBox />
 
 	<EngagementButtons {slug} {title} />
+
+	<AuthorBox />
 
 	<RelatedPosts posts={related_posts} />
 </PageLayout>
