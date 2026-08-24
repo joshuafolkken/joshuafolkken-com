@@ -8,6 +8,14 @@ const APP = {
 
 const AUTHOR = {
 	NAME: 'Joshua Folkken',
+	// Japanese on purpose: the only thing that renders this is the author box at the end of a blog
+	// article, and every page under /blog is served with `lang="ja"` (`hooks.server.ts`), alongside a
+	// Japanese support box and a Japanese related-posts heading. Hardcoded rather than routed through
+	// message keys for the reason recorded in `SiteIntroSection` (#609) — this repository has no i18n
+	// infrastructure and #545 is blocked upstream. Deliberately NOT the English wording on /about:
+	// that page introduces the author to an English-reading visitor, this line tells a Japanese
+	// reader who wrote the article they just finished.
+	BIO: '個人でゲームとウェブアプリを作っています。うまくいかなかった過程ごと、開発の記録をここに書いています。',
 	X_USERNAME: 'joshuafolkken',
 	YEAR: new Date().getFullYear(),
 	get COPYRIGHT(): string {

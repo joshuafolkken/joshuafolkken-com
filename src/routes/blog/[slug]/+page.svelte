@@ -2,6 +2,7 @@
 	import { external_links } from '$lib/actions/external-links'
 	import { APP, app } from '$lib/app'
 	import AdSenseScript from '$lib/components/AdSenseScript.svelte'
+	import AuthorBox from '$lib/components/AuthorBox.svelte'
 	import DateDisplay from '$lib/components/DateDisplay.svelte'
 	import EngagementButtons from '$lib/components/EngagementButtons.svelte'
 	import MetaTags from '$lib/components/MetaTags.svelte'
@@ -79,6 +80,8 @@
 		<SupportBox />
 
 		<EngagementButtons slug={data.slug} title={blog_title} />
+
+		<AuthorBox />
 
 		<RelatedPosts posts={data.related_posts} />
 	</PageLayout>
