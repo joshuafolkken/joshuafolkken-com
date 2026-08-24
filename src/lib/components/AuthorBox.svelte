@@ -3,7 +3,7 @@
 	import SocialLinkItem from '$lib/components/SocialLinkItem.svelte'
 	import { LINK_BASE_CLASS } from '$lib/constants/layout'
 	import { NAV_ICON_SIZE, SOCIAL_LINK_MOBILE_CLASSES } from '$lib/constants/sticky-header-constants'
-	import { HEADER_SOCIAL_LINKS } from '$lib/data/social-links'
+	import { SOCIAL_LINKS } from '$lib/data/social-links'
 	import LogoIcon from '$lib/icons/LogoIcon.svelte'
 	import { PAGES } from '$lib/types/page'
 
@@ -14,7 +14,7 @@
 	Who wrote the article the reader just finished, and where to verify that person exists — the
 	E-E-A-T signal a post page was missing while /about already carried it (#475). The site logo
 	stands in for a portrait so this adds no new asset, and every link comes from `URLS` through
-	`HEADER_SOCIAL_LINKS`, so there is still one place where those addresses are written down.
+	`SOCIAL_LINKS`, so there is still one place where those addresses are written down.
 -->
 <aside
 	class="mt-12 rounded-2xl border border-white/5 bg-slate-900/50 p-6"
@@ -38,7 +38,7 @@
 				</a>
 
 				<nav class="flex items-center gap-1" aria-label="Author profiles">
-					{#each HEADER_SOCIAL_LINKS as link (link.href)}
+					{#each SOCIAL_LINKS as link (link.href)}
 						<SocialLinkItem {link} class={SOCIAL_LINK_MOBILE_CLASSES} icon_size={NAV_ICON_SIZE} />
 					{/each}
 				</nav>

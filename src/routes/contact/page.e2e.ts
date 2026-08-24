@@ -59,7 +59,7 @@ test.describe('Contact page', () => {
 })
 
 test.describe('Contact social links', () => {
-	test('lists links in X, Discord, YouTube, GitHub order with expected URLs', async ({ page }) => {
+	test('lists links in YouTube, X, Discord, GitHub order with expected URLs', async ({ page }) => {
 		await page.goto(TEST_ROUTES.CONTACT)
 
 		const social_heading = page.getByRole(HEADING_ROLE, {
@@ -70,9 +70,9 @@ test.describe('Contact social links', () => {
 		const social_links = social_section.getByRole(LINK_ROLE)
 
 		await expect(social_links).toHaveCount(SOCIAL_LINK_COUNT)
-		await expect(social_links.nth(0)).toHaveAttribute('href', X_HREF)
-		await expect(social_links.nth(1)).toHaveAttribute('href', DISCORD_HREF)
-		await expect(social_links.nth(2)).toHaveAttribute('href', YOUTUBE_HREF)
+		await expect(social_links.nth(0)).toHaveAttribute('href', YOUTUBE_HREF)
+		await expect(social_links.nth(1)).toHaveAttribute('href', X_HREF)
+		await expect(social_links.nth(2)).toHaveAttribute('href', DISCORD_HREF)
 		await expect(social_links.nth(3)).toHaveAttribute('href', GITHUB_HREF)
 	})
 })

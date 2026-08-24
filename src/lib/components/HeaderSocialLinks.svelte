@@ -8,7 +8,7 @@
 		SOCIAL_LINK_MOBILE_CLASSES,
 		type StickyHeaderVariant,
 	} from '$lib/constants/sticky-header-constants'
-	import { HEADER_SOCIAL_LINKS } from '$lib/data/social-links'
+	import { SOCIAL_LINKS } from '$lib/data/social-links'
 	import { property_utilities } from '$lib/utils/property-utilities'
 
 	const {
@@ -31,7 +31,7 @@
 </script>
 
 <nav class={container_classes} aria-label={is_desktop ? 'Social links' : 'Social links (mobile)'}>
-	{#each HEADER_SOCIAL_LINKS as link (link.href)}
+	{#each SOCIAL_LINKS as link (link.href)}
 		<SocialLinkItem
 			{link}
 			class={link_classes}
