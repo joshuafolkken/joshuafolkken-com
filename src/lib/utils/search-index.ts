@@ -118,6 +118,7 @@ function build_search_documents(): Array<SearchDocument> {
 }
 
 const search_index = {
+	build_blog_documents,
 	build_search_documents,
 	markdown_to_text,
 	page_to_document,

@@ -1,10 +1,17 @@
 import { MAX_RESULTS } from '$lib/constants/search'
 import type { SearchDocument, SearchDocumentType, SearchResult } from '$lib/types/search'
 import { search_tokenizer } from '$lib/utils/tokenize'
-import MiniSearch from 'minisearch'
+import MiniSearch, { type SearchOptions } from 'minisearch'
 
 const SEARCH_FIELDS = ['title', 'excerpt', 'body']
 const STORE_FIELDS = ['type', 'title', 'excerpt', 'url']
+
+// Finding related articles asks a different question than the search box does. Its query is a
+// whole article's title and excerpt, so the box's `AND` — every token must appear — matches
+// nothing. `OR` ranks candidates by how much they share with that article instead, and prefix
+// matching comes off because a bigram prefix match is noise once the query is hundreds of
+// tokens long. Everything else (fields, tokenizer) stays shared with the box on purpose.
+const SIMILARITY_OPTIONS: SearchOptions = { combineWith: 'OR', prefix: false }
 
 function create_index(documents: Array<SearchDocument>): MiniSearch<SearchDocument> {
 	const index = new MiniSearch<SearchDocument>({
@@ -44,17 +51,29 @@ function normalize_result(raw: Record<string, unknown>): SearchResult | undefine
 	return { id, type, title, excerpt: to_excerpt(excerpt), url }
 }
 
-function run_search(index: MiniSearch<SearchDocument>, query: string): Array<SearchResult> {
-	return index
-		.search(query)
-		.slice(0, MAX_RESULTS)
-		.map((result) => normalize_result(result))
+function to_results(matches: Array<Record<string, unknown>>, limit: number): Array<SearchResult> {
+	return matches
+		.slice(0, limit)
+		.map((match) => normalize_result(match))
 		.filter((result): result is SearchResult => result !== undefined)
+}
+
+function run_search(index: MiniSearch<SearchDocument>, query: string): Array<SearchResult> {
+	return to_results(index.search(query), MAX_RESULTS)
+}
+
+function run_similarity_search(
+	index: MiniSearch<SearchDocument>,
+	query: string,
+	limit: number,
+): Array<SearchResult> {
+	return to_results(index.search(query, SIMILARITY_OPTIONS), limit)
 }
 
 const search_engine = {
 	create_index,
 	run_search,
+	run_similarity_search,
 }
 
 export { search_engine }

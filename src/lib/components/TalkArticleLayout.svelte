@@ -3,9 +3,11 @@
 	import DateDisplay from '$lib/components/DateDisplay.svelte'
 	import EngagementButtons from '$lib/components/EngagementButtons.svelte'
 	import PageLayout from '$lib/components/PageLayout.svelte'
+	import RelatedPosts from '$lib/components/RelatedPosts.svelte'
 	import SupportBox from '$lib/components/SupportBox.svelte'
 	import YouTubeEmbed from '$lib/components/YouTubeEmbed.svelte'
 	import YouTubeTranscriptNotice from '$lib/components/YouTubeTranscriptNotice.svelte'
+	import type { Post } from '$lib/types/blog'
 	import type { Component } from 'svelte'
 
 	interface Props {
@@ -17,6 +19,7 @@
 		updated?: string | undefined
 		youtube_date?: string | undefined
 		content: Component
+		related_posts: Array<Post>
 	}
 
 	const {
@@ -27,6 +30,7 @@
 		date,
 		updated,
 		youtube_date,
+		related_posts,
 		// eslint-disable-next-line @typescript-eslint/naming-convention -- Svelte renders a capitalized identifier as a component
 		content: Content,
 	}: Props = $props()
@@ -65,4 +69,6 @@
 	<SupportBox />
 
 	<EngagementButtons {slug} {title} />
+
+	<RelatedPosts posts={related_posts} />
 </PageLayout>
