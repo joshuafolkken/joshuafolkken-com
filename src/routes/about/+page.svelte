@@ -18,6 +18,7 @@
 		SECTION_HEADING_3_CLASS,
 	} from '$lib/constants/layout'
 	import { CONTACT_HREF } from '$lib/constants/page-routes'
+	import { ABOUT_CONNECT_LINKS } from '$lib/data/social-links'
 	import { PAGES } from '$lib/types/page'
 
 	const title = app.page_title(PAGES.ABOUT.title)
@@ -155,27 +156,16 @@
 		</ul>
 	</PageSection>
 
-	<!-- Connect -->
+	<!-- Connect: rendered from the shared social-link order (#863) so this list cannot drift out of
+	     step with the header, the drawer, the author box and the contact page. -->
 	<PageSection title="🔗 Connect">
 		<ul class={LIST_DISC_LINK_CLASS}>
-			<li>
-				<ExternalLink href={URLS.GITHUB} testid="about-connect-github-link">GitHub</ExternalLink>
-				— source code, issues, and open-source work
-			</li>
-			<li>
-				<ExternalLink href={URLS.YOUTUBE} testid="about-connect-youtube-link">YouTube</ExternalLink>
-				— game dev tutorials and project showcases
-			</li>
-			<li>
-				<ExternalLink href={URLS.X} testid="about-connect-x-link">X (Twitter)</ExternalLink>
-				— dev updates and community discussions
-			</li>
-			<li>
-				<ExternalLink href={OPENCOLLECTIVE.URL} testid="about-connect-opencollective-link">
-					Open Collective
-				</ExternalLink>
-				— support the community mission
-			</li>
+			{#each ABOUT_CONNECT_LINKS as link (link.href)}
+				<li>
+					<ExternalLink href={link.href} testid={link.testid}>{link.label}</ExternalLink>
+					— {link.description}
+				</li>
+			{/each}
 		</ul>
 	</PageSection>
 

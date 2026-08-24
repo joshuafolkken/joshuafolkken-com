@@ -115,7 +115,7 @@ test.describe('Sticky header drawer closes on navigation', () => {
 })
 
 test.describe('Header social links', () => {
-	test('lists links in X, Discord, YouTube, GitHub order with expected URLs', async ({ page }) => {
+	test('lists links in YouTube, X, Discord, GitHub order with expected URLs', async ({ page }) => {
 		await page.goto(HOME_PATH)
 
 		const social_nav = page.getByRole('navigation', {
@@ -125,9 +125,9 @@ test.describe('Header social links', () => {
 		const social_links = social_nav.getByRole('link')
 
 		await expect(social_links).toHaveCount(SOCIAL_LINK_COUNT)
-		await expect(social_links.nth(0)).toHaveAttribute('href', X_HREF)
-		await expect(social_links.nth(1)).toHaveAttribute('href', DISCORD_HREF)
-		await expect(social_links.nth(2)).toHaveAttribute('href', YOUTUBE_HREF)
+		await expect(social_links.nth(0)).toHaveAttribute('href', YOUTUBE_HREF)
+		await expect(social_links.nth(1)).toHaveAttribute('href', X_HREF)
+		await expect(social_links.nth(2)).toHaveAttribute('href', DISCORD_HREF)
 		await expect(social_links.nth(3)).toHaveAttribute('href', GITHUB_HREF)
 	})
 })

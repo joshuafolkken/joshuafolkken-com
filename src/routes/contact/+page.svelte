@@ -6,7 +6,7 @@
 	import PageSection from '$lib/components/PageSection.svelte'
 	import SocialLinkItem from '$lib/components/SocialLinkItem.svelte'
 	import { ICON_SIZE_MD } from '$lib/constants/layout'
-	import { CONTACT_SOCIAL_LINKS } from '$lib/data/social-links'
+	import { SOCIAL_LINKS } from '$lib/data/social-links'
 	import { PAGES } from '$lib/types/page'
 	import EmailReveal from './EmailReveal.svelte'
 
@@ -30,7 +30,7 @@
 			The quickest way to reach out is through social channels — DM, comment, or subscribe.
 		</p>
 		<ul class="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-			{#each CONTACT_SOCIAL_LINKS as link (link.href)}
+			{#each SOCIAL_LINKS as link (link.href)}
 				<li>
 					<SocialLinkItem {link} has_label icon_size={ICON_SIZE_MD} class={SOCIAL_LINK_CLASS} />
 				</li>
