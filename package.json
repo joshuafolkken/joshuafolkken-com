@@ -1,6 +1,6 @@
 {
 	"name": "joshuafolkken-com",
-	"version": "0.339.0",
+	"version": "0.340.0",
 	"type": "module",
 	"private": true,
 	"scripts": {
@@ -55,8 +55,8 @@
 		"@eslint/compat": "^2.1.0",
 		"@eslint/js": "^10.0.1",
 		"@ianvs/prettier-plugin-sort-imports": "^4.7.1",
-		"@joshuafolkken/app-kit": "0.81.0",
-		"@joshuafolkken/kit": "1.98.0",
+		"@joshuafolkken/app-kit": "0.86.0",
+		"@joshuafolkken/kit": "1.104.0",
 		"@playwright/test": "^1.62.1",
 		"@prgm/sveltekit-progress-bar": "^3.0.2",
 		"@secretlint/secretlint-rule-preset-recommend": "^13.0.4",
@@ -71,7 +71,7 @@
 		"@types/node": "^26.2.0",
 		"@vitest/browser-playwright": "^4.1.11",
 		"better-sqlite3": "^13.0.3",
-		"cspell": "^10.0.1",
+		"cspell": "^10.1.0",
 		"drizzle-kit": "^0.31.10",
 		"eslint": "^10.9.0",
 		"eslint-config-prettier": "^10.1.8",
@@ -108,14 +108,14 @@
 		"vitest-browser-svelte": "^3.0.0",
 		"wrangler": "4.125.0"
 	},
-	"packageManager": "pnpm@11.22.0+sha512.1ff870c4c6133dfd88fb2afc46dd13d47f09c9794b438c6fdb47ca98caf3bc16381ee0be93a091b8e3824cf01f889f46d7d9e20910fb0be1ab0fb5baa80dd621",
+	"packageManager": "pnpm@11.23.0+sha512.f00082e5b283a199b74e079da28d155c008fe232f44c8a06ea7ddfa014ecf719fc362f790ecc67b28106ddac2afb24c49a9a079159da560b2ce7d1e98efd11af",
 	"engines": {
 		"node": ">=22.19.0"
 	},
 	"devEngines": {
 		"packageManager": {
 			"name": "pnpm",
-			"version": "11.22.0+sha512.1ff870c4c6133dfd88fb2afc46dd13d47f09c9794b438c6fdb47ca98caf3bc16381ee0be93a091b8e3824cf01f889f46d7d9e20910fb0be1ab0fb5baa80dd621",
+			"version": "11.23.0+sha512.f00082e5b283a199b74e079da28d155c008fe232f44c8a06ea7ddfa014ecf719fc362f790ecc67b28106ddac2afb24c49a9a079159da560b2ce7d1e98efd11af",
 			"onFail": "error"
 		}
 	},
