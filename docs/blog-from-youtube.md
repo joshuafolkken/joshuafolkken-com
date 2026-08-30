@@ -8,6 +8,10 @@ automated; the pre-publish review in [Review before publishing](#review-before-p
 manual and **must not be skipped** — there is no draft flag, so every `.md` under
 `src/lib/posts/` is live the moment it is deployed.
 
+A generated post is held to the same standards as a hand-written one — see
+[blog-writing.md](./blog-writing.md). The two posts currently excluded from indexing for being too
+short are both talk-derived, so the review below is also where length is checked.
+
 ## Prerequisites
 
 | Requirement                   | Notes                                                                                                                 |
