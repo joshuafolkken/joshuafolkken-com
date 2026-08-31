@@ -12,7 +12,8 @@
  */
 import { expect, test } from '@playwright/test'
 import sharp from 'sharp'
-import { blog_cover_review, type RemoteImage, type ReviewDependencies } from './blog-cover-review'
+import type { FetchedImage } from './blog-cover-assets'
+import { blog_cover_review, type ReviewDependencies } from './blog-cover-review'
 
 const POST = 'ranked-cover-review'
 const SCREENSHOT_PATH = 'test-results/blog-cover-review-page.png'
@@ -93,7 +94,7 @@ function make_dependencies(manifest: string, pages: Array<string>): ReviewDepend
 	return {
 		read_manifest: () => manifest,
 		read_local_image: read_fixture,
-		fetch_remote_image: async (): Promise<RemoteImage> => ({
+		fetch_remote_image: async (): Promise<FetchedImage> => ({
 			mime_type: JPEG_MIME,
 			bytes: fixture_at(1),
 		}),

@@ -51,7 +51,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { z } from 'zod'
-import { blog_cover_assets } from './blog-cover-assets'
+import { blog_cover_assets, type FetchedImage } from './blog-cover-assets'
 import { blog_cover_review_page, type ReviewCandidate } from './blog-cover-review-page'
 import { cli } from './cli'
 
@@ -59,7 +59,6 @@ const DEFAULT_PAGE_NAME = 'review.html'
 const OUTPUT_ARGUMENT_MAX = 1
 const REVIEW_USAGE = 'Usage: pnpm blog:cover:review <manifest.json> [output.html]'
 const REMOTE_PREFIXES = ['http://', 'https://'] as const
-const CONTENT_TYPE_HEADER = 'content-type'
 const BASE64 = 'base64'
 // An Artifact publish refuses a rendered page above 16MB, and inlined images are what fills it, so
 // the size is reported next to the path rather than discovered at publish time.
@@ -70,7 +69,6 @@ const ARTIFACT_LIMIT_BYTES = ARTIFACT_LIMIT_MEGABYTES * BYTES_PER_KILOBYTE * BYT
 const HTTP_PROTOCOL_PATTERN = /^https?$/u
 const EXTENSION_DOT = '.'
 const POST_PATTERN = /^[\w.-]+$/u
-const FETCH_TIMEOUT_MS = 20_000
 
 const CANDIDATE_SCHEMA = z.object({
 	rank: z.number().int().positive(),
@@ -93,11 +91,6 @@ const MANIFEST_SCHEMA = z.object({
 type CandidateInput = z.infer<typeof CANDIDATE_SCHEMA>
 type ReviewManifest = z.infer<typeof MANIFEST_SCHEMA>
 
-interface RemoteImage {
-	mime_type: string
-	bytes: Uint8Array
-}
-
 interface ReviewResult {
 	output_path: string
 	html: string
@@ -107,7 +100,7 @@ interface ReviewResult {
 interface ReviewDependencies {
 	read_manifest: (manifest_path: string) => string
 	read_local_image: (source: string) => Uint8Array
-	fetch_remote_image: (url: string) => Promise<RemoteImage>
+	fetch_remote_image: (url: string) => Promise<FetchedImage>
 	write_page: (output_path: string, html: string) => void
 }
 
@@ -209,19 +202,6 @@ async function resolve_candidates(
 	return resolved
 }
 
-// The timeout matters because `resolve_candidates` is sequential: without it one unresponsive photo
-// host stalls the whole run with no output, instead of becoming one card carrying the reason.
-async function fetch_remote_image(url: string): Promise<RemoteImage> {
-	const response = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })
-
-	if (!response.ok) throw new Error(`HTTP ${String(response.status)}: ${url}`)
-
-	return {
-		mime_type: response.headers.get(CONTENT_TYPE_HEADER)?.split(';', 1)[0]?.trim() ?? '',
-		bytes: new Uint8Array(await response.arrayBuffer()),
-	}
-}
-
 function write_page(output_path: string, html: string): void {
 	mkdirSync(path.dirname(output_path), { recursive: true })
 	writeFileSync(output_path, html)
@@ -235,7 +215,8 @@ function build_dependencies(): ReviewDependencies {
 		read_local_image(source: string): Uint8Array {
 			return readFileSync(source)
 		},
-		fetch_remote_image,
+		// The fetch itself is shared with the stock collector — see `blog-cover-assets.ts`.
+		fetch_remote_image: blog_cover_assets.fetch_image,
 		write_page,
 	}
 }
@@ -309,5 +290,5 @@ const blog_cover_review = {
 	main,
 }
 
-export type { CandidateInput, RemoteImage, ReviewDependencies, ReviewManifest, ReviewResult }
+export type { CandidateInput, ReviewDependencies, ReviewManifest, ReviewResult }
 export { blog_cover_review }

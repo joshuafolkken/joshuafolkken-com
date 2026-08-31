@@ -7,6 +7,7 @@ import {
 	type CoverImage,
 	type ImageResponse,
 } from './blog-cover-image'
+import { blog_post_source } from './blog-post-source'
 
 const SLUG = 'my-post'
 const POST_PATH = 'src/lib/posts/my-post.md'
@@ -21,7 +22,7 @@ const PROMPT_PATH = 'prompts/blog-cover-image.md'
 const BASE64_PIXEL = 'aGVsbG8='
 const DEFAULT_COUNT = 3
 const COVERS_DIR = '.covers'
-const EXPLICIT_POST_PATH = 'drafts/other.md'
+const BODY_LIMIT = 2000
 const REFUSAL_TEXT = 'I cannot draw that'
 const ESCAPED_TITLE_POST = `---\ntitle: 'Josh''s kit'\n---\n\n${BODY}`
 const APOSTROPHE_TITLE = "Josh's kit"
@@ -112,60 +113,11 @@ describe('blog_cover_image.read_config', () => {
 	})
 })
 
-describe('blog_cover_image.resolve_post_path', () => {
-	it('resolves a bare slug inside the posts directory', () => {
-		expect(blog_cover_image.resolve_post_path(SLUG)).toBe(path.join('src/lib/posts', 'my-post.md'))
-	})
-
-	it('keeps an explicit markdown path as given', () => {
-		expect(blog_cover_image.resolve_post_path(EXPLICIT_POST_PATH)).toBe(EXPLICIT_POST_PATH)
-	})
-
-	it('derives the slug from a post path', () => {
-		expect(blog_cover_image.resolve_slug(POST_PATH)).toBe(SLUG)
-	})
-})
-
-describe('blog_cover_image.parse_post_summary', () => {
-	it('reads the title and excerpt and keeps the body', () => {
-		const summary = blog_cover_image.parse_post_summary(POST_PATH, POST)
-
-		expect(summary).toEqual({ slug: SLUG, title: TITLE, excerpt: EXCERPT, body: BODY })
-	})
-
-	it('leaves the excerpt empty when the frontmatter has none', () => {
-		const summary = blog_cover_image.parse_post_summary(
-			POST_PATH,
-			`---\ntitle: ${TITLE}\n---\n\nbody`,
-		)
-
-		expect(summary.excerpt).toBe('')
-	})
-
-	it('truncates a body longer than the character limit', () => {
-		const long_body = 'あ'.repeat(3000)
-		const summary = blog_cover_image.parse_post_summary(
-			POST_PATH,
-			`---\ntitle: ${TITLE}\n---\n\n${long_body}`,
-		)
-
-		expect(summary.body).toHaveLength(2000)
-	})
-
-	// A draft outside the posts directory shares its basename with a real post, so the report has to
-	// name the path that was read rather than the name it happens to end in.
-	it('names the file it read when the frontmatter has no title', () => {
-		expect(() =>
-			blog_cover_image.parse_post_summary(EXPLICIT_POST_PATH, `---\nexcerpt: x\n---\n\nbody`),
-		).toThrow(`No \`title\` in the frontmatter of ${EXPLICIT_POST_PATH}`)
-	})
-})
-
 describe('blog_cover_image.build_prompt', () => {
 	it('appends the post title, excerpt and body under the template', () => {
 		const prompt = blog_cover_image.build_prompt(
 			TEMPLATE,
-			blog_cover_image.parse_post_summary(POST_PATH, POST),
+			blog_post_source.read_summary(POST_PATH, POST, BODY_LIMIT),
 		)
 
 		expect(prompt).toContain(TEMPLATE)
@@ -179,7 +131,7 @@ describe('blog_cover_image.build_prompt', () => {
 	it('carries an escaped apostrophe through exactly as the post spells it', () => {
 		const prompt = blog_cover_image.build_prompt(
 			TEMPLATE,
-			blog_cover_image.parse_post_summary(POST_PATH, ESCAPED_TITLE_POST),
+			blog_post_source.read_summary(POST_PATH, ESCAPED_TITLE_POST, BODY_LIMIT),
 		)
 
 		expect(prompt).toContain(APOSTROPHE_TITLE)
@@ -230,14 +182,6 @@ describe('blog_cover_image.resolve_output_path', () => {
 
 	it('falls back to png for a MIME type it does not know', () => {
 		expect(blog_cover_image.extension_for_image('image/heic')).toBe('png')
-	})
-
-	// Without the run stamp a second run would overwrite the first run's billed candidates.
-	it('stamps each run so a later run cannot overwrite an earlier one', () => {
-		const later = new Date(2026, 7, 30, 9, 5, 5)
-
-		expect(blog_cover_image.format_run_stamp(NOW)).toBe(RUN_STAMP)
-		expect(blog_cover_image.format_run_stamp(later)).not.toBe(RUN_STAMP)
 	})
 })
 

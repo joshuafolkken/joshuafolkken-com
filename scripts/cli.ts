@@ -34,9 +34,31 @@ function read_argument_with_rest(
 	return { value, rest }
 }
 
+// Parses an optional `[count]` positional. Out of range is refused rather than clamped: the
+// generator bills one image per candidate, so a silently clamped count would charge for a run
+// nobody asked for, and the stock collector inherits the same rule so both commands answer a
+// mistyped argument the same way instead of one of them guessing.
+function parse_count(
+	raw: string | undefined,
+	usage: string,
+	default_count: number,
+	max_count: number,
+): number {
+	if (raw === undefined) return default_count
+
+	const count = Number(raw)
+
+	if (!Number.isSafeInteger(count) || count < 1 || count > max_count) {
+		throw new Error(`${usage}\n  count must be an integer from 1 to ${String(max_count)}`)
+	}
+
+	return count
+}
+
 const cli = {
 	read_required_argument,
 	read_argument_with_rest,
+	parse_count,
 }
 
 export type { PositionalInput }
