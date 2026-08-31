@@ -2,7 +2,7 @@
 title: ランチから帰ってきたら実装が終わっている。 queue コマンドで広がった、開発と生活の余白
 date: '2026-04-25 20:45'
 author: 'Joshua Folkken'
-cover_image: /api/images/blog/kit-2.webp
+cover_image: /images/blog/kit-2.webp
 excerpt: kickoff で 10 本以上のタスクを一気に作って queue に積む。あとは 1〜2 時間ほったらかし。ランチも食べられるし、新しい企画も考えられる。 @joshuafolkken/kit に追加した queue コマンドが、開発リズムをがらっと変えた話。
 ---
 

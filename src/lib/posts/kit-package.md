@@ -2,7 +2,7 @@
 title: FAMILY BASIC から積み上げてきたものを npm パッケージに詰め込んだ話
 date: '2026-04-22 02:00'
 author: 'Joshua Folkken'
-cover_image: /api/images/blog/kit-package.webp
+cover_image: /images/blog/kit-package.webp
 excerpt: 毎回同じ設定をするのがめんどくさくて、 FAMILY BASIC から積み上げてきたこだわりを @joshuafolkken/kit に詰め込んだ。josh init 一発で全部終わる。AI にアプリを量産させるための土台ができた話。
 ---
 
