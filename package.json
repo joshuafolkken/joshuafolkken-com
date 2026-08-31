@@ -1,6 +1,6 @@
 {
 	"name": "joshuafolkken-com",
-	"version": "0.342.0",
+	"version": "0.343.0",
 	"type": "module",
 	"private": true,
 	"scripts": {
@@ -34,6 +34,7 @@
 		"yt:article": "set -a; [ -f .env ] && . ./.env; set +a; tsx scripts/audio-to-article.ts",
 		"yt:talk": "set -a; [ -f .env ] && . ./.env; set +a; tsx scripts/yt-talk.ts",
 		"article:frontmatter": "tsx scripts/inject-talk-frontmatter.ts",
+		"blog:cover": "set -a; [ -f .env ] && . ./.env; set +a; tsx scripts/blog-cover-image.ts",
 		"josh": "josh",
 		"prepare:gen": "[ ! -f wrangler.jsonc ] || pnpm gen",
 		"prepare:sync": "svelte-kit sync || echo ''",
