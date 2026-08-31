@@ -1,5 +1,13 @@
 # ブログ記事執筆プロンプト v6
 
+> **過去の記録であり、現行の基準ではない。** 執筆基準は
+> [`docs/blog-writing.md`](../docs/blog-writing.md) と
+> [`.claude/skills/blog-post/SKILL.md`](../.claude/skills/blog-post/SKILL.md) に単一ソース化されている
+> （joshuafolkken/joshuafolkken-com#884）。このファイルはある記事を書いた当時の指示書として残してあり、
+> 分量の下限もカバー画像の手順も `cover_image` の形式も古い — とくに `cover_image` は
+> `/images/blog/<name>.webp` が唯一の形式で、ここに書かれた `/api/images/blog/` は使わない
+> （joshuafolkken/joshuafolkken-com#902）。新しい記事を書くときは上の 2 つを読むこと。
+
 このプロンプトは、`prompts/blog-drafts/` 配下の原稿を読み込み、`src/lib/posts/` 配下に Joshua らしい公開記事を作成するための指示書です。
 
 ---

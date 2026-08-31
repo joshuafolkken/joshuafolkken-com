@@ -1,7 +1,7 @@
 ---
 title: 3 つも書かないで！面倒なので pnpm に統一することにした
 date: '2025-12-10 08:25'
-cover_image: /api/images/blog/pexels-markusspiske-1089438.webp
+cover_image: /images/blog/pexels-markusspiske-1089438.webp
 excerpt: README に npm, yarn, pnpm と3つも並んでいるのを見るだけで面倒くさくないですか？ どれでもいいなら1つにしてよ！というわけで、僕は pnpm を選ぶことにしました。
 ---
 

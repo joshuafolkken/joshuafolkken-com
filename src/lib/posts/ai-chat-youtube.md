@@ -2,7 +2,7 @@
 title: 3 時間の雑談を、AI に読める「僕の言葉」に変えるまで
 date: '2026-07-11 16:00'
 author: 'Joshua Folkken'
-cover_image: /api/images/blog/ai-chat.webp
+cover_image: /images/blog/ai-chat.webp
 excerpt: 複数人で 3 時間しゃべった YouTube ライブから、僕の発言だけを抜き出して AI に食わせる——。音声を軽くしようとしたら逆に重くなり、他人の名言が僕の持論にすり替わり、それでも URL を 1 つ渡すだけで記事になるところまで作った、泥臭い裏方の話です。
 ---
 

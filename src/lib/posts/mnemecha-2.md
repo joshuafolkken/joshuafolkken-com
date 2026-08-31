@@ -2,7 +2,7 @@
 title: ブラウン管を再現したくて 10 日溶かしました—— Mnemecha RETRO アップデートと、生まれた jgame CLI の話
 date: '2026-05-24 04:00'
 author: 'Joshua Folkken'
-cover_image: /api/images/blog/mnemecha-2.webp
+cover_image: /images/blog/mnemecha-2.webp
 excerpt: 前回 Mnemecha をリリースしてから 10 日。 X が静かだった裏で、ブラウン管っぽい RETRO フィルタを 256 色まで詰めて、 Pitt さんの一言で読みやすさを一段戻して、 game-kit を分離して、 jgame という CLI まで生やしていました。睡眠時間を削った 10 日間、ぜんぶ書きます。
 ---
 

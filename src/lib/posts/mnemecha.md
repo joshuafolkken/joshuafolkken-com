@@ -3,7 +3,7 @@ title: シンプルなゲームを作ったら、次のゲームを作るキッ�
 date: '2026-05-14 22:30'
 updated: '2026-05-17 01:47'
 author: 'Joshua Folkken'
-cover_image: /api/images/blog/mnemecha.webp
+cover_image: /images/blog/mnemecha.webp
 excerpt: 3 歳から 90 歳まで遊べるシンプルな記憶ゲーム Mnemecha を、 3D 空間に詰め込んでリリースしました。スマホでも滑らかに動くまで詰めた工夫と、そのあいだに育てていた『次のゲームを作るためのキット』の話を、ぜんぶ書きます。
 ---
 

@@ -85,7 +85,7 @@ feature description.
 title: '...'
 date: 'YYYY-MM-DD HH:mm'
 author: 'Joshua Folkken'
-cover_image: /api/images/blog/<name>.webp
+cover_image: /images/blog/<name>.webp
 excerpt: '...'
 ---
 ```
@@ -95,6 +95,14 @@ them, so it disappears from the blog list entirely rather than appearing incompl
 
 `cover_image` may reuse an existing image under `src/lib/assets/images/blog/`. A video-derived post
 may omit it and carry `youtube:` instead — the card image is taken from the video still (#821).
+
+**The directory is always `/images/blog/` and the extension always `.webp`** — this is the one place
+that form is declared, and the rest of this document points here rather than repeating it. Neither
+part resolves anything: `src/lib/data/blog-images.ts` matches on the basename alone, and no route
+serves either spelling, so the value is read by people rather than by the resolver. That is exactly
+why it is worth settling — the corpus carried `/api/images/blog/` and `/images/blog/` side by side
+against a document declaring only the first, and every writer had to stop and ask which was right
+(#902). `post-standards.test.ts` fails a post written any other way.
 
 `tags:` appears in 16 of the 36 posts and **nothing reads it**. The `Post` type has no tags field,
 and the related-posts section ranks candidates by full text through MiniSearch
@@ -213,8 +221,9 @@ The page is one self-contained HTML file, so it can be opened locally or publish
 and handed over as a link. Once the answer comes back, copy that one candidate into
 `src/lib/assets/images/blog/` under the post's own name, keeping its source extension.
 
-**`cover_image` never names that file.** It is always `/api/images/blog/<name>.webp`, whatever the
-source is — `kit-2.jpg` on disk is `cover_image: /api/images/blog/kit-2.webp` in the post.
+**`cover_image` never names that file.** It is written in the single form declared under
+[Required frontmatter](#required-frontmatter), whatever the source is — `kit-2.jpg` on disk is still
+a `.webp` under the one directory in the post.
 
 **What actually resolves the value is its basename alone.** `src/lib/data/blog-images.ts` strips the
 directory and the extension off `cover_image` and looks for a file of that basename in
@@ -234,8 +243,9 @@ stop in step 10 comes before the deployment rather than after it.
 
 `post-standards.test.ts` measures every post and fails when a new one misses the floor, has no
 `author`, or has no card image source. It also checks that every `cover_image` resolves to a file in
-`src/lib/assets/images/blog/`, and compares the files on disk to the parsed posts, which is what
-catches a missing `title`, `date` or `excerpt`. Nothing in it judges the writing.
+`src/lib/assets/images/blog/` and is written in the one declared form, and compares the files
+on disk to the parsed posts, which is what catches a missing `title`, `date` or `excerpt`. Nothing in
+it judges the writing.
 
 ### 9. Capture the page a reader would land on
 
