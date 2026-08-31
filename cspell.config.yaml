@@ -22,6 +22,7 @@ words:
   - autoexit
   - autolink
   - autolinks
+  - basenames
   - bigram
   - bigrams
   - Caddyfile
@@ -120,6 +121,7 @@ words:
   - sveltejs
   - udemy
   - undici
+  - unloadable
   - unparseable
   - unstub
   - upscayl
