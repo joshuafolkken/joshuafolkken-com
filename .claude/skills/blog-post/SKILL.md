@@ -1,6 +1,6 @@
 ---
 name: blog-post
-description: Apply this project's blog standards whenever a post under `src/lib/posts/` or a draft under `prompts/blog-drafts/` is being written, expanded, reviewed or judged — including work on any Issue whose deliverable is a published post. It carries the length floor and how length is actually measured (code and images do not count), the required frontmatter, and the one-question shape a post is built around. Use it before drafting and again before calling a post done; do not estimate a draft's length from its file size without it.
+description: Apply this project's blog standards whenever a post under `src/lib/posts/` or a draft under `prompts/blog-drafts/` is being written, expanded, reviewed or judged — including work on any Issue whose deliverable is a published post. It carries the length floor and how length is actually measured (code and images do not count), the required frontmatter, and the one-question shape a post is built around. It also carries the two points where the workflow stops for a person to decide — which cover image, and whether the post goes out. Use it before drafting and again before calling a post done; do not estimate a draft's length from its file size without it.
 ---
 
 # Blog post standards
@@ -14,6 +14,22 @@ decides whether you need it.
 - Writing or expanding a post in `src/lib/posts/`, or a draft in `prompts/blog-drafts/`
 - Working an Issue whose deliverable is a published post (the series under epic #883, for example)
 - Judging whether a draft is long enough, or reviewing one before publishing
+
+## Drafting does not start at the draft
+
+**It starts by interviewing the author**, and nothing in the emotional half of a post is written
+without an answer to draw on. Both rules live in the Workflow section of the canon, along with the
+question wording, the measuring step, the cover-image commands and the preview. Read that section
+before drafting rather than working from this paragraph.
+
+## Two steps are not yours to take
+
+**A person picks the cover image, and a person decides whether the post goes out.** The workflow
+stops at both: hand over the comparison page, hand over the screenshot, send a `confirmation`
+Telegram per `CLAUDE.md` → "Mid-workflow stop notification", and wait for the answer. Nothing in
+this repository tests a cover image, an excerpt or the first screen, so a run that walks past either
+stop publishes a post nobody read — which is also why a post is run with `halfrun #N` rather than
+`queue` or `epicrun`. They are steps 6 and 10 of the canon's Workflow section.
 
 ## The three things that are most often got wrong
 
