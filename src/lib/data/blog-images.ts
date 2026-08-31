@@ -10,6 +10,15 @@ const blog_image_modules = import.meta.glob<string>(
 	{ query: '?url', import: 'default', eager: true },
 )
 
+/**
+ * The files the glob above can load, so a check that a `cover_image` resolves reads the same source
+ * `resolve_url` matches against — never a second copy of the extension list, which would drift the
+ * moment the glob changes.
+ */
+function list_loadable_paths(): ReadonlyArray<string> {
+	return Object.keys(blog_image_modules)
+}
+
 function resolve_url(cover_image_path: string): string | undefined {
 	const basename = path_utilities.get_basename_without_extension(cover_image_path)
 
@@ -29,6 +38,7 @@ function get_cover_image_url(cover_image: string | undefined): string | undefine
 }
 
 export const blog_images = {
+	list_loadable_paths,
 	resolve_url,
 	get_cover_image_url,
 }

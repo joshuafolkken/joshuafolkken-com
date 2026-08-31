@@ -18,6 +18,11 @@ interface MdsvexFile {
 	metadata: MdsvexMetadata
 }
 
+interface FrontmatterCoverImage {
+	slug: string
+	cover_image: string | undefined
+}
+
 function is_mdsvex_file(file: unknown): file is MdsvexFile {
 	return (
 		typeof file === 'object' &&
@@ -58,6 +63,9 @@ function get_raw_slug_from_path(path: string): string | undefined {
 	return slug || undefined
 }
 
+// A value failing this is discarded by `parse_post` below, so the page renders with no cover at
+// all. Exported because `post_standards.check_cover_image` has to apply the same rule to the
+// frontmatter as written: a value dropped here never reaches a `Post` for a later check to see.
 function is_safe_cover_image_path(path: string | undefined): path is string {
 	if (!path || typeof path !== 'string') return false
 
@@ -93,17 +101,40 @@ function parse_post(path: string, file: unknown): Post | undefined {
 	}
 }
 
-function get_all_posts(): Array<Post> {
-	const posts = import.meta.glob<{ metadata: MdsvexMetadata }>('/src/lib/posts/*.md', {
-		eager: true,
-	})
+function glob_posts(): Record<string, { metadata: MdsvexMetadata }> {
+	return import.meta.glob<{ metadata: MdsvexMetadata }>('/src/lib/posts/*.md', { eager: true })
+}
 
-	return Object.entries(posts)
+function get_all_posts(): Array<Post> {
+	return Object.entries(glob_posts())
 		.map(([path, file]) => parse_post(path, file))
 		.filter((post): post is Post => post !== undefined)
 }
 
+function to_frontmatter_cover_image(
+	path: string,
+	file: unknown,
+): FrontmatterCoverImage | undefined {
+	const slug = slug_validator.parse_slug(get_raw_slug_from_path(path))
+
+	if (!slug || !is_mdsvex_file(file)) return undefined
+
+	return { slug, cover_image: to_optional_string(file.metadata.cover_image) }
+}
+
+// `parse_post` discards a `cover_image` that is not a safe path, so a parsed `Post` cannot tell a
+// dropped value from a post that never had one. This reads the frontmatter as written, which is
+// what a check on the value has to see.
+function list_frontmatter_cover_images(): Array<FrontmatterCoverImage> {
+	return Object.entries(glob_posts())
+		.map(([path, file]) => to_frontmatter_cover_image(path, file))
+		.filter((entry): entry is FrontmatterCoverImage => entry !== undefined)
+}
+
 export const blog_parser = {
 	get_all_posts,
+	is_safe_cover_image_path,
+	list_frontmatter_cover_images,
 	parse_post,
 }
+export type { FrontmatterCoverImage }

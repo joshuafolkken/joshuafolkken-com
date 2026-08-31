@@ -214,9 +214,16 @@ and handed over as a link. Once the answer comes back, copy that one candidate i
 `src/lib/assets/images/blog/` under the post's own name, keeping its source extension.
 
 **`cover_image` never names that file.** It is always `/api/images/blog/<name>.webp`, whatever the
-source is — `kit-2.jpg` on disk is `cover_image: /api/images/blog/kit-2.webp` in the post. Writing
-the source path or the source extension instead passes every check in this repository and produces
-a blank card on the live site.
+source is — `kit-2.jpg` on disk is `cover_image: /api/images/blog/kit-2.webp` in the post.
+
+**What actually resolves the value is its basename alone.** `src/lib/data/blog-images.ts` strips the
+directory and the extension off `cover_image` and looks for a file of that basename in
+`src/lib/assets/images/blog/`, so `<name>` is the only part that has to be right — and the file it
+finds has to be a `jpg`, `jpeg` or `png`, because those are the extensions its glob reads. A `.webp`
+placed in that directory is not picked up. On no match the raw string is served, which 404s and
+renders a blank card; `post-standards.test.ts` fails on exactly that, naming the post, the value and
+the reason. It also fails on a value the parser throws away before the page is built — one not
+starting with `/`, or holding a `//` — which renders no cover at all.
 
 ### 7. Put the post in `src/lib/posts/<slug>.md`
 
@@ -226,8 +233,9 @@ stop in step 10 comes before the deployment rather than after it.
 ### 8. Run `pnpm josh test:unit`
 
 `post-standards.test.ts` measures every post and fails when a new one misses the floor, has no
-`author`, or has no card image source. It also compares the files on disk to the parsed posts, which
-is what catches a missing `title`, `date` or `excerpt`. Nothing in it judges the writing.
+`author`, or has no card image source. It also checks that every `cover_image` resolves to a file in
+`src/lib/assets/images/blog/`, and compares the files on disk to the parsed posts, which is what
+catches a missing `title`, `date` or `excerpt`. Nothing in it judges the writing.
 
 ### 9. Capture the page a reader would land on
 

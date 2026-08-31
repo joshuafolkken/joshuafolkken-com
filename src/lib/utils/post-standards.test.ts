@@ -1,22 +1,42 @@
+import { blog_images } from '$lib/data/blog-images'
 import type { Post } from '$lib/types/blog'
 import { blog_parser } from '$lib/utils/blog-parser'
 import { content_length } from '$lib/utils/content-length'
+import { path_utilities } from '$lib/utils/path-utilities'
 import {
 	GRANDFATHERED_SLUGS,
 	MIN_NEW_POST_CONTENT_LENGTH,
 	post_standards,
 	TARGET_NEW_POST_CONTENT_LENGTH,
+	type BlogImageAssets,
 } from '$lib/utils/post-standards'
 import { describe, expect, it } from 'vitest'
 
 const POST_PATH_PREFIX = '/src/lib/posts/'
 const POST_PATH_SUFFIX = '.md'
+const YOUTUBE_URL = 'https://youtu.be/abc'
 
 const raw_posts = import.meta.glob<string>('/src/lib/posts/*.md', {
 	query: '?raw',
 	import: 'default',
 	eager: true,
 })
+
+// Everything in the blog image directory, not only what `blog-images.ts` can load: the difference
+// between the two lists is what tells an unknown name apart from an unreadable extension. The glob
+// stays here rather than in `blog-images.ts` so the unloadable files never reach the bundle.
+const blog_image_files = import.meta.glob('/src/lib/assets/images/blog/*')
+
+const loadable_filenames = blog_images
+	.list_loadable_paths()
+	.map((path) => path_utilities.get_last_segment(path))
+
+const blog_image_assets: BlogImageAssets = {
+	loadable_basenames: new Set(
+		loadable_filenames.map((name) => path_utilities.get_basename_without_extension(name)),
+	),
+	filenames: Object.keys(blog_image_files).map((path) => path_utilities.get_last_segment(path)),
+}
 
 function to_slug(path: string): string {
 	return path.slice(POST_PATH_PREFIX.length, -POST_PATH_SUFFIX.length)
@@ -69,7 +89,7 @@ describe('post_standards.check_post metadata', () => {
 	})
 
 	it('accepts a video-derived post that has no cover image of its own', () => {
-		const post = to_post({ cover_image: undefined, youtube: 'https://youtu.be/abc' })
+		const post = to_post({ cover_image: undefined, youtube: YOUTUBE_URL })
 
 		expect(post_standards.check_post(post, TARGET_NEW_POST_CONTENT_LENGTH)).toEqual([])
 	})
@@ -88,7 +108,55 @@ describe('post_standards.check_post metadata', () => {
 	})
 })
 
+describe('post_standards.check_cover_image', () => {
+	const assets: BlogImageAssets = {
+		loadable_basenames: new Set(['kit-2']),
+		filenames: ['kit-2.jpg', 'only-webp.webp'],
+	}
+
+	it('accepts a value whose basename names a loadable file', () => {
+		expect(post_standards.check_cover_image('/images/blog/kit-2.webp', assets)).toEqual([])
+	})
+
+	it('accepts a value in the other directory form, since the directory part is ignored', () => {
+		expect(post_standards.check_cover_image('/api/images/blog/kit-2.webp', assets)).toEqual([])
+	})
+
+	it('reports a basename no file in the directory carries', () => {
+		expect(post_standards.check_cover_image('/images/blog/absent.webp', assets)).toEqual([
+			'has `cover_image` `/images/blog/absent.webp`, which resolves to no image: nothing named `absent.*` is in `src/lib/assets/images/blog/`',
+		])
+	})
+
+	it('reports a basename whose only file has an extension outside the glob', () => {
+		expect(post_standards.check_cover_image('/images/blog/only-webp.webp', assets)).toEqual([
+			'has `cover_image` `/images/blog/only-webp.webp`, which resolves to no image: `src/lib/assets/images/blog/only-webp.webp` exists, but its extension is outside the glob in `src/lib/data/blog-images.ts`',
+		])
+	})
+
+	// The basename resolves, so a check reading the parsed `Post` would pass — but `parse_post`
+	// throws the value away before that, and the page renders with no cover at all.
+	it('reports a value the parser discards for having no leading slash', () => {
+		expect(post_standards.check_cover_image('images/blog/kit-2.webp', assets)).toEqual([
+			'has `cover_image` `images/blog/kit-2.webp`, which the parser discards: the path has to start with `/` and hold no `//`',
+		])
+	})
+
+	it('reports a value the parser discards for holding a doubled slash', () => {
+		expect(post_standards.check_cover_image('//images/blog/kit-2.webp', assets)).toEqual([
+			'has `cover_image` `//images/blog/kit-2.webp`, which the parser discards: the path has to start with `/` and hold no `//`',
+		])
+	})
+
+	it('has nothing to say about a post with no cover image', () => {
+		expect(post_standards.check_cover_image(undefined, assets)).toEqual([])
+	})
+})
+
 const posts = blog_parser.get_all_posts()
+// The frontmatter as written, not the parsed `Post`: `parse_post` discards a `cover_image` that is
+// not a safe path, which is exactly one of the slips the check is for.
+const frontmatter_cover_images = blog_parser.list_frontmatter_cover_images()
 const parsed_slugs = new Set(posts.map((post) => post.slug))
 const checked_posts = posts.filter((post) => !post_standards.is_grandfathered(post.slug))
 
@@ -103,6 +171,32 @@ describe('published posts', () => {
 
 	it.each(checked_posts)('$slug meets the standards in docs/blog-writing.md', (post) => {
 		expect(post_standards.check_post(post, measure(post.slug))).toEqual([])
+	})
+
+	// Grandfathered posts are included: the exemption is about length, and a cover image that
+	// renders nothing is a broken card whatever the post's age.
+	it.each(frontmatter_cover_images)(
+		'$slug has a cover_image that resolves to a real asset',
+		({ cover_image }) => {
+			expect(post_standards.check_cover_image(cover_image, blog_image_assets)).toEqual([])
+		},
+	)
+
+	// Resolution discards the extension, so two *loadable* files sharing a basename resolve by glob
+	// order and a post silently serves whichever one sorts first. A `.webp` sibling is not a
+	// collision: the glob never loads one, so it can never win the race.
+	it('has no two loadable blog images sharing a basename', () => {
+		const seen = new Set<string>()
+		const collisions = loadable_filenames.filter((name) => {
+			const basename = path_utilities.get_basename_without_extension(name)
+			const is_duplicate = seen.has(basename)
+
+			seen.add(basename)
+
+			return is_duplicate
+		})
+
+		expect(collisions).toEqual([])
 	})
 })
 
