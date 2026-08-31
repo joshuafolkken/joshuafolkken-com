@@ -176,23 +176,32 @@ Short of 2,600, grow **What was tried and failed** — never the feature descrip
 ### 5. Build the cover-image candidates and the page that compares them
 
 ```bash
-pnpm blog:cover <slug> [count]           # candidates -> .covers/<slug>/ (git-ignored)
-pnpm blog:cover:review <manifest.json>   # -> .covers/<slug>/review.html
+pnpm blog:cover <slug> [count]                     # generated -> .covers/<slug>/ (git-ignored)
+pnpm blog:cover:stock <slug> [count] [keywords]    # free photos -> .covers/<slug>/ + a manifest
+pnpm blog:cover:review <manifest.json>             # -> .covers/<slug>/review.html
 ```
 
-`blog:cover` generates candidates with a Gemini image model; `blog:cover:review` renders any set of
-candidates — generated files and free-photo URLs alike — into one ranked page. Neither writes to
-`src/lib/assets/images/blog/`: the adopted candidate is copied there by hand, so no generated image
+There are two ways to fill `.covers/<slug>/`, and `blog:cover:review` renders either — generated
+files and free-photo URLs alike — into one ranked page. None of the three writes to
+`src/lib/assets/images/blog/`: the adopted candidate is copied there by hand, so no candidate
 reaches the repository on a script run alone.
 
-**The manifest between the two is written by hand**, and nothing generates it. It is the ranking —
-which candidate is first, and why — so it is the judgement the review page exists to record. Its
-schema, with a filled-in example, is the header comment of `scripts/blog-cover-review.ts`.
+**Use `blog:cover:stock`.** It searches Openverse, which needs no key and no account, downloads five
+candidates by default, and writes `.covers/<slug>/<stamp>-stock.json` — a manifest `blog:cover:review`
+opens untouched, with the credit line and license URL of every candidate filled in from the API. The
+keywords default to the post's `title`, which only finds anything for an English title: pass them
+explicitly otherwise, and pass the count first when passing both.
 
-**The generator has not yet produced an image from this repository.** Gemini's image models have no
+**`blog:cover` has not yet produced an image from this repository.** Gemini's image models have no
 free tier at all, and the key in `.env` answers `429 RESOURCE_EXHAUSTED` with `limit: 0` on the very
-first request because its project has no billing enabled. Until that is fixed the review page is
-still usable on its own — a manifest of Unsplash / Pexels URLs needs no generated file.
+first request because its project has no billing enabled. Until that is fixed, `blog:cover:stock` is
+the route that works.
+
+**A hand-written manifest is still accepted**, and is what ranks a set the scripts did not collect.
+It is the ranking — which candidate is first, and why — so it is the judgement the review page
+exists to record; `blog:cover:stock` seeds that ranking with the search's own order, for a person to
+re-order. The schema, with a filled-in example, is the header comment of
+`scripts/blog-cover-review.ts`.
 
 ### 6. Stop — a person picks the cover image
 

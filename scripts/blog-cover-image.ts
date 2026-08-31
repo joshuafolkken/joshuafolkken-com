@@ -39,13 +39,11 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { GoogleGenAI, type Part } from '@google/genai'
 import { blog_cover_assets } from './blog-cover-assets'
-import { blog_frontmatter } from './blog-frontmatter'
+import { blog_post_source, type PostSummary } from './blog-post-source'
 import { cli } from './cli'
 import { environment } from './environment'
 
-const POSTS_DIR = 'src/lib/posts'
 const BLOG_IMAGES_DIR = 'src/lib/assets/images/blog'
-const MARKDOWN_EXTENSION = '.md'
 const DEFAULT_MODEL = 'gemini-3.1-flash-image'
 const DEFAULT_PROMPT_PATH = 'prompts/blog-cover-image.md'
 const DEFAULT_IMAGE_COUNT = 3
@@ -53,7 +51,6 @@ const MAX_IMAGE_COUNT = 10
 const COUNT_ARGUMENT_MAX = 1
 const BODY_CHARACTER_LIMIT = 2000
 const INDEX_PAD_WIDTH = 2
-const STAMP_PAD_WIDTH = 2
 const CLI_ARGS_START = 2
 const IMAGE_MODALITY = 'IMAGE'
 // A blog card is rendered wide, and 1K is the cheapest size these models bill.
@@ -65,13 +62,6 @@ interface CoverConfig {
 	api_key: string
 	model: string
 	prompt_path: string
-}
-
-interface PostSummary {
-	slug: string
-	title: string
-	excerpt: string
-	body: string
 }
 
 interface CoverImage {
@@ -109,40 +99,6 @@ function read_config(): CoverConfig {
 	}
 }
 
-// Accepts either a slug or a path so the command reads the same whether it is typed by hand or
-// completed from the posts directory.
-function resolve_post_path(slug_or_path: string): string {
-	if (slug_or_path.endsWith(MARKDOWN_EXTENSION)) return slug_or_path
-
-	return path.join(POSTS_DIR, `${slug_or_path}${MARKDOWN_EXTENSION}`)
-}
-
-function resolve_slug(post_path: string): string {
-	return path.basename(post_path, MARKDOWN_EXTENSION)
-}
-
-// A post with no `title` is one the blog itself would drop (see `blog_parser.parse_post`), so it
-// fails here rather than sending an untitled prompt that quietly produces generic images. Takes the
-// path rather than the slug so both failures name the file that was actually read: a draft outside
-// `POSTS_DIR` has a basename that resolves to a different post, and reporting the basename alone
-// would point at the wrong one.
-function parse_post_summary(post_path: string, markdown: string): PostSummary {
-	const { frontmatter, body } = blog_frontmatter.split_frontmatter(markdown)
-	const document = blog_frontmatter.parse_frontmatter(frontmatter, post_path)
-	const title = blog_frontmatter.read_field(document, 'title')
-
-	if (title === undefined || title === '') {
-		throw new Error(`No \`title\` in the frontmatter of ${post_path}`)
-	}
-
-	return {
-		slug: resolve_slug(post_path),
-		title,
-		excerpt: blog_frontmatter.read_field(document, 'excerpt') ?? '',
-		body: body.slice(0, BODY_CHARACTER_LIMIT),
-	}
-}
-
 // The template carries the style and the no-text rule; the post's own words are appended below it,
 // so tuning the instructions never means touching this file.
 function build_prompt(template: string, post: PostSummary): string {
@@ -156,20 +112,10 @@ function build_prompt(template: string, post: PostSummary): string {
 	].join('\n\n')
 }
 
-// Every candidate is billed, so an out-of-range count is refused rather than clamped: a silent
-// clamp would charge for a run the caller did not ask for.
+// Every candidate is billed, so an out-of-range count is refused rather than clamped — the rule
+// itself lives in `cli` because the stock collector applies it too.
 function parse_count(raw: string | undefined): number {
-	if (raw === undefined) return DEFAULT_IMAGE_COUNT
-
-	const count = Number(raw)
-
-	if (!Number.isSafeInteger(count) || count < 1 || count > MAX_IMAGE_COUNT) {
-		throw new Error(
-			`${COVER_USAGE}\n  count must be an integer from 1 to ${String(MAX_IMAGE_COUNT)}`,
-		)
-	}
-
-	return count
+	return cli.parse_count(raw, COVER_USAGE, DEFAULT_IMAGE_COUNT, MAX_IMAGE_COUNT)
 }
 
 // Named after what the image actually is rather than after whatever the default happened to be.
@@ -177,21 +123,6 @@ function parse_count(raw: string | undefined): number {
 // `blog-cover-assets.ts` for why the two cannot each keep their own.
 function extension_for_image(mime_type: string): string {
 	return blog_cover_assets.extension_for_mime(mime_type)
-}
-
-function pad_stamp(value: number): string {
-	return String(value).padStart(STAMP_PAD_WIDTH, '0')
-}
-
-// Local-time `YYYYMMDD-HHMMSS`, prefixed to every candidate of one run. Numbering by index alone
-// would have a second run overwrite the first run's candidates, destroying billed images the
-// caller is still comparing against; the stamp keeps every run side by side in one directory,
-// which is also the shape the comparison page reads them back in.
-function format_run_stamp(now: Date): string {
-	const date = `${String(now.getFullYear())}${pad_stamp(now.getMonth() + 1)}${pad_stamp(now.getDate())}`
-	const time = `${pad_stamp(now.getHours())}${pad_stamp(now.getMinutes())}${pad_stamp(now.getSeconds())}`
-
-	return `${date}-${time}`
 }
 
 function resolve_output_path(
@@ -338,11 +269,16 @@ async function run(
 	count: number,
 	now: Date,
 ): Promise<ReadonlyArray<string>> {
-	const post_path = resolve_post_path(slug_or_path)
-	const post = parse_post_summary(post_path, dependencies.read_post(post_path))
+	const post_path = blog_post_source.resolve_post_path(slug_or_path)
+	const post = blog_post_source.read_summary(
+		post_path,
+		dependencies.read_post(post_path),
+		BODY_CHARACTER_LIMIT,
+	)
 	const prompt = build_prompt(dependencies.read_prompt(), post)
 	const written: Array<string> = []
-	const on_image = save_candidate(dependencies, post.slug, format_run_stamp(now), written)
+	const stamp = blog_cover_assets.format_run_stamp(now)
+	const on_image = save_candidate(dependencies, post.slug, stamp, written)
 
 	await dependencies.generate(prompt, count, on_image)
 
@@ -386,13 +322,9 @@ const blog_cover_image = {
 	DEFAULT_IMAGE_COUNT,
 	MAX_IMAGE_COUNT,
 	read_config,
-	resolve_post_path,
-	resolve_slug,
-	parse_post_summary,
 	build_prompt,
 	parse_count,
 	extension_for_image,
-	format_run_stamp,
 	resolve_output_path,
 	first_image,
 	generate_sequentially,
@@ -401,5 +333,5 @@ const blog_cover_image = {
 	main,
 }
 
-export type { CoverConfig, CoverDependencies, CoverImage, ImageResponse, PostSummary }
+export type { CoverConfig, CoverDependencies, CoverImage, ImageResponse }
 export { blog_cover_image }

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { blog_cover_review, type RemoteImage, type ReviewDependencies } from './blog-cover-review'
+import type { FetchedImage } from './blog-cover-assets'
+import { blog_cover_review, type ReviewDependencies } from './blog-cover-review'
 
 const POST = 'my-post-slug'
 const LOCAL_SOURCE = '.covers/my-post-slug/20260831-120000-01.png'
@@ -42,7 +43,7 @@ function make_dependencies(manifest: string, written: Array<WrittenPage>): Revie
 	return {
 		read_manifest: () => manifest,
 		read_local_image: () => IMAGE_BYTES,
-		fetch_remote_image: async (): Promise<RemoteImage> => ({
+		fetch_remote_image: async (): Promise<FetchedImage> => ({
 			mime_type: JPEG_MIME,
 			bytes: IMAGE_BYTES,
 		}),
@@ -182,7 +183,7 @@ describe('blog_cover_review.resolve_candidates remote types', () => {
 		const manifest = make_manifest([make_candidate({ source: REMOTE_SOURCE })])
 		const dependencies: ReviewDependencies = {
 			...make_dependencies(manifest, []),
-			fetch_remote_image: async (): Promise<RemoteImage> => ({
+			fetch_remote_image: async (): Promise<FetchedImage> => ({
 				mime_type: BREAKOUT_MIME,
 				bytes: IMAGE_BYTES,
 			}),
@@ -198,7 +199,7 @@ describe('blog_cover_review.resolve_candidates remote types', () => {
 		const manifest = make_manifest([make_candidate({ source: REMOTE_SOURCE })])
 		const dependencies: ReviewDependencies = {
 			...make_dependencies(manifest, []),
-			fetch_remote_image: async (): Promise<RemoteImage> => ({
+			fetch_remote_image: async (): Promise<FetchedImage> => ({
 				mime_type: 'text/html',
 				bytes: IMAGE_BYTES,
 			}),
