@@ -9,6 +9,7 @@ import {
 } from './blog-cover-image'
 
 const SLUG = 'my-post'
+const POST_PATH = 'src/lib/posts/my-post.md'
 const TITLE = 'カバー画像を作る話'
 const EXCERPT = '画像候補を機械的に用意する'
 const BODY = '本文の一行目です。'
@@ -22,6 +23,10 @@ const DEFAULT_COUNT = 3
 const COVERS_DIR = '.covers'
 const EXPLICIT_POST_PATH = 'drafts/other.md'
 const REFUSAL_TEXT = 'I cannot draw that'
+const ESCAPED_TITLE_POST = `---\ntitle: 'Josh''s kit'\n---\n\n${BODY}`
+const APOSTROPHE_TITLE = "Josh's kit"
+const SEQUENTIAL_COUNT = 4
+const RATE_LIMIT_ERROR = '429 RESOURCE_EXHAUSTED'
 const NOW = new Date(2026, 7, 30, 9, 5, 4)
 const RUN_STAMP = '20260830-090504'
 const FIRST_CANDIDATE_FILE = `${RUN_STAMP}-01.png`
@@ -37,6 +42,38 @@ function make_image(mime_type: string): CoverImage {
 
 function make_response(parts: ImageResponse['candidates']): ImageResponse {
 	return { candidates: parts }
+}
+
+function collect(received: Array<CoverImage>): (image: CoverImage) => void {
+	return (image: CoverImage): void => {
+		received.push(image)
+	}
+}
+
+// Records the order the loop asks for candidates in, and how many requests were ever open at once.
+// `Promise.all` over the same generator would leave the peak at the requested count instead of 1.
+function make_sequence_recorder(): {
+	generate_candidate: (index: number) => Promise<CoverImage>
+	indexes: Array<number>
+	read_peak_in_flight: () => number
+} {
+	const indexes: Array<number> = []
+	let in_flight = 0
+	let peak_in_flight = 0
+
+	return {
+		indexes,
+		read_peak_in_flight: () => peak_in_flight,
+		async generate_candidate(index: number): Promise<CoverImage> {
+			indexes.push(index)
+			in_flight += 1
+			peak_in_flight = Math.max(peak_in_flight, in_flight)
+			await Promise.resolve()
+			in_flight -= 1
+
+			return make_image(PNG_MIME)
+		},
+	}
 }
 
 function make_dependencies(
@@ -85,19 +122,22 @@ describe('blog_cover_image.resolve_post_path', () => {
 	})
 
 	it('derives the slug from a post path', () => {
-		expect(blog_cover_image.resolve_slug('src/lib/posts/my-post.md')).toBe(SLUG)
+		expect(blog_cover_image.resolve_slug(POST_PATH)).toBe(SLUG)
 	})
 })
 
 describe('blog_cover_image.parse_post_summary', () => {
 	it('reads the title and excerpt and keeps the body', () => {
-		const summary = blog_cover_image.parse_post_summary(SLUG, POST)
+		const summary = blog_cover_image.parse_post_summary(POST_PATH, POST)
 
 		expect(summary).toEqual({ slug: SLUG, title: TITLE, excerpt: EXCERPT, body: BODY })
 	})
 
 	it('leaves the excerpt empty when the frontmatter has none', () => {
-		const summary = blog_cover_image.parse_post_summary(SLUG, `---\ntitle: ${TITLE}\n---\n\nbody`)
+		const summary = blog_cover_image.parse_post_summary(
+			POST_PATH,
+			`---\ntitle: ${TITLE}\n---\n\nbody`,
+		)
 
 		expect(summary.excerpt).toBe('')
 	})
@@ -105,28 +145,19 @@ describe('blog_cover_image.parse_post_summary', () => {
 	it('truncates a body longer than the character limit', () => {
 		const long_body = 'あ'.repeat(3000)
 		const summary = blog_cover_image.parse_post_summary(
-			SLUG,
+			POST_PATH,
 			`---\ntitle: ${TITLE}\n---\n\n${long_body}`,
 		)
 
 		expect(summary.body).toHaveLength(2000)
 	})
 
-	it('throws when the frontmatter has no title', () => {
-		expect(() => blog_cover_image.parse_post_summary(SLUG, `---\nexcerpt: x\n---\n\nbody`)).toThrow(
-			'No `title`',
-		)
-	})
-
-	it('treats a file without frontmatter as all body', () => {
-		expect(blog_cover_image.split_frontmatter('just body')).toEqual({
-			frontmatter: '',
-			body: 'just body',
-		})
-	})
-
-	it('returns undefined for a field the frontmatter does not carry', () => {
-		expect(blog_cover_image.read_frontmatter_field('title: x', 'excerpt')).toBeUndefined()
+	// A draft outside the posts directory shares its basename with a real post, so the report has to
+	// name the path that was read rather than the name it happens to end in.
+	it('names the file it read when the frontmatter has no title', () => {
+		expect(() =>
+			blog_cover_image.parse_post_summary(EXPLICIT_POST_PATH, `---\nexcerpt: x\n---\n\nbody`),
+		).toThrow(`No \`title\` in the frontmatter of ${EXPLICIT_POST_PATH}`)
 	})
 })
 
@@ -134,13 +165,25 @@ describe('blog_cover_image.build_prompt', () => {
 	it('appends the post title, excerpt and body under the template', () => {
 		const prompt = blog_cover_image.build_prompt(
 			TEMPLATE,
-			blog_cover_image.parse_post_summary(SLUG, POST),
+			blog_cover_image.parse_post_summary(POST_PATH, POST),
 		)
 
 		expect(prompt).toContain(TEMPLATE)
 		expect(prompt).toContain(TITLE)
 		expect(prompt).toContain(EXCERPT)
 		expect(prompt).toContain(BODY)
+	})
+
+	// The prompt is what the model is billed to read, so the escaping the frontmatter writer adds
+	// has to be gone by the time the title reaches it — not merely unescaped somewhere upstream.
+	it('carries an escaped apostrophe through exactly as the post spells it', () => {
+		const prompt = blog_cover_image.build_prompt(
+			TEMPLATE,
+			blog_cover_image.parse_post_summary(POST_PATH, ESCAPED_TITLE_POST),
+		)
+
+		expect(prompt).toContain(APOSTROPHE_TITLE)
+		expect(prompt).not.toContain("Josh''s kit")
 	})
 })
 
@@ -278,11 +321,50 @@ describe('blog_cover_image.run partway through a batch', () => {
 			generate: async (_prompt, _count, on_image) => {
 				on_image(make_image(PNG_MIME))
 
-				throw new Error('429 RESOURCE_EXHAUSTED')
+				throw new Error(RATE_LIMIT_ERROR)
 			},
 		}
 
 		await expect(blog_cover_image.run(dependencies, SLUG, 2, NOW)).rejects.toThrow('429')
 		expect(written).toEqual([path.join(COVERS_DIR, SLUG, FIRST_CANDIDATE_FILE)])
+	})
+})
+
+describe('blog_cover_image.generate_sequentially', () => {
+	// Every turn of this loop is one billed image, so two properties are load-bearing and neither
+	// was checked before: exactly `count` requests, and one request at a time. A regression to
+	// `index < count - 1` or a rewrite to `Promise.all` would otherwise stay green.
+	it('issues exactly the requested number of requests, one at a time', async () => {
+		const recorder = make_sequence_recorder()
+		const received: Array<CoverImage> = []
+
+		await blog_cover_image.generate_sequentially(
+			recorder.generate_candidate,
+			SEQUENTIAL_COUNT,
+			collect(received),
+		)
+
+		expect(recorder.indexes).toEqual(Array.from({ length: SEQUENTIAL_COUNT }, (_, index) => index))
+		expect(received).toHaveLength(SEQUENTIAL_COUNT)
+		expect(recorder.read_peak_in_flight()).toBe(1)
+	})
+
+	// The images are handed over as they arrive, so a rejection stops the run with the earlier ones
+	// already delivered rather than discarding what has been paid for.
+	it('stops at the first rejection and keeps what it already handed over', async () => {
+		const received: Array<CoverImage> = []
+
+		await expect(
+			blog_cover_image.generate_sequentially(
+				async (index: number): Promise<CoverImage> => {
+					if (index > 0) throw new Error(RATE_LIMIT_ERROR)
+
+					return make_image(PNG_MIME)
+				},
+				SEQUENTIAL_COUNT,
+				collect(received),
+			),
+		).rejects.toThrow('429')
+		expect(received).toHaveLength(1)
 	})
 })
