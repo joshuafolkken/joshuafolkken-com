@@ -2,7 +2,7 @@
 title: 世の中のことは何も答えない。僕のことだけ話す AI チャットを作った
 date: '2026-07-11 13:45'
 author: 'Joshua Folkken'
-cover_image: /api/images/blog/ai-chat.webp
+cover_image: /images/blog/ai-chat.webp
 excerpt: 世の中のことは何も聞けない、僕のことしか話さない超ニッチな AI チャットを Cloudflare AI Search で作りました。コストを削ったら日本語が英語で返り、3 時間の雑談から自分の声だけを抜き出し、友達には「使いにくい」と言われ——でもその「情報が返ってこない」こそ、実は正しい動きだったんです。
 ---
 

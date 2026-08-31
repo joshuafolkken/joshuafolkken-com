@@ -2,7 +2,7 @@
 title: AI コーディングの現実。爆速の裏にある、デグレとの戦い
 date: '2026-04-12 10:00'
 author: 'Joshua Folkken'
-cover_image: /api/images/blog/pexels-pavel-danilyuk-7654586.webp
+cover_image: /images/blog/pexels-pavel-danilyuk-7654586.webp
 excerpt: Claude Code Max に課金して「AI に全部任せる」を試してみたら、開発は爆速になった。でもデグレは爆増した。10層のガードレールを張って、AI を子育てしている話。
 ---
 

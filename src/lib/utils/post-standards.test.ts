@@ -15,6 +15,13 @@ import { describe, expect, it } from 'vitest'
 const POST_PATH_PREFIX = '/src/lib/posts/'
 const POST_PATH_SUFFIX = '.md'
 const YOUTUBE_URL = 'https://youtu.be/abc'
+// The same basename written both ways, so the two checks can be shown disagreeing about it: the
+// resolution check accepts either, the convention check only the first.
+const CONVENTIONAL_COVER_IMAGE = '/images/blog/kit-2.webp'
+const API_FORM_COVER_IMAGE = '/api/images/blog/kit-2.webp'
+const ABSENT_COVER_IMAGE_TITLE = 'has nothing to say about a post with no cover image'
+// The form `docs/blog-writing.md` declares, spelled once here so the expected messages agree.
+const DECLARED_FORM = '/images/blog/<name>.webp'
 
 const raw_posts = import.meta.glob<string>('/src/lib/posts/*.md', {
 	query: '?raw',
@@ -46,6 +53,10 @@ function measure(slug: string): number {
 	return content_length.measure(raw_posts[`${POST_PATH_PREFIX}${slug}${POST_PATH_SUFFIX}`] ?? '')
 }
 
+function to_expected_form_problem(cover_image: string): Array<string> {
+	return [`has \`cover_image\` \`${cover_image}\`, which is not written as \`${DECLARED_FORM}\``]
+}
+
 function to_post(overrides: Partial<Post>): Post {
 	return {
 		slug: 'a-new-post',
@@ -53,7 +64,7 @@ function to_post(overrides: Partial<Post>): Post {
 		date: '2026-08-30',
 		author: 'Joshua Folkken',
 		excerpt: 'excerpt',
-		cover_image: '/api/images/blog/a-new-post.webp',
+		cover_image: '/images/blog/a-new-post.webp',
 		...overrides,
 	}
 }
@@ -115,11 +126,13 @@ describe('post_standards.check_cover_image', () => {
 	}
 
 	it('accepts a value whose basename names a loadable file', () => {
-		expect(post_standards.check_cover_image('/images/blog/kit-2.webp', assets)).toEqual([])
+		expect(post_standards.check_cover_image(CONVENTIONAL_COVER_IMAGE, assets)).toEqual([])
 	})
 
-	it('accepts a value in the other directory form, since the directory part is ignored', () => {
-		expect(post_standards.check_cover_image('/api/images/blog/kit-2.webp', assets)).toEqual([])
+	// The convention is a separate check. This one is about what renders, and the directory plays no
+	// part in that — folding the two together would report a post that renders perfectly as broken.
+	it('accepts a value outside the conventional directory, since the directory part is ignored', () => {
+		expect(post_standards.check_cover_image(API_FORM_COVER_IMAGE, assets)).toEqual([])
 	})
 
 	it('reports a basename no file in the directory carries', () => {
@@ -148,8 +161,44 @@ describe('post_standards.check_cover_image', () => {
 		])
 	})
 
-	it('has nothing to say about a post with no cover image', () => {
+	it(ABSENT_COVER_IMAGE_TITLE, () => {
 		expect(post_standards.check_cover_image(undefined, assets)).toEqual([])
+	})
+})
+
+describe('post_standards.check_cover_image_form', () => {
+	it('accepts the declared form', () => {
+		expect(post_standards.check_cover_image_form(CONVENTIONAL_COVER_IMAGE)).toEqual([])
+	})
+
+	it('rejects the API-route form the corpus used to mix in', () => {
+		expect(post_standards.check_cover_image_form(API_FORM_COVER_IMAGE)).toEqual(
+			to_expected_form_problem(API_FORM_COVER_IMAGE),
+		)
+	})
+
+	it('rejects a deeper directory under the conventional one', () => {
+		const nested = '/images/blog/2026/kit-2.webp'
+
+		expect(post_standards.check_cover_image_form(nested)).toEqual(to_expected_form_problem(nested))
+	})
+
+	it('rejects a bare basename carrying no directory at all', () => {
+		const bare = 'kit-2.webp'
+
+		expect(post_standards.check_cover_image_form(bare)).toEqual(to_expected_form_problem(bare))
+	})
+
+	// The resolver strips the extension too, so this renders exactly as the `.webp` spelling does —
+	// which is why only a convention check can catch it.
+	it('rejects the right directory carrying the wrong extension', () => {
+		const jpg = '/images/blog/kit-2.jpg'
+
+		expect(post_standards.check_cover_image_form(jpg)).toEqual(to_expected_form_problem(jpg))
+	})
+
+	it(ABSENT_COVER_IMAGE_TITLE, () => {
+		expect(post_standards.check_cover_image_form(undefined)).toEqual([])
 	})
 })
 
@@ -179,6 +228,15 @@ describe('published posts', () => {
 		'$slug has a cover_image that resolves to a real asset',
 		({ cover_image }) => {
 			expect(post_standards.check_cover_image(cover_image, blog_image_assets)).toEqual([])
+		},
+	)
+
+	// The corpus carried two spellings of a directory nothing resolves through, against a doc that
+	// declared one of them. Settled in #902; this is what keeps it settled.
+	it.each(frontmatter_cover_images)(
+		'$slug writes its cover_image in the single declared form',
+		({ cover_image }) => {
+			expect(post_standards.check_cover_image_form(cover_image)).toEqual([])
 		},
 	)
 

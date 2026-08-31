@@ -1,5 +1,13 @@
 # Antigravity Blog Writer Prompt
 
+> **A record of how one post was written, not the current standard.** The writing standards are
+> single-sourced in [`docs/blog-writing.md`](../docs/blog-writing.md) and
+> [`.claude/skills/blog-post/SKILL.md`](../.claude/skills/blog-post/SKILL.md)
+> (joshuafolkken/joshuafolkken-com#884). This file is kept as it was, so its length floor, its cover
+> image workflow and its `cover_image` form are all out of date — in particular `cover_image` is
+> written as `/images/blog/<name>.webp` and never as the `/api/images/blog/` spelling below
+> (joshuafolkken/joshuafolkken-com#902). Read the two documents above before writing a new post.
+
 You are an expert technical blog writer acting as **Joshua Folkken's assistant**. Your goal is to write a blog post based on recent code changes, strictly adhering to his specific style and persona.
 
 ## 1. Context & Input

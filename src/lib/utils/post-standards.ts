@@ -156,10 +156,62 @@ function check_cover_image(
 	return to_unloadable_problem(cover_image, assets)
 }
 
+/**
+ * The one form a `cover_image` is written in, as `docs/blog-writing.md` declares it.
+ *
+ * **Nothing resolves through either part.** `blog-images.ts` strips the directory and the extension
+ * off the value and matches on the basename alone, so `/api/images/blog/kit-2.webp` and
+ * `/images/blog/kit-2.webp` load the same file, and neither corresponds to a route that exists. The
+ * value is read by people, not by the resolver — which is why two spellings of it were worth
+ * settling rather than leaving to whichever one a writer happened to copy (#902).
+ */
+const COVER_IMAGE_DIRECTORY = '/images/blog'
+const COVER_IMAGE_EXTENSION = '.webp'
+
+function to_directory_of(cover_image: string): string {
+	const last_slash_index = cover_image.lastIndexOf('/')
+
+	if (last_slash_index === -1) return ''
+
+	return cover_image.slice(0, last_slash_index)
+}
+
+function is_declared_form(cover_image: string): boolean {
+	return (
+		to_directory_of(cover_image) === COVER_IMAGE_DIRECTORY &&
+		cover_image.endsWith(COVER_IMAGE_EXTENSION)
+	)
+}
+
+/**
+ * Kept apart from `check_cover_image` because the two answer different questions. That one asks
+ * whether the value renders an image, and its answer is why the directory and the extension may be
+ * anything at all; this one asks whether the value is written the way `docs/blog-writing.md`
+ * declares. Folding the convention into the resolution check would make a post that renders
+ * perfectly look broken.
+ *
+ * Applied to every post, grandfathered ones included: the exemption is about length, and a
+ * frontmatter convention costs nothing to follow whatever the post's age.
+ */
+function check_cover_image_form(cover_image: string | undefined): Array<string> {
+	if (cover_image === undefined) return []
+
+	if (is_declared_form(cover_image)) return []
+
+	const form = `${COVER_IMAGE_DIRECTORY}/<name>${COVER_IMAGE_EXTENSION}`
+
+	return [`has \`cover_image\` \`${cover_image}\`, which is not written as \`${form}\``]
+}
+
 function is_grandfathered(slug: string): boolean {
 	return GRANDFATHERED_SLUGS.has(slug)
 }
 
-export const post_standards = { check_cover_image, check_post, is_grandfathered }
+export const post_standards = {
+	check_cover_image,
+	check_cover_image_form,
+	check_post,
+	is_grandfathered,
+}
 export type { BlogImageAssets }
 export { GRANDFATHERED_SLUGS, MIN_NEW_POST_CONTENT_LENGTH, TARGET_NEW_POST_CONTENT_LENGTH }
