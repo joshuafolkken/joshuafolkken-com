@@ -103,11 +103,141 @@ do not add them expecting an effect.
 
 ## Workflow
 
-1. Draft in `prompts/blog-drafts/`.
-2. Publish to `src/lib/posts/<slug>.md`. **There is no draft flag** — every file in that directory
-   is live once deployed.
-3. Run `pnpm josh test:unit`. `post-standards.test.ts` measures every post and fails when a new one
-   misses the floor, has no `author`, or has no card image source.
+A draft is not something a person writes and drops into `prompts/blog-drafts/` for an agent to
+polish. **The drafting starts with questions**, and the draft is written from the answers.
+
+What makes these posts worth reading is not the result — it is the process: what was infuriating,
+what nearly got abandoned, what settled the decision. None of that survives in the Issue, the commit
+log or the diff a post is built from. It exists only in the author's head, and asking is the only
+way it reaches the draft.
+
+**Two of the steps below end in a stop, and neither is optional.** A person picks the cover image
+(step 6), and a person decides whether the post goes out (step 10). Neither is a judgement any test
+in this repository makes: `post-standards.test.ts` reads length and checks that the required
+frontmatter is present, and nothing judges _which_ image was picked, how the excerpt reads, or what
+the first screen looks like. An unattended run that walks past them publishes a post nobody read. At
+each stop, send a `confirmation` Telegram before stopping, per `CLAUDE.md` → "Mid-workflow stop
+notification":
+
+```bash
+pnpm josh notify --task-type confirmation --issue-url "<issue-url>" --body=$'<one-line reason>\n<what is needed from the user>'
+```
+
+Because these stops exist, **a post is run with `halfrun #N`, one post at a time.** `queue` and
+`epicrun` run to an automatic merge and would carry a post past both of them.
+
+### 1. Ask, one post at a time — 5 to 7 questions
+
+**Ask immediately before writing that one post, about that one post.** Never batch the questions for
+a whole series: what is worth asking differs per post, and answers given thirteen posts at a time
+come back thinner per post than answers given once.
+
+The questions are asked in Japanese, because the author answers in Japanese and the post is written
+in Japanese. The phrasing below is meant to be used as it stands.
+
+> 1. この作業を始める前、何に一番苛立っていましたか
+> 2. 途中で「もう駄目かもしれない」と思った瞬間はありましたか。何が起きたときですか
+> 3. 最終的にこの形に決めた決め手は何ですか。かわりに何を捨てましたか
+> 4. やってみて意外だったことは何ですか
+> 5. 終わったあと、日々の作業で何が変わりましたか
+> 6. ひとつだけ数字を挙げるとしたら何ですか（時間・回数・件数など）
+> 7. 同じことを読者がやるとしたら、どこで転ぶと思いますか
+
+Questions 2 and 3 feed **What was tried and failed** and **How it was decided** — 1,850 of the 3,000
+in the allocation above, and the largest block in every post. When those answers are thin there is
+nothing left to grow, and the draft gets padded with feature description instead.
+
+### 2. Leave the gaps as gaps
+
+**Never invent the parts the answers did not cover.** Where an emotion, a motive or a turning point
+was not given, leave the passage blank in the draft, say which passages are blank, and get them
+confirmed before publishing.
+
+Two reasons, each sufficient. `kit-package.md` and `kit-2.md` are read because the failures in them
+actually happened, and a plausible invented failure does not read the same way. And a post is
+published as the author's own experience, so an invented account is indistinguishable from a real
+one to every reader — nobody outside is in a position to correct it.
+
+### 3. Draft in `prompts/blog-drafts/`
+
+Write the failure first, following the allocation in **Shape**. The feature description is the last
+thing to write and the first thing to cut.
+
+### 4. Measure, then adjust
+
+**File size is not length** (see **How length is measured**). To measure a draft where it sits:
+
+```bash
+pnpm exec tsx -e "import {readFileSync} from 'node:fs';import {content_length} from './src/lib/utils/content-length.ts';console.log(content_length.measure(readFileSync(process.argv[1],'utf8')))" prompts/blog-drafts/<name>.md
+```
+
+Short of 2,600, grow **What was tried and failed** — never the feature description. Aim for 3,000.
+
+### 5. Build the cover-image candidates and the page that compares them
+
+```bash
+pnpm blog:cover <slug> [count]           # candidates -> .covers/<slug>/ (git-ignored)
+pnpm blog:cover:review <manifest.json>   # -> .covers/<slug>/review.html
+```
+
+`blog:cover` generates candidates with a Gemini image model; `blog:cover:review` renders any set of
+candidates — generated files and free-photo URLs alike — into one ranked page. Neither writes to
+`src/lib/assets/images/blog/`: the adopted candidate is copied there by hand, so no generated image
+reaches the repository on a script run alone.
+
+**The manifest between the two is written by hand**, and nothing generates it. It is the ranking —
+which candidate is first, and why — so it is the judgement the review page exists to record. Its
+schema, with a filled-in example, is the header comment of `scripts/blog-cover-review.ts`.
+
+**The generator has not yet produced an image from this repository.** Gemini's image models have no
+free tier at all, and the key in `.env` answers `429 RESOURCE_EXHAUSTED` with `limit: 0` on the very
+first request because its project has no billing enabled. Until that is fixed the review page is
+still usable on its own — a manifest of Unsplash / Pexels URLs needs no generated file.
+
+### 6. Stop — a person picks the cover image
+
+**Hand over the comparison page and stop. Never adopt a candidate on your own**, and never treat
+rank 1 in the manifest as the decision: the ranking is the case being put, not the verdict. Send the
+`confirmation` Telegram, say where the page is, and wait.
+
+The page is one self-contained HTML file, so it can be opened locally or published as an Artifact
+and handed over as a link. Once the answer comes back, copy that one candidate into
+`src/lib/assets/images/blog/` under the post's own name, keeping its source extension.
+
+**`cover_image` never names that file.** It is always `/api/images/blog/<name>.webp`, whatever the
+source is — `kit-2.jpg` on disk is `cover_image: /api/images/blog/kit-2.webp` in the post. Writing
+the source path or the source extension instead passes every check in this repository and produces
+a blank card on the live site.
+
+### 7. Put the post in `src/lib/posts/<slug>.md`
+
+**There is no draft flag** — every file in that directory is live once deployed, which is why the
+stop in step 10 comes before the deployment rather than after it.
+
+### 8. Run `pnpm josh test:unit`
+
+`post-standards.test.ts` measures every post and fails when a new one misses the floor, has no
+`author`, or has no card image source. It also compares the files on disk to the parsed posts, which
+is what catches a missing `title`, `date` or `excerpt`. Nothing in it judges the writing.
+
+### 9. Capture the page a reader would land on
+
+```bash
+pnpm josh-app shot /blog/<slug>
+```
+
+The route has to be absolute. The cover image, the excerpt and whatever fills the first screen are
+what a reader meets first, and nothing in the suite looks at whether any of them came out right.
+
+### 10. Stop — a person decides whether it goes out
+
+**Hand over the screenshot and stop.** Send the `confirmation` Telegram and wait for the answer;
+publication is not a step you take on a green gate. Everything a machine can check has passed by
+this point, and none of it is the question being asked — whether the post is worth reading, and
+whether the page looks right, are both answered by looking.
+
+Blank passages left by step 2 are confirmed here too, if they have not been confirmed already. A
+post still carrying one is not ready to go out.
 
 Posts that predate this policy are listed in `GRANDFATHERED_SLUGS`
 (`src/lib/utils/post-standards.ts`). That list is the remaining backlog from #833, not a place to
