@@ -67,3 +67,6 @@ e2e/.auth/chrome-profile/
 
 .pnpm-store
 .audio/
+
+# Generated cover image candidates (pnpm blog:cover); a picked one is copied in by hand
+.covers/
