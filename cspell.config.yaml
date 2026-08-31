@@ -54,6 +54,7 @@ words:
   - googlesyndication
   - gstatic
   - Hiragino
+  - inlines
   - ingestable
   - inlang
   - intellijidea
@@ -84,6 +85,8 @@ words:
   - octocat
   - oneline
   - opencollective
+  - openverse
+  - overfetch
   - pagead
   - pexels
   - phpstorm
@@ -95,11 +98,13 @@ words:
   - protobufjs
   - qwen
   - ratelimits
+  - rawpixel
   - redir
   - SAMEORIGIN
   - Shippori
   - socketdotio
   - sonarqubeserver
+  - stocksnap
   - subcomponent
   - Stylesheet
   - Supabase
