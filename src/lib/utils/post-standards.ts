@@ -1,4 +1,6 @@
 import type { Post } from '$lib/types/blog'
+import { blog_parser } from '$lib/utils/blog-parser'
+import { path_utilities } from '$lib/utils/path-utilities'
 
 /**
  * Floor a post published from this policy onward must reach, measured with
@@ -83,9 +85,81 @@ function check_post(post: Post, measured_length: number): Array<string> {
 	return find_problems(post, measured_length)
 }
 
+/** Where `blog-images.ts` globs for the file a `cover_image` resolves to. */
+const BLOG_IMAGE_DIRECTORY = 'src/lib/assets/images/blog/'
+
+/**
+ * What the blog image directory holds, as `check_cover_image` needs to read it.
+ *
+ * `loadable_basenames` is derived from `blog_images.list_loadable_paths()` — the same glob the
+ * runtime resolves through, so the two cannot disagree. `filenames` is every file in the
+ * directory, which is what tells "nothing is named that" apart from "something is, but the glob
+ * does not read its extension".
+ */
+interface BlogImageAssets {
+	loadable_basenames: ReadonlySet<string>
+	filenames: ReadonlyArray<string>
+}
+
+function find_filename_of(basename: string, filenames: ReadonlyArray<string>): string | undefined {
+	return filenames.find((name) => path_utilities.get_basename_without_extension(name) === basename)
+}
+
+function to_unresolved_reason(basename: string, filename: string | undefined): string {
+	if (filename === undefined) {
+		return `nothing named \`${basename}.*\` is in \`${BLOG_IMAGE_DIRECTORY}\``
+	}
+
+	return `\`${BLOG_IMAGE_DIRECTORY}${filename}\` exists, but its extension is outside the glob in \`src/lib/data/blog-images.ts\``
+}
+
+function to_discarded_problem(cover_image: string): string {
+	const rule = 'the path has to start with `/` and hold no `//`'
+
+	return `has \`cover_image\` \`${cover_image}\`, which the parser discards: ${rule}`
+}
+
+function to_unloadable_problem(cover_image: string, assets: BlogImageAssets): Array<string> {
+	const basename = path_utilities.get_basename_without_extension(cover_image)
+
+	if (assets.loadable_basenames.has(basename)) return []
+
+	const reason = to_unresolved_reason(basename, find_filename_of(basename, assets.filenames))
+
+	return [`has \`cover_image\` \`${cover_image}\`, which resolves to no image: ${reason}`]
+}
+
+/**
+ * A `cover_image` is resolved by basename alone — the directory part of the value is ignored, and
+ * the glob reads only some extensions — so a value that names no loadable file falls through to
+ * the raw string, 404s, and renders a blank card while every other check stays green.
+ *
+ * **The value has to come from the frontmatter, not from a parsed `Post`.** `parse_post` discards a
+ * `cover_image` that is not a safe path, so a post written with the leading `/` missing arrives
+ * here as `undefined` — indistinguishable from a video-derived post that never had one, and exactly
+ * the authoring slip this check exists to catch.
+ *
+ * This is deliberately outside `check_post`: the grandfathered list exempts posts that predate the
+ * writing standard, and a cover image that renders nothing is a broken card whatever the post's
+ * age. So it is applied to every post, grandfathered ones included.
+ */
+function check_cover_image(
+	cover_image: string | undefined,
+	assets: BlogImageAssets,
+): Array<string> {
+	if (cover_image === undefined) return []
+
+	const is_safe_path: boolean = blog_parser.is_safe_cover_image_path(cover_image)
+
+	if (!is_safe_path) return [to_discarded_problem(cover_image)]
+
+	return to_unloadable_problem(cover_image, assets)
+}
+
 function is_grandfathered(slug: string): boolean {
 	return GRANDFATHERED_SLUGS.has(slug)
 }
 
-export const post_standards = { check_post, is_grandfathered }
+export const post_standards = { check_cover_image, check_post, is_grandfathered }
+export type { BlogImageAssets }
 export { GRANDFATHERED_SLUGS, MIN_NEW_POST_CONTENT_LENGTH, TARGET_NEW_POST_CONTENT_LENGTH }

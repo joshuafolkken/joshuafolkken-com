@@ -48,6 +48,7 @@ stop publishes a post nobody read — which is also why a post is run with `half
 ## Checking a draft
 
 `pnpm josh test:unit` runs `src/lib/utils/post-standards.test.ts`, which measures every post and
-fails on one that misses the floor, has no `author`, or has no card image source. Posts predating the policy are
+fails on one that misses the floor, has no `author`, has no card image source, or carries a
+`cover_image` that resolves to no file in `src/lib/assets/images/blog/`. Posts predating the policy are
 grandfathered in `src/lib/utils/post-standards.ts`; that list is backlog, not a place to add a new
 post that came up short.
