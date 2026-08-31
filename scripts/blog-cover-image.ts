@@ -38,11 +38,11 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { GoogleGenAI, type Part } from '@google/genai'
+import { blog_cover_assets } from './blog-cover-assets'
 import { cli } from './cli'
 import { environment } from './environment'
 
 const POSTS_DIR = 'src/lib/posts'
-const COVERS_DIR = '.covers'
 const BLOG_IMAGES_DIR = 'src/lib/assets/images/blog'
 const MARKDOWN_EXTENSION = '.md'
 const DEFAULT_MODEL = 'gemini-3.1-flash-image'
@@ -59,16 +59,7 @@ const IMAGE_MODALITY = 'IMAGE'
 // A blog card is rendered wide, and 1K is the cheapest size these models bill.
 const ASPECT_RATIO = '16:9'
 const IMAGE_SIZE = '1K'
-const DEFAULT_IMAGE_EXTENSION = 'png'
 const COVER_USAGE = 'Usage: pnpm blog:cover <post-slug-or-path> [count]'
-
-// Extension for each MIME type the image models return, so a candidate is named after what it
-// actually is rather than after what the default happened to be.
-const IMAGE_EXTENSION_BY_MIME: Readonly<Record<string, string>> = {
-	'image/png': 'png',
-	'image/jpeg': 'jpg',
-	'image/webp': 'webp',
-}
 
 interface CoverConfig {
 	api_key: string
@@ -221,8 +212,11 @@ function parse_count(raw: string | undefined): number {
 	return count
 }
 
+// Named after what the image actually is rather than after whatever the default happened to be.
+// The table is shared with the review script, which reads these filenames back — see
+// `blog-cover-assets.ts` for why the two cannot each keep their own.
 function extension_for_image(mime_type: string): string {
-	return IMAGE_EXTENSION_BY_MIME[mime_type] ?? DEFAULT_IMAGE_EXTENSION
+	return blog_cover_assets.extension_for_mime(mime_type)
 }
 
 function pad_stamp(value: number): string {
@@ -248,7 +242,9 @@ function resolve_output_path(
 ): string {
 	const number = String(index + 1).padStart(INDEX_PAD_WIDTH, '0')
 
-	return path.join(COVERS_DIR, slug, `${run_stamp}-${number}.${extension_for_image(mime_type)}`)
+	const name = `${run_stamp}-${number}.${extension_for_image(mime_type)}`
+
+	return path.join(blog_cover_assets.COVERS_DIR, slug, name)
 }
 
 function describe_text_parts(parts: ReadonlyArray<Part>): string {

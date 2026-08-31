@@ -186,7 +186,7 @@ describe('blog_cover_image.resolve_output_path', () => {
 	})
 
 	it('falls back to png for a MIME type it does not know', () => {
-		expect(blog_cover_image.extension_for_image('image/avif')).toBe('png')
+		expect(blog_cover_image.extension_for_image('image/heic')).toBe('png')
 	})
 
 	// Without the run stamp a second run would overwrite the first run's billed candidates.
