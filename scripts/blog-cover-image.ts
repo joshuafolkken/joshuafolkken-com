@@ -39,6 +39,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { GoogleGenAI, type Part } from '@google/genai'
 import { blog_cover_assets } from './blog-cover-assets'
+import { blog_frontmatter } from './blog-frontmatter'
 import { cli } from './cli'
 import { environment } from './environment'
 
@@ -54,7 +55,6 @@ const BODY_CHARACTER_LIMIT = 2000
 const INDEX_PAD_WIDTH = 2
 const STAMP_PAD_WIDTH = 2
 const CLI_ARGS_START = 2
-const FRONTMATTER_FENCE = '---'
 const IMAGE_MODALITY = 'IMAGE'
 // A blog card is rendered wide, and 1K is the cheapest size these models bill.
 const ASPECT_RATIO = '16:9'
@@ -121,64 +121,24 @@ function resolve_slug(post_path: string): string {
 	return path.basename(post_path, MARKDOWN_EXTENSION)
 }
 
-function find_closing_fence(lines: ReadonlyArray<string>): number {
-	return lines.findIndex((line, index) => index > 0 && line.trim() === FRONTMATTER_FENCE)
-}
-
-// Splits the leading `---` block from the body in one pass. `src/lib/utils/search-index.ts` also
-// strips frontmatter, but that module is SvelteKit build code reached through `$lib` aliases and
-// `import.meta.glob`; it is not importable from a tsx script, and it discards the block this one
-// needs to read.
-function split_frontmatter(markdown: string): { frontmatter: string; body: string } {
-	const lines = markdown.split('\n')
-	const closing = lines[0]?.trim() === FRONTMATTER_FENCE ? find_closing_fence(lines) : -1
-
-	if (closing === -1) return { frontmatter: '', body: markdown.trim() }
-
-	return {
-		frontmatter: lines.slice(1, closing).join('\n'),
-		body: lines
-			.slice(closing + 1)
-			.join('\n')
-			.trim(),
-	}
-}
-
-// Unwraps the YAML quotes the blog frontmatter writes its scalars with.
-function unquote(value: string): string {
-	const quote = value.at(0)
-	const is_quoted = quote === "'" || quote === '"'
-
-	if (is_quoted && value.length > 1 && value.endsWith(quote)) return value.slice(1, -1)
-
-	return value
-}
-
-// Reads one single-line `key: value` scalar. Deliberately not a YAML parser: the two fields this
-// needs are single-line scalars, and everything downstream of them is prose in a prompt.
-function read_frontmatter_field(frontmatter: string, key: string): string | undefined {
-	const prefix = `${key}:`
-	const line = frontmatter.split('\n').find((entry) => entry.trimStart().startsWith(prefix))
-
-	if (line === undefined) return undefined
-
-	return unquote(line.slice(line.indexOf(prefix) + prefix.length).trim())
-}
-
 // A post with no `title` is one the blog itself would drop (see `blog_parser.parse_post`), so it
-// fails here rather than sending an untitled prompt that quietly produces generic images.
-function parse_post_summary(slug: string, markdown: string): PostSummary {
-	const { frontmatter, body } = split_frontmatter(markdown)
-	const title = read_frontmatter_field(frontmatter, 'title')
+// fails here rather than sending an untitled prompt that quietly produces generic images. Takes the
+// path rather than the slug so both failures name the file that was actually read: a draft outside
+// `POSTS_DIR` has a basename that resolves to a different post, and reporting the basename alone
+// would point at the wrong one.
+function parse_post_summary(post_path: string, markdown: string): PostSummary {
+	const { frontmatter, body } = blog_frontmatter.split_frontmatter(markdown)
+	const document = blog_frontmatter.parse_frontmatter(frontmatter, post_path)
+	const title = blog_frontmatter.read_field(document, 'title')
 
 	if (title === undefined || title === '') {
-		throw new Error(`No \`title\` in the frontmatter of ${slug}${MARKDOWN_EXTENSION}`)
+		throw new Error(`No \`title\` in the frontmatter of ${post_path}`)
 	}
 
 	return {
-		slug,
+		slug: resolve_slug(post_path),
 		title,
-		excerpt: read_frontmatter_field(frontmatter, 'excerpt') ?? '',
+		excerpt: blog_frontmatter.read_field(document, 'excerpt') ?? '',
 		body: body.slice(0, BODY_CHARACTER_LIMIT),
 	}
 }
@@ -303,7 +263,17 @@ async function generate_one(
 }
 
 // Sequential rather than parallel: each request is billed and rate-limited, and firing the whole
-// batch at once turns one quota rejection into a failure of every candidate.
+// batch at once turns one quota rejection into a failure of every candidate. Split from the client
+// call so both properties can be held by a test without a billed request — `count` requests exactly,
+// and never two in flight.
+async function generate_sequentially(
+	generate_candidate: (index: number) => Promise<CoverImage>,
+	count: number,
+	on_image: (image: CoverImage) => void,
+): Promise<void> {
+	for (let index = 0; index < count; index += 1) on_image(await generate_candidate(index))
+}
+
 async function generate_with_gemini(
 	config: CoverConfig,
 	prompt: string,
@@ -312,10 +282,13 @@ async function generate_with_gemini(
 ): Promise<void> {
 	const client = new GoogleGenAI({ apiKey: config.api_key })
 
-	for (let index = 0; index < count; index += 1) {
+	async function generate_candidate(index: number): Promise<CoverImage> {
 		console.info(`Generating candidate ${String(index + 1)}/${String(count)} (${config.model})...`)
-		on_image(await generate_one(client, config.model, prompt))
+
+		return await generate_one(client, config.model, prompt)
 	}
+
+	await generate_sequentially(generate_candidate, count, on_image)
 }
 
 function write_image(output_path: string, bytes: Uint8Array): void {
@@ -366,7 +339,7 @@ async function run(
 	now: Date,
 ): Promise<ReadonlyArray<string>> {
 	const post_path = resolve_post_path(slug_or_path)
-	const post = parse_post_summary(resolve_slug(post_path), dependencies.read_post(post_path))
+	const post = parse_post_summary(post_path, dependencies.read_post(post_path))
 	const prompt = build_prompt(dependencies.read_prompt(), post)
 	const written: Array<string> = []
 	const on_image = save_candidate(dependencies, post.slug, format_run_stamp(now), written)
@@ -415,8 +388,6 @@ const blog_cover_image = {
 	read_config,
 	resolve_post_path,
 	resolve_slug,
-	split_frontmatter,
-	read_frontmatter_field,
 	parse_post_summary,
 	build_prompt,
 	parse_count,
@@ -424,6 +395,7 @@ const blog_cover_image = {
 	format_run_stamp,
 	resolve_output_path,
 	first_image,
+	generate_sequentially,
 	build_dependencies,
 	run,
 	main,

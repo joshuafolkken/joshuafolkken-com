@@ -1,6 +1,6 @@
 {
 	"name": "joshuafolkken-com",
-	"version": "0.345.0",
+	"version": "0.346.0",
 	"type": "module",
 	"private": true,
 	"scripts": {
@@ -108,7 +108,8 @@
 		"vite-plugin-devtools-json": "^1.1.0",
 		"vitest": "^4.1.11",
 		"vitest-browser-svelte": "^3.0.0",
-		"wrangler": "4.127.1"
+		"wrangler": "4.127.1",
+		"yaml": "^2.9.0"
 	},
 	"packageManager": "pnpm@11.25.0+sha512.5cde925b4f075f725eb71fbae18a42ffe784524789f19b61c731cb8721ec28aaee160e01a8d5af4fedb2a42cdbf300efe23db356b0d4a17b4d63e11f8ab7c956",
 	"engines": {
